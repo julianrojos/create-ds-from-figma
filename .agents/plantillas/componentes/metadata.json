@@ -1,0 +1,17 @@
+{
+  "name": "<Nombre>",
+  "description": "<Una frase.>",
+  "figma": {
+    "fileKey": "<FILE_KEY>",
+    "nodeId": "<NODE_ID>",
+    "url": "https://www.figma.com/design/<FILE_KEY>?node-id=<NODE_ID_GUION>",
+    "componentSet": "<Nombre>"
+  },
+  "code": {
+    "path": "src/components/<Nombre>/<Nombre>.tsx",
+    "component": "<Nombre>"
+  },
+  "variants": {},
+  "states": ["default"],
+  "tokens": []
+}
