@@ -1,1 +1,46 @@
-{}
+{
+  "_schema": {
+    "key": "<FILE_KEY>:<COMPONENT_OR_SET_NODE_ID>",
+    "entry": {
+      "name": "<Nombre>",
+      "figma": {
+        "refs": [
+          "<FILE_KEY>:<COMPONENT_OR_SET_NODE_ID>",
+          "componentKey:<COMPONENT_KEY>"
+        ],
+        "fileKey": "<FILE_KEY>",
+        "nodeId": "<COMPONENT_OR_SET_NODE_ID>",
+        "componentSet": "<Nombre en Figma>",
+        "variants": {
+          "<Prop=Valor>": {
+            "refs": [
+              "<FILE_KEY>:<VARIANT_NODE_ID>",
+              "componentKey:<VARIANT_COMPONENT_KEY>"
+            ],
+            "props": {
+              "<Prop>": "<Valor>"
+            }
+          }
+        }
+      },
+      "designSystem": {
+        "metadata": "design-system/components/<Nombre>/metadata.json",
+        "usage": "design-system/components/<Nombre>/usage.md"
+      },
+      "code": {
+        "component": "<Nombre>",
+        "path": "src/components/<Nombre>/<Nombre>.tsx",
+        "style": "src/components/<Nombre>/<Nombre>.module.css"
+      }
+    },
+    "notes": [
+      "Each entry is a top-level key next to _schema. Ignore keys that start with _ when reading.",
+      "Use <FILE_KEY>:<COMPONENT_OR_SET_NODE_ID> as the default entry key. For remotes without a reliable file/node id, use componentKey:<COMPONENT_KEY>.",
+      "The entry key is an identifier; include that same ref in figma.refs.",
+      "Use <FILE_KEY>:<NODE_ID> for local nodes and componentKey:<KEY> whenever the tool returns a component key.",
+      "Resolve components by matching a stable ref against figma.refs or any figma.variants[*].refs. A variant ref match identifies the matched variant and its props. Do not use the placed instance id as a stable mapping.",
+      "A ref can belong to only one entry, and all refs from the same Figma node/instance must resolve to the same entry. If not, report a conflict.",
+      "When updating a component, merge newly discovered refs into existing refs arrays instead of replacing them."
+    ]
+  }
+}

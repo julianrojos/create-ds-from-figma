@@ -1,4 +1,32 @@
 {
+  "_schema": {
+    "components": {
+      "<ComponentName>": {
+        "figmaNodeId": "<NODE_ID>",
+        "nestedComponents": [
+          {
+            "figmaNodeId": "<CHILD_NODE_ID>",
+            "mainComponentRef": "<FILE_KEY>:<MAIN_COMPONENT_NODE_ID> | componentKey:<COMPONENT_KEY>",
+            "mainComponentNodeId": "<MAIN_COMPONENT_NODE_ID>",
+            "mainComponentKey": "<COMPONENT_KEY>",
+            "figmaName": "<Nombre en Figma>",
+            "status": "mapped | missing | external",
+            "resolvedComponent": "<NombreLocal>"
+          }
+        ]
+      }
+    },
+    "notes": [
+      "Ignore keys that start with _ when reading runtime state.",
+      "mainComponentRef is the stable lookup ref when available.",
+      "mainComponentNodeId is optional and only present when the Figma tool returns it.",
+      "mainComponentKey is optional and preferred for remote components when the Figma tool returns it.",
+      "resolvedComponent is present only when status is mapped.",
+      "missing: unmapped instance of a component local to the DS file (blocks with DS_GAP).",
+      "external: unmapped instance of a component from another library (does not block; kept inside the parent).",
+      "Vectors, shapes and images that are not instances are not nested components and are not recorded."
+    ]
+  },
   "runId": "",
   "fileKey": "",
   "fileUrl": "",

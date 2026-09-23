@@ -17,8 +17,8 @@ Las plantillas van **en blanco**. No incluyen colecciones, tokens, primitives ni
 
 - `AGENTS.md` → `Incluidos: —`
 - `composition-rules.md` → `## Incluidos` vacío
-- `figma-code-map.json` → `{}`
-- `figma-state.json` → colecciones, variables y components vacíos
+- `figma-code-map.json` → solo `_schema`, sin entradas
+- `figma-state.json` → `_schema` + colecciones, variables y components vacíos
 - **no** hay `design-system/tokens/` en el kit; esa carpeta nace en el primer volcado MCP
 
 No copies un DS ya relleno “para que se vea”. El alumno abre una carpeta vacía y el agente escribe tokens y el primer componente desde Figma.
@@ -138,7 +138,48 @@ Mismos nombres que en Figma. Alias: guarda `alias` + valor resuelto. FLOAT de sp
 
 `src/styles/tokens.css`: una custom property por variable de **todas** las colecciones (aliases → `var(--…)`, no hex duplicado si ya existe el primitvo).
 
-`figma-state.json`: rellena `collections` (id, name, modes, varCount) y las variables agrupadas por colección.
+`figma-state.json`: rellena `collections` (id, name, modes, varCount), las variables agrupadas por colección y, por cada componente implementado, su entrada en `components`.
+
+`figma-code-map.json`: una entrada por componente o component set, en el nivel raíz junto a `_schema` (que se ignora al leer). Por defecto, usa `<FILE_KEY>:<COMPONENT_OR_SET_NODE_ID>` como clave de entrada; para remotos sin file/node fiable, usa `componentKey:<COMPONENT_KEY>`. El ref de esa clave debe estar también en `figma.refs`. Guarda refs estables del componente/set en `figma.refs` y refs estables de cada variante en `figma.variants[*].refs`. Los refs tienen forma `<FILE_KEY>:<NODE_ID>` para nodos locales del file, o `componentKey:<COMPONENT_KEY>` cuando Figma devuelva una key. Un componente se resuelve con una sola regla: busca cualquiera de sus refs estables en `figma.refs` o en los `refs` de alguna variante. Si coincide con una variante, esa es la `matched variant` y sus `props` son los que usa el código. No uses el id único de la instancia colocada como mapeo estable.
+
+Al importar o actualizar un componente, añade a `figma.refs` y `figma.variants[*].refs` todos los refs que devuelva Figma para el set/componente y sus variantes: refs `<FILE_KEY>:<NODE_ID>` y `componentKey:<KEY>` cuando existan. Mezcla refs nuevos con los existentes; no borres refs previos. Un ref solo puede pertenecer a una entrada del mapa; si aparece en dos entradas, para y reporta el conflicto.
+
+## Componentes anidados
+
+Tras volcar o actualizar tokens, lee el contexto estructurado del componente y detecta instancias anidadas antes de escribir ficha o código.
+
+1. Recorre el árbol del nodo del componente y lista cada instancia (`INSTANCE`). `get_metadata` basta para saber que existen (`<instance>`). Para el `mainComponent` (su id, si es `remote` y su `componentKey` si existe), props y variants usa `get_design_context` o `use_figma`; si una herramienta no devuelve un ref estable, intenta la otra antes de clasificar. Vectores, formas e imágenes que no son instancias no son anidados: se quedan dentro del componente y no se registran.
+2. Ejecuta `find-component` sobre **cada** instancia. La clasificación la hace `find-component`, no este paso:
+   - `mapped`: ya está en `figma-code-map.json`, sea local o de otra librería;
+   - `missing`: instancia de un componente **local** (mismo file que el DS) sin mapeo;
+   - `external`: instancia de un componente de **otra librería** (`remote`) sin mapeo.
+3. Si hay cualquier `missing`, para con `DS_GAP` y di explícitamente: `Primero importa <Nombre>, luego vuelve a este componente.` No implementes componentes anidados de forma implícita.
+4. Un `external` **no bloquea**: se trata como parte del componente actual. Avísalo en el resumen final: `<Nombre> viene de otra librería y se ha tratado como parte de este componente; si es parte del DS, importa su URL y vuelve a este componente.`
+5. Si tras intentarlo con `get_design_context` y `use_figma` no puedes obtener un ref estable (`<FILE_KEY>:<MAIN_COMPONENT_NODE_ID>` o `componentKey:<COMPONENT_KEY>`), usa nombre y variants solo como pista de baja confianza, sin devolver `mapped` y sin escribir mapeos nuevos. Si tampoco puedes saber si el `mainComponent` es local o `remote`, no adivines: pregunta al usuario.
+6. Registra el resultado en `figma-state.json`, dentro de la entrada del componente:
+
+```json
+{
+  "components": {
+    "<Nombre>": {
+      "figmaNodeId": "<NODE_ID>",
+      "nestedComponents": [
+        {
+          "figmaNodeId": "<CHILD_NODE_ID>",
+          "mainComponentRef": "<FILE_KEY>:<MAIN_COMPONENT_NODE_ID> | componentKey:<COMPONENT_KEY>",
+          "mainComponentNodeId": "<MAIN_COMPONENT_NODE_ID>",
+          "mainComponentKey": "<COMPONENT_KEY>",
+          "figmaName": "<Nombre en Figma>",
+          "status": "mapped | missing | external",
+          "resolvedComponent": "<NombreLocal>"
+        }
+      ]
+    }
+  }
+}
+```
+
+`mainComponentRef` aparece cuando tengas un ref estable. `mainComponentNodeId` y `mainComponentKey` aparecen solo cuando la herramienta los devuelve. `resolvedComponent` solo aparece cuando `status` es `mapped`. No añadas anidados al inventario de `AGENTS.md` ni a `composition-rules.md` si no tienen carpeta real en `design-system/components/`.
 
 ## Inventario (obligatorio al incluir)
 
@@ -156,12 +197,13 @@ No escribas en esas listas un componente que no tenga carpeta en el DS.
 1. **Mirar Figma** — ¿es un primitive (component/component set)? Si es una pantalla: crea igual el árbol + **tokens de todo el file**, **no** implementes la pantalla ni inventes primitives internos. `DS_GAP` y para.
 2. **Árbol** — Vite React TS (CSS modules, sin Tailwind) + copia `plantillas/`.
 3. **Tokens** — volcado **file-level** (sección Tokens). Una JSON por colección + `src/styles/tokens.css`.
-4. **Ficha** — `metadata.json` + `usage.md` (plantilla `plantillas/componentes/`).
-5. **Código** — `src/components/<Nombre>/` con tokens.
-6. **Mapa** — entradas en `figma-code-map.json` y `figma-state.json`.
-7. **App** — `App.tsx` renderiza **solo** ese componente (para `npm run dev`).
-8. **Inventario** — `AGENTS.md` + `## Incluidos` (solo ese componente).
-9. **Checks** — `.ai/skills/validate-ds/SKILL.md` sobre ese componente.
+4. **Anidados** — lee contexto estructurado, detecta `nestedComponents`, resuelve cada instancia y para con `DS_GAP` si una instancia local no está mapeada (`missing`).
+5. **Ficha** — `metadata.json` + `usage.md` (plantilla `plantillas/componentes/`).
+6. **Código** — `src/components/<Nombre>/` con tokens y reutilizando anidados `mapped`.
+7. **Mapa** — entradas en `figma-code-map.json` con `refs` y en `figma-state.json` con `nestedComponents`.
+8. **App** — `App.tsx` renderiza **solo** ese componente (para `npm run dev`).
+9. **Inventario** — `AGENTS.md` + `## Incluidos` (solo ese componente).
+10. **Checks** — `.ai/skills/validate-ds/SKILL.md` sobre ese componente.
 
 Copia también esta skill a `.ai/skills/create-ds-from-figma/SKILL.md`.
 
@@ -170,10 +212,11 @@ Copia también esta skill a `.ai/skills/create-ds-from-figma/SKILL.md`.
 1. Mirar Figma (un primitive).
 2. `find-component` — si existe, para.
 3. Tokens: vuelve a leer **todas** las colecciones del file; merge en los JSON existentes; si aparece una colección nueva, crea su JSON; no borres variables.
-4. Ficha + código + mapa.
-5. No sustituyas `App.tsx` salvo que aún muestre el primer componente y pidan ver el nuevo; no borres componentes viejos.
-6. Inventario: añade este nombre; no quites los anteriores.
-7. Checks de **este** componente.
+4. Anidados: lee contexto estructurado, detecta `nestedComponents`, resuelve cada instancia y para con `DS_GAP` si una instancia local no está mapeada (`missing`).
+5. Ficha + código + mapa con `refs` y `nestedComponents`.
+6. No sustituyas `App.tsx` salvo que aún muestre el primer componente y pidan ver el nuevo; no borres componentes viejos.
+7. Inventario: añade este nombre; no quites los anteriores.
+8. Checks de **este** componente.
 
 ## Cuando pidan una pantalla
 
