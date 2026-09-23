@@ -1,0 +1,42 @@
+{
+  "name": "AccordionItem",
+  "description": "Accordion item with closed and open states for revealing supporting content under a title.",
+  "figma": {
+    "fileKey": "aRtHrPY6dKyJcBhRp1eoRA",
+    "nodeId": "7753:4634",
+    "url": "https://www.figma.com/design/aRtHrPY6dKyJcBhRp1eoRA/JURO---Simple-Design-System--Community---Copy-?node-id=7753-4634&t=RFLlrUNSKuNcHNhT-4",
+    "componentSet": "Accordion Item"
+  },
+  "code": {
+    "path": "src/components/AccordionItem/AccordionItem.tsx",
+    "component": "AccordionItem"
+  },
+  "variants": {
+    "state": ["closed", "open"]
+  },
+  "states": ["closed", "open"],
+  "tokens": [
+    "sds/color/background/default/default",
+    "sds/color/background/default/secondary",
+    "sds/color/border/default/default",
+    "sds/color/text/default/default",
+    "sds/size/padding/lg",
+    "sds/size/radius/200",
+    "sds/size/space/200",
+    "sds/size/stroke/border",
+    "sds/size/icon/md",
+    "sds/size/icon/chevron-width",
+    "sds/size/icon/chevron-height",
+    "sds/size/container/accordion-item",
+    "sds/size/focus/ring",
+    "sds/size/focus/offset",
+    "sds/typography/body/font-family",
+    "sds/typography/body/font-weight/regular",
+    "sds/typography/body/font-weight/strong",
+    "sds/typography/body/line-height",
+    "sds/typography/body/size/medium"
+  ],
+  "gaps": [
+    "DS_GAP: full file-level Figma variable export could not be executed because use_figma is not available in this session."
+  ]
+}

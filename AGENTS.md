@@ -18,3 +18,5 @@ Applies when instructions conflict (high → low):
 - NUNCA crear worktrees ni ramas auxiliares (`isolation: "worktree"` prohibido).
 - Trabajar siempre en la rama activa del repositorio principal.
 - El usuario es quien decide cuándo crear ramas y commits. No hacerlo de forma autónoma.
+
+Incluidos: AccordionItem

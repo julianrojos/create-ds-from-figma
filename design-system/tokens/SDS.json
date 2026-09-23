@@ -1,0 +1,154 @@
+{
+  "collection": "SDS",
+  "id": "DS_GAP:file-level-variable-collection-unavailable",
+  "modes": ["Default"],
+  "variables": {
+    "sds/color/background/default/default": {
+      "id": "DS_GAP:from-component-context",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Default": "#ffffff"
+      }
+    },
+    "sds/color/background/default/secondary": {
+      "id": "DS_GAP:from-component-context",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Default": "#f5f5f5"
+      }
+    },
+    "sds/color/border/default/default": {
+      "id": "DS_GAP:from-component-context",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Default": "#d9d9d9"
+      }
+    },
+    "sds/color/text/default/default": {
+      "id": "DS_GAP:from-component-context",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Default": "#1e1e1e"
+      }
+    },
+    "sds/size/padding/lg": {
+      "id": "DS_GAP:from-component-context",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 16
+      }
+    },
+    "sds/size/radius/200": {
+      "id": "DS_GAP:from-component-context",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 8
+      }
+    },
+    "sds/size/space/200": {
+      "id": "DS_GAP:from-component-context",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 8
+      }
+    },
+    "sds/size/stroke/border": {
+      "id": "DS_GAP:from-component-context",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 1
+      }
+    },
+    "sds/size/icon/md": {
+      "id": "DS_GAP:from-component-context",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 20
+      }
+    },
+    "sds/size/icon/chevron-width": {
+      "id": "DS_GAP:from-component-asset",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 12
+      }
+    },
+    "sds/size/icon/chevron-height": {
+      "id": "DS_GAP:from-component-asset",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 7
+      }
+    },
+    "sds/size/container/accordion-item": {
+      "id": "DS_GAP:from-component-set-width",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 640
+      }
+    },
+    "sds/size/demo/page-padding": {
+      "id": "DS_GAP:demo-only",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 32
+      }
+    },
+    "sds/size/demo/component-gap": {
+      "id": "DS_GAP:demo-only",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 30
+      }
+    },
+    "sds/size/focus/ring": {
+      "id": "DS_GAP:accessibility-system",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 2
+      }
+    },
+    "sds/size/focus/offset": {
+      "id": "DS_GAP:accessibility-system",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 4
+      }
+    },
+    "sds/typography/body/font-family": {
+      "id": "DS_GAP:from-component-context",
+      "type": "STRING",
+      "valuesByMode": {
+        "Default": "Inter, system-ui, sans-serif"
+      }
+    },
+    "sds/typography/body/font-weight/regular": {
+      "id": "DS_GAP:from-component-context",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 400
+      }
+    },
+    "sds/typography/body/font-weight/strong": {
+      "id": "DS_GAP:from-component-context",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 600
+      }
+    },
+    "sds/typography/body/line-height": {
+      "id": "DS_GAP:from-component-context",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 1.4
+      }
+    },
+    "sds/typography/body/size/medium": {
+      "id": "DS_GAP:from-component-context",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 16
+      }
+    }
+  }
+}

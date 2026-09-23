@@ -1,0 +1,23 @@
+{
+  "aRtHrPY6dKyJcBhRp1eoRA:7753:4634": {
+    "name": "AccordionItem",
+    "figma": {
+      "fileKey": "aRtHrPY6dKyJcBhRp1eoRA",
+      "nodeId": "7753:4634",
+      "componentSet": "Accordion Item",
+      "variants": {
+        "State=Closed": "7723:4485",
+        "State=Open": "7723:4487"
+      }
+    },
+    "designSystem": {
+      "metadata": "design-system/components/AccordionItem/metadata.json",
+      "usage": "design-system/components/AccordionItem/usage.md"
+    },
+    "code": {
+      "component": "AccordionItem",
+      "path": "src/components/AccordionItem/AccordionItem.tsx",
+      "style": "src/components/AccordionItem/AccordionItem.module.css"
+    }
+  }
+}

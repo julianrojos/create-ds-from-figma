@@ -1,0 +1,49 @@
+{
+  "runId": "2026-09-23-accordion-item",
+  "fileKey": "aRtHrPY6dKyJcBhRp1eoRA",
+  "fileUrl": "https://www.figma.com/design/aRtHrPY6dKyJcBhRp1eoRA/JURO---Simple-Design-System--Community---Copy-?node-id=7753-4634&t=RFLlrUNSKuNcHNhT-4",
+  "phase": "first-component",
+  "pages": {},
+  "collections": {
+    "DS_GAP:file-level-variable-collection-unavailable": {
+      "id": "DS_GAP:file-level-variable-collection-unavailable",
+      "name": "SDS",
+      "modes": ["Default"],
+      "varCount": 21,
+      "gap": "The use_figma tool required for figma.variables.getLocalVariableCollectionsAsync() is not available in this session."
+    }
+  },
+  "variables": {
+    "SDS": [
+      "sds/color/background/default/default",
+      "sds/color/background/default/secondary",
+      "sds/color/border/default/default",
+      "sds/color/text/default/default",
+      "sds/size/padding/lg",
+      "sds/size/radius/200",
+      "sds/size/space/200",
+      "sds/size/stroke/border",
+      "sds/size/icon/md",
+      "sds/size/icon/chevron-width",
+      "sds/size/icon/chevron-height",
+      "sds/size/container/accordion-item",
+      "sds/size/demo/page-padding",
+      "sds/size/demo/component-gap",
+      "sds/size/focus/ring",
+      "sds/size/focus/offset",
+      "sds/typography/body/font-family",
+      "sds/typography/body/font-weight/regular",
+      "sds/typography/body/font-weight/strong",
+      "sds/typography/body/line-height",
+      "sds/typography/body/size/medium"
+    ]
+  },
+  "components": {
+    "AccordionItem": {
+      "figmaNodeId": "7753:4634",
+      "figmaName": "Accordion Item",
+      "codePath": "src/components/AccordionItem/AccordionItem.tsx",
+      "states": ["closed", "open"]
+    }
+  }
+}

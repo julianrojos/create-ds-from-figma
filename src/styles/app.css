@@ -1,0 +1,19 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--sds-color-background-default-default);
+}
+
+.app-shell {
+  min-height: 100vh;
+  padding: var(--sds-size-demo-page-padding);
+}
+
+.component-demo {
+  display: grid;
+  gap: var(--sds-size-demo-component-gap);
+  max-width: var(--sds-size-container-accordion-item);
+}
