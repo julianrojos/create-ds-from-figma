@@ -49,19 +49,19 @@ Si dice **crea un DS** (o pega la URL en vacío): ejecuta el modo que toque, nar
 `plantillas/` es **hermana de este SKILL.md**. Búscala en este orden:
 
 1. `<carpeta-de-este-SKILL.md>/plantillas/`
-2. `~/.cursor/skills/create-ds-from-figma/plantillas/`
+2. `~/.agents/skills/create-ds-from-figma/plantillas/`
 
-Si no está: para y pide descomprimir el zip de la skill en `~/.cursor/skills/create-ds-from-figma/`.
+Si no está: para y pide descomprimir el zip de la skill en `~/.agents/skills/create-ds-from-figma/`.
 
 Copia **sin editar** desde ese `plantillas/`:
 
-| Origen | Destino |
-|---|---|
-| `ai/` | `.ai/` |
-| `AGENTS.md` | `AGENTS.md` |
-| `system/accessibility.md` | `design-system/system/accessibility.md` |
+| Origen                        | Destino                                     |
+| ----------------------------- | ------------------------------------------- |
+| `ai/`                         | `.ai/`                                      |
+| `AGENTS.md`                   | `AGENTS.md`                                 |
+| `system/accessibility.md`     | `design-system/system/accessibility.md`     |
 | `system/composition-rules.md` | `design-system/system/composition-rules.md` |
-| `relationships/*.json` | `design-system/relationships/` |
+| `relationships/*.json`        | `design-system/relationships/`              |
 
 No copies un repo de Design System **ya relleno** (código y fichas de componentes hechos).
 
