@@ -10,15 +10,15 @@ No trae tokens, componentes ni pantallas. Eso lo escribe el agente en el primer 
 2. Copia la carpeta `create-ds-from-figma` (entera: `SKILL.md` + `plantillas/`) a:
 
 ```text
-~/.cursor/skills/create-ds-from-figma/
+~/.agents/skills/create-ds-from-figma/
 ```
 
 Tiene que quedar así:
 
 ```text
-~/.cursor/skills/create-ds-from-figma/SKILL.md
-~/.cursor/skills/create-ds-from-figma/README.md
-~/.cursor/skills/create-ds-from-figma/plantillas/
+~/.agents/skills/create-ds-from-figma/SKILL.md
+~/.agents/skills/create-ds-from-figma/README.md
+~/.agents/skills/create-ds-from-figma/plantillas/
 ```
 
 3. Reinicia Cursor o recarga skills si hace falta.
@@ -41,9 +41,9 @@ Siguiente primitive: otra URL. Pantalla: cuando ya haya primitives.
 
 ## Qué incluye
 
-| Pieza | Para qué |
-|---|---|
-| `SKILL.md` | Instrucciones del agente |
+| Pieza         | Para qué                                                                        |
+| ------------- | ------------------------------------------------------------------------------- |
+| `SKILL.md`    | Instrucciones del agente                                                        |
 | `plantillas/` | Árbol fijo vacío (`.ai/`, `AGENTS.md`, system, relationships, fichas-plantilla) |
 
 No incluye un DS relleno, ni `tokens/*.json`, ni app de ejemplo.
