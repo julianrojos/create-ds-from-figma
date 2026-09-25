@@ -1,0 +1,202 @@
+{
+  "_schema": {
+    "key": "<FILE_KEY>:<COMPONENT_OR_SET_NODE_ID>",
+    "entry": {
+      "name": "<Nombre>",
+      "figma": {
+        "refs": [
+          "<FILE_KEY>:<COMPONENT_OR_SET_NODE_ID>",
+          "componentKey:<COMPONENT_KEY>"
+        ],
+        "fileKey": "<FILE_KEY>",
+        "nodeId": "<COMPONENT_OR_SET_NODE_ID>",
+        "componentSet": "<Nombre en Figma>",
+        "variants": {
+          "<Prop=Valor>": {
+            "refs": [
+              "<FILE_KEY>:<VARIANT_NODE_ID>",
+              "componentKey:<VARIANT_COMPONENT_KEY>"
+            ],
+            "props": {
+              "<Prop>": "<Valor>"
+            }
+          }
+        }
+      },
+      "designSystem": {
+        "metadata": "design-system/components/<Nombre>/metadata.json",
+        "usage": "design-system/components/<Nombre>/usage.md"
+      },
+      "code": {
+        "component": "<Nombre>",
+        "path": "src/components/<Nombre>/<Nombre>.tsx",
+        "style": "src/components/<Nombre>/<Nombre>.module.css"
+      }
+    },
+    "notes": [
+      "Each entry is a top-level key next to _schema. Ignore keys that start with _ when reading.",
+      "Create entries only for successfully imported components with available code; a blocked diagnosis is never a mapping.",
+      "Use <FILE_KEY>:<COMPONENT_OR_SET_NODE_ID> as the default entry key. For remotes without a reliable file/node id, use componentKey:<COMPONENT_KEY>.",
+      "The entry key is an identifier; include that same ref in figma.refs.",
+      "Use <FILE_KEY>:<NODE_ID> with the file key of the file where the node lives (the DS file for local nodes; the library's file key for a remote component when the tool returns it) and componentKey:<KEY> whenever the tool returns a component key.",
+      "Resolve components by matching a stable ref against figma.refs or any figma.variants[*].refs. A variant ref match identifies the matched variant and its props. Do not use the placed instance id as a stable mapping.",
+      "A ref can belong to only one entry, and all refs from the same Figma node/instance must resolve to the same entry. If not, report a conflict.",
+      "When updating a component, merge newly discovered refs into existing refs arrays instead of replacing them."
+    ]
+  },
+  "aRtHrPY6dKyJcBhRp1eoRA:9762:1103": {
+    "name": "Avatar",
+    "figma": {
+      "refs": [
+        "aRtHrPY6dKyJcBhRp1eoRA:9762:1103",
+        "componentKey:b4150c053f8b070c07ab53c568c7606058667b07"
+      ],
+      "fileKey": "aRtHrPY6dKyJcBhRp1eoRA",
+      "nodeId": "9762:1103",
+      "componentSet": "Avatar",
+      "variants": {
+        "Type=Initial, Size=Large, Shape=Square": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:9762:1119",
+            "componentKey:1aa99601242a5628d6ea1a80209a6a3bd6ad2bad"
+          ],
+          "props": {
+            "Type": "Initial",
+            "Size": "Large",
+            "Shape": "Square"
+          }
+        },
+        "Type=Initial, Size=Medium, Shape=Square": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:9762:1122",
+            "componentKey:de93c248166e81d65c2285d85666a2a6ed5eeaa9"
+          ],
+          "props": {
+            "Type": "Initial",
+            "Size": "Medium",
+            "Shape": "Square"
+          }
+        },
+        "Type=Initial, Size=Small, Shape=Square": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:9762:1125",
+            "componentKey:70905b7c6f47356ceeedbc9c90bd8f032ee04b41"
+          ],
+          "props": {
+            "Type": "Initial",
+            "Size": "Small",
+            "Shape": "Square"
+          }
+        },
+        "Type=Image, Size=Large, Shape=Square": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:9762:1128",
+            "componentKey:6cad4040e608c20e4c35170d41b862143415ab25"
+          ],
+          "props": {
+            "Type": "Image",
+            "Size": "Large",
+            "Shape": "Square"
+          }
+        },
+        "Type=Image, Size=Medium, Shape=Square": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:9762:1130",
+            "componentKey:0b66747eeded1984413cb75852aa9dc60a8ad963"
+          ],
+          "props": {
+            "Type": "Image",
+            "Size": "Medium",
+            "Shape": "Square"
+          }
+        },
+        "Type=Image, Size=Small, Shape=Square": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:9762:1132",
+            "componentKey:aad14df8fef2d1834fcf9ab6010398bb1cfb3398"
+          ],
+          "props": {
+            "Type": "Image",
+            "Size": "Small",
+            "Shape": "Square"
+          }
+        },
+        "Type=Initial, Size=Large, Shape=Circle": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:9762:1104",
+            "componentKey:3d9101882625e00e0ded3e5845495d036ac78c4e"
+          ],
+          "props": {
+            "Type": "Initial",
+            "Size": "Large",
+            "Shape": "Circle"
+          }
+        },
+        "Type=Initial, Size=Medium, Shape=Circle": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:9762:1107",
+            "componentKey:761385857561c21e88799601e8cb3da2d7f3c8b5"
+          ],
+          "props": {
+            "Type": "Initial",
+            "Size": "Medium",
+            "Shape": "Circle"
+          }
+        },
+        "Type=Initial, Size=Small, Shape=Circle": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:9762:1110",
+            "componentKey:8d774e176922ef36500bf55c00ea15197f6fb9fb"
+          ],
+          "props": {
+            "Type": "Initial",
+            "Size": "Small",
+            "Shape": "Circle"
+          }
+        },
+        "Type=Image, Size=Large, Shape=Circle": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:9762:1113",
+            "componentKey:8dbf87de9d6453e311515935dfa38e7dbc6392d3"
+          ],
+          "props": {
+            "Type": "Image",
+            "Size": "Large",
+            "Shape": "Circle"
+          }
+        },
+        "Type=Image, Size=Medium, Shape=Circle": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:9762:1115",
+            "componentKey:0c1615006f4e5c3cd65d754c308b2cd24c6f5479"
+          ],
+          "props": {
+            "Type": "Image",
+            "Size": "Medium",
+            "Shape": "Circle"
+          }
+        },
+        "Type=Image, Size=Small, Shape=Circle": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:9762:1117",
+            "componentKey:e3401f9464f801a8cfa04ba81345e2e3987f1f21"
+          ],
+          "props": {
+            "Type": "Image",
+            "Size": "Small",
+            "Shape": "Circle"
+          }
+        }
+      }
+    },
+    "designSystem": {
+      "metadata": "design-system/components/Avatar/metadata.json",
+      "usage": "design-system/components/Avatar/usage.md"
+    },
+    "code": {
+      "component": "Avatar",
+      "path": "src/components/Avatar/Avatar.tsx",
+      "style": "src/components/Avatar/Avatar.module.css"
+    }
+  }
+}

@@ -1,0 +1,709 @@
+{
+  "collection": "Color Primitives",
+  "id": "VariableCollectionId:3919:36421",
+  "modes": [
+    "Value"
+  ],
+  "variables": {
+    "Slate/100": {
+      "id": "VariableID:3919:36534",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#F3F3F3"
+      }
+    },
+    "Slate/200": {
+      "id": "VariableID:3919:36535",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#E3E3E3"
+      }
+    },
+    "Slate/300": {
+      "id": "VariableID:3919:36536",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#CDCDCD"
+      }
+    },
+    "Slate/400": {
+      "id": "VariableID:3919:36537",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#B2B2B2"
+      }
+    },
+    "Slate/500": {
+      "id": "VariableID:3919:36538",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#949494"
+      }
+    },
+    "Slate/600": {
+      "id": "VariableID:3919:36539",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#767676"
+      }
+    },
+    "Slate/700": {
+      "id": "VariableID:3919:36540",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#5A5A5A"
+      }
+    },
+    "Slate/800": {
+      "id": "VariableID:3919:36541",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#434343"
+      }
+    },
+    "Slate/900": {
+      "id": "VariableID:3919:36542",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#303030"
+      }
+    },
+    "Slate/1000": {
+      "id": "VariableID:3919:36543",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#242424"
+      }
+    },
+    "White/100": {
+      "id": "VariableID:3919:36544",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#FFFFFF0D"
+      }
+    },
+    "White/200": {
+      "id": "VariableID:3919:36545",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#FFFFFF1A"
+      }
+    },
+    "White/300": {
+      "id": "VariableID:3919:36546",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#FFFFFF33"
+      }
+    },
+    "White/400": {
+      "id": "VariableID:3919:36547",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#FFFFFF66"
+      }
+    },
+    "White/500": {
+      "id": "VariableID:3919:36548",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#FFFFFFB2"
+      }
+    },
+    "White/600": {
+      "id": "VariableID:3919:36549",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#FFFFFFCC"
+      }
+    },
+    "White/700": {
+      "id": "VariableID:3919:36550",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#FFFFFFD9"
+      }
+    },
+    "White/800": {
+      "id": "VariableID:3919:36551",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#FFFFFFE5"
+      }
+    },
+    "White/900": {
+      "id": "VariableID:3919:36552",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#FFFFFFF2"
+      }
+    },
+    "White/1000": {
+      "id": "VariableID:3919:36553",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#FFFFFF"
+      }
+    },
+    "Brand/100": {
+      "id": "VariableID:3919:36614",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#F5F5F5"
+      }
+    },
+    "Brand/200": {
+      "id": "VariableID:3919:36615",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#E6E6E6"
+      }
+    },
+    "Brand/300": {
+      "id": "VariableID:3919:36616",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#D9D9D9"
+      }
+    },
+    "Brand/400": {
+      "id": "VariableID:3919:36617",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#B3B3B3"
+      }
+    },
+    "Brand/500": {
+      "id": "VariableID:3919:36618",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#757575"
+      }
+    },
+    "Brand/600": {
+      "id": "VariableID:3919:36619",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#444444"
+      }
+    },
+    "Brand/700": {
+      "id": "VariableID:3919:36620",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#383838"
+      }
+    },
+    "Brand/800": {
+      "id": "VariableID:3919:36621",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#2C2C2C"
+      }
+    },
+    "Brand/900": {
+      "id": "VariableID:3919:36622",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#1E1E1E"
+      }
+    },
+    "Brand/1000": {
+      "id": "VariableID:3919:36623",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#111111"
+      }
+    },
+    "Red/100": {
+      "id": "VariableID:3919:36624",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#FEE9E7"
+      }
+    },
+    "Red/200": {
+      "id": "VariableID:3919:36625",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#FDD3D0"
+      }
+    },
+    "Red/300": {
+      "id": "VariableID:3919:36626",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#FCB3AD"
+      }
+    },
+    "Red/400": {
+      "id": "VariableID:3919:36627",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#F4776A"
+      }
+    },
+    "Red/500": {
+      "id": "VariableID:3919:36628",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#EC221F"
+      }
+    },
+    "Red/600": {
+      "id": "VariableID:3919:36629",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#C00F0C"
+      }
+    },
+    "Red/700": {
+      "id": "VariableID:3919:36630",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#900B09"
+      }
+    },
+    "Red/800": {
+      "id": "VariableID:3919:36631",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#690807"
+      }
+    },
+    "Red/900": {
+      "id": "VariableID:3919:36632",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#4D0B0A"
+      }
+    },
+    "Red/1000": {
+      "id": "VariableID:3919:36633",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#300603"
+      }
+    },
+    "Yellow/100": {
+      "id": "VariableID:3919:36644",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#FFFBEB"
+      }
+    },
+    "Yellow/200": {
+      "id": "VariableID:3919:36645",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#FFF1C2"
+      }
+    },
+    "Yellow/300": {
+      "id": "VariableID:3919:36646",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#FFE8A3"
+      }
+    },
+    "Yellow/400": {
+      "id": "VariableID:3919:36647",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#E8B931"
+      }
+    },
+    "Yellow/500": {
+      "id": "VariableID:3919:36648",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#E5A000"
+      }
+    },
+    "Yellow/600": {
+      "id": "VariableID:3919:36649",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#BF6A02"
+      }
+    },
+    "Yellow/700": {
+      "id": "VariableID:3919:36650",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#975102"
+      }
+    },
+    "Yellow/800": {
+      "id": "VariableID:3919:36651",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#682D03"
+      }
+    },
+    "Yellow/900": {
+      "id": "VariableID:3919:36652",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#522504"
+      }
+    },
+    "Yellow/1000": {
+      "id": "VariableID:3919:36653",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#401B01"
+      }
+    },
+    "Green/100": {
+      "id": "VariableID:3919:36654",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#EBFFEE"
+      }
+    },
+    "Green/200": {
+      "id": "VariableID:3919:36655",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#CFF7D3"
+      }
+    },
+    "Green/300": {
+      "id": "VariableID:3919:36656",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#AFF4C6"
+      }
+    },
+    "Green/400": {
+      "id": "VariableID:3919:36657",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#85E0A3"
+      }
+    },
+    "Green/500": {
+      "id": "VariableID:3919:36658",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#14AE5C"
+      }
+    },
+    "Green/600": {
+      "id": "VariableID:3919:36659",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#009951"
+      }
+    },
+    "Green/700": {
+      "id": "VariableID:3919:36660",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#008043"
+      }
+    },
+    "Green/800": {
+      "id": "VariableID:3919:36661",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#02542D"
+      }
+    },
+    "Green/900": {
+      "id": "VariableID:3919:36662",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#024023"
+      }
+    },
+    "Green/1000": {
+      "id": "VariableID:3919:36663",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#062D1B"
+      }
+    },
+    "Black/100": {
+      "id": "VariableID:9:11234",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#0C0C0D0D"
+      }
+    },
+    "Black/200": {
+      "id": "VariableID:9:11235",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#0C0C0D1A"
+      }
+    },
+    "Black/300": {
+      "id": "VariableID:9:11236",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#0C0C0D33"
+      }
+    },
+    "Black/400": {
+      "id": "VariableID:9:11237",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#0C0C0D66"
+      }
+    },
+    "Black/500": {
+      "id": "VariableID:9:11238",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#0C0C0DB2"
+      }
+    },
+    "Black/600": {
+      "id": "VariableID:9:11239",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#0C0C0DCC"
+      }
+    },
+    "Black/700": {
+      "id": "VariableID:9:11240",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#0C0C0DD9"
+      }
+    },
+    "Black/800": {
+      "id": "VariableID:9:11241",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#0C0C0DE5"
+      }
+    },
+    "Black/900": {
+      "id": "VariableID:9:11242",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#0C0C0DF2"
+      }
+    },
+    "Black/1000": {
+      "id": "VariableID:9:11243",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#0C0C0D"
+      }
+    },
+    "Pink/100": {
+      "id": "VariableID:280:16481",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#FCF1FD"
+      }
+    },
+    "Pink/200": {
+      "id": "VariableID:280:16482",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#FAE1FA"
+      }
+    },
+    "Pink/300": {
+      "id": "VariableID:280:16483",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#F5C0EF"
+      }
+    },
+    "Pink/400": {
+      "id": "VariableID:280:16486",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#F19EDC"
+      }
+    },
+    "Pink/500": {
+      "id": "VariableID:280:16490",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#EA3FB8"
+      }
+    },
+    "Pink/600": {
+      "id": "VariableID:280:16491",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#D732A8"
+      }
+    },
+    "Pink/700": {
+      "id": "VariableID:280:16493",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#BA2A92"
+      }
+    },
+    "Pink/800": {
+      "id": "VariableID:280:16494",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#8A226F"
+      }
+    },
+    "Pink/900": {
+      "id": "VariableID:280:16497",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#57184A"
+      }
+    },
+    "Pink/1000": {
+      "id": "VariableID:280:16498",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#3F1536"
+      }
+    },
+    "Gray/100": {
+      "id": "VariableID:611:26724",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#F5F5F5"
+      }
+    },
+    "Gray/200": {
+      "id": "VariableID:611:26725",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#E6E6E6"
+      }
+    },
+    "Gray/300": {
+      "id": "VariableID:611:26726",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#D9D9D9"
+      }
+    },
+    "Gray/400": {
+      "id": "VariableID:611:26727",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#B3B3B3"
+      }
+    },
+    "Gray/500": {
+      "id": "VariableID:611:26728",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#757575"
+      }
+    },
+    "Gray/600": {
+      "id": "VariableID:611:26729",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#444444"
+      }
+    },
+    "Gray/700": {
+      "id": "VariableID:611:26730",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#383838"
+      }
+    },
+    "Gray/800": {
+      "id": "VariableID:611:26731",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#2C2C2C"
+      }
+    },
+    "Gray/900": {
+      "id": "VariableID:611:26732",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#1E1E1E"
+      }
+    },
+    "Gray/1000": {
+      "id": "VariableID:611:26733",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#111111"
+      }
+    },
+    "Blue/100": {
+      "id": "VariableID:4317:10391",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#F1F6FD"
+      }
+    },
+    "Blue/200": {
+      "id": "VariableID:4317:10392",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#E1EBFA"
+      }
+    },
+    "Blue/300": {
+      "id": "VariableID:4317:10393",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#C0D4F5"
+      }
+    },
+    "Blue/400": {
+      "id": "VariableID:4317:10394",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#9EBEF1"
+      }
+    },
+    "Blue/500": {
+      "id": "VariableID:4317:10395",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#3F81EA"
+      }
+    },
+    "Blue/600": {
+      "id": "VariableID:4317:10396",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#3271D7"
+      }
+    },
+    "Blue/700": {
+      "id": "VariableID:4317:10397",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#2A61BA"
+      }
+    },
+    "Blue/800": {
+      "id": "VariableID:4317:10398",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#224A8A"
+      }
+    },
+    "Blue/900": {
+      "id": "VariableID:4317:10399",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#183057"
+      }
+    },
+    "Blue/1000": {
+      "id": "VariableID:4317:10400",
+      "type": "COLOR",
+      "valuesByMode": {
+        "Value": "#15253F"
+      }
+    }
+  }
+}

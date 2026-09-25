@@ -1,0 +1,54 @@
+{
+  "name": "Avatar",
+  "description": "Identidad visual circular o cuadrada con imagen o una inicial.",
+  "figma": {
+    "fileKey": "aRtHrPY6dKyJcBhRp1eoRA",
+    "nodeId": "9762:1103",
+    "url": "https://www.figma.com/design/aRtHrPY6dKyJcBhRp1eoRA/JURO---Simple-Design-System--Community---Copy-?node-id=9762-1103",
+    "componentSet": "Avatar"
+  },
+  "code": {
+    "path": "src/components/Avatar/Avatar.tsx",
+    "component": "Avatar"
+  },
+  "variants": {
+    "Type": [
+      "Initial",
+      "Image"
+    ],
+    "Size": [
+      "Large",
+      "Small",
+      "Medium"
+    ],
+    "Shape": [
+      "Circle",
+      "Square"
+    ]
+  },
+  "properties": {
+    "initials": {
+      "type": "TEXT",
+      "defaultValue": "F"
+    }
+  },
+  "states": [],
+  "tokens": [
+    "Background/Brand/Default",
+    "Body/Font Family",
+    "Body/Font Weight Regular",
+    "Body/Size Medium",
+    "Body/Size Small",
+    "Border/Neutral/Default",
+    "Icon/Large",
+    "Icon/Medium",
+    "Icon/Small",
+    "Radius/100",
+    "Radius/200",
+    "Radius/Full",
+    "Subheading/Font Family",
+    "Subheading/Font Weight",
+    "Subheading/Size Medium",
+    "Text/Brand/On Brand"
+  ]
+}

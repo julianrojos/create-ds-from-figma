@@ -1,0 +1,296 @@
+{
+  "collection": "Size",
+  "id": "VariableCollectionId:9:11257",
+  "modes": [
+    "Default"
+  ],
+  "variables": {
+    "Space/100": {
+      "id": "VariableID:9:11258",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 4
+      }
+    },
+    "Space/200": {
+      "id": "VariableID:9:11259",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 8
+      }
+    },
+    "Space/300": {
+      "id": "VariableID:9:11260",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 12
+      }
+    },
+    "Space/400": {
+      "id": "VariableID:9:11261",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 16
+      }
+    },
+    "Space/600": {
+      "id": "VariableID:9:11262",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 24
+      }
+    },
+    "Space/Negative 100": {
+      "id": "VariableID:9:11263",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": -4
+      }
+    },
+    "Space/Negative 200": {
+      "id": "VariableID:9:11264",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": -8
+      }
+    },
+    "Space/Negative 300": {
+      "id": "VariableID:9:11265",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": -12
+      }
+    },
+    "Space/Negative 400": {
+      "id": "VariableID:9:11266",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": -16
+      }
+    },
+    "Space/Negative 600": {
+      "id": "VariableID:9:11267",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": -24
+      }
+    },
+    "Radius/100": {
+      "id": "VariableID:9:11274",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 4
+      }
+    },
+    "Radius/200": {
+      "id": "VariableID:9:11275",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 8
+      }
+    },
+    "Radius/400": {
+      "id": "VariableID:9:11277",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 16
+      }
+    },
+    "Depth/0": {
+      "id": "VariableID:9:11280",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 0
+      }
+    },
+    "Depth/025": {
+      "id": "VariableID:9:11281",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 1
+      }
+    },
+    "Depth/100": {
+      "id": "VariableID:9:11282",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 4
+      }
+    },
+    "Depth/200": {
+      "id": "VariableID:9:11283",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 8
+      }
+    },
+    "Depth/400": {
+      "id": "VariableID:9:11284",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 16
+      }
+    },
+    "Depth/800": {
+      "id": "VariableID:9:11285",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 32
+      }
+    },
+    "Depth/1200": {
+      "id": "VariableID:9:11286",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 48
+      }
+    },
+    "Depth/Negative 025": {
+      "id": "VariableID:9:11287",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": -1
+      }
+    },
+    "Depth/Negative 100": {
+      "id": "VariableID:9:11288",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": -4
+      }
+    },
+    "Depth/Negative 200": {
+      "id": "VariableID:9:11289",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": -8
+      }
+    },
+    "Depth/Negative 400": {
+      "id": "VariableID:9:11290",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": -16
+      }
+    },
+    "Depth/Negative 800": {
+      "id": "VariableID:9:11291",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": -32
+      }
+    },
+    "Depth/Negative 1200": {
+      "id": "VariableID:9:11292",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": -48
+      }
+    },
+    "Radius/Full": {
+      "id": "VariableID:56:9308",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 9999
+      }
+    },
+    "Space/1600": {
+      "id": "VariableID:107:11150",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 64
+      }
+    },
+    "Stroke/Border": {
+      "id": "VariableID:197:17450",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 1
+      }
+    },
+    "Stroke/Focus Ring": {
+      "id": "VariableID:197:17451",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 2
+      }
+    },
+    "Blur/100": {
+      "id": "VariableID:228:6769",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 4
+      }
+    },
+    "Space/4000": {
+      "id": "VariableID:346:10896",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 160
+      }
+    },
+    "Space/800": {
+      "id": "VariableID:346:10902",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 32
+      }
+    },
+    "Space/1200": {
+      "id": "VariableID:346:10903",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 48
+      }
+    },
+    "Space/2400": {
+      "id": "VariableID:346:10904",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 96
+      }
+    },
+    "Space/0": {
+      "id": "VariableID:364:11151",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 0
+      }
+    },
+    "Space/050": {
+      "id": "VariableID:364:11161",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 2
+      }
+    },
+    "Space/150": {
+      "id": "VariableID:364:11163",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 6
+      }
+    },
+    "Icon/Small": {
+      "id": "VariableID:409:8191",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 24
+      }
+    },
+    "Icon/Medium": {
+      "id": "VariableID:409:8192",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 32
+      }
+    },
+    "Icon/Large": {
+      "id": "VariableID:409:8193",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Default": 40
+      }
+    }
+  }
+}

@@ -24,3 +24,13 @@ Applies when instructions conflict (high → low):
 
 - Mantener sincronizados `.agents/skills/create-ds-from-figma/SKILL.md` y `.agents/skills/create-ds-from-figma/plantillas/ai/skills/create-ds-from-figma/SKILL.md`.
 - Si se cambia el formato de relaciones Figma, actualizar juntas las plantillas `figma-state.json`, `figma-code-map.json`, `find-component`, `map-figma-to-code` y los checks relacionados.
+
+## Sistema de diseno generado
+
+- Antes de crear una pieza desde Figma, consulta `design-system/components/` y `design-system/relationships/figma-code-map.json`.
+- Reutiliza los componentes de `src/components/` y las variables de `src/styles/tokens.css`.
+- Sigue `design-system/system/composition-rules.md` y `design-system/system/accessibility.md`.
+- Ejecuta los checks de `.ai/checks/` al implementar una pieza.
+- Para importar otro componente, sigue `.ai/skills/create-ds-from-figma/SKILL.md`.
+
+Incluidos: Avatar

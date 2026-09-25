@@ -1,0 +1,75 @@
+.avatar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+.avatar[data-size='Large'] {
+  width: var(--sds-size-icon-large);
+  height: var(--sds-size-icon-large);
+}
+
+.avatar[data-size='Medium'] {
+  width: var(--sds-size-icon-medium);
+  height: var(--sds-size-icon-medium);
+}
+
+.avatar[data-size='Small'] {
+  width: var(--sds-size-icon-small);
+  height: var(--sds-size-icon-small);
+}
+
+.avatar[data-shape='Circle'] {
+  border-radius: var(--sds-size-radius-full);
+}
+
+.avatar[data-shape='Square'] {
+  border-radius: var(--sds-size-radius-200);
+}
+
+.avatar[data-shape='Square'][data-size='Small'] {
+  border-radius: var(--sds-size-radius-100);
+}
+
+.avatar[data-type='Initial'] {
+  background: var(--sds-color-background-brand-default);
+  color: var(--sds-color-text-brand-on-brand);
+}
+
+.initial {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-align: center;
+  white-space: nowrap;
+  font-family: var(--sds-typography-body-font-family), sans-serif;
+  font-weight: var(--sds-typography-body-font-weight-regular);
+}
+
+.avatar[data-size='Large'] .initial {
+  font-family: var(--sds-typography-subheading-font-family), sans-serif;
+  font-size: var(--sds-typography-subheading-size-medium);
+  font-weight: var(--sds-typography-subheading-font-weight);
+  line-height: 1.2;
+}
+
+.avatar[data-size='Medium'] .initial {
+  font-size: var(--sds-typography-body-size-medium);
+  line-height: 1.4;
+}
+
+.avatar[data-size='Small'] .initial {
+  font-size: var(--sds-typography-body-size-small);
+  line-height: 1.4;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

@@ -1,0 +1,56 @@
+{
+  "collection": "Responsive",
+  "id": "VariableCollectionId:9:11202",
+  "modes": [
+    "Desktop",
+    "Mobile",
+    "Tablet"
+  ],
+  "variables": {
+    "Device Width": {
+      "id": "VariableID:9:11219",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Desktop": 1200,
+        "Mobile": 375,
+        "Tablet": 768
+      }
+    },
+    "Root Font Size": {
+      "id": "VariableID:9:11224",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Desktop": {
+          "alias": "Scale 03",
+          "value": 16
+        },
+        "Mobile": {
+          "alias": "Scale 03",
+          "value": 16
+        },
+        "Tablet": {
+          "alias": "Scale 03",
+          "value": 16
+        }
+      }
+    },
+    "Scale": {
+      "id": "VariableID:231:21547",
+      "type": "FLOAT",
+      "valuesByMode": {
+        "Desktop": 1,
+        "Mobile": 1.25,
+        "Tablet": 1
+      }
+    },
+    "Device": {
+      "id": "VariableID:234:21585",
+      "type": "STRING",
+      "valuesByMode": {
+        "Desktop": "desktop",
+        "Mobile": "mobile",
+        "Tablet": "tablet"
+      }
+    }
+  }
+}
