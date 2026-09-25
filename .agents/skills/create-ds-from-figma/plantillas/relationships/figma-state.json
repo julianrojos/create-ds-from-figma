@@ -8,9 +8,10 @@
             "figmaNodeId": "<CHILD_NODE_ID>",
             "mainComponentRef": "<FILE_KEY>:<MAIN_COMPONENT_NODE_ID> | componentKey:<COMPONENT_KEY>",
             "mainComponentNodeId": "<MAIN_COMPONENT_NODE_ID>",
+            "mainComponentFileKey": "<MAIN_COMPONENT_FILE_KEY>",
             "mainComponentKey": "<COMPONENT_KEY>",
             "figmaName": "<Nombre en Figma>",
-            "status": "mapped | missing | external",
+            "status": "mapped | external",
             "resolvedComponent": "<NombreLocal>"
           }
         ]
@@ -18,9 +19,14 @@
     },
     "notes": [
       "Ignore keys that start with _ when reading runtime state.",
+      "components contains only successfully imported components with available code; never store blocked components or pendingImports.",
+      "missing is a pre-analysis diagnosis that stops before writing and is never persisted in nestedComponents.",
+      "On a repeat URL, re-read Figma. Without an explicit update request, change an imported parent's nestedComponents and code only for a verified external-to-mapped transition that can be isolated safely. An explicit request may authorize a general update or a replacement limited to one dependency whose identity cannot be verified (see create-ds-from-figma/SKILL.md).",
+      "Legacy phase and pages fields are not evidence that a component was imported; do not use them to record blocked attempts.",
       "mainComponentRef is the stable lookup ref when available.",
       "mainComponentNodeId is optional and only present when the Figma tool returns it.",
       "mainComponentKey is optional and preferred for remote components when the Figma tool returns it.",
+      "mainComponentFileKey is the file key of the main component's own file. Store it when the tool returns it for a remote (external) main component: its mainComponentNodeId alone is not a verifiable identity without knowing which file it belongs to. A local main component's file is the DS's own top-level fileKey, so this field is not needed there.",
       "resolvedComponent is present only when status is mapped.",
       "missing: unmapped instance of a component local to the DS file (blocks with DS_GAP).",
       "external: unmapped instance of a component from another library (does not block; kept inside the parent).",
@@ -30,8 +36,6 @@
   "runId": "",
   "fileKey": "",
   "fileUrl": "",
-  "phase": "",
-  "pages": {},
   "collections": {},
   "variables": {},
   "components": {}

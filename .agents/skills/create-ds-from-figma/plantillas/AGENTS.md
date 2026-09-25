@@ -14,7 +14,7 @@ When implementing UI from Figma:
 10. Follow `design-system/system/accessibility.md`.
 11. Run all checks in `.ai/checks/` before finishing.
 
-When the user says **crea un DS** or pastes a Figma **component** (not a screen), follow `.ai/skills/create-ds-from-figma/SKILL.md`. First time: scaffold the tree + that component. Later: only fill the new component.
+When the user says **crea un DS** or pastes a Figma **component** (not a screen), follow `.ai/skills/create-ds-from-figma/SKILL.md`. Analyze Figma and nested dependencies before writing. If a local dependency is missing, report `DS_GAP` without creating files, unless the user expressly asks to prepare only the project scaffold. On a repeat URL, update only a verified `external` to `mapped` dependency with an isolated code edit; other updates need an explicit request. Keep `Incluidos` as the last line when merging these instructions into an existing AGENTS.md.
 
 If an element cannot be mapped to the Design System:
 

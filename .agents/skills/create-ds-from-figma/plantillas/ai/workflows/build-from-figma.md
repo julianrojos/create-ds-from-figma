@@ -8,7 +8,7 @@ Implement a Figma frame using the existing Design System.
 
 1. Read the target Figma frame.
 2. List all visible UI elements.
-3. Resolve each element to an existing DS component.
+3. Resolve each element to an existing DS component; report `DS_GAP` for any `not found` result.
 4. Resolve Figma components to code components.
 5. Read the relevant component metadata.
 6. Read `figma-state.json` and respect each component's declared `nestedComponents`.

@@ -2,7 +2,7 @@
 
 Kit **vacío** para que los alumnos arranquen un Design System desde 0.
 
-No trae tokens, componentes ni pantallas. Eso lo escribe el agente en el primer `Crea un DS` + URL de Figma.
+No trae tokens, componentes ni pantallas. El agente analiza la URL de Figma antes de escribir y crea el DS cuando el componente puede importarse.
 
 ## Instalar
 
@@ -25,7 +25,7 @@ Tiene que quedar así:
 
 ## Usar
 
-Carpeta de proyecto **vacía** (sin `design-system/`, sin componentes) → chat:
+Proyecto sin `design-system/relationships/figma-code-map.json` o sin `src/styles/tokens.css` (aunque exista un directorio `design-system/` vacío) → chat:
 
 ```text
 Crea un DS
@@ -33,9 +33,11 @@ Crea un DS
 <URL de UN componente de Figma>
 ```
 
-El file de Figma debe tener **variables**. El nodo debe ser un **componente**, no una pantalla.
+El file de origen debe tener **variables**. La URL puede apuntar a un componente, un component set, una variante o una instancia cuyo componente principal se pueda resolver; un frame o pantalla no se importa por este flujo.
 
-En el primer contacto MCP el agente vuelca **todas** las colecciones del file (un JSON por colección). Luego implementa **solo** el componente de la URL.
+Antes de crear archivos, el agente identifica el componente y sus variantes, lee **todas** las colecciones del file de origen y resuelve los componentes anidados. Si falta uno local, informa `DS_GAP` y espera su URL sin escribir archivos. Solo prepara el scaffold y los tokens pese a ese bloqueo si el usuario lo pide expresamente; el componente bloqueado nunca figura como importado. Si el análisis permite continuar, vuelca un JSON por colección e implementa **solo** el componente pedido.
+
+Si se prepara solo el scaffold, `App.tsx` queda válida y vacía hasta importar el primer componente.
 
 Siguiente primitive: otra URL. Pantalla: cuando ya haya primitives.
 
