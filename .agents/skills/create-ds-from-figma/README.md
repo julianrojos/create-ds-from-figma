@@ -21,7 +21,7 @@ Tiene que quedar así:
 ~/.agents/skills/create-ds-from-figma/plantillas/
 ```
 
-3. Reinicia Cursor o recarga skills si hace falta.
+3. Reinicia el IDE o recarga skills si hace falta.
 
 ## Usar
 
