@@ -1,0 +1,10 @@
+{
+  "terms": {
+    "disabled": {
+      "concept": "native-disabled",
+      "meaning": "The platform's disabled state where the rendered element supports it.",
+      "origin": "platform",
+      "avoid": ["isDisabled"]
+    }
+  }
+}

@@ -1,5 +1,7 @@
 # create-ds-from-figma
 
+Si este README y `SKILL.md` discrepan, prevalece `SKILL.md`.
+
 Kit **vacío** para que los alumnos arranquen un Design System desde 0.
 
 No trae tokens, componentes ni pantallas. El agente analiza la URL de Figma antes de escribir y crea el DS cuando el componente puede importarse.
@@ -47,6 +49,9 @@ Siguiente primitive: otra URL. Pantalla: cuando ya haya primitives.
 | ------------- | ------------------------------------------------------------------------------- |
 | `SKILL.md`    | Instrucciones del agente                                                        |
 | `plantillas/` | Árbol fijo vacío (`.ai/`, `AGENTS.md`, system, relationships, fichas-plantilla) |
+| `scripts/`    | Verificación local de que las dos copias de `SKILL.md` coinciden                |
+
+Antes de distribuir el kit, ejecuta `node .agents/skills/create-ds-from-figma/scripts/verify-skill-sync.mjs` desde la raíz de este repo. En un DS generado, ejecuta `node .ai/checks/verify-ds.mjs` desde su raíz para validar fichas, relaciones e inventarios, y `node .ai/checks/verify-props.mjs` tras instalar dependencias para contrastar las props declaradas en TSX con `.ai/prop-vocabulary.json`.
 
 No incluye un DS relleno, ni `tokens/*.json`, ni app de ejemplo.
 

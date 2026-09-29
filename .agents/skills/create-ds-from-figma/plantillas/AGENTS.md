@@ -13,6 +13,8 @@ When implementing UI from Figma:
 9. Follow `design-system/system/composition-rules.md`.
 10. Follow `design-system/system/accessibility.md`.
 11. Run all checks in `.ai/checks/` before finishing.
+12. Run `node .ai/checks/verify-ds.mjs` from the project root and report any check not run with its reason.
+13. Check `.ai/prop-vocabulary.json` before naming props, and run `node .ai/checks/verify-props.mjs` after dependencies are installed.
 
 When the user says **crea un DS** or pastes a Figma **component** (not a screen), follow `.ai/skills/create-ds-from-figma/SKILL.md`. Analyze Figma and nested dependencies before writing. If a local dependency is missing, report `DS_GAP` without creating files, unless the user expressly asks to prepare only the project scaffold. On a repeat URL, update only a verified `external` to `mapped` dependency with an isolated code edit; other updates need an explicit request. Keep `Incluidos` as the last line when merging these instructions into an existing AGENTS.md.
 

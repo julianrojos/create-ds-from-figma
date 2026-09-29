@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test .agents/skills/create-ds-from-figma/scripts/*.test.mjs",
+    "verify:skill": "node .agents/skills/create-ds-from-figma/scripts/verify-skill-sync.mjs"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}

@@ -12,6 +12,13 @@
     "component": "<Nombre>"
   },
   "variants": {},
-  "states": ["default"],
-  "tokens": []
+  "variantClassification": {},
+  "figmaCoverage": {
+    "variants": []
+  },
+  "states": [],
+  "tokens": [],
+  "unresolved": [],
+  "notApplicable": [],
+  "notBuilt": []
 }
