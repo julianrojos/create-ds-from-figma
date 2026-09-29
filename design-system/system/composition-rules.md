@@ -13,3 +13,4 @@
 - **Tabs** — agrupa pestanas Tab y coordina cual esta seleccionada.
 - **Star** — aporta una estrella de trazo a controles y contenidos que la necesiten.
 - **X** — aporta el simbolo de cierre a controles con nombre accesible.
+- **Button** — presenta una accion con variantes visuales, dos tamanos e iconos opcionales.

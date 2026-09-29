@@ -312,5 +312,226 @@
       "path": "src/components/X/X.tsx",
       "style": "src/components/X/X.module.css"
     }
+  },
+  "aRtHrPY6dKyJcBhRp1eoRA:4185:3778": {
+    "name": "Button",
+    "figma": {
+      "refs": [
+        "aRtHrPY6dKyJcBhRp1eoRA:4185:3778",
+        "componentKey:d7908b65e1d6aa09c0b97bc98516e00a31364522"
+      ],
+      "fileKey": "aRtHrPY6dKyJcBhRp1eoRA",
+      "nodeId": "4185:3778",
+      "componentSet": "Button",
+      "variants": {
+        "Variant=Primary, State=Default, Size=Medium": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:4185:3779",
+            "componentKey:1500fabf75defc87acece5ba4d98b16f2bf4f065"
+          ],
+          "props": {
+            "Variant": "Primary",
+            "State": "Default",
+            "Size": "Medium"
+          }
+        },
+        "Variant=Primary, State=Hover, Size=Medium": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:4185:3783",
+            "componentKey:aafd32ddad758ac631937a04ae39d5ed7141a06a"
+          ],
+          "props": {
+            "Variant": "Primary",
+            "State": "Hover",
+            "Size": "Medium"
+          }
+        },
+        "Variant=Primary, State=Disabled, Size=Medium": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:4185:3787",
+            "componentKey:398b5d70cb0544d1be7af9ec7e76a7bbfa4ec7f4"
+          ],
+          "props": {
+            "Variant": "Primary",
+            "State": "Disabled",
+            "Size": "Medium"
+          }
+        },
+        "Variant=Neutral, State=Default, Size=Medium": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:4185:3791",
+            "componentKey:67f60a7cc2114a097869727ad1ffa0ee41002051"
+          ],
+          "props": {
+            "Variant": "Neutral",
+            "State": "Default",
+            "Size": "Medium"
+          }
+        },
+        "Variant=Neutral, State=Hover, Size=Medium": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:4185:3795",
+            "componentKey:bffc2ace66c3200dc99ee182cc7baffd69049fe7"
+          ],
+          "props": {
+            "Variant": "Neutral",
+            "State": "Hover",
+            "Size": "Medium"
+          }
+        },
+        "Variant=Neutral, State=Disabled, Size=Medium": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:4185:3799",
+            "componentKey:a498bf609864f99e9f2c588290bccad45a1ce51b"
+          ],
+          "props": {
+            "Variant": "Neutral",
+            "State": "Disabled",
+            "Size": "Medium"
+          }
+        },
+        "Variant=Subtle, State=Default, Size=Medium": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:4185:3803",
+            "componentKey:1ea1b79d32960e6f61235626dee873dcb606d76c"
+          ],
+          "props": {
+            "Variant": "Subtle",
+            "State": "Default",
+            "Size": "Medium"
+          }
+        },
+        "Variant=Subtle, State=Hover, Size=Medium": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:4185:3807",
+            "componentKey:62495138447181f7878103dc77939c5f310c632e"
+          ],
+          "props": {
+            "Variant": "Subtle",
+            "State": "Hover",
+            "Size": "Medium"
+          }
+        },
+        "Variant=Subtle, State=Disabled, Size=Medium": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:4185:3811",
+            "componentKey:e08aea4dbd331e6fdf57ce1de6bd3d57a4a915a5"
+          ],
+          "props": {
+            "Variant": "Subtle",
+            "State": "Disabled",
+            "Size": "Medium"
+          }
+        },
+        "Variant=Primary, State=Default, Size=Small": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:4185:3815",
+            "componentKey:ee3e3171b8cb27a66cb8d1756d9700389aeb8aa6"
+          ],
+          "props": {
+            "Variant": "Primary",
+            "State": "Default",
+            "Size": "Small"
+          }
+        },
+        "Variant=Primary, State=Hover, Size=Small": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:4185:3819",
+            "componentKey:d9d507a56004a022f7350cfedee2308d52136ae8"
+          ],
+          "props": {
+            "Variant": "Primary",
+            "State": "Hover",
+            "Size": "Small"
+          }
+        },
+        "Variant=Primary, State=Disabled, Size=Small": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:4185:3823",
+            "componentKey:0343f2f010e96238d0649aafd579baac8b470df1"
+          ],
+          "props": {
+            "Variant": "Primary",
+            "State": "Disabled",
+            "Size": "Small"
+          }
+        },
+        "Variant=Neutral, State=Default, Size=Small": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:4185:3827",
+            "componentKey:e76244c0679bb7961be43b3f5ead7208846b5e7d"
+          ],
+          "props": {
+            "Variant": "Neutral",
+            "State": "Default",
+            "Size": "Small"
+          }
+        },
+        "Variant=Neutral, State=Hover, Size=Small": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:4185:3831",
+            "componentKey:b62822283ac31ee31e9d01030488b31d2edceda7"
+          ],
+          "props": {
+            "Variant": "Neutral",
+            "State": "Hover",
+            "Size": "Small"
+          }
+        },
+        "Variant=Neutral, State=Disabled, Size=Small": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:4185:3835",
+            "componentKey:1e13c1771bb1cff74d6a94e85d5ac7df5425e920"
+          ],
+          "props": {
+            "Variant": "Neutral",
+            "State": "Disabled",
+            "Size": "Small"
+          }
+        },
+        "Variant=Subtle, State=Default, Size=Small": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:4185:3839",
+            "componentKey:36d9a9d48895c1fb0f4d41ac71d6a56c71893a7b"
+          ],
+          "props": {
+            "Variant": "Subtle",
+            "State": "Default",
+            "Size": "Small"
+          }
+        },
+        "Variant=Subtle, State=Hover, Size=Small": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:4185:3843",
+            "componentKey:e768721ec0e1eb957c33dbbaf81fdd71e1cb4477"
+          ],
+          "props": {
+            "Variant": "Subtle",
+            "State": "Hover",
+            "Size": "Small"
+          }
+        },
+        "Variant=Subtle, State=Disabled, Size=Small": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:4185:3847",
+            "componentKey:9f121d0b962c5c034a7a6ca6aba972581ae76a2a"
+          ],
+          "props": {
+            "Variant": "Subtle",
+            "State": "Disabled",
+            "Size": "Small"
+          }
+        }
+      }
+    },
+    "designSystem": {
+      "metadata": "design-system/components/Button/metadata.json",
+      "usage": "design-system/components/Button/usage.md"
+    },
+    "code": {
+      "component": "Button",
+      "path": "src/components/Button/Button.tsx",
+      "style": "src/components/Button/Button.module.css"
+    }
   }
 }

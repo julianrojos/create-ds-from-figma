@@ -1566,6 +1566,335 @@
           "resolvedComponent": "Tab"
         }
       ]
+    },
+    "Button": {
+      "figmaNodeId": "4185:3778",
+      "nestedComponents": [
+        {
+          "figmaNodeId": "4185:3780",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16009",
+          "mainComponentNodeId": "68:16009",
+          "mainComponentKey": "6e89e58fcbb1ee32b5fb72f167295bd0dfb892b4",
+          "figmaName": "Star",
+          "status": "mapped",
+          "resolvedComponent": "Star"
+        },
+        {
+          "figmaNodeId": "4185:3782",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16113",
+          "mainComponentNodeId": "68:16113",
+          "mainComponentKey": "2016097e0eab635e3a812524bda25690a28eaf73",
+          "figmaName": "X",
+          "status": "mapped",
+          "resolvedComponent": "X"
+        },
+        {
+          "figmaNodeId": "4185:3784",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16009",
+          "mainComponentNodeId": "68:16009",
+          "mainComponentKey": "6e89e58fcbb1ee32b5fb72f167295bd0dfb892b4",
+          "figmaName": "Star",
+          "status": "mapped",
+          "resolvedComponent": "Star"
+        },
+        {
+          "figmaNodeId": "4185:3786",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16113",
+          "mainComponentNodeId": "68:16113",
+          "mainComponentKey": "2016097e0eab635e3a812524bda25690a28eaf73",
+          "figmaName": "X",
+          "status": "mapped",
+          "resolvedComponent": "X"
+        },
+        {
+          "figmaNodeId": "4185:3788",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16009",
+          "mainComponentNodeId": "68:16009",
+          "mainComponentKey": "6e89e58fcbb1ee32b5fb72f167295bd0dfb892b4",
+          "figmaName": "Star",
+          "status": "mapped",
+          "resolvedComponent": "Star"
+        },
+        {
+          "figmaNodeId": "4185:3790",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16113",
+          "mainComponentNodeId": "68:16113",
+          "mainComponentKey": "2016097e0eab635e3a812524bda25690a28eaf73",
+          "figmaName": "X",
+          "status": "mapped",
+          "resolvedComponent": "X"
+        },
+        {
+          "figmaNodeId": "4185:3792",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16009",
+          "mainComponentNodeId": "68:16009",
+          "mainComponentKey": "6e89e58fcbb1ee32b5fb72f167295bd0dfb892b4",
+          "figmaName": "Star",
+          "status": "mapped",
+          "resolvedComponent": "Star"
+        },
+        {
+          "figmaNodeId": "4185:3794",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16113",
+          "mainComponentNodeId": "68:16113",
+          "mainComponentKey": "2016097e0eab635e3a812524bda25690a28eaf73",
+          "figmaName": "X",
+          "status": "mapped",
+          "resolvedComponent": "X"
+        },
+        {
+          "figmaNodeId": "4185:3796",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16009",
+          "mainComponentNodeId": "68:16009",
+          "mainComponentKey": "6e89e58fcbb1ee32b5fb72f167295bd0dfb892b4",
+          "figmaName": "Star",
+          "status": "mapped",
+          "resolvedComponent": "Star"
+        },
+        {
+          "figmaNodeId": "4185:3798",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16113",
+          "mainComponentNodeId": "68:16113",
+          "mainComponentKey": "2016097e0eab635e3a812524bda25690a28eaf73",
+          "figmaName": "X",
+          "status": "mapped",
+          "resolvedComponent": "X"
+        },
+        {
+          "figmaNodeId": "4185:3800",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16009",
+          "mainComponentNodeId": "68:16009",
+          "mainComponentKey": "6e89e58fcbb1ee32b5fb72f167295bd0dfb892b4",
+          "figmaName": "Star",
+          "status": "mapped",
+          "resolvedComponent": "Star"
+        },
+        {
+          "figmaNodeId": "4185:3802",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16113",
+          "mainComponentNodeId": "68:16113",
+          "mainComponentKey": "2016097e0eab635e3a812524bda25690a28eaf73",
+          "figmaName": "X",
+          "status": "mapped",
+          "resolvedComponent": "X"
+        },
+        {
+          "figmaNodeId": "4185:3804",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16009",
+          "mainComponentNodeId": "68:16009",
+          "mainComponentKey": "6e89e58fcbb1ee32b5fb72f167295bd0dfb892b4",
+          "figmaName": "Star",
+          "status": "mapped",
+          "resolvedComponent": "Star"
+        },
+        {
+          "figmaNodeId": "4185:3806",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16113",
+          "mainComponentNodeId": "68:16113",
+          "mainComponentKey": "2016097e0eab635e3a812524bda25690a28eaf73",
+          "figmaName": "X",
+          "status": "mapped",
+          "resolvedComponent": "X"
+        },
+        {
+          "figmaNodeId": "4185:3808",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16009",
+          "mainComponentNodeId": "68:16009",
+          "mainComponentKey": "6e89e58fcbb1ee32b5fb72f167295bd0dfb892b4",
+          "figmaName": "Star",
+          "status": "mapped",
+          "resolvedComponent": "Star"
+        },
+        {
+          "figmaNodeId": "4185:3810",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16113",
+          "mainComponentNodeId": "68:16113",
+          "mainComponentKey": "2016097e0eab635e3a812524bda25690a28eaf73",
+          "figmaName": "X",
+          "status": "mapped",
+          "resolvedComponent": "X"
+        },
+        {
+          "figmaNodeId": "4185:3812",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16009",
+          "mainComponentNodeId": "68:16009",
+          "mainComponentKey": "6e89e58fcbb1ee32b5fb72f167295bd0dfb892b4",
+          "figmaName": "Star",
+          "status": "mapped",
+          "resolvedComponent": "Star"
+        },
+        {
+          "figmaNodeId": "4185:3814",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16113",
+          "mainComponentNodeId": "68:16113",
+          "mainComponentKey": "2016097e0eab635e3a812524bda25690a28eaf73",
+          "figmaName": "X",
+          "status": "mapped",
+          "resolvedComponent": "X"
+        },
+        {
+          "figmaNodeId": "4185:3816",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16009",
+          "mainComponentNodeId": "68:16009",
+          "mainComponentKey": "6e89e58fcbb1ee32b5fb72f167295bd0dfb892b4",
+          "figmaName": "Star",
+          "status": "mapped",
+          "resolvedComponent": "Star"
+        },
+        {
+          "figmaNodeId": "4185:3818",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16113",
+          "mainComponentNodeId": "68:16113",
+          "mainComponentKey": "2016097e0eab635e3a812524bda25690a28eaf73",
+          "figmaName": "X",
+          "status": "mapped",
+          "resolvedComponent": "X"
+        },
+        {
+          "figmaNodeId": "4185:3820",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16009",
+          "mainComponentNodeId": "68:16009",
+          "mainComponentKey": "6e89e58fcbb1ee32b5fb72f167295bd0dfb892b4",
+          "figmaName": "Star",
+          "status": "mapped",
+          "resolvedComponent": "Star"
+        },
+        {
+          "figmaNodeId": "4185:3822",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16113",
+          "mainComponentNodeId": "68:16113",
+          "mainComponentKey": "2016097e0eab635e3a812524bda25690a28eaf73",
+          "figmaName": "X",
+          "status": "mapped",
+          "resolvedComponent": "X"
+        },
+        {
+          "figmaNodeId": "4185:3824",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16009",
+          "mainComponentNodeId": "68:16009",
+          "mainComponentKey": "6e89e58fcbb1ee32b5fb72f167295bd0dfb892b4",
+          "figmaName": "Star",
+          "status": "mapped",
+          "resolvedComponent": "Star"
+        },
+        {
+          "figmaNodeId": "4185:3826",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16113",
+          "mainComponentNodeId": "68:16113",
+          "mainComponentKey": "2016097e0eab635e3a812524bda25690a28eaf73",
+          "figmaName": "X",
+          "status": "mapped",
+          "resolvedComponent": "X"
+        },
+        {
+          "figmaNodeId": "4185:3828",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16009",
+          "mainComponentNodeId": "68:16009",
+          "mainComponentKey": "6e89e58fcbb1ee32b5fb72f167295bd0dfb892b4",
+          "figmaName": "Star",
+          "status": "mapped",
+          "resolvedComponent": "Star"
+        },
+        {
+          "figmaNodeId": "4185:3830",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16113",
+          "mainComponentNodeId": "68:16113",
+          "mainComponentKey": "2016097e0eab635e3a812524bda25690a28eaf73",
+          "figmaName": "X",
+          "status": "mapped",
+          "resolvedComponent": "X"
+        },
+        {
+          "figmaNodeId": "4185:3832",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16009",
+          "mainComponentNodeId": "68:16009",
+          "mainComponentKey": "6e89e58fcbb1ee32b5fb72f167295bd0dfb892b4",
+          "figmaName": "Star",
+          "status": "mapped",
+          "resolvedComponent": "Star"
+        },
+        {
+          "figmaNodeId": "4185:3834",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16113",
+          "mainComponentNodeId": "68:16113",
+          "mainComponentKey": "2016097e0eab635e3a812524bda25690a28eaf73",
+          "figmaName": "X",
+          "status": "mapped",
+          "resolvedComponent": "X"
+        },
+        {
+          "figmaNodeId": "4185:3836",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16009",
+          "mainComponentNodeId": "68:16009",
+          "mainComponentKey": "6e89e58fcbb1ee32b5fb72f167295bd0dfb892b4",
+          "figmaName": "Star",
+          "status": "mapped",
+          "resolvedComponent": "Star"
+        },
+        {
+          "figmaNodeId": "4185:3838",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16113",
+          "mainComponentNodeId": "68:16113",
+          "mainComponentKey": "2016097e0eab635e3a812524bda25690a28eaf73",
+          "figmaName": "X",
+          "status": "mapped",
+          "resolvedComponent": "X"
+        },
+        {
+          "figmaNodeId": "4185:3840",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16009",
+          "mainComponentNodeId": "68:16009",
+          "mainComponentKey": "6e89e58fcbb1ee32b5fb72f167295bd0dfb892b4",
+          "figmaName": "Star",
+          "status": "mapped",
+          "resolvedComponent": "Star"
+        },
+        {
+          "figmaNodeId": "4185:3842",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16113",
+          "mainComponentNodeId": "68:16113",
+          "mainComponentKey": "2016097e0eab635e3a812524bda25690a28eaf73",
+          "figmaName": "X",
+          "status": "mapped",
+          "resolvedComponent": "X"
+        },
+        {
+          "figmaNodeId": "4185:3844",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16009",
+          "mainComponentNodeId": "68:16009",
+          "mainComponentKey": "6e89e58fcbb1ee32b5fb72f167295bd0dfb892b4",
+          "figmaName": "Star",
+          "status": "mapped",
+          "resolvedComponent": "Star"
+        },
+        {
+          "figmaNodeId": "4185:3846",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16113",
+          "mainComponentNodeId": "68:16113",
+          "mainComponentKey": "2016097e0eab635e3a812524bda25690a28eaf73",
+          "figmaName": "X",
+          "status": "mapped",
+          "resolvedComponent": "X"
+        },
+        {
+          "figmaNodeId": "4185:3848",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16009",
+          "mainComponentNodeId": "68:16009",
+          "mainComponentKey": "6e89e58fcbb1ee32b5fb72f167295bd0dfb892b4",
+          "figmaName": "Star",
+          "status": "mapped",
+          "resolvedComponent": "Star"
+        },
+        {
+          "figmaNodeId": "4185:3850",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:68:16113",
+          "mainComponentNodeId": "68:16113",
+          "mainComponentKey": "2016097e0eab635e3a812524bda25690a28eaf73",
+          "figmaName": "X",
+          "status": "mapped",
+          "resolvedComponent": "X"
+        }
+      ]
     }
   }
 }

@@ -1,0 +1,49 @@
+{
+  "name": "Button",
+  "description": "Accion con estilos Primary, Neutral y Subtle, dos tamanos e iconos opcionales.",
+  "figma": {
+    "fileKey": "aRtHrPY6dKyJcBhRp1eoRA",
+    "nodeId": "4185:3778",
+    "url": "https://www.figma.com/design/aRtHrPY6dKyJcBhRp1eoRA/JURO---Simple-Design-System--Community---Copy-?node-id=4185-3778",
+    "componentSet": "Button"
+  },
+  "code": {
+    "path": "src/components/Button/Button.tsx",
+    "component": "Button"
+  },
+  "variants": {
+    "Variant": ["Primary", "Neutral", "Subtle"],
+    "State": ["Default", "Hover", "Disabled"],
+    "Size": ["Medium", "Small"]
+  },
+  "properties": {
+    "Label": { "type": "TEXT", "defaultValue": "Button" },
+    "Has Icon Start": { "type": "BOOLEAN", "defaultValue": false },
+    "Has Icon End": { "type": "BOOLEAN", "defaultValue": false },
+    "Icon Start": { "type": "INSTANCE_SWAP", "defaultValue": "Star" },
+    "Icon End": { "type": "INSTANCE_SWAP", "defaultValue": "X" }
+  },
+  "states": ["Default", "Hover", "Disabled"],
+  "tokens": [
+    "Background/Brand/Default",
+    "Background/Brand/Hover",
+    "Background/Neutral/Tertiary",
+    "Background/Neutral/Tertiary Hover",
+    "Background/Disabled/Default",
+    "Border/Brand/Default",
+    "Border/Neutral/Secondary",
+    "Border/Default/Default",
+    "Border/Disabled/default",
+    "Text/Brand/On Brand",
+    "Text/Default/Default",
+    "Text/Neutral/Default",
+    "Text/Disabled/On Disabled",
+    "Body/Font Family",
+    "Body/Font Weight Regular",
+    "Body/Size Medium",
+    "Space/200",
+    "Space/300",
+    "Radius/200",
+    "Stroke/Border"
+  ]
+}

@@ -1,0 +1,70 @@
+.button {
+  box-sizing: border-box;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sds-size-space-200);
+  padding: calc(var(--sds-size-space-300) - var(--sds-size-stroke-border));
+  border: var(--sds-size-stroke-border) solid var(--sds-color-border-brand-default);
+  border-radius: var(--sds-size-radius-200);
+  background: var(--sds-color-background-brand-default);
+  color: var(--sds-color-text-brand-on-brand);
+  font-family: var(--sds-typography-body-font-family), sans-serif;
+  font-size: var(--sds-typography-body-size-medium);
+  font-weight: var(--sds-typography-body-font-weight-regular);
+  line-height: 1;
+  letter-spacing: 0;
+  text-align: center;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.button[data-size='Small'] {
+  padding: calc(var(--sds-size-space-200) - var(--sds-size-stroke-border));
+}
+
+.button[data-variant='Primary']:hover:not(:disabled) {
+  background: var(--sds-color-background-brand-hover);
+}
+
+.button[data-variant='Neutral'] {
+  border-color: var(--sds-color-border-neutral-secondary);
+  background: var(--sds-color-background-neutral-tertiary);
+  color: var(--sds-color-text-default-default);
+}
+
+.button[data-variant='Neutral']:hover:not(:disabled) {
+  background: var(--sds-color-background-neutral-tertiary-hover);
+}
+
+.button[data-variant='Subtle'] {
+  border-color: transparent;
+  background: transparent;
+  color: var(--sds-color-text-neutral-default);
+}
+
+.button[data-variant='Subtle'][data-size='Small'] {
+  color: var(--sds-color-text-default-default);
+}
+
+.button[data-variant='Subtle']:hover:not(:disabled) {
+  border-color: var(--sds-color-border-default-default);
+  color: var(--sds-color-text-default-default);
+}
+
+.button:disabled {
+  border-color: var(--sds-color-border-disabled-default);
+  background: var(--sds-color-background-disabled-default);
+  color: var(--sds-color-text-disabled-on-disabled);
+  cursor: not-allowed;
+}
+
+.button:focus-visible {
+  outline: var(--sds-size-stroke-focus-ring) solid currentColor;
+  outline-offset: var(--sds-size-space-050);
+}
+
+.button .icon > span {
+  color: inherit;
+}
