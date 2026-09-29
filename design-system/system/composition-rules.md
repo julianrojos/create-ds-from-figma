@@ -10,3 +10,4 @@
 
 - **Avatar** — representa una persona con una imagen o una inicial en tamano y forma apropiados al contexto.
 - **Tab** — representa una pestana seleccionable dentro de un grupo de pestanas.
+- **Tabs** — agrupa pestanas Tab y coordina cual esta seleccionada.

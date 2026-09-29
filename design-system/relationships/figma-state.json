@@ -1499,6 +1499,65 @@
     "Tab": {
       "figmaNodeId": "3729:12963",
       "nestedComponents": []
+    },
+    "Tabs": {
+      "figmaNodeId": "3729:13362",
+      "nestedComponents": [
+        {
+          "figmaNodeId": "3729:12989",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:3729:12961",
+          "mainComponentNodeId": "3729:12961",
+          "mainComponentKey": "2688d30894feda83727a629a2b75d1d5f6749aff",
+          "figmaName": "Tab",
+          "status": "mapped",
+          "resolvedComponent": "Tab"
+        },
+        {
+          "figmaNodeId": "3729:12990",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:3729:12962",
+          "mainComponentNodeId": "3729:12962",
+          "mainComponentKey": "e8ae97276a5dd911993de536ce5016f2648d3124",
+          "figmaName": "Tab",
+          "status": "mapped",
+          "resolvedComponent": "Tab"
+        },
+        {
+          "figmaNodeId": "3729:12991",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:3729:12962",
+          "mainComponentNodeId": "3729:12962",
+          "mainComponentKey": "e8ae97276a5dd911993de536ce5016f2648d3124",
+          "figmaName": "Tab",
+          "status": "mapped",
+          "resolvedComponent": "Tab"
+        },
+        {
+          "figmaNodeId": "3729:12992",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:3729:12962",
+          "mainComponentNodeId": "3729:12962",
+          "mainComponentKey": "e8ae97276a5dd911993de536ce5016f2648d3124",
+          "figmaName": "Tab",
+          "status": "mapped",
+          "resolvedComponent": "Tab"
+        },
+        {
+          "figmaNodeId": "3729:12997",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:3729:12962",
+          "mainComponentNodeId": "3729:12962",
+          "mainComponentKey": "e8ae97276a5dd911993de536ce5016f2648d3124",
+          "figmaName": "Tab",
+          "status": "mapped",
+          "resolvedComponent": "Tab"
+        },
+        {
+          "figmaNodeId": "4366:27762",
+          "mainComponentRef": "aRtHrPY6dKyJcBhRp1eoRA:3729:12962",
+          "mainComponentNodeId": "3729:12962",
+          "mainComponentKey": "e8ae97276a5dd911993de536ce5016f2648d3124",
+          "figmaName": "Tab",
+          "status": "mapped",
+          "resolvedComponent": "Tab"
+        }
+      ]
     }
   }
 }

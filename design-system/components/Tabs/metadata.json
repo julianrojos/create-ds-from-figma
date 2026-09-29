@@ -1,0 +1,19 @@
+{
+  "name": "Tabs",
+  "description": "Grupo horizontal de pestanas con una seleccion activa.",
+  "figma": {
+    "fileKey": "aRtHrPY6dKyJcBhRp1eoRA",
+    "nodeId": "3729:13362",
+    "url": "https://www.figma.com/design/aRtHrPY6dKyJcBhRp1eoRA/JURO---Simple-Design-System--Community---Copy-?node-id=3729-13362"
+  },
+  "code": {
+    "path": "src/components/Tabs/Tabs.tsx",
+    "component": "Tabs"
+  },
+  "variants": {},
+  "properties": {},
+  "states": [],
+  "tokens": [
+    "Space/100"
+  ]
+}

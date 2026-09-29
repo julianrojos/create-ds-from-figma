@@ -249,5 +249,26 @@
       "path": "src/components/Tab/Tab.tsx",
       "style": "src/components/Tab/Tab.module.css"
     }
+  },
+  "aRtHrPY6dKyJcBhRp1eoRA:3729:13362": {
+    "name": "Tabs",
+    "figma": {
+      "refs": [
+        "aRtHrPY6dKyJcBhRp1eoRA:3729:13362",
+        "componentKey:728c6aa4bafd7b66ef694ac47a008c6d89eb7ff5"
+      ],
+      "fileKey": "aRtHrPY6dKyJcBhRp1eoRA",
+      "nodeId": "3729:13362",
+      "variants": {}
+    },
+    "designSystem": {
+      "metadata": "design-system/components/Tabs/metadata.json",
+      "usage": "design-system/components/Tabs/usage.md"
+    },
+    "code": {
+      "component": "Tabs",
+      "path": "src/components/Tabs/Tabs.tsx",
+      "style": "src/components/Tabs/Tabs.module.css"
+    }
   }
 }

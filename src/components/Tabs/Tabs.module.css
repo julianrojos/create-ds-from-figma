@@ -1,0 +1,11 @@
+.tabs {
+  display: inline-flex;
+  align-items: flex-start;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* El scroll horizontal del grupo recorta el outline exterior de Tab; se dibuja hacia dentro solo aqui. */
+.tabs [role='tab']:focus-visible {
+  outline-offset: calc(-1 * var(--sds-size-space-100));
+}
