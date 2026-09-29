@@ -1495,6 +1495,10 @@
     "Avatar": {
       "figmaNodeId": "9762:1103",
       "nestedComponents": []
+    },
+    "Tab": {
+      "figmaNodeId": "3729:12963",
+      "nestedComponents": []
     }
   }
 }

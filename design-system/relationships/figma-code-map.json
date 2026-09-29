@@ -198,5 +198,56 @@
       "path": "src/components/Avatar/Avatar.tsx",
       "style": "src/components/Avatar/Avatar.module.css"
     }
+  },
+  "aRtHrPY6dKyJcBhRp1eoRA:3729:12963": {
+    "name": "Tab",
+    "figma": {
+      "refs": [
+        "aRtHrPY6dKyJcBhRp1eoRA:3729:12963",
+        "componentKey:866f100e7e697808b92830e91f9508fe7b0ff0e1"
+      ],
+      "fileKey": "aRtHrPY6dKyJcBhRp1eoRA",
+      "nodeId": "3729:12963",
+      "componentSet": "Tab",
+      "variants": {
+        "State=Default, Active=Off": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:3729:12962",
+            "componentKey:e8ae97276a5dd911993de536ce5016f2648d3124"
+          ],
+          "props": { "State": "Default", "Active": "Off" }
+        },
+        "State=Hover, Active=Off": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:4366:26794",
+            "componentKey:6fa77556f98fb663dda49d020a6a6345ce7dd836"
+          ],
+          "props": { "State": "Hover", "Active": "Off" }
+        },
+        "State=Default, Active=On": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:3729:12961",
+            "componentKey:2688d30894feda83727a629a2b75d1d5f6749aff"
+          ],
+          "props": { "State": "Default", "Active": "On" }
+        },
+        "State=Hover, Active=On": {
+          "refs": [
+            "aRtHrPY6dKyJcBhRp1eoRA:4366:26803",
+            "componentKey:5657e7f0bd39f4f4e4709009fb5222d9cd695d68"
+          ],
+          "props": { "State": "Hover", "Active": "On" }
+        }
+      }
+    },
+    "designSystem": {
+      "metadata": "design-system/components/Tab/metadata.json",
+      "usage": "design-system/components/Tab/usage.md"
+    },
+    "code": {
+      "component": "Tab",
+      "path": "src/components/Tab/Tab.tsx",
+      "style": "src/components/Tab/Tab.module.css"
+    }
   }
 }

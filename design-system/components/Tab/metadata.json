@@ -1,0 +1,39 @@
+{
+  "name": "Tab",
+  "description": "Pestana individual con etiqueta de texto y estado de seleccion.",
+  "figma": {
+    "fileKey": "aRtHrPY6dKyJcBhRp1eoRA",
+    "nodeId": "3729:12963",
+    "url": "https://www.figma.com/design/aRtHrPY6dKyJcBhRp1eoRA/JURO---Simple-Design-System--Community---Copy-?node-id=3729-12963",
+    "componentSet": "Tab"
+  },
+  "code": {
+    "path": "src/components/Tab/Tab.tsx",
+    "component": "Tab"
+  },
+  "variants": {
+    "State": ["Default", "Hover"],
+    "Active": ["Off", "On"]
+  },
+  "properties": {
+    "Label": {
+      "type": "TEXT",
+      "defaultValue": "Label"
+    }
+  },
+  "states": ["Default", "Hover"],
+  "tokens": [
+    "Background/Default/Default Hover",
+    "Border/Neutral/Default",
+    "Border/Neutral/tertiary",
+    "Body/Font Family",
+    "Body/Font Weight Regular",
+    "Body/Size Medium",
+    "Radius/100",
+    "Space/100",
+    "Space/300",
+    "Stroke/Border",
+    "Text/Neutral/Default",
+    "Text/Neutral/Tertiary"
+  ]
+}
