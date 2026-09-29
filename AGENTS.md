@@ -33,4 +33,4 @@ Applies when instructions conflict (high → low):
 - Ejecuta los checks de `.ai/checks/` al implementar una pieza.
 - Para importar otro componente, sigue `.ai/skills/create-ds-from-figma/SKILL.md`.
 
-Incluidos: Avatar, Tab, Tabs
+Incluidos: Avatar, Tab, Tabs, Star, X

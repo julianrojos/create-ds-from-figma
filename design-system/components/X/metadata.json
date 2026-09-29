@@ -1,0 +1,17 @@
+{
+  "name": "X",
+  "description": "Icono de cierre en forma de X dentro de una caja de 16 px.",
+  "figma": {
+    "fileKey": "aRtHrPY6dKyJcBhRp1eoRA",
+    "nodeId": "68:16113",
+    "url": "https://www.figma.com/design/aRtHrPY6dKyJcBhRp1eoRA/JURO---Simple-Design-System--Community---Copy-?node-id=68-16113"
+  },
+  "code": {
+    "path": "src/components/X/X.tsx",
+    "component": "X"
+  },
+  "variants": {},
+  "properties": {},
+  "states": [],
+  "tokens": ["Icon/Default/Default"]
+}

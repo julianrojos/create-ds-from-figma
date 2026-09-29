@@ -270,5 +270,47 @@
       "path": "src/components/Tabs/Tabs.tsx",
       "style": "src/components/Tabs/Tabs.module.css"
     }
+  },
+  "aRtHrPY6dKyJcBhRp1eoRA:68:16009": {
+    "name": "Star",
+    "figma": {
+      "refs": [
+        "aRtHrPY6dKyJcBhRp1eoRA:68:16009",
+        "componentKey:6e89e58fcbb1ee32b5fb72f167295bd0dfb892b4"
+      ],
+      "fileKey": "aRtHrPY6dKyJcBhRp1eoRA",
+      "nodeId": "68:16009",
+      "variants": {}
+    },
+    "designSystem": {
+      "metadata": "design-system/components/Star/metadata.json",
+      "usage": "design-system/components/Star/usage.md"
+    },
+    "code": {
+      "component": "Star",
+      "path": "src/components/Star/Star.tsx",
+      "style": "src/components/Star/Star.module.css"
+    }
+  },
+  "aRtHrPY6dKyJcBhRp1eoRA:68:16113": {
+    "name": "X",
+    "figma": {
+      "refs": [
+        "aRtHrPY6dKyJcBhRp1eoRA:68:16113",
+        "componentKey:2016097e0eab635e3a812524bda25690a28eaf73"
+      ],
+      "fileKey": "aRtHrPY6dKyJcBhRp1eoRA",
+      "nodeId": "68:16113",
+      "variants": {}
+    },
+    "designSystem": {
+      "metadata": "design-system/components/X/metadata.json",
+      "usage": "design-system/components/X/usage.md"
+    },
+    "code": {
+      "component": "X",
+      "path": "src/components/X/X.tsx",
+      "style": "src/components/X/X.module.css"
+    }
   }
 }

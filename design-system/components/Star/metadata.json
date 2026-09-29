@@ -1,0 +1,17 @@
+{
+  "name": "Star",
+  "description": "Icono de estrella de trazo en una caja de 16 px.",
+  "figma": {
+    "fileKey": "aRtHrPY6dKyJcBhRp1eoRA",
+    "nodeId": "68:16009",
+    "url": "https://www.figma.com/design/aRtHrPY6dKyJcBhRp1eoRA/JURO---Simple-Design-System--Community---Copy-?node-id=68-16009"
+  },
+  "code": {
+    "path": "src/components/Star/Star.tsx",
+    "component": "Star"
+  },
+  "variants": {},
+  "properties": {},
+  "states": [],
+  "tokens": ["Icon/Default/Default"]
+}

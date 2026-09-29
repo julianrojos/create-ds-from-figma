@@ -1,0 +1,29 @@
+.icon {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+  color: var(--sds-color-icon-default-default);
+  background-color: currentColor;
+  mask-image: url('./x.svg');
+  mask-size: 60% 60%;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  vertical-align: middle;
+}
+
+@media (forced-colors: active) {
+  .icon {
+    forced-color-adjust: none;
+    background-color: CanvasText;
+  }
+
+  a .icon {
+    background-color: LinkText;
+  }
+
+  button .icon,
+  [role='button'] .icon {
+    background-color: ButtonText;
+  }
+}
