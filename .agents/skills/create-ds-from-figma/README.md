@@ -1,8 +1,10 @@
 # create-ds-from-figma
 
+Si este README y `SKILL.md` discrepan, prevalece `SKILL.md`.
+
 Kit **vacío** para que los alumnos arranquen un Design System desde 0.
 
-No trae tokens, componentes ni pantallas. Eso lo escribe el agente en el primer `Crea un DS` + URL de Figma.
+No trae tokens, componentes ni pantallas. El agente analiza la URL de Figma antes de escribir y crea el DS cuando el componente puede importarse.
 
 ## Instalar
 
@@ -21,11 +23,11 @@ Tiene que quedar así:
 ~/.agents/skills/create-ds-from-figma/plantillas/
 ```
 
-3. Reinicia Cursor o recarga skills si hace falta.
+3. Reinicia el IDE o recarga skills si hace falta.
 
 ## Usar
 
-Carpeta de proyecto **vacía** (sin `design-system/`, sin componentes) → chat:
+Proyecto sin `design-system/relationships/figma-code-map.json` o sin `src/styles/tokens.css` (aunque exista un directorio `design-system/` vacío) → chat:
 
 ```text
 Crea un DS
@@ -33,9 +35,11 @@ Crea un DS
 <URL de UN componente de Figma>
 ```
 
-El file de Figma debe tener **variables**. El nodo debe ser un **componente**, no una pantalla.
+El file de origen debe tener **variables**. La URL puede apuntar a un componente, un component set, una variante o una instancia cuyo componente principal se pueda resolver; un frame o pantalla no se importa por este flujo.
 
-En el primer contacto MCP el agente vuelca **todas** las colecciones del file (un JSON por colección). Luego implementa **solo** el componente de la URL.
+Antes de crear archivos, el agente identifica el componente y sus variantes, lee **todas** las colecciones del file de origen y resuelve los componentes anidados. Si falta uno local, informa `DS_GAP` y espera su URL sin escribir archivos. Solo prepara el scaffold y los tokens pese a ese bloqueo si el usuario lo pide expresamente; el componente bloqueado nunca figura como importado. Si el análisis permite continuar, vuelca un JSON por colección e implementa **solo** el componente pedido.
+
+Si se prepara solo el scaffold, `App.tsx` queda válida y vacía hasta importar el primer componente.
 
 Siguiente primitive: otra URL. Pantalla: cuando ya haya primitives.
 
@@ -45,6 +49,9 @@ Siguiente primitive: otra URL. Pantalla: cuando ya haya primitives.
 | ------------- | ------------------------------------------------------------------------------- |
 | `SKILL.md`    | Instrucciones del agente                                                        |
 | `plantillas/` | Árbol fijo vacío (`.ai/`, `AGENTS.md`, system, relationships, fichas-plantilla) |
+| `scripts/`    | Verificación local de que las dos copias de `SKILL.md` coinciden                |
+
+Antes de distribuir el kit, ejecuta `node .agents/skills/create-ds-from-figma/scripts/verify-skill-sync.mjs` desde la raíz de este repo. En un DS generado, instala las dependencias y ejecuta `node .ai/checks/verify-ds.mjs`, `node .ai/checks/verify-props.mjs` y `node .ai/checks/verify-bindings.mjs`. Los dos primeros validan estructura y props; el último informa cobertura y diferencias de bindings CSS sin bloquear todavía.
 
 No incluye un DS relleno, ni `tokens/*.json`, ni app de ejemplo.
 

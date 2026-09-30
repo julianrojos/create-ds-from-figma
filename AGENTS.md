@@ -19,3 +19,8 @@ Applies when instructions conflict (high → low):
 - Nunca hacer commit si no hay orden previo del usuario.
 - Trabajar siempre en la rama activa del repositorio principal.
 - El usuario es quien decide cuándo crear ramas y commits. No hacerlo de forma autónoma.
+
+## Skill create-ds-from-figma
+
+- Mantener sincronizados `.agents/skills/create-ds-from-figma/SKILL.md` y `.agents/skills/create-ds-from-figma/plantillas/ai/skills/create-ds-from-figma/SKILL.md`.
+- Si se cambia el formato de relaciones Figma, actualizar juntas las plantillas `figma-state.json`, `figma-code-map.json`, `find-component`, `map-figma-to-code` y los checks relacionados.

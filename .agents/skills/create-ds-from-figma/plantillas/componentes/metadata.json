@@ -12,6 +12,17 @@
     "component": "<Nombre>"
   },
   "variants": {},
-  "states": ["default"],
-  "tokens": []
+  "variantClassification": {},
+  "figmaCoverage": {
+    "variants": []
+  },
+  "states": [],
+  "tokens": [],
+  "parts": {},
+  "bindings": [],
+  "externalVariables": [],
+  "measuredLiterals": [],
+  "unresolved": [],
+  "notApplicable": [],
+  "notBuilt": []
 }
