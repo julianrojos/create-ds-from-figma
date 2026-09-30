@@ -51,7 +51,7 @@ Siguiente primitive: otra URL. Pantalla: cuando ya haya primitives.
 | `plantillas/` | Árbol fijo vacío (`.ai/`, `AGENTS.md`, system, relationships, fichas-plantilla) |
 | `scripts/`    | Verificación local de que las dos copias de `SKILL.md` coinciden                |
 
-Antes de distribuir el kit, ejecuta `node .agents/skills/create-ds-from-figma/scripts/verify-skill-sync.mjs` desde la raíz de este repo. En un DS generado, ejecuta `node .ai/checks/verify-ds.mjs` desde su raíz para validar fichas, relaciones e inventarios, y `node .ai/checks/verify-props.mjs` tras instalar dependencias para contrastar las props declaradas en TSX con `.ai/prop-vocabulary.json`.
+Antes de distribuir el kit, ejecuta `node .agents/skills/create-ds-from-figma/scripts/verify-skill-sync.mjs` desde la raíz de este repo. En un DS generado, instala las dependencias y ejecuta `node .ai/checks/verify-ds.mjs`, `node .ai/checks/verify-props.mjs` y `node .ai/checks/verify-bindings.mjs`. Los dos primeros validan estructura y props; el último informa cobertura y diferencias de bindings CSS sin bloquear todavía.
 
 No incluye un DS relleno, ni `tokens/*.json`, ni app de ejemplo.
 
