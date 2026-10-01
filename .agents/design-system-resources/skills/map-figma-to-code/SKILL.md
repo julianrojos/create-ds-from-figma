@@ -23,7 +23,7 @@ When the Figma node is nested inside another imported component, resolve it with
 2. If the nested instance is `mapped`, return the local component and props to import.
 3. If the nested instance is `external`, keep it as part of the parent component and do not create a DS component for it.
 4. If the nested instance is `missing`, return `DS_GAP` and do not generate a replacement.
-5. The create/import flow writes `nestedComponents` only for a successfully imported parent. On reanalysis, `external` to `mapped` alone does not authorize an update: follow the decision table in `create-ds-from-figma/SKILL.md`. Update automatically only when the main component's identity is verified unchanged, there are no other observed differences, and the code edit can be isolated without overwriting existing work. If identity cannot be verified, do not write; request an additional ref or explicit authorization for a dependency-only replacement. A `missing` diagnosis stops before writing.
+5. The create/import flow writes `nestedComponents` only for a successfully imported parent. On reanalysis, `external` to `mapped` alone does not authorize an update: follow the decision table in `.agents/design-system-resources/skills/create-ds-from-figma/SKILL.md`. Update automatically only when the main component's identity is verified unchanged, there are no other observed differences, and the code edit can be isolated without overwriting existing work. If identity cannot be verified, do not write; request an additional ref or explicit authorization for a dependency-only replacement. A `missing` diagnosis stops before writing.
 
 ## Output
 

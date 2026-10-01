@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "nod
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { report } from "../plantillas/ai/checks/verify-bindings.mjs";
+import { report } from "../../../checks/verify-bindings.mjs";
 
 const roots = [];
 const write = (root, relative, data) => {

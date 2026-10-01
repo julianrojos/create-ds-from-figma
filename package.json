@@ -2,8 +2,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test .agents/skills/create-ds-from-figma/scripts/*.test.mjs",
-    "verify:skill": "node .agents/skills/create-ds-from-figma/scripts/verify-skill-sync.mjs"
+    "test": "node --test .agents/design-system-resources/skills/create-ds-from-figma/scripts/*.test.mjs"
   },
   "devDependencies": {
     "postcss": "8.5.28",

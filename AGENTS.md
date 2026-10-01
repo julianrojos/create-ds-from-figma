@@ -22,5 +22,7 @@ Applies when instructions conflict (high → low):
 
 ## Skill create-ds-from-figma
 
-- Mantener sincronizados `.agents/skills/create-ds-from-figma/SKILL.md` y `.agents/skills/create-ds-from-figma/plantillas/ai/skills/create-ds-from-figma/SKILL.md`.
-- Si se cambia el formato de relaciones Figma, actualizar juntas las plantillas `figma-state.json`, `figma-code-map.json`, `find-component`, `map-figma-to-code` y los checks relacionados.
+- Para trabajos sobre el Design System generado, incluyendo ediciones en `src/`, seguir también `design-system/AGENTS.md` cuando exista.
+- `.agents/design-system-resources/skills/create-ds-from-figma/SKILL.md` es el documento canónico de la skill y no debe tener frontmatter de autodetección.
+- `.agents/skills/create-ds-from-figma/SKILL.md` es solo un wrapper mínimo para autodetección; no mantener otra implementación ahí.
+- Si se cambia el formato de relaciones Figma, actualizar juntas las plantillas `figma-state.json`, `figma-code-map.json`, los recursos auxiliares de `.agents/design-system-resources/skills/` y los checks de `.agents/design-system-resources/checks/`.

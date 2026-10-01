@@ -5,7 +5,7 @@ import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
-import { verifyProps } from "../plantillas/ai/checks/verify-props.mjs";
+import { verifyProps } from "../../../checks/verify-props.mjs";
 
 const template = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../plantillas");
 const roots = new Set();
@@ -18,9 +18,9 @@ const read = (root, relative) => JSON.parse(readFileSync(path.join(root, relativ
 const fixture = () => {
   const root = mkdtempSync(path.join(os.tmpdir(), "verify-props-"));
   roots.add(root);
-  const vocabulary = read(template, "ai/prop-vocabulary.json");
+  const vocabulary = JSON.parse(readFileSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../prop-vocabulary.json"), "utf8"));
   vocabulary.terms.size = { concept: "component-size", meaning: "ExampleComponent dimensions", origin: "authored", avoid: ["scale"] };
-  write(root, ".ai/prop-vocabulary.json", vocabulary);
+  write(root, ".agents/design-system-resources/prop-vocabulary.json", vocabulary);
   write(root, "design-system/relationships/figma-code-map.json", {
     ExampleComponent: {
       name: "ExampleComponent",
@@ -101,7 +101,7 @@ test("classification must name a declared code prop", () => {
 
 test("a classified prop can be inherited from a resolved type", () => {
   const root = fixture();
-  const vocabularyPath = ".ai/prop-vocabulary.json";
+  const vocabularyPath = ".agents/design-system-resources/prop-vocabulary.json";
   const vocabulary = read(root, vocabularyPath);
   vocabulary.terms.size.origin = "platform";
   write(root, vocabularyPath, vocabulary);

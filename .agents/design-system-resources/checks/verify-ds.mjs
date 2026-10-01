@@ -349,13 +349,13 @@ export function verify(root) {
     }
   }
 
-  const agentPath = "AGENTS.md";
+  const agentPath = "design-system/AGENTS.md";
   const rulesPath = "design-system/system/composition-rules.md";
   if (localFile(agentPath, "inventory") && localFile(rulesPath, "inventory")) {
     const agentText = readFileSync(path.join(root, agentPath), "utf8");
     const agentLine = agentText.trimEnd().split(/\r?\n/).at(-1);
     const match = /^Incluidos:\s*(.*)$/.exec(agentLine);
-    if (!match) fail("AGENTS.md: Incluidos must be the last line");
+    if (!match) fail("design-system/AGENTS.md: Incluidos must be the last line");
     const agentNames = new Set(match && match[1] !== "—" ? match[1].split(",").map((item) => item.trim()).filter(Boolean) : []);
     const rules = readFileSync(path.join(root, rulesPath), "utf8");
     const included = /(?:^|\n)## Incluidos\s*\n([\s\S]*?)(?=\n## |$)/.exec(rules);
@@ -372,7 +372,7 @@ export function verify(root) {
       if (!existsSync(screenFile) && !existsSync(screenIndex)) fail(`screen ${screen} is listed but has no page implementation`);
     }
     if (!sameSet(names, ruleNames)) fail("composition-rules.md component inventory differs from map");
-    if (!sameSet(new Set([...names, ...screenNames]), agentNames)) fail("AGENTS.md inventory differs from component and screen inventory");
+    if (!sameSet(new Set([...names, ...screenNames]), agentNames)) fail("design-system/AGENTS.md inventory differs from component and screen inventory");
   }
 
   const tokensDir = path.join(root, "design-system/tokens");

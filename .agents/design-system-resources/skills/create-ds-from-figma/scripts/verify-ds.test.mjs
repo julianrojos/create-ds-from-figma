@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { verify } from "../plantillas/ai/checks/verify-ds.mjs";
+import { verify } from "../../../checks/verify-ds.mjs";
 
 const template = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../plantillas");
 const active = new Set();
@@ -16,10 +16,10 @@ const write = (root, relative, value) => {
 const fixture = () => {
   const root = mkdtempSync(path.join(os.tmpdir(), "verify-ds-"));
   active.add(root);
-  cpSync(path.join(template, "AGENTS.md"), path.join(root, "AGENTS.md"));
-  cpSync(path.join(template, "system/composition-rules.md"), path.join(root, "design-system/system/composition-rules.md"));
-  cpSync(path.join(template, "relationships/figma-code-map.json"), path.join(root, "design-system/relationships/figma-code-map.json"));
-  cpSync(path.join(template, "relationships/figma-state.json"), path.join(root, "design-system/relationships/figma-state.json"));
+  cpSync(path.join(template, "design-system/AGENTS.md"), path.join(root, "design-system/AGENTS.md"));
+  cpSync(path.join(template, "design-system/system/composition-rules.md"), path.join(root, "design-system/system/composition-rules.md"));
+  cpSync(path.join(template, "design-system/relationships/figma-code-map.json"), path.join(root, "design-system/relationships/figma-code-map.json"));
+  cpSync(path.join(template, "design-system/relationships/figma-state.json"), path.join(root, "design-system/relationships/figma-state.json"));
   return root;
 };
 const read = (root, relative) => JSON.parse(readFileSync(path.join(root, relative), "utf8"));
@@ -56,7 +56,7 @@ const withExampleComponent = () => {
   state.fileKey = "FILE";
   state.components.ExampleComponent = { figmaNodeId: "1:2", nestedComponents: [] };
   write(root, "design-system/relationships/figma-state.json", state);
-  write(root, "AGENTS.md", readFileSync(path.join(root, "AGENTS.md"), "utf8").replace("Incluidos: —", "Incluidos: ExampleComponent"));
+  write(root, "design-system/AGENTS.md", readFileSync(path.join(root, "design-system/AGENTS.md"), "utf8").replace("Incluidos: —", "Incluidos: ExampleComponent"));
   write(root, "design-system/system/composition-rules.md", "# Composition rules\n\n## Incluidos\n\n- **ExampleComponent** — example component.\n");
   return root;
 };
@@ -70,12 +70,12 @@ test("empty kit is valid", () => {
 });
 
 test("generated agent instructions install dependencies before all Node checks", () => {
-  const instructions = readFileSync(path.join(template, "AGENTS.md"), "utf8");
-  assert.ok(instructions.indexOf("Install project dependencies") < instructions.indexOf("node .ai/checks/verify-ds.mjs"));
+  const instructions = readFileSync(path.join(template, "design-system/AGENTS.md"), "utf8");
+  assert.ok(instructions.indexOf("Install project dependencies") < instructions.indexOf("node .agents/design-system-resources/checks/verify-ds.mjs"));
   assert.ok(instructions.includes("postcss-selector-parser"));
   assert.ok(instructions.includes("`verify-ds.mjs` and `verify-props.mjs` require TypeScript"));
   for (const check of ["verify-ds", "verify-props", "verify-bindings"]) {
-    assert.ok(instructions.includes(`node .ai/checks/${check}.mjs`));
+    assert.ok(instructions.includes(`node .agents/design-system-resources/checks/${check}.mjs`));
   }
 });
 
@@ -312,11 +312,11 @@ test("variant coverage, blocking gaps and inventory drift fail", () => {
   metadata.figmaCoverage.variants = [];
   metadata.unresolved = [{ field: "variants.Size", reason: "missing context", source: "get_metadata FILE:1:2", blocking: true }];
   write(root, relative, metadata);
-  write(root, "AGENTS.md", readFileSync(path.join(root, "AGENTS.md"), "utf8").replace("Incluidos: ExampleComponent", "Incluidos: —"));
+  write(root, "design-system/AGENTS.md", readFileSync(path.join(root, "design-system/AGENTS.md"), "utf8").replace("Incluidos: ExampleComponent", "Incluidos: —"));
   const { errors } = verify(root);
   assert.ok(errors.some((item) => item.includes("figmaCoverage.variants differs")));
   assert.ok(errors.some((item) => item.includes("blocking unresolved gap")));
-  assert.ok(errors.some((item) => item.includes("AGENTS.md inventory differs")));
+  assert.ok(errors.some((item) => item.includes("design-system/AGENTS.md inventory differs")));
 });
 
 test("duplicate refs and missing code fail", () => {
@@ -469,7 +469,7 @@ test("mapped nested refs must resolve to the declared component", () => {
 
 test("a listed screen needs a page, but is not a mapped component", () => {
   const root = withExampleComponent();
-  write(root, "AGENTS.md", readFileSync(path.join(root, "AGENTS.md"), "utf8").replace("Incluidos: ExampleComponent", "Incluidos: ExampleComponent, Home"));
+  write(root, "design-system/AGENTS.md", readFileSync(path.join(root, "design-system/AGENTS.md"), "utf8").replace("Incluidos: ExampleComponent", "Incluidos: ExampleComponent, Home"));
   write(root, "design-system/system/composition-rules.md", "# Composition rules\n\n## Incluidos\n\n- **ExampleComponent** — example component.\n- **Home** (pantalla) — page.\n");
   assert.ok(verify(root).errors.some((item) => item.includes("screen Home is listed")));
   write(root, "src/pages/Home.tsx", "export const Home = () => null;\n");

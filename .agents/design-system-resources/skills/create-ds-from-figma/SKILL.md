@@ -1,33 +1,28 @@
----
-name: create-ds-from-figma
-description: From an empty folder, create the AI-ready Design System tree and the first Figma component; later fills more components into the same tree. Use when the user says crea un DS, create a design system, pastes a Figma component URL, or adds another primitive to an existing DS pilot.
----
-
 # Crear DS desde un componente Figma
 
-El usuario abre una **carpeta vacía**, dice **crea un DS** y pega **un componente** de Figma (el file tiene variables).
+El usuario trabaja en **este repo preparado**, dice **crea un DS** y pega **un componente** de Figma (el file tiene variables).
 
 Eso basta. No pidas el esqueleto en un paso aparte.
 
-No cites primitives ni pantallas que aún no existan en este repo. El inventario (última línea de `AGENTS.md` y `## Incluidos` en `composition-rules.md`) empieza vacío y **se rellena al incluir cada pieza**.
+No cites primitives ni pantallas que aún no existan en el DS generado. El inventario (última línea de `design-system/AGENTS.md` y `## Incluidos` en `composition-rules.md`) empieza vacío y **se rellena al incluir cada pieza**.
 
 ## Kit vacío (alumnos)
 
 Las plantillas van **en blanco**. No incluyen colecciones, tokens, primitives ni pantallas de ningún file de ejemplo.
 
-- `AGENTS.md` → `Incluidos: —`
+- `design-system/AGENTS.md` → `Incluidos: —`
 - `composition-rules.md` → `## Incluidos` vacío
 - `figma-code-map.json` → solo `_schema`, sin entradas
 - `figma-state.json` → `_schema` + colecciones, variables y components vacíos
 - **no** hay `design-system/tokens/` en el kit; esa carpeta nace en el primer volcado MCP
 
-No copies un DS ya relleno “para que se vea”. El alumno abre una carpeta vacía y el agente escribe tokens y el primer componente desde Figma.
+No copies un DS ya relleno “para que se vea”. El alumno parte de este repo sin componentes importados y el agente escribe tokens y el primer componente desde Figma.
 
 ## Dos modos
 
-**Primera vez** (falta `design-system/relationships/figma-code-map.json` o `src/styles/tokens.css`, aunque haya un directorio `design-system/` vacío o un `AGENTS.md` propio): analiza Figma antes de escribir; si el diagnóstico permite importar, monta el **árbol entero**, vuelca **todas** las variables del file (todas las colecciones) y rellena **el componente de la URL**. Si el scaffold quedó a medias (existe uno de esos dos archivos pero no el otro), completa solo lo que falte sin sobrescribir lo existente.
+**Primera vez** (falta `design-system/relationships/figma-code-map.json` o `src/styles/tokens.css`, aunque haya un directorio `design-system/` vacío o instrucciones propias del repo): analiza Figma antes de escribir; si el diagnóstico permite importar, monta el **árbol entero**, vuelca **todas** las variables del file (todas las colecciones) y rellena **el componente de la URL**. Si el scaffold quedó a medias (existe uno de esos dos archivos pero no el otro), completa solo lo que falte sin sobrescribir lo existente.
 
-**Siguiente componente** (existen `design-system/relationships/figma-code-map.json` y `src/styles/tokens.css`, incluso si solo se preparó el scaffold): analiza Figma antes de escribir. Si el componente es nuevo, añade ficha, código, mapa e inventario sin recrear Vite ni `.ai/`. Si ya existe, solo la transición comprobada de un anidado `external` a `mapped` habilita una actualización localizada; otros cambios se comunican y requieren una petición explícita de actualización. Si Figma trae colecciones o variables nuevas durante una importación o actualización autorizada, **mézclalas**; no borres las que ya hay.
+**Siguiente componente** (existen `design-system/relationships/figma-code-map.json` y `src/styles/tokens.css`, incluso si solo se preparó el scaffold): analiza Figma antes de escribir. Si el componente es nuevo, añade ficha, código, mapa e inventario sin recrear Vite ni copiar recursos auxiliares del agente (`checks/`, otras `skills/`, `workflows/` o `prop-vocabulary.json`). Si ya existe, solo la transición comprobada de un anidado `external` a `mapped` habilita una actualización localizada; otros cambios se comunican y requieren una petición explícita de actualización. Si Figma trae colecciones o variables nuevas durante una importación o actualización autorizada, **mézclalas**; no borres las que ya hay.
 
 ## Cómo hablar
 
@@ -53,51 +48,56 @@ Luego haz el trabajo. Al cerrar: archivos tocados + “para el siguiente, pega o
 Si dice **paso a paso**: un bloque y espera **sigue**.
 Si dice **crea un DS** (o pega la URL en vacío): ejecuta el modo que toque, narrando cada bloque.
 
-## Kit (árbol fijo)
+## Recursos y plantillas
 
-`plantillas/` es **hermana de este SKILL.md**. Búscala en este orden:
+Este repo es la instalación canónica. Copia al DS generado solo las plantillas indicadas abajo; usa el resto de recursos de agente directamente desde el repo:
 
-1. `<carpeta-de-este-SKILL.md>/plantillas/`
-2. `~/.agents/skills/create-ds-from-figma/plantillas/`
+| Recurso | Uso |
+| --- | --- |
+| `.agents/design-system-resources/checks/` | checks automáticos y manuales |
+| `.agents/design-system-resources/skills/find-component/SKILL.md` | resolución de nodos Figma a componentes existentes |
+| `.agents/design-system-resources/skills/map-figma-to-code/SKILL.md` | mapeo de componentes DS a código y props |
+| `.agents/design-system-resources/skills/validate-ds/SKILL.md` | validación visual y de bindings computados |
+| `.agents/design-system-resources/skills/create-ds-from-figma/SKILL.md` | documento canónico de esta skill |
+| `.agents/design-system-resources/workflows/build-from-figma.md` | workflow de construcción desde Figma |
+| `.agents/design-system-resources/prop-vocabulary.json` | vocabulario canónico de props |
 
-Si no está: para y pide descomprimir el zip de la skill en `~/.agents/skills/create-ds-from-figma/`.
+`plantillas/` vive junto a este documento en `.agents/design-system-resources/skills/create-ds-from-figma/plantillas/` y contiene dos clases de material: `plantillas/design-system/`, que se copia tal cual a `design-system/`, y `plantillas/componentes/`, cuyas fichas se adaptan al crear `design-system/components/<Nombre>/`. Si no está, para y pide abrir este repo completo; no uses una instalación global parcial.
 
-Copia **sin editar** desde ese `plantillas/`:
+Copia **sin editar** todo `plantillas/design-system/` a `design-system/`.
 
-| Origen                        | Destino                                     |
-| ----------------------------- | ------------------------------------------- |
-| `ai/`                         | `.ai/`                                      |
-| `AGENTS.md`                   | `AGENTS.md`                                 |
-| `system/accessibility.md`     | `design-system/system/accessibility.md`     |
-| `system/composition-rules.md` | `design-system/system/composition-rules.md` |
-| `relationships/*.json`        | `design-system/relationships/`              |
+No copies al DS generado los recursos auxiliares del agente: `.agents/design-system-resources/checks/`, las demás carpetas de `.agents/design-system-resources/skills/`, `.agents/design-system-resources/workflows/` ni `.agents/design-system-resources/prop-vocabulary.json`. No generes `.ai/`.
 
 No copies un repo de Design System **ya relleno** (código y fichas de componentes hechos).
-Si el repo ya tiene `AGENTS.md`, conserva sus instrucciones y añade solo las reglas e inventario del DS que falten; no lo sobrescribas con la plantilla. Mantén `Incluidos: …` como **última línea**.
+No mezcles las instrucciones operativas del repo raíz con las del DS generado. Las reglas e inventario del DS viven en `design-system/AGENTS.md`; mantén ahí `Incluidos: …` como **última línea**.
 
-## Árbol (ni una carpeta más)
+## Recursos canónicos del repo
+
+Estos archivos ya existen en el repo y **no se crean ni se copian** al importar un componente:
 
 ```text
-AGENTS.md
-.ai/workflows/build-from-figma.md
-.ai/skills/find-component/SKILL.md
-.ai/skills/map-figma-to-code/SKILL.md
-.ai/skills/validate-ds/SKILL.md
-.ai/skills/create-ds-from-figma/SKILL.md
-.ai/checks/token-usage.md
-.ai/checks/component-reuse.md
-.ai/checks/accessibility.md
-.ai/checks/verify-ds.mjs
-.ai/checks/verify-bindings.mjs
-.ai/checks/verify-props.mjs
-.ai/prop-vocabulary.json
+.agents/design-system-resources/checks/
+.agents/design-system-resources/skills/find-component/SKILL.md
+.agents/design-system-resources/skills/map-figma-to-code/SKILL.md
+.agents/design-system-resources/skills/validate-ds/SKILL.md
+.agents/design-system-resources/skills/create-ds-from-figma/SKILL.md
+.agents/design-system-resources/workflows/build-from-figma.md
+.agents/design-system-resources/prop-vocabulary.json
+```
+
+## Árbol generado
+
+Estos son los archivos que pertenecen al DS/app generado:
+
+```text
+design-system/AGENTS.md
+design-system/system/composition-rules.md
+design-system/system/accessibility.md
+design-system/relationships/figma-code-map.json
+design-system/relationships/figma-state.json
 design-system/tokens/<Coleccion>.json   ← no está en plantillas; nace al volcar Figma
 design-system/components/<Nombre>/metadata.json
 design-system/components/<Nombre>/usage.md
-design-system/relationships/figma-code-map.json
-design-system/relationships/figma-state.json
-design-system/system/composition-rules.md
-design-system/system/accessibility.md
 src/styles/tokens.css
 src/components/<Nombre>/<Nombre>.tsx
 src/components/<Nombre>/<Nombre>.module.css
@@ -124,13 +124,13 @@ En una ficha importada, guarda `variants` como objeto eje → lista de valores o
 
 Antes del TSX, clasifica cada **valor** de cada eje Figma en `variantClassification`: `{ "Size": { "Large": { "kind": "prop", "codeProp": "size" } }, "State": { "Hover": { "kind": "interaction", "state": "hover" } } }`. Usa `kind: prop | state | interaction | content`; `prop` requiere `codeProp`, `state` e `interaction` requieren `state`, y `content` requiere `part`. El eje no tiene por qué tener una sola clase: `State=Hover|Disabled` mezcla interacción y estado. `states` es una lista de `{ "name": "disabled", "control": "consumer" }` con `control: consumer | shared | internal`. `control` indica quién puede establecer el estado, no si hay que inventar una prop: `disabled` puede venir de HTML. Un estado `interaction` es interno; `shared` admite cambio desde el consumidor y desde la interacción del usuario. `default` puede representar el estado visual base, pero no justifica una prop pública. No fabriques una entrada de estado cuando no exista uno observado.
 
-Consulta `.ai/prop-vocabulary.json` antes de nombrar props: primero revisa lo heredado de HTML y de la librería usada. Registra cada prop declarada en el componente como un término con `concept`, `meaning`, `origin` (`authored | platform | library`) y `avoid` (sinónimos descartados); no predefinas escalas ni valores que Figma no mostró. Mantén `notBuilt` como lista de `{ "item": "...", "reason": "...", "evidence": "ref o hecho observado" }`. Incluye ahí decisiones como no exponer `hover` como prop, cuando apliquen; `[]` significa que no hubo exclusiones deliberadas. No copies el contenido de la propuesta de forma mecánica: justifica las decisiones con el preanálisis. Si tras consultar las fuentes una ambigüedad cambia la API (estado frente a prop, contenido frente a opción o dos ejes solapados), pide criterio antes de escribir esa parte; en los casos claros, muestra la propuesta y continúa sin esperar aprobación.
+Consulta `.agents/design-system-resources/prop-vocabulary.json` antes de nombrar props: primero revisa lo heredado de HTML y de la librería usada. Registra cada prop declarada en el componente como un término con `concept`, `meaning`, `origin` (`authored | platform | library`) y `avoid` (sinónimos descartados); no predefinas escalas ni valores que Figma no mostró. Mantén `notBuilt` como lista de `{ "item": "...", "reason": "...", "evidence": "ref o hecho observado" }`. Incluye ahí decisiones como no exponer `hover` como prop, cuando apliquen; `[]` significa que no hubo exclusiones deliberadas. No copies el contenido de la propuesta de forma mecánica: justifica las decisiones con el preanálisis. Si tras consultar las fuentes una ambigüedad cambia la API (estado frente a prop, contenido frente a opción o dos ejes solapados), pide criterio antes de escribir esa parte; en los casos claros, muestra la propuesta y continúa sin esperar aprobación.
 
 Antes del TSX, registra `parts` en `metadata.json`: cada clave es un nombre semántico estable en kebab-case; su `selector` es una única clase local de CSS Modules (por ejemplo `.root`), y `nodes` mapea cada clave de variante aplicable a un ref `<fileKey>:<nodeId>` observado. `root` es obligatorio y cubre todas las variantes; una parte condicional solo enumera las variantes en que existe. Si `figma.variants` está vacío, usa la clave de observación `default` en `parts[*].nodes` y en bindings/literales: `parts.root.nodes.default` apunta a la ref raíz del mapa. Esta clave no es una variante de Figma ni entra en `figmaCoverage.variants`. Marca el mismo elemento del TSX con su clase CSS y un atributo JSX de cadena literal `data-ds-part="<parte>"`; no uses una expresión como `data-ds-part={"root"}`, aunque su valor sea constante. No uses el nombre de la capa Figma como API automáticamente. No fabriques un nodo para una parte sin equivalente observado. El validador comprueba refs, marcadores y presencia de selectores, pero no demuestra todavía que la clase y el marcador estén en el mismo elemento; revisa eso en la comprobación visual.
 
 Registra cada variable observada en `metadata.json.bindings` como `{ part, variant, node, figmaProperty, cssSelector, cssProperty, variableId }`. `node` es el ref Figma exacto y debe coincidir con `parts[part].nodes[variant]`; `figmaProperty` identifica la propiedad inspeccionada (por ejemplo `fills[0]`), mientras que `cssSelector` y `cssProperty` son la traducción propuesta al código, no hechos medidos. Añade `modeOverride: { collectionId, modeName }` solo si ese nodo fuerza explícitamente un modo. Para un binding directo a una variable de otra librería, añade en `externalVariables` una instantánea `{ id, cssName, type, value, source }`: `id` es el ID externo observado, `value` su valor resuelto en el modo base, `source` es una ref de nodo local que la usa y `cssName` se declara en `tokens.css`. No la registres como variable local. Si no puedes obtener el ID o el valor resuelto, `DS_GAP`; no inventes un token. El validador avisa de la instantánea, comprueba su valor base y el informe la identifica por ID; los cambios de modo externos todavía requieren revisión manual. Si Figma no tiene binding para una propiedad implementada con un valor literal, registra `measuredLiterals` con los mismos campos salvo `variableId`: usa `source` como ref del nodo y `value` como valor CSS medido. No registres un literal para una propiedad ligada a una variable en esa variante; `notApplicable` no es una lista de excepciones. Una propiedad no medida sigue siendo no determinada, nunca un literal plausible.
 
-El informe `node .ai/checks/verify-bindings.mjs` une ID de variable, `cssName` del inventario de tokens o de `externalVariables`, selector y declaración CSS. Solo evalúa selectores formados por clases y declaraciones directas. Recorre todas las declaraciones del CSS del componente: los literales directos sin medida de propiedades compatibles (incluida `font-family`) son FAIL; cualquier otra declaración sin observación, incluidos `var()` sin binding, shorthand, propiedades no soportadas, reglas condicionales y selectores complejos, es NOT_RUN con motivo. `calc()`, fallback de `var()`, herencia, modos forzados, redefiniciones locales del token y posibles conflictos con otras declaraciones del archivo tampoco se consideran PASS. Cada binding o literal registrado tiene `writtenStatus` para la identidad escrita y `status` para el alcance estático: un `status: NOT_RUN` por cascada no borra un `writtenStatus: PASS`. El informe estático no conoce la cascada de otros archivos ni el valor efectivo. Revisa cada hallazgo y corrige los problemas reales antes de cerrar el componente. No declares PASS por el mero hecho de que el informe no haya evaluado una propiedad. Para la conformidad final, sigue `.ai/skills/validate-ds/SKILL.md` y comprueba cada binding con `getComputedStyle` frente al valor Figma independiente del elemento; si no puedes hacerlo, informa NOT RUN y no declares Overall PASS.
+El informe `node .agents/design-system-resources/checks/verify-bindings.mjs` une ID de variable, `cssName` del inventario de tokens o de `externalVariables`, selector y declaración CSS. Solo evalúa selectores formados por clases y declaraciones directas. Recorre todas las declaraciones del CSS del componente: los literales directos sin medida de propiedades compatibles (incluida `font-family`) son FAIL; cualquier otra declaración sin observación, incluidos `var()` sin binding, shorthand, propiedades no soportadas, reglas condicionales y selectores complejos, es NOT_RUN con motivo. `calc()`, fallback de `var()`, herencia, modos forzados, redefiniciones locales del token y posibles conflictos con otras declaraciones del archivo tampoco se consideran PASS. Cada binding o literal registrado tiene `writtenStatus` para la identidad escrita y `status` para el alcance estático: un `status: NOT_RUN` por cascada no borra un `writtenStatus: PASS`. El informe estático no conoce la cascada de otros archivos ni el valor efectivo. Revisa cada hallazgo y corrige los problemas reales antes de cerrar el componente. No declares PASS por el mero hecho de que el informe no haya evaluado una propiedad. Para la conformidad final, sigue `.agents/design-system-resources/skills/validate-ds/SKILL.md` y comprueba cada binding con `getComputedStyle` frente al valor Figma independiente del elemento; si no puedes hacerlo, informa NOT RUN y no declares Overall PASS.
 
 Si Figma liga una familia tipográfica que el navegador no tiene instalada, carga esa fuente en el proyecto antes de comparar capturas. Una variable CSS con el nombre correcto no evita que el navegador use una fuente de sustitución; no marques la tipografía como PASS sin comprobar la fuente renderizada.
 
@@ -280,7 +280,7 @@ Durante el preanálisis, detecta las instancias de todas las variantes antes de 
 }
 ```
 
-`mainComponentRef` aparece cuando tengas un ref estable. `mainComponentNodeId` y `mainComponentKey` aparecen solo cuando la herramienta los devuelve. `mainComponentFileKey` aparece solo para un anidado `remote` cuando la herramienta devuelve el `fileKey` de su propio file; sin él, un `mainComponentNodeId` remoto no es una identidad verificable. `resolvedComponent` solo aparece cuando `status` es `mapped`. No añadas anidados al inventario de `AGENTS.md` ni a `composition-rules.md` si no tienen carpeta real en `design-system/components/`.
+`mainComponentRef` aparece cuando tengas un ref estable. `mainComponentNodeId` y `mainComponentKey` aparecen solo cuando la herramienta los devuelve. `mainComponentFileKey` aparece solo para un anidado `remote` cuando la herramienta devuelve el `fileKey` de su propio file; sin él, un `mainComponentNodeId` remoto no es una identidad verificable. `resolvedComponent` solo aparece cuando `status` es `mapped`. No añadas anidados al inventario de `design-system/AGENTS.md` ni a `composition-rules.md` si no tienen carpeta real en `design-system/components/`.
 
 Al volver a pedir un componente ya importado, reanaliza sus anidados con el mapa actual y aplica la tabla del preanálisis. Si uno pasa de `external` a `mapped`, cambia `nestedComponents` y el import/uso del componente local en el padre solo cuando se verifiquen las condiciones para la actualización automática o el usuario autorice expresamente esa sustitución; nunca cambies solo el JSON. Para otros cambios observados, informa y espera una petición explícita de actualización; no reescribas el componente por iniciativa propia.
 
@@ -288,7 +288,7 @@ Al volver a pedir un componente ya importado, reanaliza sus anidados con el mapa
 
 Tras cada primitive o pantalla que **sí** hayas implementado:
 
-1. Última línea de `AGENTS.md`: lista **solo** los nombres que existen en `design-system/components/` y `src/pages/`. Cero nombres previstos.
+1. Última línea de `design-system/AGENTS.md`: lista **solo** los nombres que existen en `design-system/components/` y `src/pages/`. Cero nombres previstos.
 2. En `design-system/system/composition-rules.md`, sección `## Incluidos`: **añade** una viñeta (no borres las anteriores).
    - Primitive: `- **<Nombre>** — <una frase de uso>.`
    - Pantalla: `- **<Nombre>** (pantalla) — se compone como <A → B>` usando **solo** primitives ya incluidos.
@@ -298,16 +298,14 @@ No escribas en esas listas un componente que no tenga carpeta en el DS.
 ## Primera vez (orden)
 
 1. **Preanálisis y diagnóstico** — identifica el nodo, lee variables del file de origen, analiza el set y sus anidados. Aplica la tabla de decisiones y comunica el resultado antes de escribir.
-2. **Árbol** — si se puede importar, monta Vite React TS (CSS modules, sin Tailwind) y copia `plantillas/`.
+2. **Árbol** — si se puede importar, monta Vite React TS (CSS modules, sin Tailwind) y copia sin editar todo `plantillas/design-system/` a `design-system/`. No copies los recursos auxiliares del agente (`checks/`, otras `skills/`, `workflows/` o `prop-vocabulary.json`) ni generes `.ai/`.
 3. **Tokens** — persiste el inventario **file-level** ya leído: una JSON por colección + `src/styles/tokens.css`.
 4. **Ficha** — `metadata.json` + `usage.md` con variantes, estados y tokens observados (plantilla `plantillas/componentes/`).
 5. **Código** — `src/components/<Nombre>/` con tokens y reutilizando anidados `mapped`. Declara `interface <Nombre>Props extends ... { ... }` o `type <Nombre>Props = Omit<...> & { ... }` (también vale un literal sin herencia) en su TSX y úsalo en el componente; hereda props nativas en vez de redefinirlas cuando corresponda.
 6. **Mapa** — entradas en `figma-code-map.json` con `refs` y en `figma-state.json` con `nestedComponents` `mapped` o `external`.
 7. **App** — `App.tsx` renderiza **solo** ese componente (para `npm run dev`).
-8. **Inventario** — `AGENTS.md` + `## Incluidos` (solo ese componente).
-9. **Checks** — `node .ai/checks/verify-ds.mjs`, `node .ai/checks/verify-props.mjs` y `node .ai/checks/verify-bindings.mjs` (tras instalar las dependencias de `package.json`), más `.ai/skills/validate-ds/SKILL.md` sobre ese componente. Informa PASS, FAIL o NOT RUN con motivo para cada check; no llames conforme a lo no evaluado.
-
-Copia también esta skill a `.ai/skills/create-ds-from-figma/SKILL.md`.
+8. **Inventario** — `design-system/AGENTS.md` + `## Incluidos` (solo ese componente).
+9. **Checks** — `node .agents/design-system-resources/checks/verify-ds.mjs`, `node .agents/design-system-resources/checks/verify-props.mjs` y `node .agents/design-system-resources/checks/verify-bindings.mjs` (tras instalar las dependencias de `package.json`), más `.agents/design-system-resources/skills/validate-ds/SKILL.md` sobre ese componente. Informa PASS, FAIL o NOT RUN con motivo para cada check; no llames conforme a lo no evaluado.
 
 ## Siguiente componente
 
@@ -317,7 +315,7 @@ Copia también esta skill a `.ai/skills/create-ds-from-figma/SKILL.md`.
 4. Para un componente nuevo, crea ficha + código + mapa. Para uno existente, sigue «Actualización solicitada» si el usuario pidió una actualización general o autorizó una sustitución concreta; en otro caso, actualiza automáticamente solo una transición `external` → `mapped` con identidad verificada igual, sin otras diferencias y que puedas editar sin pisar cambios del alumno. Si no puedes aislarla, muestra el cambio propuesto y pide confirmación. No guardes `missing` ni estados `blocked`.
 5. Si `App.tsx` está vacío porque solo se preparó el scaffold, renderiza ahí el primer componente que se importe. En los demás casos, no lo sustituyas salvo que pidan ver el nuevo; no borres componentes viejos.
 6. Inventario: añade solo nombres nuevos; no quites los anteriores.
-7. Checks de **este** componente, también tras una actualización localizada; ejecuta `node .ai/checks/verify-ds.mjs`, `node .ai/checks/verify-props.mjs` y `node .ai/checks/verify-bindings.mjs` e informa los checks no realizados con su motivo.
+7. Checks de **este** componente, también tras una actualización localizada; ejecuta `node .agents/design-system-resources/checks/verify-ds.mjs`, `node .agents/design-system-resources/checks/verify-props.mjs` y `node .agents/design-system-resources/checks/verify-bindings.mjs` e informa los checks no realizados con su motivo.
 
 ## Cuando pidan una pantalla
 
@@ -328,9 +326,10 @@ Copia también esta skill a `.ai/skills/create-ds-from-figma/SKILL.md`.
 
 ## Prohibido
 
-- Rellenar plantillas o el repo del alumno con un DS de ejemplo
+- Rellenar plantillas o el DS generado con un DS de ejemplo
+- Copiar recursos auxiliares del agente (`checks/`, otras `skills/`, `workflows/` o `prop-vocabulary.json`) al DS generado, generar `.ai/` o mantener runtimes AI duplicados
 - Generar todos los componentes del file de golpe
-- Citar en reglas o inventario componentes que aún no están en el repo
+- Citar en reglas o inventario componentes que aún no están en el DS generado
 - Una pantalla en la primera vez (si la URL es una pantalla: `DS_GAP`, sin escribir)
 - Hex/spacing inventados
 - Resumir variables a `colors.json` / `spacing.json` / `typography.json`
