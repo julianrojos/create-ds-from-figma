@@ -18,7 +18,7 @@ export function verifyProps(root, typescript) {
     }
   };
   const map = readJson("design-system/relationships/figma-code-map.json");
-  const vocabulary = readJson(".agents/design-system-resources/prop-vocabulary.json");
+  const vocabulary = readJson(".agents/prop-vocabulary.json");
   if (!isObject(map) || !isObject(vocabulary)) return { errors };
   if (!isObject(vocabulary.terms)) {
     fail("prop-vocabulary.json: terms must be an object");

@@ -15,7 +15,7 @@ Implement a Figma frame using the existing Design System.
 7. Read the required tokens.
 8. Read composition and accessibility rules.
 9. Implement the screen using existing code components.
-10. Run `node .agents/design-system-resources/checks/verify-ds.mjs`, `node .agents/design-system-resources/checks/verify-props.mjs` and the Design System checks.
+10. Run `node .agents/checks/verify-ds.mjs`, `node .agents/checks/verify-props.mjs` and the Design System checks.
 11. Fix violations.
 12. Return PASS, FAIL or NOT RUN (with reason) for each check; never report untested behavior as passing.
 

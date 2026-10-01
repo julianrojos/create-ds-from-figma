@@ -6,7 +6,7 @@ No trae tokens, componentes ni pantallas. El agente analiza la URL de Figma ante
 
 ## Usar
 
-Abre este repo en tu IDE y abre un chat con la IA y pide:
+Abre este repo en tu IDE, abre un chat con la IA y pide:
 
 ```text
 Crea un DS
@@ -24,20 +24,19 @@ Siguiente primitive: otra URL. Pantalla: cuando ya haya primitives.
 
 ## Qué incluye
 
-| Ruta desde la raíz del repo                                                                                                                                                  | Para qué                                                    |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| `README.md`                                                                                                                                                                  | Guía humana del kit y su estructura                         |
-| `.agents/skills/create-ds-from-figma/SKILL.md`                                                                                                                               | Wrapper mínimo para que la skill se detecte                 |
-| `.agents/design-system-resources/skills/create-ds-from-figma/SKILL.md`                                                                                                       | Instrucciones canónicas del agente                          |
-| `.agents/design-system-resources/skills/create-ds-from-figma/scripts/`                                                                                                       | Tests locales de los checks del kit                         |
-| `.agents/design-system-resources/skills/create-ds-from-figma/plantillas/design-system/`                                                                                      | Árbol fijo vacío que se copia tal cual a `design-system/`   |
-| `.agents/design-system-resources/skills/create-ds-from-figma/plantillas/componentes/`                                                                                        | Plantillas de ficha por componente                          |
-| `.agents/design-system-resources/checks/`                                                                                                                                    | Checks automáticos y manuales que se ejecutan desde el repo |
-| `.agents/design-system-resources/skills/find-component/`, `.agents/design-system-resources/skills/map-figma-to-code/`, `.agents/design-system-resources/skills/validate-ds/` | Skills auxiliares usadas por ruta                           |
-| `.agents/design-system-resources/workflows/`                                                                                                                                 | Workflow de construcción desde Figma                        |
-| `.agents/design-system-resources/prop-vocabulary.json`                                                                                                                       | Vocabulario canónico de props                               |
+| Ruta desde la raíz del repo                                                                          | Para qué                                                    |
+| ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `README.md`                                                                                          | Guía humana del kit y su estructura                         |
+| `.agents/skills/create-ds-from-figma/SKILL.md`                                                       | Skill canónica y detectable                                 |
+| `.agents/skills/create-ds-from-figma/scripts/`                                                       | Tests locales de los checks del kit                         |
+| `.agents/skills/create-ds-from-figma/plantillas/design-system/`                                      | Árbol fijo vacío que se copia tal cual a `design-system/`   |
+| `.agents/skills/create-ds-from-figma/plantillas/componentes/`                                        | Plantillas de ficha por componente                          |
+| `.agents/checks/`                                                                                    | Checks automáticos y manuales que se ejecutan desde el repo |
+| `.agents/skills/find-component/`, `.agents/skills/map-figma-to-code/`, `.agents/skills/validate-ds/` | Skills auxiliares del flujo                                 |
+| `.agents/workflows/`                                                                                 | Workflow de construcción desde Figma                        |
+| `.agents/prop-vocabulary.json`                                                                       | Vocabulario canónico de props                               |
 
-Para validar, ejecuta `npm test` desde la raíz de este repo. En un DS generado, instala las dependencias y ejecuta `node .agents/design-system-resources/checks/verify-ds.mjs`, `node .agents/design-system-resources/checks/verify-props.mjs` y `node .agents/design-system-resources/checks/verify-bindings.mjs`. Los dos primeros validan estructura y props; el último informa cobertura y diferencias de bindings CSS sin bloquear todavía.
+Para validar, ejecuta `npm test` desde la raíz de este repo. En un DS generado, instala las dependencias y ejecuta `node .agents/checks/verify-ds.mjs`, `node .agents/checks/verify-props.mjs` y `node .agents/checks/verify-bindings.mjs`. Los dos primeros validan estructura y props; el último informa cobertura y diferencias de bindings CSS sin bloquear todavía.
 
 ## No negociable
 

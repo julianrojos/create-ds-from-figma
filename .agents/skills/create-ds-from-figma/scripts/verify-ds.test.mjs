@@ -71,11 +71,11 @@ test("empty kit is valid", () => {
 
 test("generated agent instructions install dependencies before all Node checks", () => {
   const instructions = readFileSync(path.join(template, "design-system/AGENTS.md"), "utf8");
-  assert.ok(instructions.indexOf("Install project dependencies") < instructions.indexOf("node .agents/design-system-resources/checks/verify-ds.mjs"));
+  assert.ok(instructions.indexOf("Install project dependencies") < instructions.indexOf("node .agents/checks/verify-ds.mjs"));
   assert.ok(instructions.includes("postcss-selector-parser"));
   assert.ok(instructions.includes("`verify-ds.mjs` and `verify-props.mjs` require TypeScript"));
   for (const check of ["verify-ds", "verify-props", "verify-bindings"]) {
-    assert.ok(instructions.includes(`node .agents/design-system-resources/checks/${check}.mjs`));
+    assert.ok(instructions.includes(`node .agents/checks/${check}.mjs`));
   }
 });
 

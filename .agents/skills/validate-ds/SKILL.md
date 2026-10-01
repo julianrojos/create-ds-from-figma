@@ -11,10 +11,10 @@ Validate generated UI against Design System rules.
 
 ## Read
 
-- `.agents/design-system-resources/checks/token-usage.md`
-- `.agents/design-system-resources/checks/component-reuse.md`
-- `.agents/design-system-resources/checks/accessibility.md`
-- install project dependencies, then run `node .agents/design-system-resources/checks/verify-ds.mjs`, `node .agents/design-system-resources/checks/verify-props.mjs` and `node .agents/design-system-resources/checks/verify-bindings.mjs` from the project root;
+- `.agents/checks/token-usage.md`
+- `.agents/checks/component-reuse.md`
+- `.agents/checks/accessibility.md`
+- install project dependencies, then run `node .agents/checks/verify-ds.mjs`, `node .agents/checks/verify-props.mjs` and `node .agents/checks/verify-bindings.mjs` from the project root;
 - relevant DS component metadata;
 - system rules.
 

@@ -20,7 +20,7 @@ const fixture = () => {
   roots.add(root);
   const vocabulary = JSON.parse(readFileSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../prop-vocabulary.json"), "utf8"));
   vocabulary.terms.size = { concept: "component-size", meaning: "ExampleComponent dimensions", origin: "authored", avoid: ["scale"] };
-  write(root, ".agents/design-system-resources/prop-vocabulary.json", vocabulary);
+  write(root, ".agents/prop-vocabulary.json", vocabulary);
   write(root, "design-system/relationships/figma-code-map.json", {
     ExampleComponent: {
       name: "ExampleComponent",
@@ -101,7 +101,7 @@ test("classification must name a declared code prop", () => {
 
 test("a classified prop can be inherited from a resolved type", () => {
   const root = fixture();
-  const vocabularyPath = ".agents/design-system-resources/prop-vocabulary.json";
+  const vocabularyPath = ".agents/prop-vocabulary.json";
   const vocabulary = read(root, vocabularyPath);
   vocabulary.terms.size.origin = "platform";
   write(root, vocabularyPath, vocabulary);
