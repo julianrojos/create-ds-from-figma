@@ -32,6 +32,7 @@ Siguiente primitive: otra URL. Pantalla: cuando ya haya primitives.
 | `.agents/skills/create-ds-from-figma/plantillas/design-system/`                                      | Árbol fijo vacío que se copia tal cual a `design-system/`   |
 | `.agents/skills/create-ds-from-figma/plantillas/componentes/`                                        | Plantillas de ficha por componente                          |
 | `.agents/checks/`                                                                                    | Checks automáticos y manuales que se ejecutan desde el repo |
+| `.agents/rules/`                                                                                     | Reglas persistentes para el DS generado y `src/`            |
 | `.agents/skills/find-component/`, `.agents/skills/map-figma-to-code/`, `.agents/skills/validate-ds/` | Skills auxiliares del flujo                                 |
 | `.agents/workflows/`                                                                                 | Workflow de construcción desde Figma                        |
 | `.agents/prop-vocabulary.json`                                                                       | Vocabulario canónico de props                               |
@@ -44,5 +45,6 @@ Para validar, ejecuta `npm test` desde la raíz de este repo. En un DS generado,
 - Sin Tailwind, Storybook ni CI
 - Cada primitive: solo `metadata.json` + `usage.md`
 - Si Figma no mapea: `DS_GAP`, no inventar
-- No citar en `composition-rules` ni `design-system/AGENTS.md` un componente que no exista aún
+- `design-system/inventory.json` solo registra nombres de componentes implementados y pantallas con su composición declarada; el uso de cada componente se documenta en su `usage.md`
+- `verify-ds` comprueba que los componentes declarados por cada pantalla estén en el inventario y que exista su página; no infiere qué componentes se renderizan realmente
 - No resumir tokens a color/spacing/type

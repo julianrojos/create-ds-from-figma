@@ -9,14 +9,14 @@ El usuario trabaja en **este repo preparado**, dice **crea un DS** y pega **un c
 
 Eso basta. No pidas el esqueleto en un paso aparte.
 
-No cites primitives ni pantallas que aún no existan en el DS generado. El inventario (última línea de `design-system/AGENTS.md` y `## Incluidos` en `composition-rules.md`) empieza vacío y **se rellena al incluir cada pieza**.
+No cites primitives ni pantallas que aún no existan en el DS generado. `design-system/inventory.json` empieza vacío y **se rellena al incluir cada pieza**.
 
 ## Kit vacío (alumnos)
 
 Las plantillas van **en blanco**. No incluyen colecciones, tokens, primitives ni pantallas de ningún file de ejemplo.
 
-- `design-system/AGENTS.md` → `Incluidos: —`
-- `composition-rules.md` → `## Incluidos` vacío
+- `design-system/inventory.json` → listas `components` y `screens` vacías
+- `composition-rules.md` → reglas generales, sin inventario de piezas
 - `figma-code-map.json` → solo `_schema`, sin entradas
 - `figma-state.json` → `_schema` + colecciones, variables y components vacíos
 - **no** hay `design-system/tokens/` en el kit; esa carpeta nace en el primer volcado MCP
@@ -27,7 +27,7 @@ No copies un DS ya relleno “para que se vea”. El alumno parte de este repo s
 
 **Primera vez** (falta `design-system/relationships/figma-code-map.json` o `src/styles/tokens.css`, aunque haya un directorio `design-system/` vacío o instrucciones propias del repo): analiza Figma antes de escribir; si el diagnóstico permite importar, monta el **árbol entero**, vuelca **todas** las variables del file (todas las colecciones) y rellena **el componente de la URL**. Si el scaffold quedó a medias (existe uno de esos dos archivos pero no el otro), completa solo lo que falte sin sobrescribir lo existente.
 
-**Siguiente componente** (existen `design-system/relationships/figma-code-map.json` y `src/styles/tokens.css`, incluso si solo se preparó el scaffold): analiza Figma antes de escribir. Si el componente es nuevo, añade ficha, código, mapa e inventario sin recrear Vite ni copiar recursos auxiliares del agente (`checks/`, otras `skills/`, `workflows/` o `prop-vocabulary.json`). Si ya existe, solo la transición comprobada de un anidado `external` a `mapped` habilita una actualización localizada; otros cambios se comunican y requieren una petición explícita de actualización. Si Figma trae colecciones o variables nuevas durante una importación o actualización autorizada, **mézclalas**; no borres las que ya hay.
+**Siguiente componente** (existen `design-system/relationships/figma-code-map.json` y `src/styles/tokens.css`, incluso si solo se preparó el scaffold): analiza Figma antes de escribir. Si el componente es nuevo, añade ficha, código, mapa e inventario sin recrear Vite ni copiar recursos auxiliares del agente (`checks/`, `rules/`, otras `skills/`, `workflows/` o `prop-vocabulary.json`). Si ya existe, solo la transición comprobada de un anidado `external` a `mapped` habilita una actualización localizada; otros cambios se comunican y requieren una petición explícita de actualización. Si Figma trae colecciones o variables nuevas durante una importación o actualización autorizada, **mézclalas**; no borres las que ya hay.
 
 ## Cómo hablar
 
@@ -65,16 +65,17 @@ Este repo es la instalación canónica. Copia al DS generado solo las plantillas
 | `.agents/skills/validate-ds/SKILL.md` | validación visual y de bindings computados |
 | `.agents/skills/create-ds-from-figma/SKILL.md` | documento canónico de esta skill |
 | `.agents/workflows/build-from-figma.md` | workflow de construcción desde Figma |
+| `.agents/rules/design-system.md` | reglas persistentes para `src/` y `design-system/` |
 | `.agents/prop-vocabulary.json` | vocabulario canónico de props |
 
 `plantillas/` vive junto a este documento en `.agents/skills/create-ds-from-figma/plantillas/` y contiene dos clases de material: `plantillas/design-system/`, que se copia tal cual a `design-system/`, y `plantillas/componentes/`, cuyas fichas se adaptan al crear `design-system/components/<Nombre>/`. Si no está, para y pide abrir este repo completo; no uses una instalación global parcial.
 
 Copia **sin editar** todo `plantillas/design-system/` a `design-system/`.
 
-No copies al DS generado los recursos auxiliares del agente: `.agents/checks/`, las demás carpetas de `.agents/skills/`, `.agents/workflows/` ni `.agents/prop-vocabulary.json`. No generes `.ai/`.
+No copies al DS generado los recursos auxiliares del agente: `.agents/checks/`, `.agents/rules/`, las demás carpetas de `.agents/skills/`, `.agents/workflows/` ni `.agents/prop-vocabulary.json`. No generes `.ai/`.
 
 No copies un repo de Design System **ya relleno** (código y fichas de componentes hechos).
-No mezcles las instrucciones operativas del repo raíz con las del DS generado. Las reglas e inventario del DS viven en `design-system/AGENTS.md`; mantén ahí `Incluidos: …` como **última línea**.
+Al trabajar en `src/` o `design-system/`, aplica `.agents/rules/design-system.md`. Registra las piezas implementadas solo en `design-system/inventory.json`.
 
 ## Recursos canónicos del repo
 
@@ -87,6 +88,7 @@ Estos archivos ya existen en el repo y **no se crean ni se copian** al importar 
 .agents/skills/validate-ds/SKILL.md
 .agents/skills/create-ds-from-figma/SKILL.md
 .agents/workflows/build-from-figma.md
+.agents/rules/design-system.md
 .agents/prop-vocabulary.json
 ```
 
@@ -95,7 +97,7 @@ Estos archivos ya existen en el repo y **no se crean ni se copian** al importar 
 Estos son los archivos que pertenecen al DS/app generado:
 
 ```text
-design-system/AGENTS.md
+design-system/inventory.json
 design-system/system/composition-rules.md
 design-system/system/accessibility.md
 design-system/relationships/figma-code-map.json
@@ -285,31 +287,29 @@ Durante el preanálisis, detecta las instancias de todas las variantes antes de 
 }
 ```
 
-`mainComponentRef` aparece cuando tengas un ref estable. `mainComponentNodeId` y `mainComponentKey` aparecen solo cuando la herramienta los devuelve. `mainComponentFileKey` aparece solo para un anidado `remote` cuando la herramienta devuelve el `fileKey` de su propio file; sin él, un `mainComponentNodeId` remoto no es una identidad verificable. `resolvedComponent` solo aparece cuando `status` es `mapped`. No añadas anidados al inventario de `design-system/AGENTS.md` ni a `composition-rules.md` si no tienen carpeta real en `design-system/components/`.
+`mainComponentRef` aparece cuando tengas un ref estable. `mainComponentNodeId` y `mainComponentKey` aparecen solo cuando la herramienta los devuelve. `mainComponentFileKey` aparece solo para un anidado `remote` cuando la herramienta devuelve el `fileKey` de su propio file; sin él, un `mainComponentNodeId` remoto no es una identidad verificable. `resolvedComponent` solo aparece cuando `status` es `mapped`. No añadas anidados a `design-system/inventory.json` si no tienen carpeta real en `design-system/components/`.
 
 Al volver a pedir un componente ya importado, reanaliza sus anidados con el mapa actual y aplica la tabla del preanálisis. Si uno pasa de `external` a `mapped`, cambia `nestedComponents` y el import/uso del componente local en el padre solo cuando se verifiquen las condiciones para la actualización automática o el usuario autorice expresamente esa sustitución; nunca cambies solo el JSON. Para otros cambios observados, informa y espera una petición explícita de actualización; no reescribas el componente por iniciativa propia.
 
 ## Inventario (obligatorio al incluir)
 
-Tras cada primitive o pantalla que **sí** hayas implementado:
+Tras cada primitive o pantalla que **sí** hayas implementado, añade una entrada a `design-system/inventory.json` sin borrar las anteriores:
 
-1. Última línea de `design-system/AGENTS.md`: lista **solo** los nombres que existen en `design-system/components/` y `src/pages/`. Cero nombres previstos.
-2. En `design-system/system/composition-rules.md`, sección `## Incluidos`: **añade** una viñeta (no borres las anteriores).
-   - Primitive: `- **<Nombre>** — <una frase de uso>.`
-   - Pantalla: `- **<Nombre>** (pantalla) — se compone como <A → B>` usando **solo** primitives ya incluidos.
+- Primitive: `components` recibe `"<Nombre>"` solo si existe `design-system/components/<Nombre>/` y su código. La descripción de uso vive únicamente en `design-system/components/<Nombre>/usage.md`.
+- Pantalla: `screens` recibe `{ "name": "<Nombre>", "composition": { "components": ["<PrimitiveIncluido>"], "description": "<disposición de esos componentes>" } }` solo si existe en `src/pages/`. El array contiene nombres únicos de los primitives usados; todos deben estar presentes en `components`.
 
-No escribas en esas listas un componente que no tenga carpeta en el DS.
+No registres nombres previstos ni anidados externos.
 
 ## Primera vez (orden)
 
 1. **Preanálisis y diagnóstico** — identifica el nodo, lee variables del file de origen, analiza el set y sus anidados. Aplica la tabla de decisiones y comunica el resultado antes de escribir.
-2. **Árbol** — si se puede importar, monta Vite React TS (CSS modules, sin Tailwind) y copia sin editar todo `plantillas/design-system/` a `design-system/`. No copies los recursos auxiliares del agente (`checks/`, otras `skills/`, `workflows/` o `prop-vocabulary.json`) ni generes `.ai/`.
+2. **Árbol** — si se puede importar, monta Vite React TS (CSS modules, sin Tailwind) y copia sin editar todo `plantillas/design-system/` a `design-system/`. No copies los recursos auxiliares del agente (`checks/`, `rules/`, otras `skills/`, `workflows/` o `prop-vocabulary.json`) ni generes `.ai/`.
 3. **Tokens** — persiste el inventario **file-level** ya leído: una JSON por colección + `src/styles/tokens.css`.
 4. **Ficha** — `metadata.json` + `usage.md` con variantes, estados y tokens observados (plantilla `plantillas/componentes/`).
 5. **Código** — `src/components/<Nombre>/` con tokens y reutilizando anidados `mapped`. Declara `interface <Nombre>Props extends ... { ... }` o `type <Nombre>Props = Omit<...> & { ... }` (también vale un literal sin herencia) en su TSX y úsalo en el componente; hereda props nativas en vez de redefinirlas cuando corresponda.
 6. **Mapa** — entradas en `figma-code-map.json` con `refs` y en `figma-state.json` con `nestedComponents` `mapped` o `external`.
 7. **App** — `App.tsx` renderiza **solo** ese componente (para `npm run dev`).
-8. **Inventario** — `design-system/AGENTS.md` + `## Incluidos` (solo ese componente).
+8. **Inventario** — añade solo ese componente a `design-system/inventory.json`.
 9. **Checks** — `node .agents/checks/verify-ds.mjs`, `node .agents/checks/verify-props.mjs` y `node .agents/checks/verify-bindings.mjs` (tras instalar las dependencias de `package.json`), más `.agents/skills/validate-ds/SKILL.md` sobre ese componente. Informa PASS, FAIL o NOT RUN con motivo para cada check; no llames conforme a lo no evaluado.
 
 ## Siguiente componente
@@ -326,13 +326,13 @@ No escribas en esas listas un componente que no tenga carpeta en el DS.
 
 1. Una sola página en `src/pages/`. `App.tsx` la renderiza.
 2. Solo primitives **ya incluidos**. Si `find-component` devuelve `not found` para un elemento de pantalla, reporta `DS_GAP`; no inventes.
-3. Inventario: nombre de pantalla + receta `se compone como …`.
+3. Inventario: nombre de pantalla + `composition.components` y `composition.description`.
 4. Checks de esa página.
 
 ## Prohibido
 
 - Rellenar plantillas o el DS generado con un DS de ejemplo
-- Copiar recursos auxiliares del agente (`checks/`, otras `skills/`, `workflows/` o `prop-vocabulary.json`) al DS generado, generar `.ai/` o mantener runtimes AI duplicados
+- Copiar recursos auxiliares del agente (`checks/`, `rules/`, otras `skills/`, `workflows/` o `prop-vocabulary.json`) al DS generado, generar `.ai/` o mantener runtimes AI duplicados
 - Generar todos los componentes del file de golpe
 - Citar en reglas o inventario componentes que aún no están en el DS generado
 - Una pantalla en la primera vez (si la URL es una pantalla: `DS_GAP`, sin escribir)

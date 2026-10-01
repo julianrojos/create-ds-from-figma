@@ -4,25 +4,16 @@
 
 Implement a Figma frame using the existing Design System.
 
+For a component URL or an import/update of a primitive, follow `.agents/skills/create-ds-from-figma/SKILL.md` instead.
+
 ## Workflow
 
-1. Read the target Figma frame.
-2. List all visible UI elements.
-3. Resolve each element to an existing DS component; report `DS_GAP` for any `not found` result.
-4. Resolve Figma components to code components.
-5. Read the relevant component metadata.
-6. Read `figma-state.json` and respect each component's declared `nestedComponents`.
-7. Read the required tokens.
-8. Read composition and accessibility rules.
-9. Implement the screen using existing code components.
-10. Run `node .agents/checks/verify-ds.mjs`, `node .agents/checks/verify-props.mjs` and the Design System checks.
-11. Fix violations.
-12. Return PASS, FAIL or NOT RUN (with reason) for each check; never report untested behavior as passing.
-
-## Do not
-
-- recreate existing DS components;
-- invent arbitrary token values;
-- introduce new variants without reporting them;
-- ignore unmapped Figma elements;
-- redraw a mapped nested component instead of using the resolved DS component.
+1. Inspect the requested frame and list its visible UI elements.
+2. Read `design-system/inventory.json` and search `design-system/components/` and `src/components/` for existing matches. Use `.agents/skills/find-component/SKILL.md` to resolve each Figma element. Stop and report `DS_GAP` for an unmapped element; ask for the missing component URL.
+3. Use `.agents/skills/map-figma-to-code/SKILL.md` and `design-system/relationships/figma-code-map.json` to resolve each mapped component to code and props.
+4. Read the relevant component metadata and `design-system/relationships/figma-state.json`; respect declared `nestedComponents`.
+5. Read the required tokens, `design-system/system/composition-rules.md` and `design-system/system/accessibility.md`.
+6. Implement the screen in `src/pages/` using the existing code components; render it from `App.tsx` when requested.
+7. Add the screen to `design-system/inventory.json` with its `name` and a `composition` object containing the distinct DS component names used in `components` and a short `description` of their arrangement. Preserve existing entries.
+8. Ensure project dependencies are installed, then run `node .agents/checks/verify-ds.mjs`, `node .agents/checks/verify-props.mjs` and `node .agents/checks/verify-bindings.mjs`; run the manual checks in `.agents/checks/` and follow `.agents/skills/validate-ds/SKILL.md` for rendered values.
+9. Fix violations and rerun affected checks. Return PASS, FAIL or NOT RUN (with reason) for each check; never report untested behavior as passing.

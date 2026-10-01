@@ -25,7 +25,9 @@ test("create-ds-from-figma kit layout stays consistent", () => {
   assert.ok(existsSync(readmePath), "README belongs at the repo root");
   assert.ok(!existsSync(nestedReadmePath), "README must not be duplicated inside the canonical skill folder");
   assert.ok(existsSync(path.join(repoRoot, ".agents/skills/create-ds-from-figma/scripts/kit-structure.test.mjs")));
-  assert.ok(existsSync(path.join(repoRoot, ".agents/skills/create-ds-from-figma/plantillas/design-system/AGENTS.md")));
+  assert.ok(existsSync(path.join(repoRoot, ".agents/skills/create-ds-from-figma/plantillas/design-system/inventory.json")));
+  assert.ok(existsSync(path.join(repoRoot, ".agents/rules/design-system.md")));
+  assert.ok(readFileSync(path.join(repoRoot, "AGENTS.md"), "utf8").includes(".agents/rules/design-system.md"));
   assert.ok(existsSync(path.join(repoRoot, ".agents/skills/create-ds-from-figma/plantillas/componentes/metadata.json")));
   assert.ok(existsSync(path.join(repoRoot, ".agents/checks/verify-ds.mjs")));
   assert.ok(existsSync(path.join(repoRoot, ".agents/skills/find-component/SKILL.md")));

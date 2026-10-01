@@ -16,8 +16,9 @@ const write = (root, relative, value) => {
 const fixture = () => {
   const root = mkdtempSync(path.join(os.tmpdir(), "verify-ds-"));
   active.add(root);
-  cpSync(path.join(template, "design-system/AGENTS.md"), path.join(root, "design-system/AGENTS.md"));
+  cpSync(path.join(template, "design-system/inventory.json"), path.join(root, "design-system/inventory.json"));
   cpSync(path.join(template, "design-system/system/composition-rules.md"), path.join(root, "design-system/system/composition-rules.md"));
+  cpSync(path.join(template, "design-system/system/accessibility.md"), path.join(root, "design-system/system/accessibility.md"));
   cpSync(path.join(template, "design-system/relationships/figma-code-map.json"), path.join(root, "design-system/relationships/figma-code-map.json"));
   cpSync(path.join(template, "design-system/relationships/figma-state.json"), path.join(root, "design-system/relationships/figma-state.json"));
   return root;
@@ -56,8 +57,7 @@ const withExampleComponent = () => {
   state.fileKey = "FILE";
   state.components.ExampleComponent = { figmaNodeId: "1:2", nestedComponents: [] };
   write(root, "design-system/relationships/figma-state.json", state);
-  write(root, "design-system/AGENTS.md", readFileSync(path.join(root, "design-system/AGENTS.md"), "utf8").replace("Incluidos: —", "Incluidos: ExampleComponent"));
-  write(root, "design-system/system/composition-rules.md", "# Composition rules\n\n## Incluidos\n\n- **ExampleComponent** — example component.\n");
+  write(root, "design-system/inventory.json", { components: ["ExampleComponent"], screens: [] });
   return root;
 };
 
@@ -69,13 +69,42 @@ test("empty kit is valid", () => {
   assert.deepEqual(verify(fixture()), { errors: [], warnings: [] });
 });
 
-test("generated agent instructions install dependencies before all Node checks", () => {
-  const instructions = readFileSync(path.join(template, "design-system/AGENTS.md"), "utf8");
-  assert.ok(instructions.indexOf("Install project dependencies") < instructions.indexOf("node .agents/checks/verify-ds.mjs"));
-  assert.ok(instructions.includes("postcss-selector-parser"));
-  assert.ok(instructions.includes("`verify-ds.mjs` and `verify-props.mjs` require TypeScript"));
+test("missing system guidance fails with valid or invalid map", () => {
+  for (const relative of [
+    "design-system/system/composition-rules.md",
+    "design-system/system/accessibility.md",
+  ]) {
+    const root = fixture();
+    rmSync(path.join(root, relative));
+    assert.ok(verify(root).errors.some((item) => item.includes(`missing ${relative}`)));
+    write(root, "design-system/relationships/figma-code-map.json", "null");
+    assert.ok(verify(root).errors.some((item) => item.includes(`missing ${relative}`)));
+  }
+});
+
+test("inventory must exist and contain valid unique entries", () => {
+  const root = withExampleComponent();
+  const inventoryPath = "design-system/inventory.json";
+  rmSync(path.join(root, inventoryPath));
+  assert.ok(verify(root).errors.some((item) => item.includes(`missing ${inventoryPath}`)));
+  write(root, inventoryPath, "null");
+  assert.ok(verify(root).errors.some((item) => item.includes(`${inventoryPath}: expected an object`)));
+  write(root, inventoryPath, { components: ["ExampleComponent", "ExampleComponent"], screens: [] });
+  assert.ok(verify(root).errors.some((item) => item.includes("duplicate components name")));
+  write(root, inventoryPath, { components: [{ name: "ExampleComponent", usage: "Old format." }], screens: [] });
+  assert.ok(verify(root).errors.some((item) => item.includes("each components entry must be a nonempty name")));
+  write(root, inventoryPath, { components: [""], screens: [] });
+  assert.ok(verify(root).errors.some((item) => item.includes("each components entry must be a nonempty name")));
+});
+
+test("DS rule documents check dependencies and workflow installs before checking", () => {
+  const rule = readFileSync(path.resolve(template, "../../../rules/design-system.md"), "utf8");
+  const workflow = readFileSync(path.resolve(template, "../../../workflows/build-from-figma.md"), "utf8");
+  assert.match(rule, /verify-ds\.mjs.*verify-bindings\.mjs.*PostCSS and postcss-selector-parser/);
+  assert.match(rule, /verify-ds\.mjs.*verify-props\.mjs.*TypeScript/);
+  assert.ok(workflow.indexOf("Ensure project dependencies are installed") < workflow.indexOf("node .agents/checks/verify-ds.mjs"));
   for (const check of ["verify-ds", "verify-props", "verify-bindings"]) {
-    assert.ok(instructions.includes(`node .agents/checks/${check}.mjs`));
+    assert.ok(workflow.includes(`node .agents/checks/${check}.mjs`));
   }
 });
 
@@ -312,11 +341,11 @@ test("variant coverage, blocking gaps and inventory drift fail", () => {
   metadata.figmaCoverage.variants = [];
   metadata.unresolved = [{ field: "variants.Size", reason: "missing context", source: "get_metadata FILE:1:2", blocking: true }];
   write(root, relative, metadata);
-  write(root, "design-system/AGENTS.md", readFileSync(path.join(root, "design-system/AGENTS.md"), "utf8").replace("Incluidos: ExampleComponent", "Incluidos: —"));
+  write(root, "design-system/inventory.json", { components: [], screens: [] });
   const { errors } = verify(root);
   assert.ok(errors.some((item) => item.includes("figmaCoverage.variants differs")));
   assert.ok(errors.some((item) => item.includes("blocking unresolved gap")));
-  assert.ok(errors.some((item) => item.includes("design-system/AGENTS.md inventory differs")));
+  assert.ok(errors.some((item) => item.includes("inventory.json: component inventory differs")));
 });
 
 test("duplicate refs and missing code fail", () => {
@@ -469,11 +498,22 @@ test("mapped nested refs must resolve to the declared component", () => {
 
 test("a listed screen needs a page, but is not a mapped component", () => {
   const root = withExampleComponent();
-  write(root, "design-system/AGENTS.md", readFileSync(path.join(root, "design-system/AGENTS.md"), "utf8").replace("Incluidos: ExampleComponent", "Incluidos: ExampleComponent, Home"));
-  write(root, "design-system/system/composition-rules.md", "# Composition rules\n\n## Incluidos\n\n- **ExampleComponent** — example component.\n- **Home** (pantalla) — page.\n");
+  const inventoryPath = "design-system/inventory.json";
+  const inventory = read(root, inventoryPath);
+  inventory.screens = [{ name: "Home", composition: { components: ["ExampleComponent"], description: "ExampleComponent on the page." } }];
+  write(root, inventoryPath, inventory);
   assert.ok(verify(root).errors.some((item) => item.includes("screen Home is listed")));
   write(root, "src/pages/Home.tsx", "export const Home = () => null;\n");
   assert.deepEqual(verify(root), { errors: [], warnings: [] });
+  inventory.screens[0].composition.components = ["MissingComponent"];
+  write(root, inventoryPath, inventory);
+  assert.ok(verify(root).errors.some((item) => item.includes("screen Home uses unincluded component MissingComponent")));
+  inventory.screens[0].composition.components = ["ExampleComponent", "ExampleComponent"];
+  write(root, inventoryPath, inventory);
+  assert.ok(verify(root).errors.some((item) => item.includes("screen Home repeats component ExampleComponent")));
+  inventory.screens[0].composition = "ExampleComponent";
+  write(root, inventoryPath, inventory);
+  assert.ok(verify(root).errors.some((item) => item.includes("needs name and composition")));
 });
 
 test("mixed Figma axis values require separate kinds and state owners", () => {

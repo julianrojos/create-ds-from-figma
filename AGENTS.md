@@ -6,6 +6,13 @@ Operational instructions for AI agents in this repository.
 
 - `AGENTS.md` and `.agents/` are the tool-neutral source of truth.
 
+## Uso del DS
+
+- Si el usuario dice "crea un DS" o pega la URL de un componente de Figma, sigue `.agents/skills/create-ds-from-figma/SKILL.md`.
+- Si la tarea es construir UI o una pantalla desde un frame de Figma, sigue `.agents/workflows/build-from-figma.md`.
+- Si lees, editas o generas archivos en `src/` o `design-system/`, aplica `.agents/rules/design-system.md`.
+- Si dos skills solapan, usa la más específica; si hacen falta ambas por fases distintas, aplícalas explícitamente.
+
 ## Precedence
 
 Applies when instructions conflict (high → low):
@@ -22,6 +29,5 @@ Applies when instructions conflict (high → low):
 
 ## Skill create-ds-from-figma
 
-- Para trabajos sobre el Design System generado, incluyendo ediciones en `src/`, seguir también `design-system/AGENTS.md` cuando exista.
 - `.agents/skills/create-ds-from-figma/SKILL.md` es la skill canónica y detectable; no crear copias sincronizadas.
 - Si se cambia el formato de relaciones Figma, actualizar juntas las plantillas `figma-state.json`, `figma-code-map.json`, las skills auxiliares `find-component`, `map-figma-to-code` y `validate-ds`, y los checks de `.agents/checks/`.

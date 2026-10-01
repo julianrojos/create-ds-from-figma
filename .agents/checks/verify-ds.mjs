@@ -48,7 +48,7 @@ export function verify(root) {
       return JSON.parse(readFileSync(path.join(root, relative), "utf8"));
     } catch (error) {
       fail(`${relative}: ${error.message}`);
-      return null;
+      return undefined;
     }
   };
   const localFile = (relative, label) => {
@@ -63,6 +63,9 @@ export function verify(root) {
     }
     return true;
   };
+
+  localFile("design-system/system/composition-rules.md", "composition rules");
+  localFile("design-system/system/accessibility.md", "accessibility rules");
 
   const map = readJson("design-system/relationships/figma-code-map.json");
   const state = readJson("design-system/relationships/figma-state.json");
@@ -349,30 +352,60 @@ export function verify(root) {
     }
   }
 
-  const agentPath = "design-system/AGENTS.md";
-  const rulesPath = "design-system/system/composition-rules.md";
-  if (localFile(agentPath, "inventory") && localFile(rulesPath, "inventory")) {
-    const agentText = readFileSync(path.join(root, agentPath), "utf8");
-    const agentLine = agentText.trimEnd().split(/\r?\n/).at(-1);
-    const match = /^Incluidos:\s*(.*)$/.exec(agentLine);
-    if (!match) fail("design-system/AGENTS.md: Incluidos must be the last line");
-    const agentNames = new Set(match && match[1] !== "—" ? match[1].split(",").map((item) => item.trim()).filter(Boolean) : []);
-    const rules = readFileSync(path.join(root, rulesPath), "utf8");
-    const included = /(?:^|\n)## Incluidos\s*\n([\s\S]*?)(?=\n## |$)/.exec(rules);
-    if (!included) fail("composition-rules.md: missing Incluidos section");
-    const ruleNames = new Set();
-    const screenNames = new Set();
-    for (const line of (included?.[1] || "").split(/\r?\n/)) {
-      const item = /^- \*\*([^*]+)\*\*( \(pantalla\))?/.exec(line);
-      if (item) (item[2] ? screenNames : ruleNames).add(item[1]);
+  const inventoryPath = "design-system/inventory.json";
+  if (localFile(inventoryPath, "inventory")) {
+    const inventory = readJson(inventoryPath);
+    if (isObject(inventory)) {
+      const componentNames = new Set();
+      const screenNames = new Set();
+      if (!Array.isArray(inventory.components)) {
+        fail(`${inventoryPath}: components must be a list`);
+      } else {
+        for (const name of inventory.components) {
+          if (!isText(name)) {
+            fail(`${inventoryPath}: each components entry must be a nonempty name`);
+            continue;
+          }
+          if (componentNames.has(name)) fail(`${inventoryPath}: duplicate components name ${name}`);
+          componentNames.add(name);
+        }
+      }
+      if (!Array.isArray(inventory.screens)) {
+        fail(`${inventoryPath}: screens must be a list`);
+      } else {
+        for (const item of inventory.screens) {
+          if (!isObject(item) || !isText(item.name) || !isObject(item.composition) ||
+              !isText(item.composition.description) || !Array.isArray(item.composition.components) ||
+              item.composition.components.length === 0) {
+            fail(`${inventoryPath}: each screens entry needs name and composition with description and nonempty components list`);
+            continue;
+          }
+          if (screenNames.has(item.name)) fail(`${inventoryPath}: duplicate screens name ${item.name}`);
+          screenNames.add(item.name);
+          const used = new Set();
+          for (const component of item.composition.components) {
+            if (!isText(component)) {
+              fail(`${inventoryPath}: screen ${item.name} has an invalid component name`);
+            } else if (used.has(component)) {
+              fail(`${inventoryPath}: screen ${item.name} repeats component ${component}`);
+            } else {
+              used.add(component);
+              if (!componentNames.has(component)) fail(`${inventoryPath}: screen ${item.name} uses unincluded component ${component}`);
+            }
+          }
+        }
+      }
+      if (Array.isArray(inventory.components) && !sameSet(names, componentNames)) {
+        fail(`${inventoryPath}: component inventory differs from map`);
+      }
+      for (const screen of screenNames) {
+        const screenFile = path.join(root, "src/pages", `${screen}.tsx`);
+        const screenIndex = path.join(root, "src/pages", screen, "index.tsx");
+        if (!existsSync(screenFile) && !existsSync(screenIndex)) fail(`screen ${screen} is listed but has no page implementation`);
+      }
+    } else if (inventory !== undefined) {
+      fail(`${inventoryPath}: expected an object`);
     }
-    for (const screen of screenNames) {
-      const screenFile = path.join(root, "src/pages", `${screen}.tsx`);
-      const screenIndex = path.join(root, "src/pages", screen, "index.tsx");
-      if (!existsSync(screenFile) && !existsSync(screenIndex)) fail(`screen ${screen} is listed but has no page implementation`);
-    }
-    if (!sameSet(names, ruleNames)) fail("composition-rules.md component inventory differs from map");
-    if (!sameSet(new Set([...names, ...screenNames]), agentNames)) fail("design-system/AGENTS.md inventory differs from component and screen inventory");
   }
 
   const tokensDir = path.join(root, "design-system/tokens");
