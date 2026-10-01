@@ -9,6 +9,8 @@ const repoRoot = path.resolve(scriptDir, "../../../../..");
 const canonicalPath = path.join(repoRoot, ".agents/design-system-resources/skills/create-ds-from-figma/SKILL.md");
 const wrapperPath = path.join(repoRoot, ".agents/skills/create-ds-from-figma/SKILL.md");
 const packagePath = path.join(repoRoot, "package.json");
+const readmePath = path.join(repoRoot, "README.md");
+const nestedReadmePath = path.join(repoRoot, ".agents/design-system-resources/skills/create-ds-from-figma/README.md");
 
 test("create-ds-from-figma has one detectable wrapper and one canonical document", () => {
   const canonical = readFileSync(canonicalPath, "utf8");
@@ -23,8 +25,9 @@ test("create-ds-from-figma has one detectable wrapper and one canonical document
   assert.ok(!wrapper.includes("Do not copy `.agents/design-system-resources`"));
 });
 
-test("create-ds-from-figma kit resources live beside the canonical document", () => {
-  assert.ok(existsSync(path.join(repoRoot, ".agents/design-system-resources/skills/create-ds-from-figma/README.md")));
+test("create-ds-from-figma kit layout stays consistent", () => {
+  assert.ok(existsSync(readmePath), "README belongs at the repo root");
+  assert.ok(!existsSync(nestedReadmePath), "README must not be duplicated inside the canonical skill folder");
   assert.ok(existsSync(path.join(repoRoot, ".agents/design-system-resources/skills/create-ds-from-figma/scripts/kit-structure.test.mjs")));
   assert.ok(existsSync(path.join(repoRoot, ".agents/design-system-resources/skills/create-ds-from-figma/plantillas/design-system/AGENTS.md")));
   assert.ok(existsSync(path.join(repoRoot, ".agents/design-system-resources/skills/create-ds-from-figma/plantillas/componentes/metadata.json")));
