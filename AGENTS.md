@@ -16,9 +16,9 @@ Applies when instructions conflict (high → low):
 ## Restricciones de entorno
 
 - NUNCA crear worktrees ni ramas auxiliares (`isolation: "worktree"` prohibido).
-- Nunca hacer commit si no hay orden previo del usuario.
+- Nunca hacer commit ni stage si no hay orden previo del usuario.
 - Trabajar siempre en la rama activa del repositorio principal.
-- El usuario es quien decide cuándo crear ramas y commits. No hacerlo de forma autónoma.
+- El usuario es quien decide cuándo crear ramas, stages y commits. No hacerlo de forma autónoma.
 
 ## Skill create-ds-from-figma
 
