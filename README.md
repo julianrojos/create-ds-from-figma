@@ -1,31 +1,12 @@
-# create-ds-from-figma
+# CREATE DS FROM FIGMA
 
-Si este README y `.agents/design-system-resources/skills/create-ds-from-figma/SKILL.md` discrepan, prevalece el `SKILL.md` canónico.
-
-Kit para arrancar un Design System desde 0 dentro de este repo preparado.
+Proyecto para arrancar un Design System desde 0 dentro de este repo preparado.
 
 No trae tokens, componentes ni pantallas. El agente analiza la URL de Figma antes de escribir y crea el DS cuando el componente puede importarse.
 
-## Usar desde este repo
-
-Este repo contiene las instrucciones y recursos canónicos:
-
-```text
-.agents/skills/create-ds-from-figma/SKILL.md        (wrapper de autodetección)
-.agents/design-system-resources/skills/create-ds-from-figma/
-.agents/design-system-resources/checks/
-.agents/design-system-resources/skills/find-component/
-.agents/design-system-resources/skills/map-figma-to-code/
-.agents/design-system-resources/skills/validate-ds/
-.agents/design-system-resources/workflows/
-.agents/design-system-resources/prop-vocabulary.json
-```
-
-Abre este repo en el IDE y usa la skill desde aquí. Todas las rutas de este README parten de la raíz del repo. Al DS generado se copia solo `.agents/design-system-resources/skills/create-ds-from-figma/plantillas/design-system/`; `.agents/design-system-resources/checks/`, las demás carpetas de `.agents/design-system-resources/skills/`, `.agents/design-system-resources/workflows/` y `.agents/design-system-resources/prop-vocabulary.json` se usan desde el repo como fuente única. Una instalación global parcial de la skill no es compatible con este modelo.
-
 ## Usar
 
-Proyecto sin `design-system/relationships/figma-code-map.json` o sin `src/styles/tokens.css` (aunque exista un directorio `design-system/` vacío) → chat:
+Abre este repo en tu IDE y abre un chat con la IA y pide:
 
 ```text
 Crea un DS
