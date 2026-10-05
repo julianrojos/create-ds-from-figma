@@ -28,6 +28,8 @@ Siguiente primitive: otra URL. Pantalla: cuando ya haya primitives.
 | ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
 | `README.md`                                                                                          | Guía humana del kit y su estructura                         |
 | `.agents/skills/create-ds-from-figma/SKILL.md`                                                       | Skill canónica y detectable                                 |
+| `.agents/skills/create-ds-from-figma/references/`                                                     | Formatos consultados durante el preanálisis y la escritura  |
+| `.agents/skills/create-ds-from-figma/evals/`                                                          | Casos de evaluación del flujo de importación               |
 | `.agents/skills/create-ds-from-figma/scripts/`                                                       | Tests locales de los checks del kit                         |
 | `.agents/skills/create-ds-from-figma/plantillas/design-system/`                                      | Árbol fijo vacío que se copia tal cual a `design-system/`   |
 | `.agents/skills/create-ds-from-figma/plantillas/componentes/`                                        | Plantillas de ficha por componente                          |

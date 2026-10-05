@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -10,6 +10,8 @@ const skillPath = path.join(repoRoot, ".agents/skills/create-ds-from-figma/SKILL
 const packagePath = path.join(repoRoot, "package.json");
 const readmePath = path.join(repoRoot, "README.md");
 const nestedReadmePath = path.join(repoRoot, ".agents/skills/create-ds-from-figma/README.md");
+const referenceDir = path.join(repoRoot, ".agents/skills/create-ds-from-figma/references");
+const expectedReferences = ["component-metadata.md", "relationships.md", "tokens.md"];
 
 test("create-ds-from-figma has one detectable canonical skill", () => {
   const skill = readFileSync(skillPath, "utf8");
@@ -31,6 +33,28 @@ test("create-ds-from-figma kit layout stays consistent", () => {
   assert.ok(existsSync(path.join(repoRoot, ".agents/skills/create-ds-from-figma/plantillas/componentes/metadata.json")));
   assert.ok(existsSync(path.join(repoRoot, ".agents/checks/verify-ds.mjs")));
   assert.ok(existsSync(path.join(repoRoot, ".agents/skills/find-component/SKILL.md")));
+  assert.ok(existsSync(path.join(repoRoot, ".agents/skills/create-ds-from-figma/evals/cases.md")));
+});
+
+test("skill loads formats where they are needed without reference chains", (t) => {
+  const skill = readFileSync(skillPath, "utf8");
+  const preanalysis = skill.split("## Preanálisis antes de escribir\n")[1]?.split("Evalúa esta tabla")[0];
+
+  assert.ok(preanalysis, "preanalysis section must exist");
+  assert.match(preanalysis, /2\.[^\n]*references\/tokens\.md/);
+  assert.match(preanalysis, /3\.[^\n]*references\/component-metadata\.md/);
+  assert.match(preanalysis, /4\.[^\n]*references\/relationships\.md/);
+  assert.deepEqual(readdirSync(referenceDir).sort(), expectedReferences);
+
+  for (const name of expectedReferences) {
+    const reference = `references/${name}`;
+    assert.ok(skill.includes(reference), `skill must link ${reference}`);
+    const body = readFileSync(path.join(referenceDir, name), "utf8");
+    assert.doesNotMatch(body, /references\/[\w-]+\.md/, `${name} must not chain to another reference`);
+  }
+
+  const bytes = Buffer.byteLength(skill);
+  if (bytes > 36_000) t.diagnostic(`SKILL.md has grown to ${bytes} bytes; review whether format detail belongs in references/`);
 });
 
 test("npm test covers the canonical create-ds-from-figma test scripts", () => {
