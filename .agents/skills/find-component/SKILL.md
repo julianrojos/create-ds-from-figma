@@ -1,6 +1,11 @@
 ---
 name: find-component
-description: Resolve a UI element or Figma node to an existing Design System component. Use before creating any new UI primitive.
+description: >-
+  Resolve whether a UI element or Figma node matches an existing Design System component.
+  USE WHEN: the user asks whether the DS already has an element or which component
+  matches a node.
+  DO NOT USE WHEN: importing or implementing UI is the primary task; follow the
+  owning flow, which may call this skill to check for reuse.
 ---
 
 # Find Component

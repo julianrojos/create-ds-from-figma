@@ -1,6 +1,11 @@
 ---
 name: map-figma-to-code
-description: Resolve a Design System component from Figma to its code implementation and props. Use after find-component succeeds.
+description: >-
+  Resolve an existing Figma-mapped Design System component to its code path and props.
+  USE WHEN: a reliable component match is known and the user needs its implementation
+  or props.
+  DO NOT USE WHEN: no reliable match exists, or importing or implementing UI is
+  the primary task; follow the owning flow, which may call this skill after a match.
 ---
 
 # Map Figma to Code

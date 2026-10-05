@@ -2,6 +2,22 @@
 
 Estos casos describen decisiones observables, no sustituyen una ejecución real con Figma. Para cada prueba, registra la URL, refs consultados, diagnóstico, archivos modificados y resultados de los checks. Ejecútalos en una rama que el usuario haya seleccionado; no cambies de rama por cuenta del kit.
 
+## Enrutado de skills
+
+Las URL siguientes son entradas de ejemplo: al ejecutar el caso, usa nodos reales y registra qué skill o workflow se activó como tarea principal y cuáles se invocaron como subpasos. Un test de frontmatter no demuestra este enrutado.
+
+| Petición y contexto | Ruta principal esperada | No debe ocurrir |
+| --- | --- | --- |
+| "Crea un DS" + URL de `Button` aún no importado | `create-ds-from-figma`; puede llamar a `find-component` y `validate-ds` | Tratar el nodo como pantalla o importar otros componentes del file |
+| URL de `Button` pegada sin ningún texto | `create-ds-from-figma`; inspecciona el tipo de nodo antes de decidir | Exigir la frase «crea un DS» o construir una pantalla por defecto |
+| "¿Qué componente del DS corresponde a este nodo?" | `find-component`, solo lectura | Activar una importación o escribir código |
+| "¿Qué archivo y props implementan este Button ya mapeado?" | `map-figma-to-code`, tras confirmar la coincidencia | Crear un mapeo o reimportar el componente |
+| "Implementa esta pantalla" + URL de un frame | `.agents/workflows/build-from-figma.md`; puede llamar a `find-component`, `map-figma-to-code` y `validate-ds` | Usar `create-ds-from-figma` como flujo principal |
+| "Ajusta este botón existente" sin URL de Figma | Regla del DS; `validate-ds` al terminar la edición | Activar una importación solo por mencionar un componente |
+| URL repetida de `Button` ya importado, sin diferencias observadas | `create-ds-from-figma`; diagnóstico y decisión de reutilizar | Reescribir ficha, código, mapa o tokens |
+| "Valida este componente ya implementado" | `validate-ds`, con checks estáticos y comprobaciones renderizadas | Exigir una nueva importación de Figma |
+| "Crea un DS" + URL que resulta ser un frame | `create-ds-from-figma` inspecciona el nodo y devuelve `DS_GAP` sin escribir | Construir la pantalla o preparar el scaffold automáticamente |
+
 ## Primera importación
 
 - Entrada: repo sin `figma-code-map.json` ni `tokens.css`; URL de un componente local con variables del file resueltas y sin anidados locales `missing`.

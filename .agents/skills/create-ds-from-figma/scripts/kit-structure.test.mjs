@@ -3,6 +3,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
+import YAML from "yaml";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(scriptDir, "../../../..");
@@ -12,6 +13,26 @@ const readmePath = path.join(repoRoot, "README.md");
 const nestedReadmePath = path.join(repoRoot, ".agents/skills/create-ds-from-figma/README.md");
 const referenceDir = path.join(repoRoot, ".agents/skills/create-ds-from-figma/references");
 const expectedReferences = ["component-metadata.md", "relationships.md", "tokens.md"];
+
+test("skill catalog has scoped discovery metadata", (t) => {
+  const skillDir = path.join(repoRoot, ".agents/skills");
+  for (const entry of readdirSync(skillDir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const skill = readFileSync(path.join(skillDir, entry.name, "SKILL.md"), "utf8");
+    const frontmatter = skill.match(/^---\n([\s\S]*?)\n---\n/)?.[1];
+    assert.ok(frontmatter, `${entry.name} must have frontmatter`);
+    const metadata = YAML.parse(frontmatter, { uniqueKeys: true, strict: true });
+    assert.ok(metadata && typeof metadata === "object" && !Array.isArray(metadata), `${entry.name} metadata must be a mapping`);
+    assert.equal(metadata.name, entry.name, `${entry.name} must match its directory`);
+    assert.equal(typeof metadata.description, "string", `${entry.name} must have a description`);
+    const description = metadata.description.trim();
+    assert.ok(description, `${entry.name} must have a nonempty description`);
+    assert.ok(description.includes("USE WHEN:"), `${entry.name} must state when to use it`);
+    assert.ok(description.includes("DO NOT USE WHEN:"), `${entry.name} must state when not to use it`);
+    const words = description.split(/\s+/).length;
+    if (words > 100) t.diagnostic(`${entry.name} description has ${words} words; review discovery cost`);
+  }
+});
 
 test("create-ds-from-figma has one detectable canonical skill", () => {
   const skill = readFileSync(skillPath, "utf8");

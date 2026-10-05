@@ -1,6 +1,12 @@
 ---
 name: create-ds-from-figma
-description: In this prepared repo, create the AI-ready Design System tree and first Figma component; later fill more components into the same tree. Use when the user says crea un DS, create a design system, pastes a Figma component URL, or adds another primitive to an existing DS pilot.
+description: >-
+  Import or explicitly update one Figma component in this prepared Design System repo.
+  USE WHEN: the user says "crea un DS" or "create a design system", pastes a
+  Figma URL by itself, or asks to import, add or update one component, component
+  set, variant or instance, including a repeated URL. Inspect the node type first.
+  DO NOT USE WHEN: the task is building a screen from a Figma frame or editing
+  existing UI without a Figma component import or update request.
 ---
 
 # Crear DS desde un componente Figma

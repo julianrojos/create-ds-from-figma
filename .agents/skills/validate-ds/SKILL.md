@@ -1,6 +1,11 @@
 ---
 name: validate-ds
-description: Validate generated UI against Design System token, reuse, and accessibility checks. Use before finishing any UI implementation from Figma.
+description: >-
+  Validate implemented UI against Design System tokens, reuse, bindings and accessibility.
+  USE WHEN: the user asks to validate existing UI or an implementation is ready
+  for final checks, including UI built from Figma.
+  DO NOT USE WHEN: only identifying, mapping or planning UI and there is no
+  implementation to verify yet.
 ---
 
 # Validate Design System Compliance
