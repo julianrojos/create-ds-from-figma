@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
-import { verifyProps } from "../../../checks/verify-props.mjs";
+import { verifyProps } from "../verify-props.mjs";
 
-const template = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../plantillas");
+const vocabularyPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../prop-vocabulary.json");
 const roots = new Set();
 const write = (root, relative, value) => {
   const target = path.join(root, relative);
@@ -18,7 +18,8 @@ const read = (root, relative) => JSON.parse(readFileSync(path.join(root, relativ
 const fixture = () => {
   const root = mkdtempSync(path.join(os.tmpdir(), "verify-props-"));
   roots.add(root);
-  const vocabulary = JSON.parse(readFileSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../prop-vocabulary.json"), "utf8"));
+  assert.ok(existsSync(vocabularyPath), `verify-props tests require ${vocabularyPath}`);
+  const vocabulary = JSON.parse(readFileSync(vocabularyPath, "utf8"));
   vocabulary.terms.size = { concept: "component-size", meaning: "ExampleComponent dimensions", origin: "authored", avoid: ["scale"] };
   write(root, ".agents/prop-vocabulary.json", vocabulary);
   write(root, "design-system/relationships/figma-code-map.json", {

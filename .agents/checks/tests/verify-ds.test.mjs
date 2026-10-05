@@ -1,12 +1,17 @@
 import assert from "node:assert/strict";
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { verify } from "../../../checks/verify-ds.mjs";
+import { verify } from "../verify-ds.mjs";
 
-const template = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../plantillas");
+const template = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../skills/create-ds-from-figma/plantillas");
+const templateFile = (relative) => {
+  const source = path.join(template, relative);
+  assert.ok(existsSync(source), `verify-ds tests require skill template ${source}`);
+  return source;
+};
 const active = new Set();
 const write = (root, relative, value) => {
   const target = path.join(root, relative);
@@ -16,11 +21,11 @@ const write = (root, relative, value) => {
 const fixture = () => {
   const root = mkdtempSync(path.join(os.tmpdir(), "verify-ds-"));
   active.add(root);
-  cpSync(path.join(template, "design-system/inventory.json"), path.join(root, "design-system/inventory.json"));
-  cpSync(path.join(template, "design-system/system/composition-rules.md"), path.join(root, "design-system/system/composition-rules.md"));
-  cpSync(path.join(template, "design-system/system/accessibility.md"), path.join(root, "design-system/system/accessibility.md"));
-  cpSync(path.join(template, "design-system/relationships/figma-code-map.json"), path.join(root, "design-system/relationships/figma-code-map.json"));
-  cpSync(path.join(template, "design-system/relationships/figma-state.json"), path.join(root, "design-system/relationships/figma-state.json"));
+  cpSync(templateFile("design-system/inventory.json"), path.join(root, "design-system/inventory.json"));
+  cpSync(templateFile("design-system/system/composition-rules.md"), path.join(root, "design-system/system/composition-rules.md"));
+  cpSync(templateFile("design-system/system/accessibility.md"), path.join(root, "design-system/system/accessibility.md"));
+  cpSync(templateFile("design-system/relationships/figma-code-map.json"), path.join(root, "design-system/relationships/figma-code-map.json"));
+  cpSync(templateFile("design-system/relationships/figma-state.json"), path.join(root, "design-system/relationships/figma-state.json"));
   return root;
 };
 const read = (root, relative) => JSON.parse(readFileSync(path.join(root, relative), "utf8"));
@@ -29,7 +34,7 @@ const token = (id, type, valuesByMode) => ({ id, cssName: `--${id}`, type, value
 const withExampleComponent = () => {
   const root = fixture();
   const metadataPath = "design-system/components/ExampleComponent/metadata.json";
-  const metadata = read(template, "componentes/metadata.json");
+  const metadata = JSON.parse(readFileSync(templateFile("componentes/metadata.json"), "utf8"));
   metadata.name = "ExampleComponent";
   metadata.figma = { fileKey: "FILE", nodeId: "1:2", url: "https://www.figma.com/design/FILE?node-id=1-2", componentSet: "ExampleComponent" };
   metadata.code = { path: "src/components/ExampleComponent/ExampleComponent.tsx", component: "ExampleComponent" };
@@ -95,17 +100,6 @@ test("inventory must exist and contain valid unique entries", () => {
   assert.ok(verify(root).errors.some((item) => item.includes("each components entry must be a nonempty name")));
   write(root, inventoryPath, { components: [""], screens: [] });
   assert.ok(verify(root).errors.some((item) => item.includes("each components entry must be a nonempty name")));
-});
-
-test("DS rule documents check dependencies and workflow installs before checking", () => {
-  const rule = readFileSync(path.resolve(template, "../../../rules/design-system.md"), "utf8");
-  const workflow = readFileSync(path.resolve(template, "../../../workflows/build-from-figma.md"), "utf8");
-  assert.match(rule, /verify-ds\.mjs.*verify-bindings\.mjs.*PostCSS and postcss-selector-parser/);
-  assert.match(rule, /verify-ds\.mjs.*verify-props\.mjs.*TypeScript/);
-  assert.ok(workflow.indexOf("Ensure project dependencies are installed") < workflow.indexOf("node .agents/checks/verify-ds.mjs"));
-  for (const check of ["verify-ds", "verify-props", "verify-bindings"]) {
-    assert.ok(workflow.includes(`node .agents/checks/${check}.mjs`));
-  }
 });
 
 test("an imported component is valid", () => {

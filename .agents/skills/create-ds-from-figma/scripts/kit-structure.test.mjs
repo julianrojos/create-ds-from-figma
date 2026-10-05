@@ -26,7 +26,6 @@ test("create-ds-from-figma has one detectable canonical skill", () => {
 test("create-ds-from-figma kit layout stays consistent", () => {
   assert.ok(existsSync(readmePath), "README belongs at the repo root");
   assert.ok(!existsSync(nestedReadmePath), "README must not be duplicated inside the canonical skill folder");
-  assert.ok(existsSync(path.join(repoRoot, ".agents/skills/create-ds-from-figma/scripts/kit-structure.test.mjs")));
   assert.ok(existsSync(path.join(repoRoot, ".agents/skills/create-ds-from-figma/plantillas/design-system/inventory.json")));
   assert.ok(existsSync(path.join(repoRoot, ".agents/rules/design-system.md")));
   assert.ok(readFileSync(path.join(repoRoot, "AGENTS.md"), "utf8").includes(".agents/rules/design-system.md"));
@@ -57,11 +56,31 @@ test("skill loads formats where they are needed without reference chains", (t) =
   if (bytes > 36_000) t.diagnostic(`SKILL.md has grown to ${bytes} bytes; review whether format detail belongs in references/`);
 });
 
-test("npm test covers the canonical create-ds-from-figma test scripts", () => {
+test("verifier dependencies and workflow commands stay available", () => {
+  const packageJson = JSON.parse(readFileSync(packagePath, "utf8"));
+  const workflow = readFileSync(path.join(repoRoot, ".agents/workflows/build-from-figma.md"), "utf8");
+  const firstCheck = "node .agents/checks/verify-ds.mjs";
+  const checkStep = workflow.split(/(?=^\d+\.\s)/m).find((step) => step.includes(firstCheck));
+  assert.ok(checkStep, "workflow must have a verification step");
+  const beforeChecks = checkStep.slice(0, checkStep.indexOf(firstCheck));
+  assert.match(beforeChecks, /\b(?:install\w*|instal\w*|npm\s+(?:ci|install))\b/i, "install dependencies before running checks");
+  assert.match(beforeChecks, /\b(?:dependenc\w*|packages?|paquetes?)\b/i, "name the prerequisite before running checks");
+
+  for (const dependency of ["postcss", "postcss-selector-parser", "typescript"]) {
+    assert.ok(packageJson.devDependencies?.[dependency], `${dependency} must be a dev dependency`);
+  }
+  for (const check of ["verify-ds", "verify-props", "verify-bindings"]) {
+    assert.ok(existsSync(path.join(repoRoot, `.agents/checks/${check}.mjs`)));
+    assert.ok(workflow.includes(`node .agents/checks/${check}.mjs`));
+  }
+});
+
+test("npm test covers the skill and check tests", () => {
   const packageJson = JSON.parse(readFileSync(packagePath, "utf8"));
   // Check the command's contract rather than its exact spelling so adding another test target or
   // changing an unrelated script does not require updating this assertion.
   assert.match(packageJson.scripts.test, /\bnode\s+--test\b/);
   assert.ok(packageJson.scripts.test.includes(".agents/skills/create-ds-from-figma/scripts/"));
+  assert.ok(packageJson.scripts.test.includes(".agents/checks/tests/"));
   assert.ok(packageJson.scripts.test.includes("*.test.mjs"));
 });

@@ -30,10 +30,11 @@ Siguiente primitive: otra URL. Pantalla: cuando ya haya primitives.
 | `.agents/skills/create-ds-from-figma/SKILL.md`                                                       | Skill canónica y detectable                                 |
 | `.agents/skills/create-ds-from-figma/references/`                                                     | Formatos consultados durante el preanálisis y la escritura  |
 | `.agents/skills/create-ds-from-figma/evals/`                                                          | Casos de evaluación del flujo de importación               |
-| `.agents/skills/create-ds-from-figma/scripts/`                                                       | Tests locales de los checks del kit                         |
+| `.agents/skills/create-ds-from-figma/scripts/`                                                       | Tests de estructura de la skill                             |
 | `.agents/skills/create-ds-from-figma/plantillas/design-system/`                                      | Árbol fijo vacío que se copia tal cual a `design-system/`   |
 | `.agents/skills/create-ds-from-figma/plantillas/componentes/`                                        | Plantillas de ficha por componente                          |
 | `.agents/checks/`                                                                                    | Checks automáticos y manuales que se ejecutan desde el repo |
+| `.agents/checks/tests/`                                                                              | Tests de los verificadores automáticos                      |
 | `.agents/rules/`                                                                                     | Reglas persistentes para el DS generado y `src/`            |
 | `.agents/skills/find-component/`, `.agents/skills/map-figma-to-code/`, `.agents/skills/validate-ds/` | Skills auxiliares del flujo                                 |
 | `.agents/workflows/`                                                                                 | Workflow de construcción desde Figma                        |
