@@ -13,12 +13,12 @@ Operational instructions for AI agents in this repository.
 - Si lees, editas o generas archivos en `src/` o `design-system/`, aplica `.agents/rules/design-system.md`.
 - Si dos skills solapan, usa la más específica; si hacen falta ambas por fases distintas, aplícalas explícitamente.
 
-## Precedence
+## Prioridad
 
-Applies when instructions conflict (high → low):
-
-1. **System prompt** — platform/IDE injected instructions.
-2. **AGENTS.md** — project-level defaults (this file).
+- Las instrucciones de mayor prioridad del entorno prevalecen sobre este archivo.
+- Este archivo establece las restricciones generales del repositorio. Una petición explícita del usuario satisface las condiciones que exigen su autorización, como hacer stage o commit; no anula las demás restricciones.
+- Las reglas, skills y workflows de `.agents/` concretan cuándo y cómo trabajar, pero no anulan las restricciones de `AGENTS.md`.
+- Si dos instrucciones aplicables entran en conflicto y no puedes resolverlo por prioridad, detente e informa al usuario antes de actuar.
 
 ## Restricciones de entorno
 
@@ -30,4 +30,4 @@ Applies when instructions conflict (high → low):
 ## Skill create-ds-from-figma
 
 - `.agents/skills/create-ds-from-figma/SKILL.md` es la skill canónica y detectable; no crear copias sincronizadas.
-- Si se cambia el formato de relaciones Figma, actualizar juntas las plantillas `figma-state.json`, `figma-code-map.json`, las skills auxiliares `find-component`, `map-figma-to-code` y `validate-ds`, y los checks de `.agents/checks/`.
+- Si se cambia el formato de relaciones Figma, actualizar juntas las plantillas `figma-state.json`, `figma-code-map.json`, la referencia `.agents/skills/create-ds-from-figma/references/relationships.md`, las skills auxiliares `find-component`, `map-figma-to-code` y `validate-ds`, y los checks de `.agents/checks/`.
