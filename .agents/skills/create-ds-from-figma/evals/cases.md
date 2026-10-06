@@ -22,8 +22,15 @@ Las URL siguientes son entradas de ejemplo: al ejecutar el caso, usa nodos reale
 
 - Entrada: repo sin `figma-code-map.json` ni `tokens.css`; URL de un componente local con variables del file resueltas y sin anidados locales `missing`.
 - Decisión esperada: modo primera vez; diagnóstico completo antes de escribir; importa solo el componente solicitado y todas las colecciones de variables del file.
-- Debe producir: scaffold, tokens por colección, ficha, código, mapa, estado e inventario coherentes; checks ejecutados y resultado explícito.
-- No debe: generar pantallas, otros componentes del file, tokens de ejemplo ni copiar recursos auxiliares de `.agents/`.
+- Debe producir: scaffold con `index.html` y `tsconfig.json`, tokens por colección, ficha, código, mapa, estado e inventario coherentes; checks ejecutados y resultado explícito. Amplía el `package.json` existente con Vite/React y scripts de app, actualiza su lockfile y conserva `npm test`, `yaml`, las demás dependencias y `.gitignore`.
+- No debe: reemplazar `package.json` o `package-lock.json` desde un starter, generar pantallas, otros componentes del file, tokens de ejemplo ni copiar recursos auxiliares de `.agents/`.
+
+## Inventario ausente tras una importación
+
+- Entrada: existen mapa, `tokens.css`, ficha, código y una página implementada, pero falta `design-system/inventory.json`; se solicita importar otro componente.
+- Decisión esperada: modo siguiente componente; diagnostica el scaffold incompleto antes de escribir. Solo después de una decisión que permita reparar, reconstruye `components` a partir de entradas mapeadas con ficha y código, y `screens` a partir de páginas cuya composición pueda comprobarse.
+- Si no se puede establecer la composición de una pantalla, pide la información que falta antes de registrarla; no inventa una descripción ni omite silenciosamente la página.
+- No debe: copiar el inventario vacío sobre trabajo existente, registrar componentes bloqueados ni reparar el scaffold durante una decisión de no escribir o una sustitución autorizada solo para una dependencia.
 
 ## Anidado local sin mapear
 

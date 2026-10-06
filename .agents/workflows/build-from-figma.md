@@ -14,6 +14,6 @@ For a component URL or an import/update of a primitive, follow `.agents/skills/c
 4. Read the relevant component metadata and `design-system/relationships/figma-state.json`; respect declared `nestedComponents`.
 5. Read the required tokens, `.agents/rules/design-system-composition.md` and `.agents/rules/design-system-accessibility.md`.
 6. Implement the screen in `src/pages/` using the existing code components; render it from `App.tsx` when requested.
-7. Add the screen to `design-system/inventory.json` with its `name` and a `composition` object containing the distinct DS component names used in `components` and a short `description` of their arrangement. Preserve existing entries.
+7. Add the implemented screen to `design-system/inventory.json` as `{ "name": "<Name>", "composition": { "components": ["<IncludedComponent>"], "description": "<arrangement>" } }` only after its page exists in `src/pages/`. List each used DS component name once in `composition.components`; each must already be in `inventory.components`. Preserve existing entries.
 8. Ensure project dependencies are installed, then run `node .agents/checks/verify-ds.mjs`, `node .agents/checks/verify-props.mjs` and `node .agents/checks/verify-bindings.mjs`; run the manual checks in `.agents/checks/` and follow `.agents/skills/validate-ds/SKILL.md` for rendered values.
 9. Fix violations and rerun affected checks. Return PASS, FAIL or NOT RUN (with reason) for each check; never report untested behavior as passing.

@@ -34,6 +34,8 @@ No copies un DS ya relleno “para que se vea”. El usuario parte de este repo 
 
 **Siguiente componente** (existen `design-system/relationships/figma-code-map.json` y `src/styles/tokens.css`, incluso si solo se preparó el scaffold): analiza Figma antes de escribir. Si el componente es nuevo, añade ficha, código, mapa e inventario sin recrear Vite. Si ya existe, solo la transición comprobada de un anidado `external` a `mapped` habilita una actualización localizada; otros cambios se comunican y requieren una petición explícita de actualización. Si Figma trae colecciones o variables nuevas durante una importación o actualización autorizada, **mézclalas**; no borres las que ya hay.
 
+La falta de `design-system/inventory.json` no cambia el modo: diagnostícala como scaffold incompleto y aplica la regla de reparación tras la tabla de decisiones. No termines una importación con el inventario ausente.
+
 ## Cómo hablar
 
 En español, después del preanálisis y antes de tocar disco, comunica el diagnóstico:
@@ -78,9 +80,9 @@ Este repo es la fuente única de los recursos del agente. Los archivos que usa e
 | `.agents/rules/design-system-accessibility.md` | reglas de accesibilidad de UI                       |
 | `.agents/prop-vocabulary.json`                 | vocabulario canónico de props                      |
 
-`plantillas/` está en `.agents/skills/create-ds-from-figma/plantillas/`, junto a este documento. Si no existe, para y pide abrir este repo completo; no uses una instalación global parcial. Contiene dos carpetas:
+`plantillas/` está en `.agents/skills/create-ds-from-figma/plantillas/`, junto a este documento. Si falta, detente e informa que este repo está incompleto. Contiene dos carpetas:
 
-- `plantillas/design-system/`: copia **sin editar** todo su contenido (`inventory.json` y `relationships/`) a `design-system/`.
+- `plantillas/design-system/`: si aún no existe el scaffold, copia **sin editar** todo su contenido (`inventory.json` y `relationships/`) a `design-system/`. Si quedó parcial, añade solo lo que falte sin sobrescribir archivos existentes; reconstruye el inventario según la regla de reparación indicada abajo.
 - `plantillas/componentes/`: no se copia tal cual. Adapta sus fichas (`metadata.json` y `usage.md`) al crear `design-system/components/<Nombre>/`.
 
 Al trabajar en `src/` o `design-system/`, aplica `.agents/rules/design-system.md`. Registra las piezas implementadas solo en `design-system/inventory.json`.
@@ -102,8 +104,13 @@ src/components/<Nombre>/<Nombre>.module.css
 src/components/<Nombre>/index.ts
 src/App.tsx
 src/main.tsx
-package.json   (Vite + React + TS, TypeScript, PostCSS y postcss-selector-parser en devDependencies, scripts dev/build/preview)
+index.html
+tsconfig.json
+package.json       ← ya existe; se amplía, no se sustituye
+package-lock.json  ← ya existe; se actualiza al instalar dependencias
 ```
+
+En la primera importación, añade una app Vite React TS compatible con `index.html` y `tsconfig.json`. Integra React, React DOM, Vite y las dependencias de tipos necesarias en el `package.json` existente; conserva `private`, `type`, `scripts.test`, cualquier otro script y todas las dependencias actuales (incluidas TypeScript, PostCSS, postcss-selector-parser y `yaml`). Añade `dev`, `build` y `preview` sin reemplazar scripts existentes. Actualiza el `package-lock.json` existente al instalar dependencias y conserva `.gitignore`; no ejecutes un scaffold que sobrescriba esos archivos del repo.
 
 `design-system/tokens/<Coleccion>.json` = **un archivo por colección de variables de Figma**, con el mismo nombre de la colección (caracteres inseguros para fichero → `-`). No uses `colors.json` / `spacing.json` / `typography.json` como resumen fijo.
 
@@ -137,9 +144,11 @@ Evalúa esta tabla **de arriba abajo**; aplica la primera fila que corresponda:
 | Anidado `external` sin otros bloqueos                                                                                                                        | Continuar y avisar de la librería externa                                                                                                       |
 | Componente nuevo sin bloqueos                                                                                                                                | Importar                                                                                                                                        |
 
-«Otros cambios observados» significa diferencias comprobables entre el análisis actual y los datos ya guardados: `metadata.json` (variantes, `variantClassification`, `figmaCoverage`, estados, tokens, `parts`, `bindings`, `externalVariables`, `measuredLiterals`, `unresolved`, `notApplicable` y `notBuilt`), la entrada correspondiente de `figma-code-map.json` (refs y props) y los `nestedComponents` de `figma-state.json` (instancias añadidas o quitadas, o un cambio verificado en la identidad de su componente principal). Compara las conclusiones de cobertura, lagunas y exclusiones con la evidencia actual: una decisión distinta requiere revisión explícita, pero no demuestra por sí sola que Figma haya cambiado. Esa identidad se compara por tipo de identificador: `mainComponentKey`, o `mainComponentNodeId` junto con el `fileKey` de ese componente (el propio `fileKey` del DS para un anidado local; `mainComponentFileKey` cuando la herramienta lo devuelve para uno remoto). Solo se verifica como igual si hay al menos un identificador compartido y todos los compartidos coinciden; como distinta, si hay identificadores compartidos y todos difieren. Un cambio verificado de identidad cuenta como otro cambio observado aunque el nuevo estado sea `mapped`. Sin identificadores compartidos, o si unos coinciden y otros difieren, la identidad no es verificable: no asumas igualdad ni cambio; pide confirmación. La actualización automática solo aplica cuando la identidad se verifica igual y no hay ninguna otra diferencia observada. No deduzcas cambios visuales o de código que esos datos no permiten comparar.
+«Otros cambios observados» significa diferencias comprobables entre el análisis actual y los datos ya guardados: `metadata.json` (variantes, `variantClassification`, `figmaCoverage`, estados, tokens, `parts`, `bindings`, `externalVariables`, `measuredLiterals`, `unresolved`, `notApplicable` y `notBuilt`), la entrada correspondiente de `figma-code-map.json` (refs y props) y los `nestedComponents` de `figma-state.json` (instancias añadidas o quitadas, o un cambio de identidad verificado según la comparación indicada abajo). Compara las conclusiones de cobertura, lagunas y exclusiones con la evidencia actual: una decisión distinta requiere revisión explícita, pero no demuestra por sí sola que Figma haya cambiado. Un cambio verificado de identidad cuenta como otro cambio observado aunque el nuevo estado sea `mapped`. No deduzcas cambios visuales o de código que esos datos no permiten comparar.
 
 Repara antes el árbol o los tokens del file de origen si quedaron incompletos (ver «Dos modos»), sin sobrescribir lo existente, solo al importar, actualizar automáticamente una dependencia, continuar con un anidado `external`, reutilizar o realizar una actualización general solicitada. Una sustitución autorizada solo para una dependencia no permite reparar el scaffold. En cualquier fila cuya decisión sea no escribir —incluidas `DS_GAP`, pedir la URL de origen, identidad no verificable y «otros cambios observados»—, no repares el scaffold, salvo la excepción explícita de abajo.
+
+Si falta `design-system/inventory.json` y la decisión permite reparar el scaffold, copia la plantilla vacía solo cuando no hay componentes mapeados ni páginas implementadas. Si ya hay trabajo importado, reconstruye `components` con los nombres de entradas del mapa que tengan ficha y código reales; reconstruye `screens` solo para páginas existentes cuya composición con componentes del DS puedas comprobar. Si faltan pruebas para alguna entrada, pide la información necesaria en vez de inventar o descartar piezas. No sobrescribas un inventario existente ni registres componentes bloqueados o páginas previstas.
 
 Si el único bloqueo son anidados `missing` y el usuario pide expresamente preparar solo el proyecto, crea el scaffold y los tokens después de comunicar el diagnóstico, pero no registres el componente bloqueado como importado. En este caso, `App.tsx` debe ser una app válida que renderice un `main` vacío, sin componente ficticio. No guardes `pendingImports`: el reintento consiste en volver a pegar la URL y repetir el preanálisis.
 
@@ -193,17 +202,12 @@ Al volver a pedir un componente ya importado, reanaliza sus anidados con el mapa
 
 ## Inventario (obligatorio al incluir)
 
-Tras cada primitive o pantalla que **sí** hayas implementado, añade una entrada a `design-system/inventory.json` sin borrar las anteriores:
-
-- Primitive: `components` recibe `"<Nombre>"` solo si existe `design-system/components/<Nombre>/` y su código. La descripción de uso vive únicamente en `design-system/components/<Nombre>/usage.md`.
-- Pantalla: `screens` recibe `{ "name": "<Nombre>", "composition": { "components": ["<PrimitiveIncluido>"], "description": "<disposición de esos componentes>" } }` solo si existe en `src/pages/`. El array contiene nombres únicos de los primitives usados; todos deben estar presentes en `components`.
-
-No registres nombres previstos ni anidados externos.
+Tras importar un componente, añade su nombre a `design-system/inventory.json` sin borrar las entradas anteriores. `components` recibe `"<Nombre>"` solo si existe `design-system/components/<Nombre>/` y su código. La descripción de uso vive únicamente en `design-system/components/<Nombre>/usage.md`. No registres nombres previstos ni anidados externos.
 
 ## Primera vez (orden)
 
 1. **Preanálisis y diagnóstico** — identifica el nodo, lee variables del file de origen, analiza el set y sus anidados. Aplica la tabla de decisiones y comunica el resultado antes de escribir.
-2. **Árbol** — si se puede importar, monta Vite React TS (CSS modules, sin Tailwind) y copia sin editar todo `plantillas/design-system/` a `design-system/`.
+2. **Árbol** — si se puede importar, integra Vite React TS (CSS modules, sin Tailwind) en este repo conservando su manifiesto, lockfile y `.gitignore` como se indica arriba; inicializa `design-system/` desde `plantillas/design-system/` sin sobrescribir archivos de un scaffold parcial.
 3. **Tokens** — persiste el inventario **file-level** ya leído: una JSON por colección + `src/styles/tokens.css`.
 4. **Ficha** — `metadata.json` + `usage.md` con variantes, estados y tokens observados (plantilla `plantillas/componentes/`).
 5. **Código** — `src/components/<Nombre>/` con tokens y reutilizando anidados `mapped`. Declara `interface <Nombre>Props extends ... { ... }` o `type <Nombre>Props = Omit<...> & { ... }` (también vale un literal sin herencia) en su TSX y úsalo en el componente; hereda props nativas en vez de redefinirlas cuando corresponda.
@@ -215,19 +219,16 @@ No registres nombres previstos ni anidados externos.
 ## Siguiente componente
 
 1. Preanálisis y diagnóstico completos antes de escribir, también si el componente ya existe. Si hay `missing`, para sin tocar el proyecto.
-2. `find-component` — si no existe, continúa con la importación. Si existe, compara el análisis actual con `metadata.json`, la entrada del mapa y `nestedComponents`, y aplica la fila que corresponda de la tabla: solo la transición `external` → `mapped` con identidad verificada igual y sin otras diferencias se actualiza sola; si la identidad no es verificable, pide un ref o autorización; otros cambios esperan una petición explícita; sin diferencias, reutiliza. No supongas cambios que esos datos no permitan comparar ni reescribas por repetir la URL.
+2. `find-component` — si no existe, continúa con la importación. Si existe, compara el análisis actual con `metadata.json`, la entrada del mapa y `nestedComponents`, y aplica la tabla del preanálisis y su criterio de identidad. No supongas cambios que esos datos no permitan comparar ni reescribas por repetir la URL.
 3. Si el componente es nuevo o el usuario pidió expresamente una actualización general, mezcla las colecciones y variables leídas del file en los JSON existentes; no borres variables.
-4. Para un componente nuevo, crea ficha + código + mapa. Para uno existente, sigue «Actualización solicitada» si el usuario pidió una actualización general o autorizó una sustitución concreta; en otro caso, actualiza automáticamente solo una transición `external` → `mapped` con identidad verificada igual, sin otras diferencias y que puedas editar sin pisar cambios del usuario. Si no puedes aislarla, muestra el cambio propuesto y pide confirmación. No guardes `missing` ni estados `blocked`.
+4. Para un componente nuevo, crea ficha + código + mapa. Para uno existente, sigue «Actualización solicitada» si el usuario pidió una actualización general o autorizó una sustitución concreta; en otro caso, aplica únicamente la actualización automática permitida por la tabla y el criterio de identidad. Si no puedes aislar el cambio sin pisar trabajo existente, muestra la modificación propuesta y pide confirmación. No guardes `missing` ni estados `blocked`.
 5. Si `App.tsx` está vacío porque solo se preparó el scaffold, renderiza ahí el primer componente que se importe. En los demás casos, no lo sustituyas salvo que pidan ver el nuevo; no borres componentes viejos.
 6. Inventario: añade solo nombres nuevos; no quites los anteriores.
 7. Checks de **este** componente, también tras una actualización localizada; ejecuta `node .agents/checks/verify-ds.mjs`, `node .agents/checks/verify-props.mjs` y `node .agents/checks/verify-bindings.mjs` e informa los checks no realizados con su motivo.
 
-## Cuando pidan una pantalla
+## Pantallas
 
-1. Una sola página en `src/pages/`. `App.tsx` la renderiza.
-2. Solo primitives **ya incluidos**. Si `find-component` devuelve `not found` para un elemento de pantalla, reporta `DS_GAP`; no inventes.
-3. Inventario: nombre de pantalla + `composition.components` y `composition.description`.
-4. Checks de esa página.
+Si la petición principal es implementar una pantalla desde un frame, sigue `.agents/workflows/build-from-figma.md`, no este procedimiento de importación. Si el usuario pide «crea un DS» con una URL que resulta ser un frame o pantalla, aplica la tabla del preanálisis: `DS_GAP` sin escribir; no cambies automáticamente al workflow.
 
 ## Prohibido
 

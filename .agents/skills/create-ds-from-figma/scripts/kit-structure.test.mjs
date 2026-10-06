@@ -78,6 +78,41 @@ test("DS guidance entry points link the canonical rules", () => {
   assert.ok(accessibilityCheck.includes(".agents/rules/design-system-accessibility.md"), "accessibility check must link its rule");
 });
 
+test("skill helpers use current inventory, state and validation rules", () => {
+  const state = JSON.parse(readFileSync(path.join(repoRoot, ".agents/skills/create-ds-from-figma/plantillas/design-system/relationships/figma-state.json"), "utf8"));
+  for (const field of ["runId", "fileUrl"]) assert.ok(!(field in state), `${field} is not part of runtime state`);
+  assert.ok(!state._schema.notes.some((note) => note.includes("Legacy phase and pages")));
+
+  const find = readFileSync(path.join(repoRoot, ".agents/skills/find-component/SKILL.md"), "utf8");
+  const map = readFileSync(path.join(repoRoot, ".agents/skills/map-figma-to-code/SKILL.md"), "utf8");
+  const validate = readFileSync(path.join(repoRoot, ".agents/skills/validate-ds/SKILL.md"), "utf8");
+  const accessibilityCheck = readFileSync(path.join(repoRoot, ".agents/checks/accessibility.md"), "utf8");
+  assert.ok(find.includes("design-system/inventory.json"));
+  assert.ok(map.includes(".agents/skills/find-component/SKILL.md"));
+  assert.ok(validate.includes(".agents/rules/design-system-composition.md"));
+  assert.match(validate, /^Composition: PASS \/ FAIL \/ NOT RUN/m);
+  assert.ok(accessibilityCheck.includes(".agents/rules/design-system-accessibility.md"));
+  assert.match(accessibilityCheck, /^## NOT RUN$/m);
+});
+
+test("first import preserves repo tooling and screens use their workflow", () => {
+  const skill = readFileSync(skillPath, "utf8");
+  const scaffold = skill.split("## Árbol generado\n")[1]?.split("## Preanálisis antes de escribir")[0];
+  assert.ok(scaffold, "generated tree section must exist");
+  for (const file of ["index.html", "tsconfig.json", "package.json", "package-lock.json"]) {
+    assert.ok(scaffold.includes(file), `scaffold must account for ${file}`);
+  }
+  for (const existing of ["scripts.test", "yaml", ".gitignore"]) {
+    assert.ok(scaffold.includes(existing), `first import must preserve ${existing}`);
+  }
+  assert.match(skill, /Si falta `design-system\/inventory\.json` y la decisión permite reparar el scaffold/);
+  assert.match(skill, /reconstruye `components`/);
+  assert.match(skill, /reconstruye `screens`/);
+  const screens = skill.split("## Pantallas\n")[1]?.split("## Prohibido")[0];
+  assert.ok(screens?.includes(".agents/workflows/build-from-figma.md"));
+  assert.ok(screens.includes("`DS_GAP` sin escribir"));
+});
+
 test("skill loads formats where they are needed without reference chains", (t) => {
   const skill = readFileSync(skillPath, "utf8");
   const preanalysis = skill.split("## Preanálisis antes de escribir\n")[1]?.split("Evalúa esta tabla")[0];
