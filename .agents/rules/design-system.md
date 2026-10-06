@@ -6,7 +6,7 @@ Apply when reading, editing or generating `src/` or `design-system/` files.
 - Resolve Figma components through `design-system/relationships/figma-code-map.json`. Check `figma-state.json` for nested dependencies.
 - Reuse a mapped nested component from `src/components/`; do not redraw it. Report new variants before implementing them.
 - Use only Design System tokens. Do not invent color, spacing or typography values.
-- Follow `design-system/system/composition-rules.md` and `design-system/system/accessibility.md`.
+- Read and follow `.agents/rules/design-system-composition.md` and `.agents/rules/design-system-accessibility.md`.
 - Consult `.agents/prop-vocabulary.json` when naming props.
 - Do not invent a substitute for an unmapped element. Report `DS_GAP` and explain what is missing.
 - Record only implemented components and screens in `design-system/inventory.json`.

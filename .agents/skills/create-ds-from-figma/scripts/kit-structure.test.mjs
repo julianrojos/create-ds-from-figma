@@ -49,11 +49,33 @@ test("create-ds-from-figma kit layout stays consistent", () => {
   assert.ok(!existsSync(nestedReadmePath), "README must not be duplicated inside the canonical skill folder");
   assert.ok(existsSync(path.join(repoRoot, ".agents/skills/create-ds-from-figma/plantillas/design-system/inventory.json")));
   assert.ok(existsSync(path.join(repoRoot, ".agents/rules/design-system.md")));
+  for (const [name, oldName] of [
+    ["design-system-composition.md", "composition-rules.md"],
+    ["design-system-accessibility.md", "accessibility.md"],
+  ]) {
+    const rulePath = `.agents/rules/${name}`;
+    assert.ok(existsSync(path.join(repoRoot, rulePath)), `${rulePath} must exist in the kit`);
+    const oldPath = `.agents/skills/create-ds-from-figma/plantillas/design-system/system/${oldName}`;
+    assert.ok(!existsSync(path.join(repoRoot, oldPath)), `${oldPath} must not duplicate a kit rule`);
+  }
   assert.ok(readFileSync(path.join(repoRoot, "AGENTS.md"), "utf8").includes(".agents/rules/design-system.md"));
   assert.ok(existsSync(path.join(repoRoot, ".agents/skills/create-ds-from-figma/plantillas/componentes/metadata.json")));
   assert.ok(existsSync(path.join(repoRoot, ".agents/checks/verify-ds.mjs")));
   assert.ok(existsSync(path.join(repoRoot, ".agents/skills/find-component/SKILL.md")));
   assert.ok(existsSync(path.join(repoRoot, ".agents/skills/create-ds-from-figma/evals/cases.md")));
+});
+
+test("DS guidance entry points link the canonical rules", () => {
+  const rule = readFileSync(path.join(repoRoot, ".agents/rules/design-system.md"), "utf8");
+  const workflow = readFileSync(path.join(repoRoot, ".agents/workflows/build-from-figma.md"), "utf8");
+  const accessibilityCheck = readFileSync(path.join(repoRoot, ".agents/checks/accessibility.md"), "utf8");
+
+  for (const name of ["design-system-composition.md", "design-system-accessibility.md"]) {
+    const rulePath = `.agents/rules/${name}`;
+    assert.ok(rule.includes(rulePath), `DS rule must link ${rulePath}`);
+    assert.ok(workflow.includes(rulePath), `Figma workflow must link ${rulePath}`);
+  }
+  assert.ok(accessibilityCheck.includes(".agents/rules/design-system-accessibility.md"), "accessibility check must link its rule");
 });
 
 test("skill loads formats where they are needed without reference chains", (t) => {

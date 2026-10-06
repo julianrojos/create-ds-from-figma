@@ -22,7 +22,6 @@ No cites primitives ni pantallas que aún no existan en el DS generado. `design-
 Las plantillas van **en blanco**. No incluyen colecciones, tokens, primitives ni pantallas de ningún file de ejemplo.
 
 - `design-system/inventory.json` → listas `components` y `screens` vacías
-- `composition-rules.md` → reglas generales, sin inventario de piezas
 - `figma-code-map.json` → solo `_schema`, sin entradas
 - `figma-state.json` → `_schema` + colecciones, variables y components vacíos
 - **no** hay `design-system/tokens/` en el kit; esa carpeta nace en el primer volcado MCP
@@ -72,6 +71,8 @@ Este repo es la instalación canónica. Copia al DS generado solo las plantillas
 | `.agents/skills/create-ds-from-figma/SKILL.md` | documento canónico de esta skill                   |
 | `.agents/workflows/build-from-figma.md`        | workflow de construcción desde Figma               |
 | `.agents/rules/design-system.md`               | reglas persistentes para `src/` y `design-system/` |
+| `.agents/rules/design-system-composition.md`   | reglas de composición de UI                        |
+| `.agents/rules/design-system-accessibility.md` | reglas de accesibilidad de UI                       |
 | `.agents/prop-vocabulary.json`                 | vocabulario canónico de props                      |
 
 `plantillas/` vive junto a este documento en `.agents/skills/create-ds-from-figma/plantillas/` y contiene dos clases de material: `plantillas/design-system/`, que se copia tal cual a `design-system/`, y `plantillas/componentes/`, cuyas fichas se adaptan al crear `design-system/components/<Nombre>/`. Si no está, para y pide abrir este repo completo; no uses una instalación global parcial.
@@ -89,8 +90,6 @@ Estos son los archivos que pertenecen al DS/app generado:
 
 ```text
 design-system/inventory.json
-design-system/system/composition-rules.md
-design-system/system/accessibility.md
 design-system/relationships/figma-code-map.json
 design-system/relationships/figma-state.json
 design-system/tokens/<Coleccion>.json   ← no está en plantillas; nace al volcar Figma

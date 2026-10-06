@@ -42,6 +42,8 @@ Siguiente primitive: otra URL. Pantalla: cuando ya haya primitives.
 
 Para validar, ejecuta `npm test` desde la raíz de este repo. En un DS generado, instala las dependencias y ejecuta `node .agents/checks/verify-ds.mjs`, `node .agents/checks/verify-props.mjs` y `node .agents/checks/verify-bindings.mjs`. Los dos primeros validan estructura y props; el último informa cobertura y diferencias de bindings CSS sin bloquear todavía.
 
+Las reglas de composición y accesibilidad permanecen en `.agents/rules/`; no se copian a `design-system/`.
+
 ## No negociable
 
 - El repo empieza sin componentes importados

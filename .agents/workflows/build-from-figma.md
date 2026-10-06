@@ -12,7 +12,7 @@ For a component URL or an import/update of a primitive, follow `.agents/skills/c
 2. Read `design-system/inventory.json` and search `design-system/components/` and `src/components/` for existing matches. Use `.agents/skills/find-component/SKILL.md` to resolve each Figma element. Stop and report `DS_GAP` for an unmapped element; ask for the missing component URL.
 3. Use `.agents/skills/map-figma-to-code/SKILL.md` and `design-system/relationships/figma-code-map.json` to resolve each mapped component to code and props.
 4. Read the relevant component metadata and `design-system/relationships/figma-state.json`; respect declared `nestedComponents`.
-5. Read the required tokens, `design-system/system/composition-rules.md` and `design-system/system/accessibility.md`.
+5. Read the required tokens, `.agents/rules/design-system-composition.md` and `.agents/rules/design-system-accessibility.md`.
 6. Implement the screen in `src/pages/` using the existing code components; render it from `App.tsx` when requested.
 7. Add the screen to `design-system/inventory.json` with its `name` and a `composition` object containing the distinct DS component names used in `components` and a short `description` of their arrangement. Preserve existing entries.
 8. Ensure project dependencies are installed, then run `node .agents/checks/verify-ds.mjs`, `node .agents/checks/verify-props.mjs` and `node .agents/checks/verify-bindings.mjs`; run the manual checks in `.agents/checks/` and follow `.agents/skills/validate-ds/SKILL.md` for rendered values.

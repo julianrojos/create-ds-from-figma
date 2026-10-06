@@ -22,8 +22,6 @@ const fixture = () => {
   const root = mkdtempSync(path.join(os.tmpdir(), "verify-ds-"));
   active.add(root);
   cpSync(templateFile("design-system/inventory.json"), path.join(root, "design-system/inventory.json"));
-  cpSync(templateFile("design-system/system/composition-rules.md"), path.join(root, "design-system/system/composition-rules.md"));
-  cpSync(templateFile("design-system/system/accessibility.md"), path.join(root, "design-system/system/accessibility.md"));
   cpSync(templateFile("design-system/relationships/figma-code-map.json"), path.join(root, "design-system/relationships/figma-code-map.json"));
   cpSync(templateFile("design-system/relationships/figma-state.json"), path.join(root, "design-system/relationships/figma-state.json"));
   return root;
@@ -72,19 +70,6 @@ test.after(() => {
 
 test("empty kit is valid", () => {
   assert.deepEqual(verify(fixture()), { errors: [], warnings: [] });
-});
-
-test("missing system guidance fails with valid or invalid map", () => {
-  for (const relative of [
-    "design-system/system/composition-rules.md",
-    "design-system/system/accessibility.md",
-  ]) {
-    const root = fixture();
-    rmSync(path.join(root, relative));
-    assert.ok(verify(root).errors.some((item) => item.includes(`missing ${relative}`)));
-    write(root, "design-system/relationships/figma-code-map.json", "null");
-    assert.ok(verify(root).errors.some((item) => item.includes(`missing ${relative}`)));
-  }
 });
 
 test("inventory must exist and contain valid unique entries", () => {

@@ -9,4 +9,4 @@
 
 ## FAIL
 
-Any relevant accessibility rule from `design-system/system/accessibility.md` is violated.
+Any relevant accessibility rule from `.agents/rules/design-system-accessibility.md` is violated.

@@ -64,9 +64,6 @@ export function verify(root) {
     return true;
   };
 
-  localFile("design-system/system/composition-rules.md", "composition rules");
-  localFile("design-system/system/accessibility.md", "accessibility rules");
-
   const map = readJson("design-system/relationships/figma-code-map.json");
   const state = readJson("design-system/relationships/figma-state.json");
   if (!isObject(map) || !isObject(state)) return { errors, warnings };
