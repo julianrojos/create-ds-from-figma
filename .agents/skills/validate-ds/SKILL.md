@@ -1,7 +1,7 @@
 ---
 name: validate-ds
 description: >-
-  Validate implemented UI against Design System tokens, reuse, bindings and accessibility.
+  Validate implemented UI against Design System composition, tokens, reuse, bindings and accessibility.
   USE WHEN: the user asks to validate existing UI or an implementation is ready
   for final checks, including UI built from Figma.
   DO NOT USE WHEN: only identifying, mapping or planning UI and there is no
@@ -21,7 +21,7 @@ Validate generated UI against Design System rules.
 - `.agents/checks/accessibility.md`
 - install project dependencies, then run `node .agents/checks/verify-ds.mjs`, `node .agents/checks/verify-props.mjs` and `node .agents/checks/verify-bindings.mjs` from the project root;
 - relevant DS component metadata;
-- system rules.
+- `.agents/rules/design-system.md`, `.agents/rules/design-system-composition.md` and `.agents/rules/design-system-accessibility.md`.
 
 ## API state control
 
@@ -30,6 +30,10 @@ For each state with `control: consumer` or `shared`, manually verify how the con
 ## Part mapping
 
 For each recorded `metadata.json` part, inspect the rendered DOM: its `data-ds-part` and the CSS Module class named by `selector` must be on the same element. Author the marker as a literal JSX string attribute, such as `data-ds-part="root"`, not an expression. `verify-ds.mjs` checks that this literal attribute and the class selector exist, but cannot establish their DOM relationship. Record the result under Structural validation; if DOM inspection was not done, report it as NOT RUN rather than PASS.
+
+## Composition
+
+Check the implemented UI against every applicable requirement in `.agents/rules/design-system-composition.md`, using the rendered structure and source where needed. Record which requirements do not apply and why. Report Composition PASS only after checking all applicable requirements; report FAIL for a violation or NOT RUN with a reason when a required review was not performed. Static verifier results alone do not establish composition compliance.
 
 ## Binding report
 
@@ -56,6 +60,7 @@ Return a report:
 Structural validation: PASS / FAIL / NOT RUN (reason)
 Prop vocabulary and TSX: PASS / FAIL / NOT RUN (reason)
 Component reuse: PASS / FAIL / NOT RUN (reason)
+Composition: PASS / FAIL / NOT RUN (reason)
 Token usage: PASS / FAIL / NOT RUN (reason)
 Written binding identity and static report: PASS / FAIL / NOT RUN (reason)
 Computed binding values: PASS / FAIL / NOT RUN (reason)

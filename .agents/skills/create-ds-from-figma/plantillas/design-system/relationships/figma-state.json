@@ -22,7 +22,6 @@
       "components contains only successfully imported components with available code; never store blocked components or pendingImports.",
       "missing is a pre-analysis diagnosis that stops before writing and is never persisted in nestedComponents.",
       "On a repeat URL, re-read Figma. Without an explicit update request, change an imported parent's nestedComponents and code only for a verified external-to-mapped transition that can be isolated safely. An explicit request may authorize a general update or a replacement limited to one dependency whose identity cannot be verified (see .agents/skills/create-ds-from-figma/SKILL.md).",
-      "Legacy phase and pages fields are not evidence that a component was imported; do not use them to record blocked attempts.",
       "mainComponentRef is the stable lookup ref when available.",
       "mainComponentNodeId is optional and only present when the Figma tool returns it.",
       "mainComponentKey is optional and preferred for remote components when the Figma tool returns it.",
@@ -33,9 +32,7 @@
       "Vectors, shapes and images that are not instances are not nested components and are not recorded."
     ]
   },
-  "runId": "",
   "fileKey": "",
-  "fileUrl": "",
   "collections": {},
   "variables": {},
   "components": {}

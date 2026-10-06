@@ -22,6 +22,7 @@ For a nested component, include the instance node id for traceability only, Figm
 
 ## Read
 
+- `design-system/inventory.json` when present
 - `design-system/components/`
 - `src/components/`
 - `design-system/relationships/figma-code-map.json`
@@ -32,7 +33,7 @@ For a nested component, include the instance node id for traceability only, Figm
 ## Process
 
 1. Identify the Figma component name and properties.
-2. Search the DS component metadata and code. A component is available only when its map entry and implementation exist; never treat a blocked or incomplete state entry as a match.
+2. Consult the inventory as a quick index when it exists, then search the map, DS component metadata and code even if the inventory or an entry is absent. Report a missing inventory to the owning flow as incomplete scaffold, not as `match: not found`. The inventory is not proof of a mapping: a component is available only when its map entry and implementation exist; never treat a blocked or incomplete state entry as a match.
 3. For a nested instance, do **not** resolve by the placed instance id; keep it only for `figma-state.json` traceability.
 4. If a nested instance has no `mainComponentRef`, first try to obtain one with `get_design_context` or `use_figma`.
 5. Build all stable refs available: `<FILE_KEY>:<NODE_ID>` for local components, `<FILE_KEY>:<MAIN_COMPONENT_NODE_ID>` for local nested instances, `<MAIN_COMPONENT_FILE_KEY>:<MAIN_COMPONENT_NODE_ID>` for remote nested instances only when the tool returns both values, and `componentKey:<COMPONENT_KEY>` when available.

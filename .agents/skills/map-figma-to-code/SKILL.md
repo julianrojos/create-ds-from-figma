@@ -24,7 +24,7 @@ When the Figma node is nested inside another imported component, resolve it with
 
 ## Process
 
-1. Resolve the target Figma node through `figma-code-map.json`: build every stable ref available (`<FILE_KEY>:<NODE_ID>` for local components, `<FILE_KEY>:<MAIN_COMPONENT_NODE_ID>` for local nested instances, `<MAIN_COMPONENT_FILE_KEY>:<MAIN_COMPONENT_NODE_ID>` for remote nested instances only when the tool returns both values, and `componentKey:<COMPONENT_KEY>` when available), then search those refs in each entry's `figma.refs` and in each `figma.variants[*].refs`. If a match is inside a variant, use that variant's `props`. If a ref matches multiple entries, or different refs from the same node match different entries, stop and report the conflict. Do not treat the placed instance id as a stable component mapping.
+1. Use a reliable match already established through `.agents/skills/find-component/SKILL.md`, or run that lookup now. Stop if it reports conflicting refs or only a low-confidence clue. Read the matched `figma-code-map.json` entry and use the matched variant's `props` when present; the placed instance id is for traceability, not a stable mapping.
 2. If the nested instance is `mapped`, return the local component and props to import.
 3. If the nested instance is `external`, keep it as part of the parent component and do not create a DS component for it.
 4. If the nested instance is `missing`, return `DS_GAP` and do not generate a replacement.
