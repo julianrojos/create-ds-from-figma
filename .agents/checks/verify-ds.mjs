@@ -558,8 +558,7 @@ export function verify(root) {
     }
   }
   if (entries.length && localVariables.size === 0 && externalVariables.size === 0) {
-    fail("design-system/tokens: an imported component requires at least one collection JSON or an external variable snapshot");
-    fail("design-system/tokens: an imported component requires at least one variable");
+    fail("design-system/tokens: an imported component requires at least one variable in a collection JSON or an external variable snapshot");
   }
   for (const { file, name, mode, type, value } of aliases) {
     if (!isText(value.targetVariableId) || !["local", "external"].includes(value.source) ||

@@ -294,7 +294,8 @@ test("a forced mode must belong to the bound variable collection", () => {
 test("an imported component requires collection tokens and tokens.css", () => {
   const root = withExampleComponent();
   rmSync(path.join(root, "design-system/tokens/Colors.json"));
-  assert.ok(verify(root).errors.some((item) => item.includes("requires at least one collection JSON")));
+  assert.equal(verify(root).errors.filter((item) => item.includes("an imported component requires at least one")).length, 1);
+  assert.ok(verify(root).errors.some((item) => item.includes("at least one variable in a collection JSON or an external variable snapshot")));
   write(root, "design-system/tokens/Colors.json", collection(["Default"], {
     foreground: token("foreground-id", "COLOR", { Default: "#000000" }),
   }));
@@ -305,7 +306,8 @@ test("an imported component requires collection tokens and tokens.css", () => {
 test("an imported component cannot have an empty token inventory or stylesheet", () => {
   const root = withExampleComponent();
   write(root, "design-system/tokens/Colors.json", collection(["Default"], {}));
-  assert.ok(verify(root).errors.some((item) => item.includes("requires at least one variable")));
+  assert.equal(verify(root).errors.filter((item) => item.includes("an imported component requires at least one")).length, 1);
+  assert.ok(verify(root).errors.some((item) => item.includes("at least one variable in a collection JSON or an external variable snapshot")));
   write(root, "design-system/tokens/Colors.json", collection(["Default"], {
     foreground: token("foreground-id", "COLOR", { Default: "#000000" }),
   }));
