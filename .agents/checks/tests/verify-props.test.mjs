@@ -100,6 +100,21 @@ test("classification must name a declared code prop", () => {
   assert.ok(verifyProps(root, ts).errors.some((item) => item.includes("maps to scale, absent")));
 });
 
+test("missing or invalid metadata paths report the map entry, not a filesystem error", () => {
+  const root = fixture();
+  const relative = "design-system/relationships/figma-code-map.json";
+  const map = read(root, relative);
+  delete map.ExampleComponent.designSystem;
+  write(root, relative, map);
+  assert.deepEqual(verifyProps(root, ts).errors, ["map ExampleComponent: invalid designSystem.metadata path"]);
+  map.ExampleComponent.designSystem = { metadata: "../metadata.json" };
+  write(root, relative, map);
+  assert.deepEqual(verifyProps(root, ts).errors, ["map ExampleComponent: invalid designSystem.metadata path"]);
+  map.ExampleComponent.designSystem.metadata = ".";
+  write(root, relative, map);
+  assert.deepEqual(verifyProps(root, ts).errors, ["map ExampleComponent: invalid designSystem.metadata path (not a file)"]);
+});
+
 test("a classified prop can be inherited from a resolved type", () => {
   const root = fixture();
   const vocabularyPath = ".agents/prop-vocabulary.json";

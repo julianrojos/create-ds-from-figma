@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
@@ -56,6 +56,16 @@ export function verifyProps(root, typescript) {
     const sourcePath = entry?.code?.path;
     if (!isText(name) || !isText(sourcePath) || path.isAbsolute(sourcePath) || sourcePath.split(/[\\/]/).includes("..")) {
       fail(`map ${key}: invalid component name or code path`);
+      continue;
+    }
+    const metadataPath = entry?.designSystem?.metadata;
+    if (!isText(metadataPath) || path.isAbsolute(metadataPath) || metadataPath.split(/[\\/]/).includes("..")) {
+      fail(`map ${key}: invalid designSystem.metadata path`);
+      continue;
+    }
+    const metadataFullPath = path.join(root, metadataPath);
+    if (existsSync(metadataFullPath) && !statSync(metadataFullPath).isFile()) {
+      fail(`map ${key}: invalid designSystem.metadata path (not a file)`);
       continue;
     }
     const fullPath = path.join(root, sourcePath);
@@ -167,7 +177,7 @@ export function verifyProps(root, typescript) {
             checker.isTypeAssignableTo(propsType, parameterType) && checker.isTypeAssignableTo(parameterType, propsType);
         }));
     if (!acceptsProps) fail(`${name}: component must accept ${propsName} as its first parameter`);
-    const metadata = readJson(entry.designSystem?.metadata || "");
+    const metadata = readJson(metadataPath);
     if (!isObject(metadata?.variantClassification)) continue;
     for (const [axis, values] of Object.entries(metadata.variantClassification)) {
       if (!isObject(values)) continue;
