@@ -32,7 +32,7 @@ No copies un DS ya relleno “para que se vea”. El usuario parte de este repo 
 
 **Primera vez** (falta `design-system/relationships/figma-code-map.json` o `src/styles/tokens.css`, aunque haya un directorio `design-system/` vacío o instrucciones propias del repo): analiza Figma antes de escribir; si el diagnóstico permite importar, monta el **árbol entero**, vuelca **todas** las variables del file (todas las colecciones) y rellena **el componente de la URL**. Si el scaffold quedó a medias (existe uno de esos dos archivos pero no el otro), completa solo lo que falte sin sobrescribir lo existente.
 
-**Siguiente componente** (existen `design-system/relationships/figma-code-map.json` y `src/styles/tokens.css`, incluso si solo se preparó el scaffold): analiza Figma antes de escribir. Si el componente es nuevo, añade ficha, código, mapa e inventario sin recrear Vite ni copiar recursos auxiliares del agente (`checks/`, `rules/`, otras `skills/`, `workflows/` o `prop-vocabulary.json`). Si ya existe, solo la transición comprobada de un anidado `external` a `mapped` habilita una actualización localizada; otros cambios se comunican y requieren una petición explícita de actualización. Si Figma trae colecciones o variables nuevas durante una importación o actualización autorizada, **mézclalas**; no borres las que ya hay.
+**Siguiente componente** (existen `design-system/relationships/figma-code-map.json` y `src/styles/tokens.css`, incluso si solo se preparó el scaffold): analiza Figma antes de escribir. Si el componente es nuevo, añade ficha, código, mapa e inventario sin recrear Vite. Si ya existe, solo la transición comprobada de un anidado `external` a `mapped` habilita una actualización localizada; otros cambios se comunican y requieren una petición explícita de actualización. Si Figma trae colecciones o variables nuevas durante una importación o actualización autorizada, **mézclalas**; no borres las que ya hay.
 
 ## Cómo hablar
 
@@ -60,7 +60,10 @@ Si dice **crea un DS** (o pega la URL en vacío): ejecuta el modo que toque, nar
 
 ## Recursos y plantillas
 
-Este repo es la instalación canónica. Copia al DS generado solo las plantillas indicadas abajo; usa el resto de recursos de agente directamente desde el repo. Las tres referencias de esta skill (`references/tokens.md`, `references/component-metadata.md` y `references/relationships.md`) son instrucciones, no material que se copie:
+Este repo es la fuente única de los recursos del agente. Los archivos que usa este flujo se dividen en dos grupos con tratamiento distinto:
+
+- **Recursos del agente: se usan en su sitio y no se copian nunca.** Son los de la tabla siguiente y las tres referencias de esta skill (`references/tokens.md`, `references/component-metadata.md` y `references/relationships.md`), que son instrucciones.
+- **Plantillas: lo único que se copia o adapta desde el repo al DS generado.** Se describen después de la tabla. El agente genera tokens, `tokens.css` y código a partir de Figma, completa los mapas inicializados desde plantillas y adapta las fichas de cada componente.
 
 | Recurso                                        | Uso                                                |
 | ---------------------------------------------- | -------------------------------------------------- |
@@ -75,13 +78,11 @@ Este repo es la instalación canónica. Copia al DS generado solo las plantillas
 | `.agents/rules/design-system-accessibility.md` | reglas de accesibilidad de UI                       |
 | `.agents/prop-vocabulary.json`                 | vocabulario canónico de props                      |
 
-`plantillas/` vive junto a este documento en `.agents/skills/create-ds-from-figma/plantillas/` y contiene dos clases de material: `plantillas/design-system/`, que se copia tal cual a `design-system/`, y `plantillas/componentes/`, cuyas fichas se adaptan al crear `design-system/components/<Nombre>/`. Si no está, para y pide abrir este repo completo; no uses una instalación global parcial.
+`plantillas/` está en `.agents/skills/create-ds-from-figma/plantillas/`, junto a este documento. Si no existe, para y pide abrir este repo completo; no uses una instalación global parcial. Contiene dos carpetas:
 
-Copia **sin editar** todo `plantillas/design-system/` a `design-system/`.
+- `plantillas/design-system/`: copia **sin editar** todo su contenido (`inventory.json` y `relationships/`) a `design-system/`.
+- `plantillas/componentes/`: no se copia tal cual. Adapta sus fichas (`metadata.json` y `usage.md`) al crear `design-system/components/<Nombre>/`.
 
-No copies al DS generado los recursos auxiliares del agente: `.agents/checks/`, `.agents/rules/`, las demás carpetas de `.agents/skills/`, `.agents/workflows/` ni `.agents/prop-vocabulary.json`. No generes `.ai/`.
-
-No copies un repo de Design System **ya relleno** (código y fichas de componentes hechos).
 Al trabajar en `src/` o `design-system/`, aplica `.agents/rules/design-system.md`. Registra las piezas implementadas solo en `design-system/inventory.json`.
 
 ## Árbol generado
@@ -202,7 +203,7 @@ No registres nombres previstos ni anidados externos.
 ## Primera vez (orden)
 
 1. **Preanálisis y diagnóstico** — identifica el nodo, lee variables del file de origen, analiza el set y sus anidados. Aplica la tabla de decisiones y comunica el resultado antes de escribir.
-2. **Árbol** — si se puede importar, monta Vite React TS (CSS modules, sin Tailwind) y copia sin editar todo `plantillas/design-system/` a `design-system/`. No copies los recursos auxiliares del agente (`checks/`, `rules/`, otras `skills/`, `workflows/` o `prop-vocabulary.json`) ni generes `.ai/`.
+2. **Árbol** — si se puede importar, monta Vite React TS (CSS modules, sin Tailwind) y copia sin editar todo `plantillas/design-system/` a `design-system/`.
 3. **Tokens** — persiste el inventario **file-level** ya leído: una JSON por colección + `src/styles/tokens.css`.
 4. **Ficha** — `metadata.json` + `usage.md` con variantes, estados y tokens observados (plantilla `plantillas/componentes/`).
 5. **Código** — `src/components/<Nombre>/` con tokens y reutilizando anidados `mapped`. Declara `interface <Nombre>Props extends ... { ... }` o `type <Nombre>Props = Omit<...> & { ... }` (también vale un literal sin herencia) en su TSX y úsalo en el componente; hereda props nativas en vez de redefinirlas cuando corresponda.
@@ -231,7 +232,7 @@ No registres nombres previstos ni anidados externos.
 ## Prohibido
 
 - Rellenar plantillas o el DS generado con un DS de ejemplo
-- Copiar recursos auxiliares del agente (`checks/`, `rules/`, otras `skills/`, `workflows/` o `prop-vocabulary.json`) al DS generado, generar `.ai/` o mantener runtimes AI duplicados
+- Copiar al DS generado recursos de `.agents/` distintos de las plantillas indicadas (`checks/`, `rules/`, `skills/`, `workflows/`, `references/` o `prop-vocabulary.json`), generar `.ai/` o mantener runtimes AI duplicados
 - Generar todos los componentes del file de golpe
 - Citar en reglas o inventario componentes que aún no están en el DS generado
 - Una pantalla en la primera vez (si la URL es una pantalla: `DS_GAP`, sin escribir)
