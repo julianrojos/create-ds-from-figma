@@ -1,7 +1,7 @@
 ---
 name: create-ds-from-figma
 description: >-
-  Import or explicitly update one Figma component in this prepared Design System repo.
+  Import or explicitly update one Figma component in this Design System repo.
   USE WHEN: the user says "crea un DS" or "create a design system", pastes a
   Figma URL by itself, or asks to import, add or update one component, component
   set, variant or instance, including a repeated URL. Inspect the node type first.
@@ -11,13 +11,13 @@ description: >-
 
 # Crear DS desde un componente Figma
 
-El usuario trabaja en **este repo preparado**, dice **crea un DS** y pega **un componente** de Figma (el file tiene variables).
+El usuario trabaja en **este repo**, dice **crea un DS** y pega **un componente** de Figma (el file tiene variables).
 
 Eso basta. No pidas el esqueleto en un paso aparte.
 
 No cites primitives ni pantallas que aún no existan en el DS generado. `design-system/inventory.json` empieza vacío y **se rellena al incluir cada pieza**.
 
-## Kit vacío (alumnos)
+## Kit vacío
 
 Las plantillas van **en blanco**. No incluyen colecciones, tokens, primitives ni pantallas de ningún file de ejemplo.
 
@@ -27,7 +27,7 @@ Las plantillas van **en blanco**. No incluyen colecciones, tokens, primitives ni
 - `figma-state.json` → `_schema` + colecciones, variables y components vacíos
 - **no** hay `design-system/tokens/` en el kit; esa carpeta nace en el primer volcado MCP
 
-No copies un DS ya relleno “para que se vea”. El alumno parte de este repo sin componentes importados y el agente escribe tokens y el primer componente desde Figma.
+No copies un DS ya relleno “para que se vea”. El usuario parte de este repo sin componentes importados y el agente escribe tokens y el primer componente desde Figma.
 
 ## Dos modos
 
@@ -63,16 +63,16 @@ Si dice **crea un DS** (o pega la URL en vacío): ejecuta el modo que toque, nar
 
 Este repo es la instalación canónica. Copia al DS generado solo las plantillas indicadas abajo; usa el resto de recursos de agente directamente desde el repo. Las tres referencias de esta skill (`references/tokens.md`, `references/component-metadata.md` y `references/relationships.md`) son instrucciones, no material que se copie:
 
-| Recurso | Uso |
-| --- | --- |
-| `.agents/checks/` | checks automáticos y manuales |
-| `.agents/skills/find-component/SKILL.md` | resolución de nodos Figma a componentes existentes |
-| `.agents/skills/map-figma-to-code/SKILL.md` | mapeo de componentes DS a código y props |
-| `.agents/skills/validate-ds/SKILL.md` | validación visual y de bindings computados |
-| `.agents/skills/create-ds-from-figma/SKILL.md` | documento canónico de esta skill |
-| `.agents/workflows/build-from-figma.md` | workflow de construcción desde Figma |
-| `.agents/rules/design-system.md` | reglas persistentes para `src/` y `design-system/` |
-| `.agents/prop-vocabulary.json` | vocabulario canónico de props |
+| Recurso                                        | Uso                                                |
+| ---------------------------------------------- | -------------------------------------------------- |
+| `.agents/checks/`                              | checks automáticos y manuales                      |
+| `.agents/skills/find-component/SKILL.md`       | resolución de nodos Figma a componentes existentes |
+| `.agents/skills/map-figma-to-code/SKILL.md`    | mapeo de componentes DS a código y props           |
+| `.agents/skills/validate-ds/SKILL.md`          | validación visual y de bindings computados         |
+| `.agents/skills/create-ds-from-figma/SKILL.md` | documento canónico de esta skill                   |
+| `.agents/workflows/build-from-figma.md`        | workflow de construcción desde Figma               |
+| `.agents/rules/design-system.md`               | reglas persistentes para `src/` y `design-system/` |
+| `.agents/prop-vocabulary.json`                 | vocabulario canónico de props                      |
 
 `plantillas/` vive junto a este documento en `.agents/skills/create-ds-from-figma/plantillas/` y contiene dos clases de material: `plantillas/design-system/`, que se copia tal cual a `design-system/`, y `plantillas/componentes/`, cuyas fichas se adaptan al crear `design-system/components/<Nombre>/`. Si no está, para y pide abrir este repo completo; no uses una instalación global parcial.
 
@@ -120,22 +120,22 @@ No crees el árbol, tokens, fichas, código ni registros durante este preanális
 
 Evalúa esta tabla **de arriba abajo**; aplica la primera fila que corresponda:
 
-| Resultado del diagnóstico | Decisión antes de escribir |
-| --- | --- |
-| Frame o pantalla | `DS_GAP`; no escribir |
-| Instancia raíz `remote` | Pedir URL del componente en su file de origen; no escribir |
-| Sin variables locales ni bindings externos con ID y valor resuelto | `DS_GAP`; no escribir |
-| Valor de variable (directo o alias) sin resolver, o alias sin ID de destino | `DS_GAP`; no escribir tokens ni registrar el componente |
-| Binding directo a variable externa sin ID o valor resuelto | `DS_GAP`; no inventar variable local ni registrar el componente |
-| Laguna que impide decidir la API o implementar fielmente | `DS_GAP`; no registrar el componente |
-| Algún anidado local `missing` | Mostrar nombres y refs; `DS_GAP`; no escribir |
-| Componente ya importado y actualización pedida expresamente (general o sustitución de una dependencia concreta) | Seguir «Actualización solicitada» con el alcance pedido |
+| Resultado del diagnóstico                                                                                                                                    | Decisión antes de escribir                                                                                                                      |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frame o pantalla                                                                                                                                             | `DS_GAP`; no escribir                                                                                                                           |
+| Instancia raíz `remote`                                                                                                                                      | Pedir URL del componente en su file de origen; no escribir                                                                                      |
+| Sin variables locales ni bindings externos con ID y valor resuelto                                                                                           | `DS_GAP`; no escribir                                                                                                                           |
+| Valor de variable (directo o alias) sin resolver, o alias sin ID de destino                                                                                  | `DS_GAP`; no escribir tokens ni registrar el componente                                                                                         |
+| Binding directo a variable externa sin ID o valor resuelto                                                                                                   | `DS_GAP`; no inventar variable local ni registrar el componente                                                                                 |
+| Laguna que impide decidir la API o implementar fielmente                                                                                                     | `DS_GAP`; no registrar el componente                                                                                                            |
+| Algún anidado local `missing`                                                                                                                                | Mostrar nombres y refs; `DS_GAP`; no escribir                                                                                                   |
+| Componente ya importado y actualización pedida expresamente (general o sustitución de una dependencia concreta)                                              | Seguir «Actualización solicitada» con el alcance pedido                                                                                         |
 | Componente ya importado: un anidado pasa de `external` a `mapped`, pero su identidad no es verificable (sin identificador común o con datos contradictorios) | No escribir; pedir un ref adicional o autorización explícita para sustituir esa dependencia. Comunicar también las demás diferencias observadas |
-| Componente ya importado: un anidado registrado como `external` ahora resuelve a `mapped`, con identidad verificada como igual y sin otras diferencias | Actualizar solo esa dependencia y su import en el código, con la cautela indicada abajo |
-| Componente ya importado: otros cambios observados | Mostrar diferencias; solicitar una petición explícita de actualización; no escribir |
-| Componente ya importado: ninguna transición de dependencia ni otros cambios observados | Reutilizar; no reescribir |
-| Anidado `external` sin otros bloqueos | Continuar y avisar de la librería externa |
-| Componente nuevo sin bloqueos | Importar |
+| Componente ya importado: un anidado registrado como `external` ahora resuelve a `mapped`, con identidad verificada como igual y sin otras diferencias        | Actualizar solo esa dependencia y su import en el código, con la cautela indicada abajo                                                         |
+| Componente ya importado: otros cambios observados                                                                                                            | Mostrar diferencias; solicitar una petición explícita de actualización; no escribir                                                             |
+| Componente ya importado: ninguna transición de dependencia ni otros cambios observados                                                                       | Reutilizar; no reescribir                                                                                                                       |
+| Anidado `external` sin otros bloqueos                                                                                                                        | Continuar y avisar de la librería externa                                                                                                       |
+| Componente nuevo sin bloqueos                                                                                                                                | Importar                                                                                                                                        |
 
 «Otros cambios observados» significa diferencias comprobables entre el análisis actual y los datos ya guardados: `metadata.json` (variantes, `variantClassification`, `figmaCoverage`, estados, tokens, `parts`, `bindings`, `externalVariables`, `measuredLiterals`, `unresolved`, `notApplicable` y `notBuilt`), la entrada correspondiente de `figma-code-map.json` (refs y props) y los `nestedComponents` de `figma-state.json` (instancias añadidas o quitadas, o un cambio verificado en la identidad de su componente principal). Compara las conclusiones de cobertura, lagunas y exclusiones con la evidencia actual: una decisión distinta requiere revisión explícita, pero no demuestra por sí sola que Figma haya cambiado. Esa identidad se compara por tipo de identificador: `mainComponentKey`, o `mainComponentNodeId` junto con el `fileKey` de ese componente (el propio `fileKey` del DS para un anidado local; `mainComponentFileKey` cuando la herramienta lo devuelve para uno remoto). Solo se verifica como igual si hay al menos un identificador compartido y todos los compartidos coinciden; como distinta, si hay identificadores compartidos y todos difieren. Un cambio verificado de identidad cuenta como otro cambio observado aunque el nuevo estado sea `mapped`. Sin identificadores compartidos, o si unos coinciden y otros difieren, la identidad no es verificable: no asumas igualdad ni cambio; pide confirmación. La actualización automática solo aplica cuando la identidad se verifica igual y no hay ninguna otra diferencia observada. No deduzcas cambios visuales o de código que esos datos no permiten comparar.
 
@@ -145,11 +145,11 @@ Si el único bloqueo son anidados `missing` y el usuario pide expresamente prepa
 
 Si la identidad del componente principal de un anidado no es verificable, no cambies código ni estado. Pide un ref adicional o autorización explícita para sustituir esa dependencia concreta. Con un ref nuevo, repite el preanálisis y vuelve a aplicar la tabla. Si el usuario autoriza la sustitución sin poder verificar la identidad, sigue «Actualización solicitada» con alcance limitado a esa dependencia; su autorización no convierte la identidad en verificada ni habilita la actualización automática. Si no aporta ref ni autoriza el cambio, conserva el estado actual.
 
-Para un padre ya importado, localiza cada anidado guardado por su `figmaNodeId` y compara la identidad de su componente principal por tipo de identificador (`mainComponentKey`, o `mainComponentNodeId` con el `fileKey` que le corresponda). Hay tres resultados: identidad verificada como igual si todos los identificadores compartidos coinciden; verificada como distinta si todos difieren; no verificable si no hay ninguno compartido o los compartidos se contradicen. Solo el segundo caso cuenta como «otro cambio observado»; en el tercero, pide un ref o autorización antes de decidir. Aplica la actualización automática solo con identidad verificada igual, cuando además el estado pasó de `external` a `mapped` y no hay ninguna otra diferencia observada: edita únicamente la composición de ese anidado y su estado, conservando el resto del código y las ediciones del alumno. Si no puedes aislar el cambio sin pisar código existente, muestra la modificación propuesta y pide confirmación antes de escribir. `git diff` ayuda a revisar cambios sin confirmar, pero no revela ediciones manuales ya confirmadas. No infieras otros cambios de Figma a partir de una supuesta versión o huella que este kit no guarda.
+Para un padre ya importado, localiza cada anidado guardado por su `figmaNodeId` y compara la identidad de su componente principal por tipo de identificador (`mainComponentKey`, o `mainComponentNodeId` con el `fileKey` que le corresponda). Hay tres resultados: identidad verificada como igual si todos los identificadores compartidos coinciden; verificada como distinta si todos difieren; no verificable si no hay ninguno compartido o los compartidos se contradicen. Solo el segundo caso cuenta como «otro cambio observado»; en el tercero, pide un ref o autorización antes de decidir. Aplica la actualización automática solo con identidad verificada igual, cuando además el estado pasó de `external` a `mapped` y no hay ninguna otra diferencia observada: edita únicamente la composición de ese anidado y su estado, conservando el resto del código y las ediciones del usuario. Si no puedes aislar el cambio sin pisar código existente, muestra la modificación propuesta y pide confirmación antes de escribir. `git diff` ayuda a revisar cambios sin confirmar, pero no revela ediciones manuales ya confirmadas. No infieras otros cambios de Figma a partir de una supuesta versión o huella que este kit no guarda.
 
 ### Actualización solicitada
 
-Cuando el usuario pida expresamente actualizar un componente importado, usa el preanálisis actual y lee su ficha, código, mapa y estado existentes. Identifica por archivo los cambios necesarios y comunícalos antes de editar. Conserva las ediciones del alumno. Indica siempre el cambio propuesto por archivo. Si un cambio sobrescribiría código existente que no puedes preservar, presenta la modificación concreta y pide confirmación antes de tocar esa parte; la petición de actualización ya autoriza el resto del trabajo. Usa `git diff` para revisar cambios sin confirmar, sin asumir que detecta ediciones ya confirmadas.
+Cuando el usuario pida expresamente actualizar un componente importado, usa el preanálisis actual y lee su ficha, código, mapa y estado existentes. Identifica por archivo los cambios necesarios y comunícalos antes de editar. Conserva las ediciones del usuario. Indica siempre el cambio propuesto por archivo. Si un cambio sobrescribiría código existente que no puedes preservar, presenta la modificación concreta y pide confirmación antes de tocar esa parte; la petición de actualización ya autoriza el resto del trabajo. Usa `git diff` para revisar cambios sin confirmar, sin asumir que detecta ediciones ya confirmadas.
 
 Para una actualización general, compara el contexto de diseño actual (`get_design_context` o `use_figma`) y los tokens con el código y el CSS existentes, además de con ficha, mapa y `nestedComponents`; modifica lo solicitado y cualquier diferencia visual o de layout que esa comparación evidencie. Después, mezcla tokens y refs nuevos sin borrar los anteriores, actualiza ficha, código y dependencias de forma coherente, y ejecuta los checks del componente.
 
@@ -217,7 +217,7 @@ No registres nombres previstos ni anidados externos.
 1. Preanálisis y diagnóstico completos antes de escribir, también si el componente ya existe. Si hay `missing`, para sin tocar el proyecto.
 2. `find-component` — si no existe, continúa con la importación. Si existe, compara el análisis actual con `metadata.json`, la entrada del mapa y `nestedComponents`, y aplica la fila que corresponda de la tabla: solo la transición `external` → `mapped` con identidad verificada igual y sin otras diferencias se actualiza sola; si la identidad no es verificable, pide un ref o autorización; otros cambios esperan una petición explícita; sin diferencias, reutiliza. No supongas cambios que esos datos no permitan comparar ni reescribas por repetir la URL.
 3. Si el componente es nuevo o el usuario pidió expresamente una actualización general, mezcla las colecciones y variables leídas del file en los JSON existentes; no borres variables.
-4. Para un componente nuevo, crea ficha + código + mapa. Para uno existente, sigue «Actualización solicitada» si el usuario pidió una actualización general o autorizó una sustitución concreta; en otro caso, actualiza automáticamente solo una transición `external` → `mapped` con identidad verificada igual, sin otras diferencias y que puedas editar sin pisar cambios del alumno. Si no puedes aislarla, muestra el cambio propuesto y pide confirmación. No guardes `missing` ni estados `blocked`.
+4. Para un componente nuevo, crea ficha + código + mapa. Para uno existente, sigue «Actualización solicitada» si el usuario pidió una actualización general o autorizó una sustitución concreta; en otro caso, actualiza automáticamente solo una transición `external` → `mapped` con identidad verificada igual, sin otras diferencias y que puedas editar sin pisar cambios del usuario. Si no puedes aislarla, muestra el cambio propuesto y pide confirmación. No guardes `missing` ni estados `blocked`.
 5. Si `App.tsx` está vacío porque solo se preparó el scaffold, renderiza ahí el primer componente que se importe. En los demás casos, no lo sustituyas salvo que pidan ver el nuevo; no borres componentes viejos.
 6. Inventario: añade solo nombres nuevos; no quites los anteriores.
 7. Checks de **este** componente, también tras una actualización localizada; ejecuta `node .agents/checks/verify-ds.mjs`, `node .agents/checks/verify-props.mjs` y `node .agents/checks/verify-bindings.mjs` e informa los checks no realizados con su motivo.
