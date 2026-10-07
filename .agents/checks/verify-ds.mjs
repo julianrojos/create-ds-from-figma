@@ -20,6 +20,8 @@ const tokenTypes = {
   STRING: { format: "a string", valid: (value) => typeof value === "string" },
   BOOLEAN: { format: "a boolean", valid: (value) => typeof value === "boolean" },
 };
+// RegExp.test coerces its argument, so undefined would match as the text "undefined".
+const matches = (pattern, value) => typeof value === "string" && pattern.test(value);
 const sameSet = (left, right) => left.size === right.size && [...left].every((item) => right.has(item));
 
 function selectedClasses(selector) {
@@ -192,6 +194,49 @@ export function verify(root) {
     } else if (!sameSet(new Set(covered), new Set(Object.keys(isObject(variants) ? variants : {})))) {
       fail(`${name}: figmaCoverage.variants differs from figma-code-map.json`);
     }
+    // Whether the tool returned styles must outlive the run: an empty list alone cannot tell "none exist" from "not returned".
+    const styleCapture = metadata.figmaCoverage?.styles;
+    const captureOk = isObject(styleCapture) && ["captured", "unavailable"].includes(styleCapture.status) && isText(styleCapture.source) &&
+      (styleCapture.status === "unavailable" ? isText(styleCapture.reason) : !("reason" in styleCapture));
+    if (!captureOk) {
+      fail(`${name}: figmaCoverage.styles needs status captured (source) or unavailable (source and reason)`);
+    } else if (styleCapture.status === "unavailable" && Array.isArray(metadata.styles) && metadata.styles.length) {
+      fail(`${name}: figmaCoverage.styles is unavailable, so styles must be empty`);
+    }
+    const styleApplications = new Map();
+    if (!Array.isArray(metadata.styles)) {
+      fail(`${name}: styles must be a list`);
+    } else {
+      for (const [index, style] of metadata.styles.entries()) {
+        const label = `${name}: styles[${index}]`;
+        if (!isObject(style) || !matches(/^[a-z][a-z0-9-]*$/, style.ref) ||
+            !["TEXT", "EFFECT", "PAINT"].includes(style.type) ||
+            !isText(style.name) || !isText(style.id) || !isText(style.fileKey) ||
+            ("key" in style && !isText(style.key)) || !Array.isArray(style.nodes) || !style.nodes.length) {
+          fail(`${label}: ref, type, name, id, fileKey and application nodes are required`);
+          continue;
+        }
+        if (styleApplications.has(style.ref)) fail(`${label}: duplicate style ref ${style.ref}`);
+        const nodes = new Set();
+        for (const [nodeIndex, application] of style.nodes.entries()) {
+          const applicationLabel = `${label}.nodes[${nodeIndex}]`;
+          if (!isObject(application) || !isText(application.node) ||
+              !application.node.startsWith(`${entry.figma.fileKey}:`)) {
+            fail(`${applicationLabel}: node must be a ref in the component's Figma file`);
+            continue;
+          }
+          const hasRange = ["start", "end", "rangesSource"].some((field) => field in application);
+          if (hasRange && (style.type !== "TEXT" ||
+              !Number.isInteger(application.start) || application.start < 0 ||
+              !Number.isInteger(application.end) || application.end <= application.start ||
+              !isText(application.rangesSource))) {
+            fail(`${applicationLabel}: a text range needs start < end and rangesSource`);
+          }
+          nodes.add(application.node);
+        }
+        if (!styleApplications.has(style.ref)) styleApplications.set(style.ref, nodes);
+      }
+    }
     const parts = metadata.parts;
     if (!isObject(parts) || !isObject(parts.root)) {
       fail(`${name}: parts must contain a root part`);
@@ -219,7 +264,7 @@ export function verify(root) {
       const unvarianted = variantKeys.size === 0;
       for (const [partName, part] of Object.entries(parts)) {
         if (!/^[a-z][a-z0-9-]*$/.test(partName) || !isObject(part) ||
-            !/^\.[A-Za-z_][\w-]*$/.test(part.selector) || !isObject(part.nodes)) {
+            !matches(/^\.[A-Za-z_][\w-]*$/, part.selector) || !isObject(part.nodes)) {
           fail(`${name}: part ${partName} needs a CSS class selector and variant-to-node refs`);
           continue;
         }
@@ -265,7 +310,7 @@ export function verify(root) {
         const label = `${name}: ${kind}[${index}]`;
         const node = kind === "bindings" ? record?.node : record?.source;
         if (!isObject(record) || !isText(record.part) || !isText(record.variant) ||
-            !isText(record.figmaProperty) || !/^[a-z][a-z0-9-]*$/.test(record.cssProperty) ||
+            !isText(record.figmaProperty) || !matches(/^[a-z][a-z0-9-]*$/, record.cssProperty) ||
             !isText(record.cssSelector) || !isText(node) ||
             !isObject(parts?.[record.part]) || parts[record.part].nodes?.[record.variant] !== node) {
           fail(`${label}: part, variant, Figma node, Figma property, CSS property and selector must match the part record`);
@@ -279,7 +324,22 @@ export function verify(root) {
         const key = `${record.part}\u0000${record.variant}\u0000${record.cssProperty}`;
         if (observedProperties.has(key)) fail(`${label}: duplicate or conflicting property observation`);
         observedProperties.add(key);
+        if ("styleRef" in record) {
+          if (!isText(record.styleRef) || !styleApplications.has(record.styleRef)) {
+            fail(`${label}: styleRef must resolve to a style in this metadata`);
+          } else if (!styleApplications.get(record.styleRef).has(node)) {
+            fail(`${label}: styleRef has no application at ${node}`);
+          }
+          if (!["style", "override", "unknown"].includes(record.styleOrigin)) {
+            fail(`${label}: styleOrigin must be style, override or unknown`);
+          } else if (record.styleOrigin === "unknown" ? "styleOriginSource" in record : !isText(record.styleOriginSource)) {
+            fail(`${label}: styleOriginSource is required only for an evidenced style or override origin`);
+          }
+        } else if ("styleOrigin" in record || "styleOriginSource" in record) {
+          fail(`${label}: styleOrigin needs styleRef`);
+        }
         if (kind === "bindings") {
+          if ("translation" in record || "figmaValue" in record) fail(`${label}: translation and figmaValue belong to measuredLiterals`);
           if (!isText(record.variableId)) fail(`${label}: variableId is required`);
           else bindingRecords.push({ name, label, variableId: record.variableId, node: record.node, cssProperty: record.cssProperty,
             modeOverride: record.modeOverride });
@@ -287,8 +347,20 @@ export function verify(root) {
               (!isObject(record.modeOverride) || !isText(record.modeOverride.collectionId) || !isText(record.modeOverride.modeName))) {
             fail(`${label}: modeOverride needs collectionId and modeName`);
           }
-        } else if (!isText(record.value)) {
-          fail(`${label}: measured literal value must be a nonempty CSS string`);
+        } else {
+          if (!isText(record.value)) fail(`${label}: measured literal value must be a nonempty CSS string`);
+          if (!["direct", "approximate"].includes(record.translation)) {
+            fail(`${label}: translation must be direct or approximate`);
+          }
+          if (record.translation === "approximate" && !("figmaValue" in record)) {
+            fail(`${label}: approximate translation needs figmaValue`);
+          }
+          if ("figmaValue" in record && (!isObject(record.figmaValue) ||
+              !isText(record.figmaValue.source) || !isText(record.figmaValue.field) ||
+              !Object.hasOwn(record.figmaValue, "value") || record.figmaValue.value === null ||
+              ("unit" in record.figmaValue && !isText(record.figmaValue.unit)))) {
+            fail(`${label}: figmaValue needs source, field, non-null value and optional unit`);
+          }
         }
       }
     }
@@ -476,7 +548,7 @@ export function verify(root) {
         fail(`tokens/${file}: defaultMode must name a collection mode`);
       }
       for (const [name, variable] of Object.entries(data.variables)) {
-        if (!isObject(variable) || !isText(variable.id) || !/^--[A-Za-z_][\w-]*$/.test(variable.cssName) ||
+        if (!isObject(variable) || !isText(variable.id) || !matches(/^--[A-Za-z_][\w-]*$/, variable.cssName) ||
             !tokenTypes[variable.type] || !isObject(variable.valuesByMode)) {
           fail(`tokens/${file} ${name}: id, cssName, type and valuesByMode are required`);
           continue;
@@ -638,7 +710,7 @@ export function verify(root) {
     }
     for (const [index, variable] of metadata.externalVariables.entries()) {
       const label = `${entry.name || key}: externalVariables[${index}]`;
-      if (!isObject(variable) || !isText(variable.id) || !/^--[A-Za-z_][\w-]*$/.test(variable.cssName) ||
+      if (!isObject(variable) || !isText(variable.id) || !matches(/^--[A-Za-z_][\w-]*$/, variable.cssName) ||
           !tokenTypes[variable.type] || !isText(variable.source) ||
           !variable.source.startsWith(`${entry.figma.fileKey}:`) || !tokenTypes[variable.type].valid(variable.value)) {
         fail(`${label}: id, cssName, type, resolved value and source node ref are required`);

@@ -57,13 +57,33 @@ test("measured literals are exact and unrecorded literals are findings", () => {
     content: { selector: ".content" },
   }, bindings: [], measuredLiterals: [
     { part: "content", variant: "Content=Media, Size=Large", source: "EXAMPLE_FILE:1:3",
-      figmaProperty: "width", cssSelector: ".content", cssProperty: "width", value: "40px" },
+      figmaProperty: "width", cssSelector: ".content", cssProperty: "width", value: "40px", translation: "direct" },
   ] });
   write(root, "src/components/ExampleComponent/ExampleComponent.module.css", ".content { width: 42px; border-radius: 4px; }");
   const results = report(root, "ExampleComponent");
   assert.equal(results[0].status, "FAIL");
   assert.equal(results[0].expected, "40px");
   assert.ok(results.some((item) => item.type === "unrecorded-literal" && item.property === "border-radius"));
+});
+
+test("approximate literals retain written identity but need rendered comparison", () => {
+  const root = fixture();
+  const relative = "design-system/components/ExampleComponent/metadata.json";
+  const metadata = JSON.parse(readFileSync(path.join(root, relative), "utf8"));
+  metadata.bindings = [];
+  metadata.measuredLiterals = [{ part: "root", variant: "Content=Text, Size=Large", source: "EXAMPLE_FILE:1:1",
+    figmaProperty: "lineHeight", cssSelector: ".root", cssProperty: "line-height", value: "20px",
+    translation: "approximate", figmaValue: { source: "REST", field: "lineHeightPercentFontSize", value: 125 } }];
+  write(root, relative, metadata);
+  write(root, "src/components/ExampleComponent/ExampleComponent.module.css", ".root { line-height: 20px; }");
+  const result = report(root, "ExampleComponent")[0];
+  assert.equal(result.writtenStatus, "PASS");
+  assert.equal(result.status, "NOT_RUN");
+  assert.match(result.reason, /independent rendered comparison/);
+  assert.deepEqual(result.figmaValue, metadata.measuredLiterals[0].figmaValue);
+
+  write(root, "src/components/ExampleComponent/ExampleComponent.module.css", ".root { line-height: 21px; }");
+  assert.equal(report(root, "ExampleComponent")[0].status, "FAIL");
 });
 
 test("class combinations are checked, but a possible cascade override stays not evaluated", () => {

@@ -100,3 +100,25 @@ El DS de `test/nested_component` con `Tab` dentro de `Tabs` puede servir para el
 - Entrada: importación que añade colecciones, una instantánea externa y un modo con ámbito decidido; el agente tiene la tentación de escribir o retocar `src/styles/tokens.css` a mano.
 - Decisión esperada: el agente persiste JSON, estado y ficha, y genera la hoja con `generate-tokens-css.mjs`; ejecuta `--check` y `verify-ds`. Una segunda ejecución sin cambios deja el archivo idéntico.
 - No debe: editar el archivo a mano, añadir declaraciones propias, escribir variables `FLOAT` pendientes ni dejar que `verify-ds` pase con una hoja que difiere de la generada.
+
+## Estilo aplicado con literal aproximado
+
+- Entrada: un nodo de texto usa un estilo `TEXT` identificable, pero su altura de línea procede de `REST.lineHeightPercentFontSize = 124.874997...`; la herramienta no prueba si esa propiedad procede del estilo o de un override.
+- Decisión esperada: `styles` registra ID, nombre, file y nodo; el literal conserva `figmaValue` bruto, `translation: approximate`, `styleRef` y `styleOrigin: unknown`. No redondea en silencio ni inventa un origen. `verify-bindings` deja `writtenStatus: PASS` solo si coincide el CSS y `status: NOT_RUN` hasta la comparación renderizada.
+- Cierre esperado: `validate-ds` obtiene el tamaño de fuente de Figma independientemente, calcula la expectativa solo para ese par `(REST, lineHeightPercentFontSize)` y compara el valor calculado en navegador para las configuraciones pertinentes; informa resultado estático, calculado y visual por separado.
+- No debe: considerar cualquier porcentaje como porcentaje del tamaño de fuente, ni convertir un `NOT_RUN` estático en PASS sin prueba renderizada.
+
+## AUTO y procedencia de estilo no disponible
+
+- Entrada: Figma devuelve `AUTO` para line-height y la herramienta no devuelve el ID del estilo, pero sí los valores esenciales del nodo.
+- Decisión esperada: `figmaCoverage.styles` queda `unavailable` con la llamada intentada y el motivo (la captura de procedencia es `NOT RUN`), y `styles` vacío; no bloquea la importación solo por faltar procedencia ni degrada por sí solo el Overall. Si el CSS usa `normal`, el literal registra `translation: approximate` y `figmaValue` con `source`, `field` y `value: AUTO`.
+- Cierre esperado: `validate-ds` compara visualmente los mismos contenidos, fuente, tamaño, variante y modo; limita cualquier PASS a las configuraciones observadas. Sin esa comparación, el literal y el Overall quedan NOT VERIFIED.
+- No debe: afirmar que `normal` equivale siempre a `AUTO`, ni usar solo la altura de la caja de texto como prueba.
+
+## Texto con estilos por segmentos
+
+- Entrada no bloqueante: un mismo nodo de texto tiene dos estilos en rangos observados, pero la diferencia de propiedades no es esencial para la implementación solicitada.
+- Decisión esperada: se registran las aplicaciones con `start`, `end` y `rangesSource` tal como los devolvió la API; no se inventa un binding o literal escalar para la propiedad mixta. Se añade `unresolved` no bloqueante y la parte queda NOT VERIFIED en el informe.
+- Entrada bloqueante: la diferencia entre segmentos es esencial para reproducir el componente y el modelo de una observación por propiedad no la representa fielmente.
+- Decisión esperada: `DS_GAP` antes de escribir, explicando qué segmento o propiedad falta y qué fuente se intentó.
+- No debe: usar los rangos como prueba de fidelidad de las propiedades por segmento, ni esconder la diferencia esencial en `notBuilt` para declarar PASS.

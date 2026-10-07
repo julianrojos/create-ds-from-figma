@@ -159,11 +159,17 @@ export function report(root, componentName) {
             results.push({ ...result, status: "NOT_RUN", writtenStatus: "NOT_RUN", reason: "computed CSS literal not evaluated" });
           } else {
             const matches = found.value === record.value;
-            const reason = matches && record.modeOverride ? "forced Figma mode not evaluated"
-              : matches && found.possibleOverride ? "potential cascade override not evaluated" : undefined;
+            const reasons = [];
+            if (matches && record.modeOverride) reasons.push("forced Figma mode not evaluated");
+            if (matches && found.possibleOverride) reasons.push("potential cascade override not evaluated");
+            if (matches && record.translation === "approximate") {
+              reasons.push("approximate Figma-to-CSS translation needs independent rendered comparison in validate-ds");
+            }
+            const reason = reasons.join("; ") || undefined;
             results.push({ ...result, status: matches ? reason ? "NOT_RUN" : "PASS" : "FAIL",
               writtenStatus: matches ? "PASS" : "FAIL",
               expected: record.value, actual: found.value,
+              ...(record.translation === "approximate" ? { figmaValue: record.figmaValue } : {}),
               ...(reason ? { reason } : {}) });
           }
           continue;

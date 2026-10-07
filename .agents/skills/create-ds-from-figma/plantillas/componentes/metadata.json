@@ -14,10 +14,16 @@
   "variants": {},
   "variantClassification": {},
   "figmaCoverage": {
-    "variants": []
+    "variants": [],
+    "styles": {
+      "status": "unavailable",
+      "source": "<herramienta y llamada intentadas>",
+      "reason": "<por qué no se capturaron; cambia a status captured, sin reason, si la herramienta devolvió estilos o confirmó que no hay>"
+    }
   },
   "states": [],
   "tokens": [],
+  "styles": [],
   "parts": {},
   "bindings": [],
   "externalVariables": [],

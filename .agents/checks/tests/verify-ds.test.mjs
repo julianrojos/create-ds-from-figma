@@ -65,6 +65,7 @@ const withExampleComponent = () => {
   metadata.variants = { Size: ["Small"] };
   metadata.variantClassification = { Size: { Small: { kind: "prop", codeProp: "size" } } };
   metadata.figmaCoverage.variants = ["Size=Small"];
+  metadata.figmaCoverage.styles = { status: "captured", source: "test fixture" };
   metadata.parts = { root: { selector: ".root", nodes: { "Size=Small": "FILE:1:3" } } };
   write(root, metadataPath, metadata);
   write(root, "design-system/components/ExampleComponent/usage.md", "# ExampleComponent\n");
@@ -330,9 +331,108 @@ test("bindings require a mapped part node and an exported variable", () => {
   metadata.bindings = [{ part: "root", variant: "Size=Small", node: "FILE:1:3", figmaProperty: "fills[0]", cssProperty: "background-color", cssSelector: ".root", variableId: "missing" }];
   write(root, relative, metadata);
   assert.ok(verify(root).errors.some((item) => item.includes("variableId missing is missing")));
-  metadata.measuredLiterals = [{ part: "root", variant: "Size=Small", source: "FILE:1:3", figmaProperty: "fills[0]", cssProperty: "background-color", cssSelector: ".root", value: "#000000" }];
+  metadata.measuredLiterals = [{ part: "root", variant: "Size=Small", source: "FILE:1:3", figmaProperty: "fills[0]", cssProperty: "background-color", cssSelector: ".root", value: "#000000", translation: "direct" }];
   write(root, relative, metadata);
   assert.ok(verify(root).errors.some((item) => item.includes("duplicate or conflicting property observation")));
+});
+
+test("Figma style applications and literal translations keep their provenance", () => {
+  const root = withExampleComponent();
+  const relative = "design-system/components/ExampleComponent/metadata.json";
+  const metadata = read(root, relative);
+  metadata.styles = [{ ref: "text-button", type: "TEXT", name: "UI/Button", id: "S:1", fileKey: "FILE",
+    nodes: [{ node: "FILE:1:3" }] }];
+  metadata.measuredLiterals = [{ part: "root", variant: "Size=Small", source: "FILE:1:3",
+    figmaProperty: "lineHeight", cssProperty: "line-height", cssSelector: ".root", value: "20px",
+    translation: "approximate", figmaValue: { source: "REST", field: "lineHeightPercentFontSize", value: 125 },
+    styleRef: "text-button", styleOrigin: "unknown" }];
+  write(root, relative, metadata);
+  assert.deepEqual(verify(root).errors, []);
+
+  const expectError = (change, message) => {
+    const changed = structuredClone(metadata);
+    change(changed);
+    write(root, relative, changed);
+    assert.ok(verify(root).errors.some((item) => item.includes(message)), message);
+  };
+  expectError((item) => item.styles.push(structuredClone(item.styles[0])), "duplicate style ref text-button");
+  expectError((item) => item.measuredLiterals[0].styleRef = "missing", "styleRef must resolve");
+  expectError((item) => item.styles[0].nodes[0].node = "FILE:1:9", "styleRef has no application");
+  expectError((item) => item.measuredLiterals[0].styleOrigin = "style", "styleOriginSource is required");
+  expectError((item) => delete item.measuredLiterals[0].figmaValue, "approximate translation needs figmaValue");
+  expectError((item) => item.measuredLiterals[0].figmaValue.field = "", "figmaValue needs source");
+  expectError((item) => item.styles[0].nodes[0] = { node: "FILE:1:3", start: 3, end: 3,
+    rangesSource: "getStyledTextSegments" }, "a text range needs start < end");
+  expectError((item) => delete item.measuredLiterals[0].translation, "translation must be direct or approximate");
+  expectError((item) => item.styles[0].type = "COLOR", "ref, type, name, id, fileKey and application nodes are required");
+  expectError((item) => item.measuredLiterals[0].styleOriginSource = "evidence", "styleOriginSource is required only");
+  const bound = structuredClone(metadata);
+  bound.measuredLiterals = [];
+  bound.bindings = [{ part: "root", variant: "Size=Small", node: "FILE:1:3", figmaProperty: "fills[0]",
+    cssProperty: "color", cssSelector: ".root", variableId: "foreground-id", styleRef: "text-button",
+    styleOrigin: "override", styleOriginSource: "Plugin segment property override: fills[0]" }];
+  write(root, relative, bound);
+  assert.deepEqual(verify(root).errors, []);
+  delete bound.bindings[0].styleOriginSource;
+  write(root, relative, bound);
+  assert.ok(verify(root).errors.some((item) => item.includes("styleOriginSource is required only")));
+});
+
+test("an absent style ref or CSS property is rejected instead of matching as text", () => {
+  const root = withExampleComponent();
+  const relative = "design-system/components/ExampleComponent/metadata.json";
+  const metadata = read(root, relative);
+  metadata.styles = [{ ref: "text-button", type: "TEXT", name: "UI/Button", id: "S:1", fileKey: "FILE", nodes: [{ node: "FILE:1:3" }] }];
+  write(root, relative, metadata);
+  assert.deepEqual(verify(root).errors, []);
+  delete metadata.styles[0].ref;
+  write(root, relative, metadata);
+  assert.ok(verify(root).errors.some((item) => item.includes("ref, type, name, id, fileKey and application nodes are required")));
+  metadata.styles = [];
+  metadata.measuredLiterals = [{ part: "root", variant: "Size=Small", source: "FILE:1:3", figmaProperty: "width", cssSelector: ".root", value: "4px", translation: "direct" }];
+  write(root, relative, metadata);
+  assert.ok(verify(root).errors.some((item) => item.includes("CSS property and selector must match the part record")));
+});
+
+test("whether styles were captured is recorded, so an empty list is not ambiguous", () => {
+  const root = withExampleComponent();
+  const relative = "design-system/components/ExampleComponent/metadata.json";
+  const metadata = read(root, relative);
+  const message = "figmaCoverage.styles needs status";
+  const errorsFor = (styles) => {
+    const changed = structuredClone(metadata);
+    changed.figmaCoverage.styles = styles;
+    write(root, relative, changed);
+    return verify(root).errors;
+  };
+  assert.deepEqual(errorsFor({ status: "captured", source: "get_design_context" }), []);
+  assert.deepEqual(errorsFor({ status: "unavailable", source: "get_design_context", reason: "returns no style IDs" }), []);
+  for (const bad of [undefined, { status: "unavailable", source: "x" }, { status: "captured", source: "x", reason: "y" },
+    { status: "captured" }, { status: "none", source: "x" }]) {
+    assert.ok(errorsFor(bad).some((item) => item.includes(message)), JSON.stringify(bad));
+  }
+  const changed = structuredClone(metadata);
+  changed.figmaCoverage.styles = { status: "unavailable", source: "x", reason: "y" };
+  changed.styles = [{ ref: "a", type: "TEXT", name: "UI/Button", id: "S:1", fileKey: "FILE", nodes: [{ node: "FILE:1:3" }] }];
+  write(root, relative, changed);
+  assert.ok(verify(root).errors.some((item) => item.includes("styles must be empty")));
+});
+
+test("style ranges can document mixed text without claiming a scalar property", () => {
+  const root = withExampleComponent();
+  const relative = "design-system/components/ExampleComponent/metadata.json";
+  const metadata = read(root, relative);
+  metadata.styles = [
+    { ref: "label-first", type: "TEXT", name: "UI/Label", id: "S:1", fileKey: "FILE",
+      nodes: [{ node: "FILE:1:7", start: 0, end: 5, rangesSource: "getStyledTextSegments" }] },
+    { ref: "label-second", type: "TEXT", name: "UI/Emphasis", id: "S:2", fileKey: "FILE",
+      nodes: [{ node: "FILE:1:7", start: 5, end: 7, rangesSource: "getStyledTextSegments" }] },
+  ];
+  write(root, relative, metadata);
+  assert.deepEqual(verify(root).errors, []);
+  delete metadata.styles[0].nodes[0].rangesSource;
+  write(root, relative, metadata);
+  assert.ok(verify(root).errors.some((item) => item.includes("a text range needs start < end and rangesSource")));
 });
 
 test("a CSS class prefix cannot impersonate the recorded part", () => {
