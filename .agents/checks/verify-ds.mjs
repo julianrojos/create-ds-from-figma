@@ -4,6 +4,12 @@ import { fileURLToPath } from "node:url";
 import postcss from "postcss";
 import selectorParser from "postcss-selector-parser";
 import ts from "typescript";
+import { aliasCycleProblems } from "./lib/alias-cycles.mjs";
+import { assessTokenPrefix, customPropertyDeclarations } from "./lib/design-system-state.mjs";
+import { modeDeclarationProblems, modeScopeProblems } from "./lib/mode-scopes.mjs";
+import { GENERATOR_COMMAND, firstDifference, generateTokensCss } from "./lib/tokens-css.mjs";
+import { bindingTypeProblem } from "./lib/property-types.mjs";
+import { createFloatResolver, floatAliasProblems, isLocalAliasVariable, serializationProblems, serializeNumber } from "./lib/serialization.mjs";
 import { isPortableTokenFileName, tokenFileKey } from "./lib/token-file-name.mjs";
 
 const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -239,6 +245,11 @@ export function verify(root) {
           fail(`${name}: root part must cover every Figma variant`);
         }
       }
+      for (const marker of jsxParts?.parts ?? []) {
+        if (!Object.hasOwn(parts, marker)) {
+          warn(`${name}: TSX has a static data-ds-part="${marker}" that metadata.parts does not declare; a marker shows what the source writes, not what renders, so confirm it in the DOM`);
+        }
+      }
     }
     const observations = [
       ["bindings", metadata.bindings],
@@ -270,7 +281,7 @@ export function verify(root) {
         observedProperties.add(key);
         if (kind === "bindings") {
           if (!isText(record.variableId)) fail(`${label}: variableId is required`);
-          else bindingRecords.push({ name, label, variableId: record.variableId, node: record.node,
+          else bindingRecords.push({ name, label, variableId: record.variableId, node: record.node, cssProperty: record.cssProperty,
             modeOverride: record.modeOverride });
           if ("modeOverride" in record &&
               (!isObject(record.modeOverride) || !isText(record.modeOverride.collectionId) || !isText(record.modeOverride.modeName))) {
@@ -414,23 +425,30 @@ export function verify(root) {
   const cssNameOwners = new Map();
   const aliases = [];
   const baseDeclarations = new Map();
+  const stylesheetFile = path.join(root, "src/styles/tokens.css");
+  let stylesheetRoot = null;
+  let stylesheetParseFailed = false;
+  const parsedStylesheet = () => {
+    if (stylesheetRoot || stylesheetParseFailed || !existsSync(stylesheetFile) || !statSync(stylesheetFile).isFile()) return stylesheetRoot;
+    try {
+      stylesheetRoot = postcss.parse(readFileSync(stylesheetFile, "utf8"), { from: "src/styles/tokens.css" });
+    } catch (error) {
+      fail(`token stylesheet: invalid CSS: ${error.message}`);
+      stylesheetParseFailed = true;
+    }
+    return stylesheetRoot;
+  };
   if (entries.length) {
     if (localFile("src/styles/tokens.css", "token stylesheet")) {
       const cssText = readFileSync(path.join(root, "src/styles/tokens.css"), "utf8");
       if (!cssText.trim()) fail("token stylesheet: src/styles/tokens.css is empty");
-      else {
-        try {
-          postcss.parse(cssText).walkRules(":root", (rule) => {
-            if (rule.parent.type !== "root") return;
-            for (const decl of rule.nodes.filter((node) => node.type === "decl")) {
-              if (baseDeclarations.has(decl.prop)) fail(`token stylesheet: duplicate base declaration ${decl.prop}`);
-              baseDeclarations.set(decl.prop, decl.value.trim());
-            }
-          });
-        } catch (error) {
-          fail(`token stylesheet: invalid CSS: ${error.message}`);
+      parsedStylesheet()?.walkRules(":root", (rule) => {
+        if (rule.parent.type !== "root") return;
+        for (const decl of rule.nodes.filter((node) => node.type === "decl")) {
+          if (baseDeclarations.has(decl.prop)) fail(`token stylesheet: duplicate base declaration ${decl.prop}`);
+          baseDeclarations.set(decl.prop, decl.value.trim());
         }
-      }
+      });
     }
   }
   if (existsSync(tokensDir)) {
@@ -463,10 +481,13 @@ export function verify(root) {
           fail(`tokens/${file} ${name}: id, cssName, type and valuesByMode are required`);
           continue;
         }
+        if ("scopes" in variable && (!Array.isArray(variable.scopes) || !variable.scopes.every(isText))) {
+          fail(`tokens/${file} ${name}: scopes, when present, must be the list of scope names Figma returned`);
+        }
         if (cssNameOwners.has(variable.cssName)) fail(`tokens/${file} ${name}: duplicate cssName ${variable.cssName}`);
         else cssNameOwners.set(variable.cssName, variable.id);
         if (localVariables.has(variable.id)) fail(`tokens/${file} ${name}: duplicate variable id ${variable.id}`);
-        else localVariables.set(variable.id, { file, name, type: variable.type, cssName: variable.cssName,
+        else localVariables.set(variable.id, { id: variable.id, file, name, type: variable.type, cssName: variable.cssName, valuesByMode: variable.valuesByMode,
           baseValue: variable.valuesByMode[data.defaultMode], collectionId: data.id, modes });
         if (modes && !sameSet(new Set(Object.keys(variable.valuesByMode)), modes)) {
           fail(`tokens/${file} ${name}: valuesByMode keys differ from collection modes`);
@@ -489,6 +510,8 @@ export function verify(root) {
   const stateVariables = isObject(state.variables) ? state.variables : null;
   if (!stateCollections) fail("figma-state.json: collections must be an ID-keyed object");
   if (!stateVariables) fail("figma-state.json: variables must be grouped by collection ID");
+  const modeChecks = [];
+  const floatDecisions = new Map();
   if (stateCollections) {
     const referencedFiles = new Map();
     for (const [id, record] of Object.entries(stateCollections)) {
@@ -514,6 +537,13 @@ export function verify(root) {
           Object.keys(token.data.variables).length !== record.varCount) {
         fail(`state collection ${id}: name, modes or varCount differ from token JSON`);
       }
+      const scopes = modeScopeProblems(record, token.data, `state collection ${id}`);
+      for (const message of scopes.errors) fail(message);
+      for (const message of scopes.warnings) warn(message);
+      if (!scopes.errors.length) modeChecks.push({ label: `tokens/${token.file}`, record, data: token.data });
+      const serialization = serializationProblems(record, token.data, `state collection ${id}`);
+      for (const message of serialization.errors) fail(message);
+      for (const [variableId, css] of serialization.decisions) floatDecisions.set(variableId, css);
     }
     for (const [id, { file, data }] of tokenCollections) {
       if (!Object.hasOwn(stateCollections, id)) fail(`tokens/${file}: collection id ${id} is absent from figma-state.json`);
@@ -543,14 +573,39 @@ export function verify(root) {
       if (!Object.hasOwn(stateVariables, id)) fail(`state collection ${id}: missing variables group`);
     }
   }
+  const cycles = aliasCycleProblems([...tokenCollections.values()].map(({ file, data }) =>
+    ({ file, data, record: stateCollections?.[data.id] })));
+  for (const message of cycles.errors) fail(message);
+  for (const message of cycles.warnings) warn(message);
+  const resolveFloat = createFloatResolver({ variables: localVariables, decisions: floatDecisions });
+  for (const message of floatAliasProblems({ variables: localVariables, resolveFloat })) fail(message);
+  const pendingFloats = new Map();
   if (entries.length) {
     for (const [cssName, id] of cssNameOwners) {
       const declaration = baseDeclarations.get(cssName);
+      const variable = localVariables.get(id);
+      if (variable?.type === "FLOAT") {
+        const resolved = resolveFloat(id);
+        if (resolved.status === "conflict") {
+          fail(`token stylesheet: ${cssName}: ${resolved.message}`);
+        } else if (resolved.status === "pending") {
+          pendingFloats.set(variable.file, [...(pendingFloats.get(variable.file) || []), variable.name]);
+          if (declaration !== undefined) fail(`token stylesheet: ${cssName} is declared without a serialization decision; remove it until the unit is decided`);
+        } else if (declaration === undefined) {
+          fail(`token stylesheet: missing base declaration ${cssName}`);
+        } else {
+          const raw = variable.baseValue;
+          const expected = isLocalAliasVariable(variable.valuesByMode)
+            ? `var(${localVariables.get(raw.targetVariableId)?.cssName})`
+            : serializeNumber(isObject(raw) ? raw.value : raw, resolved.css);
+          if (declaration !== expected) fail(`token stylesheet: ${cssName} must be ${expected} to match its serialization decision`);
+        }
+        continue;
+      }
       if (declaration === undefined) {
         fail(`token stylesheet: missing base declaration ${cssName}`);
         continue;
       }
-      const variable = localVariables.get(id);
       if (!variable) continue;
       const raw = variable.baseValue;
       const value = isObject(raw) ? raw.value : raw;
@@ -561,9 +616,6 @@ export function verify(root) {
         }
       } else if (variable.type === "COLOR" && typeof value === "string" && declaration.toUpperCase() !== value.toUpperCase()) {
         fail(`token stylesheet: ${cssName} base color differs from token JSON`);
-      } else if (variable.type === "FLOAT" && typeof value === "number" &&
-          !new RegExp(`^${String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:px)?$`).test(declaration)) {
-        fail(`token stylesheet: ${cssName} base number differs from token JSON`);
       } else if (variable.type === "STRING" && typeof value === "string" &&
           declaration !== value && declaration !== JSON.stringify(value) && declaration !== `'${value.replace(/'/g, "\\'")}'`) {
         fail(`token stylesheet: ${cssName} base string differs from token JSON`);
@@ -571,6 +623,9 @@ export function verify(root) {
         fail(`token stylesheet: ${cssName} base boolean differs from token JSON`);
       }
     }
+  }
+  for (const [file, names] of pendingFloats) {
+    warn(`tokens/${file}: ${names.length} FLOAT variable(s) have no serialization decision and are not written to tokens.css (NOT VERIFIED): ${names.slice(0, 3).join(", ")}${names.length > 3 ? ", ..." : ""}`);
   }
   for (const [key, entry] of entries) {
     if (!isObject(entry?.designSystem) || !isText(entry.designSystem.metadata) ||
@@ -605,11 +660,11 @@ export function verify(root) {
       } else externalVariables.set(variable.id, variable);
       cssNameOwners.set(variable.cssName, variable.id);
       const declaration = baseDeclarations.get(variable.cssName);
-      if (declaration === undefined) fail(`${label}: missing base declaration ${variable.cssName}`);
+      if (variable.type === "FLOAT") {
+        if (declaration !== undefined) fail(`${label}: ${variable.cssName} is declared without a serialization decision; external FLOAT snapshots are not written yet`);
+      } else if (declaration === undefined) fail(`${label}: missing base declaration ${variable.cssName}`);
       else if (variable.type === "COLOR" && declaration.toUpperCase() !== variable.value.toUpperCase()) {
         fail(`${label}: base color differs from resolved snapshot`);
-      } else if (variable.type === "FLOAT" && !new RegExp(`^${String(variable.value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:px)?$`).test(declaration)) {
-        fail(`${label}: base number differs from resolved snapshot`);
       } else if (variable.type === "BOOLEAN" && declaration !== String(variable.value)) {
         fail(`${label}: base boolean differs from resolved snapshot`);
       } else if (variable.type === "STRING" && declaration !== variable.value &&
@@ -622,11 +677,59 @@ export function verify(root) {
   for (const binding of bindingRecords) {
     const variable = localVariables.get(binding.variableId) || externalVariables.get(binding.variableId);
     if (!variable) fail(`${binding.label}: variableId ${binding.variableId} is missing from token inventory`);
+    else if (bindingTypeProblem(binding.cssProperty, variable.type)) {
+      fail(`${binding.label}: ${bindingTypeProblem(binding.cssProperty, variable.type)} (variable ${binding.variableId})`);
+    }
+    else if (externalVariables.get(binding.variableId)?.type === "FLOAT") {
+      fail(`${binding.label}: ${externalVariables.get(binding.variableId).cssName} is an external FLOAT snapshot without a serialization decision, so it cannot be consumed yet`);
+    }
+    else if (localVariables.has(binding.variableId) && localVariables.get(binding.variableId).type === "FLOAT" &&
+        resolveFloat(binding.variableId).status !== "decided") {
+      const resolved = resolveFloat(binding.variableId);
+      fail(`${binding.label}: ${localVariables.get(binding.variableId).cssName} has ${resolved.status === "conflict" ? `a serialization conflict (${resolved.message})` : "no serialization decision"}, so it cannot be consumed yet`);
+    }
     else if (binding.modeOverride && localVariables.has(binding.variableId) &&
         (binding.modeOverride.collectionId !== variable.collectionId || !variable.modes?.has(binding.modeOverride.modeName))) {
       fail(`${binding.label}: modeOverride does not match the bound variable collection and modes`);
     } else if (binding.modeOverride && externalVariables.has(binding.variableId)) {
       warn(`${binding.label}: external forced mode is not structurally verified`);
+    }
+  }
+  const declaredCustomProperties = parsedStylesheet() ? customPropertyDeclarations(stylesheetRoot) : [];
+  const publishedEvidence = {
+    tokenPrefix: state.tokenPrefix ?? null,
+    collectionIds: isObject(state.collections) ? Object.keys(state.collections) : [],
+    tokenFiles: existsSync(tokensDir) ? readdirSync(tokensDir).filter((item) => /\.json$/i.test(item)) : [],
+    declaredCustomProperties,
+    importedComponents: [...new Set([
+      ...entries.map(([key, entry]) => (isObject(entry) && isText(entry.name) ? entry.name : key)),
+      ...Object.keys(isObject(state.components) ? state.components : {}),
+      ...(existsSync(componentDir) ? readdirSync(componentDir, { withFileTypes: true }).filter((item) => item.isDirectory()).map((item) => item.name) : []),
+    ])],
+  };
+  const prefixVerdict = assessTokenPrefix(publishedEvidence);
+  if (prefixVerdict.status === "invalid" || prefixVerdict.status === "missing") {
+    fail(`figma-state.json: ${prefixVerdict.message}`);
+  } else if (prefixVerdict.status === "fixed") {
+    const required = `--${state.tokenPrefix}-`;
+    for (const [id, variable] of localVariables) {
+      if (!variable.cssName.startsWith(required)) fail(`tokens/${variable.file} ${variable.name}: cssName ${variable.cssName} must start with ${required} (tokenPrefix ${state.tokenPrefix})`);
+    }
+  }
+  if (entries.length && modeChecks.length && stylesheetRoot) {
+    const modes = modeDeclarationProblems({ root: stylesheetRoot, collections: modeChecks, cssNameOf: (id) => localVariables.get(id)?.cssName, resolveFloat });
+    for (const message of modes.errors) fail(`token stylesheet: ${message}`);
+    for (const message of modes.warnings) warn(message);
+  }
+  if (entries.length && stylesheetRoot && !stylesheetParseFailed) {
+    const generated = generateTokensCss(root);
+    if (generated.errors.length) {
+      for (const message of generated.errors) fail(`token stylesheet generation: ${message}`);
+    } else {
+      const difference = firstDifference(readFileSync(stylesheetFile, "utf8"), generated.css);
+      if (difference) {
+        fail(`token stylesheet: src/styles/tokens.css differs from the generated output at line ${difference.line}; it is a build product, so regenerate it with ${GENERATOR_COMMAND}`);
+      }
     }
   }
   if (entries.length && localVariables.size === 0 && externalVariables.size === 0) {
