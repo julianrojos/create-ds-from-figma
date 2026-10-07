@@ -31,3 +31,4 @@ Operational instructions for AI agents in this repository.
 
 - `.agents/skills/create-ds-from-figma/SKILL.md` es la skill canónica y detectable; no crear copias sincronizadas.
 - Si se cambia el formato de relaciones Figma, actualizar juntas las plantillas `figma-state.json`, `figma-code-map.json`, la referencia `.agents/skills/create-ds-from-figma/references/relationships.md`, las skills auxiliares `find-component`, `map-figma-to-code` y `validate-ds`, y los checks de `.agents/checks/`.
+- Tras cambiar documentación, rutas o comandos del kit, ejecuta `npm run verify:docs`: informa de enlaces, rutas `.agents/...` y comandos que no resuelven (con `--strict` falla).
