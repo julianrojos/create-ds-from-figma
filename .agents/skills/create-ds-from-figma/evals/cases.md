@@ -32,6 +32,28 @@ Las URL siguientes son entradas de ejemplo: al ejecutar el caso, usa nodos reale
 - Si no se puede establecer la composición de una pantalla, pide la información que falta antes de registrarla; no inventa una descripción ni omite silenciosamente la página.
 - No debe: copiar el inventario vacío sobre trabajo existente, registrar componentes bloqueados ni reparar el scaffold durante una decisión de no escribir o una sustitución autorizada solo para una dependencia.
 
+## Nombres de colecciones en importaciones sucesivas
+
+- Entrada: Figma contiene `Color/Primitives` y `Color-Primitives` como colecciones nuevas con IDs distintos.
+- Decisión esperada: el preflight asigna sufijos codificados por ID a ambas en `files` antes de escribir; `state.collections` y `state.variables` quedan indexados por ID y cada `file` apunta a su JSON.
+- Segunda entrada: Figma añade una colección nueva cuyo nombre colisiona con un JSON ya importado, o renombra una colección existente conservando su ID.
+- Decisión esperada: el archivo existente conserva su nombre; solo la colección nueva recibe sufijo. Un renombrado actualiza el nombre en el estado y en el JSON, no `file`.
+- No debe: sobrescribir o renombrar un archivo anterior por una colisión nueva, guardar una ruta fuera de `design-system/tokens/` ni atribuir a Figma un nombre reconstruido del archivo.
+
+## ID registrado que no aparece en la entrada del preflight
+
+- Entrada: `state.collections` conserva una colección con JSON existente, pero su ID no aparece en la entrada del preflight; puede proceder de otro file de Figma.
+- Decisión esperada: el preflight conserva el nombre en `files` y declara `{ id, file }` en `diagnostics.registeredIdsNotInInput`; el agente comunica solo esa diferencia de entrada, sin afirmar que Figma cambió ni borrar el JSON o el estado. El resultado debe ser interpretable aunque no se lea stderr.
+- No debe: retirar tokens automáticamente ni convertir el aviso en permiso para escribir cuando la tabla lo prohíbe.
+
+## JSON registrado ausente
+
+- Entrada reparable: `state.collections` registra un JSON que falta, pero el mismo ID aparece en la entrada del preflight y el agente ha observado sus variables y modos en Figma.
+- Decisión esperada: el preflight conserva el nombre en `files` y declara `{ id, file }` en `diagnostics.missingRegistered`. Solo después de una decisión de la tabla que permita reparar el scaffold, el agente reconstruye ese JSON con los datos observados y ejecuta los checks.
+- Entrada no reparable con la entrada actual: falta el JSON registrado y su ID tampoco aparece en la entrada del preflight.
+- Decisión esperada: el preflight falla antes de escribir y el agente pide restauración o una reparación explícita con la fuente necesaria.
+- No debe: sobrescribir otro JSON, inventar variables ni reparar durante `DS_GAP`, una decisión de no escribir o una sustitución autorizada solo para una dependencia.
+
 ## Anidado local sin mapear
 
 - Entrada: URL de un componente cuyo análisis revela una instancia local `missing`, con ref estable del componente principal.

@@ -1,5 +1,21 @@
 {
   "_schema": {
+    "collections": {
+      "<VariableCollectionId>": {
+        "name": "<nombre en Figma>",
+        "modes": ["<modo>"],
+        "varCount": 0,
+        "file": "<nombre de archivo>.json"
+      }
+    },
+    "variables": {
+      "<VariableCollectionId>": {
+        "<nombre de variable>": {
+          "id": "<VariableID>",
+          "type": "COLOR | FLOAT | STRING | BOOLEAN"
+        }
+      }
+    },
     "components": {
       "<ComponentName>": {
         "figmaNodeId": "<NODE_ID>",
@@ -19,6 +35,7 @@
     },
     "notes": [
       "Ignore keys that start with _ when reading runtime state.",
+      "Key collections and variables by collection ID, never by collection name. Store only the token JSON basename in collections[id].file; preserve that filename when the Figma collection name changes.",
       "components contains only successfully imported components with available code; never store blocked components or pendingImports.",
       "missing is a pre-analysis diagnosis that stops before writing and is never persisted in nestedComponents.",
       "On a repeat URL, re-read Figma. Without an explicit update request, change an imported parent's nestedComponents and code only for a verified external-to-mapped transition that can be isolated safely. An explicit request may authorize a general update or a replacement limited to one dependency whose identity cannot be verified (see .agents/skills/create-ds-from-figma/SKILL.md).",

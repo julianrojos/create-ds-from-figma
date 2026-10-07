@@ -2,7 +2,7 @@
 
 ## PASS
 
-- Values come from `design-system/tokens/<Coleccion>.json` and `src/styles/tokens.css`.
+- Values come from each JSON named by `figma-state.json.collections[<ID>].file` in `design-system/tokens/` and from `src/styles/tokens.css`.
 - Every Figma variable collection has a JSON file.
 - Every variable has one value per declared collection mode, with no unknown modes.
 - COLOR values are serialized from Figma RGB(A) as `#RRGGBB` or `#RRGGBBAA`; FLOAT, STRING and BOOLEAN values match their declared types.

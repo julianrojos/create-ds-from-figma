@@ -27,8 +27,17 @@ const fixture = () => {
   return root;
 };
 const read = (root, relative) => JSON.parse(readFileSync(path.join(root, relative), "utf8"));
-const collection = (modes, variables) => ({ modes, defaultMode: modes[0], variables });
+const collection = (name, id, modes, variables) => ({ collection: name, id, modes, defaultMode: modes[0], variables });
 const token = (id, type, valuesByMode) => ({ id, cssName: `--${id}`, type, valuesByMode });
+const writeCollection = (root, file, data) => {
+  write(root, `design-system/tokens/${file}`, data);
+  const relative = "design-system/relationships/figma-state.json";
+  const state = read(root, relative);
+  state.collections[data.id] = { name: data.collection, modes: data.modes, varCount: Object.keys(data.variables).length, file };
+  state.variables[data.id] = Object.fromEntries(Object.entries(data.variables).map(([name, variable]) =>
+    [name, { id: variable.id, type: variable.type }]));
+  write(root, relative, state);
+};
 const withExampleComponent = () => {
   const root = fixture();
   const metadataPath = "design-system/components/ExampleComponent/metadata.json";
@@ -44,7 +53,7 @@ const withExampleComponent = () => {
   write(root, "design-system/components/ExampleComponent/usage.md", "# ExampleComponent\n");
   write(root, "src/components/ExampleComponent/ExampleComponent.tsx", "export interface ExampleComponentProps { size?: 'Small' }\nexport const ExampleComponent = (props: ExampleComponentProps) => <span data-ds-part=\"root\" />;\n");
   write(root, "src/components/ExampleComponent/ExampleComponent.module.css", ".root {}\n");
-  write(root, "design-system/tokens/Colors.json", collection(["Default"], {
+  writeCollection(root, "Colors.json", collection("Colors", "COL", ["Default"], {
     foreground: token("foreground-id", "COLOR", { Default: "#000000" }),
   }));
   write(root, "src/styles/tokens.css", ":root { --foreground-id: #000000; }\n");
@@ -70,6 +79,65 @@ test.after(() => {
 
 test("empty kit is valid", () => {
   assert.deepEqual(verify(fixture()), { errors: [], warnings: [] });
+});
+
+test("collection JSONs match ID-keyed state, including names, modes, counts and variables", () => {
+  const root = fixture();
+  const file = "Color Primitives.json";
+  writeCollection(root, file, collection("Color Primitives", "COL", ["Light", "Dark"], {
+    foreground: token("foreground-id", "COLOR", { Light: "#000000", Dark: "#FFFFFF" }),
+  }));
+  assert.deepEqual(verify(root), { errors: [], warnings: [] });
+  const statePath = "design-system/relationships/figma-state.json";
+  const state = read(root, statePath);
+  state.collections.COL.name = "Wrong";
+  write(root, statePath, state);
+  assert.ok(verify(root).errors.some((item) => item.includes("name, modes or varCount differ")));
+  state.collections.COL.name = "Color Primitives";
+  state.collections.COL.varCount = 2;
+  write(root, statePath, state);
+  assert.ok(verify(root).errors.some((item) => item.includes("name, modes or varCount differ")));
+  state.collections.COL.varCount = 1;
+  state.variables.COL.foreground.id = "wrong";
+  write(root, statePath, state);
+  assert.ok(verify(root).errors.some((item) => item.includes("id or type differs")));
+  state.variables.COL.foreground.id = "foreground-id";
+  state.collections.COL.file = "../outside.json";
+  write(root, statePath, state);
+  assert.ok(verify(root).errors.some((item) => item.includes("portable file are required")));
+});
+
+test("a Figma collection rename keeps its file, while same-named collections use distinct IDs", () => {
+  const root = fixture();
+  writeCollection(root, "Color.json", collection("Color", "COL-ONE", ["Default"], {}));
+  writeCollection(root, "Color (COL-TWO).json", collection("Color", "COL-TWO", ["Default"], {}));
+  assert.deepEqual(verify(root), { errors: [], warnings: [] });
+  const first = read(root, "design-system/tokens/Color.json");
+  first.collection = "Hue";
+  write(root, "design-system/tokens/Color.json", first);
+  const statePath = "design-system/relationships/figma-state.json";
+  const state = read(root, statePath);
+  state.collections["COL-ONE"].name = "Hue";
+  write(root, statePath, state);
+  assert.deepEqual(verify(root), { errors: [], warnings: [] });
+});
+
+test("orphan, missing and duplicate collection JSONs fail independently", () => {
+  const root = fixture();
+  const data = collection("Colors", "COL", ["Default"], {});
+  writeCollection(root, "Colors.json", data);
+  write(root, "design-system/tokens/Other.json", data);
+  assert.ok(verify(root).errors.some((item) => item.includes("duplicate collection id COL")));
+  rmSync(path.join(root, "design-system/tokens/Other.json"));
+  const statePath = "design-system/relationships/figma-state.json";
+  const state = read(root, statePath);
+  delete state.collections.COL;
+  write(root, statePath, state);
+  assert.ok(verify(root).errors.some((item) => item.includes("absent from figma-state.json")));
+  state.collections.COL = { name: "Colors", modes: ["Default"], varCount: 0, file: "Colors.json" };
+  write(root, statePath, state);
+  rmSync(path.join(root, "design-system/tokens/Colors.json"));
+  assert.ok(verify(root).errors.some((item) => item.includes("state collection COL: missing token JSON")));
 });
 
 test("inventory must exist and contain valid unique entries", () => {
@@ -160,6 +228,11 @@ test("a direct external binding needs a sourced resolved snapshot", () => {
 test("an external-only component does not require a fictitious local collection", () => {
   const root = withExampleComponent();
   rmSync(path.join(root, "design-system/tokens/Colors.json"));
+  const statePath = "design-system/relationships/figma-state.json";
+  const state = read(root, statePath);
+  delete state.collections.COL;
+  delete state.variables.COL;
+  write(root, statePath, state);
   const metadataPath = "design-system/components/ExampleComponent/metadata.json";
   const metadata = read(root, metadataPath);
   metadata.bindings = [{ part: "root", variant: "Size=Small", node: "FILE:1:3", figmaProperty: "fills[0]",
@@ -296,7 +369,7 @@ test("an imported component requires collection tokens and tokens.css", () => {
   rmSync(path.join(root, "design-system/tokens/Colors.json"));
   assert.equal(verify(root).errors.filter((item) => item.includes("an imported component requires at least one")).length, 1);
   assert.ok(verify(root).errors.some((item) => item.includes("at least one variable in a collection JSON or an external variable snapshot")));
-  write(root, "design-system/tokens/Colors.json", collection(["Default"], {
+  writeCollection(root, "Colors.json", collection("Colors", "COL", ["Default"], {
     foreground: token("foreground-id", "COLOR", { Default: "#000000" }),
   }));
   rmSync(path.join(root, "src/styles/tokens.css"));
@@ -305,10 +378,10 @@ test("an imported component requires collection tokens and tokens.css", () => {
 
 test("an imported component cannot have an empty token inventory or stylesheet", () => {
   const root = withExampleComponent();
-  write(root, "design-system/tokens/Colors.json", collection(["Default"], {}));
+  writeCollection(root, "Colors.json", collection("Colors", "COL", ["Default"], {}));
   assert.equal(verify(root).errors.filter((item) => item.includes("an imported component requires at least one")).length, 1);
   assert.ok(verify(root).errors.some((item) => item.includes("at least one variable in a collection JSON or an external variable snapshot")));
-  write(root, "design-system/tokens/Colors.json", collection(["Default"], {
+  writeCollection(root, "Colors.json", collection("Colors", "COL", ["Default"], {
     foreground: token("foreground-id", "COLOR", { Default: "#000000" }),
   }));
   write(root, "src/styles/tokens.css", "  \n");
@@ -343,11 +416,11 @@ test("duplicate refs and missing code fail", () => {
 
 test("local aliases resolve by variable id even when names repeat across collections", () => {
   const root = fixture();
-  write(root, "design-system/tokens/One.json", collection(["Default"], {
+  writeCollection(root, "One.json", collection("One", "COL-ONE", ["Default"], {
     base: token("one", "COLOR", { Default: "#FFFFFF" }),
     selected: token("selected", "COLOR", { Default: { targetVariableId: "one", source: "local", value: "#FFFFFF" } }),
   }));
-  write(root, "design-system/tokens/Two.json", collection(["Default"], {
+  writeCollection(root, "Two.json", collection("Two", "COL-TWO", ["Default"], {
     base: token("two", "COLOR", { Default: "#000000" }),
   }));
   assert.deepEqual(verify(root), { errors: [], warnings: [] });
@@ -359,7 +432,7 @@ test("local aliases resolve by variable id even when names repeat across collect
 
 test("unnamed local aliases and malformed mode values cannot bypass validation", () => {
   const root = fixture();
-  write(root, "design-system/tokens/Color.json", collection(["Default"], {
+  writeCollection(root, "Color.json", collection("Color", "COL-COLOR", ["Default"], {
     missing: token("one", "COLOR", { Default: { targetVariableId: "VariableID:999", source: "local", value: "#0000FF" } }),
     malformed: token("two", "COLOR", { Default: { foo: 1 } }),
     nullValue: token("three", "COLOR", { Default: null }),
@@ -376,14 +449,14 @@ test("unnamed local aliases and malformed mode values cannot bypass validation",
 
 test("external alias warns without failing, but a broken local alias fails", () => {
   const root = fixture();
-  write(root, "design-system/tokens/Color.json", collection(["Default"], {
+  writeCollection(root, "Color.json", collection("Color", "COL-COLOR", ["Default"], {
     external: token("local-1", "COLOR", { Default: { targetVariableId: "remote-1", source: "external", value: "#0000FF" } }),
   }));
   const initial = verify(root);
   assert.deepEqual(initial.errors, []);
   const { warnings } = initial;
   assert.ok(warnings.some((item) => item.includes("external alias remote-1 uses a resolved snapshot")));
-  write(root, "design-system/tokens/Broken.json", collection(["Default"], {
+  writeCollection(root, "Broken.json", collection("Broken", "COL-BROKEN", ["Default"], {
     broken: token("local-2", "COLOR", { Default: { alias: "missing", targetVariableId: "missing-id", source: "local", value: "#000000" } }),
   }));
   assert.ok(verify(root).errors.some((item) => item.includes("local alias target missing-id not found")));
@@ -391,7 +464,7 @@ test("external alias warns without failing, but a broken local alias fails", () 
 
 test("external classification cannot hide a local alias", () => {
   const root = fixture();
-  write(root, "design-system/tokens/Color.json", collection(["Default"], {
+  writeCollection(root, "Color.json", collection("Color", "COL-COLOR", ["Default"], {
     base: token("local-1", "COLOR", { Default: "#FFFFFF" }),
     disguised: token("local-2", "COLOR", { Default: { alias: "base", targetVariableId: "local-1", source: "external", value: "#FFFFFF" } }),
   }));
@@ -400,7 +473,7 @@ test("external classification cannot hide a local alias", () => {
 
 test("boolean resolved aliases are valid", () => {
   const root = fixture();
-  write(root, "design-system/tokens/Flags.json", collection(["Default"], {
+  writeCollection(root, "Flags.json", collection("Flags", "COL-FLAGS", ["Default"], {
     enabled: token("enabled-id", "BOOLEAN", { Default: true }),
     active: token("active-id", "BOOLEAN", { Default: { alias: "enabled", targetVariableId: "enabled-id", source: "local", value: true } }),
   }));
@@ -409,7 +482,7 @@ test("boolean resolved aliases are valid", () => {
 
 test("mode values must match collection modes exactly", () => {
   const root = fixture();
-  write(root, "design-system/tokens/Color.json", collection(["Light", "Dark"], {
+  writeCollection(root, "Color.json", collection("Color", "COL-COLOR", ["Light", "Dark"], {
     missing: token("one", "COLOR", { Light: "#FFFFFF" }),
     extra: token("two", "COLOR", { Light: "#FFFFFF", Dark: "#000000", Other: "#FF0000" }),
     complete: token("three", "COLOR", { Dark: "#000000", Light: "#FFFFFF" }),
@@ -418,13 +491,13 @@ test("mode values must match collection modes exactly", () => {
   assert.ok(errors.some((item) => item.includes("missing: valuesByMode keys differ from collection modes")));
   assert.ok(errors.some((item) => item.includes("extra: valuesByMode keys differ from collection modes")));
   assert.ok(!errors.some((item) => item.includes("complete")));
-  write(root, "design-system/tokens/EmptyModes.json", collection([], {}));
+  writeCollection(root, "EmptyModes.json", collection("EmptyModes", "COL-EMPTY", [], {}));
   assert.ok(verify(root).errors.some((item) => item.includes("EmptyModes.json: modes must be a nonempty list")));
 });
 
 test("the declared default mode, not array order, determines :root and strings accept single quotes", () => {
   const root = withExampleComponent();
-  write(root, "design-system/tokens/Colors.json", { modes: ["Dark", "Light"], defaultMode: "Light", variables: {
+  writeCollection(root, "Colors.json", { collection: "Colors", id: "COL", modes: ["Dark", "Light"], defaultMode: "Light", variables: {
     foreground: token("foreground-id", "COLOR", { Dark: "#FFFFFF", Light: "#000000" }),
     font: token("font-id", "STRING", { Dark: "Inter", Light: "Inter" }),
   } });
@@ -438,7 +511,7 @@ test("the declared default mode, not array order, determines :root and strings a
 
 test("direct and resolved values follow variable types", () => {
   const root = fixture();
-  write(root, "design-system/tokens/Values.json", collection(["Default"], {
+  writeCollection(root, "Values.json", collection("Values", "COL-VALUES", ["Default"], {
     rgba: token("one", "COLOR", { Default: { r: 1, g: 0, b: 0, a: 0.5 } }),
     emptyColor: token("two", "COLOR", { Default: "" }),
     alphaColor: token("three", "COLOR", { Default: "#FF000080" }),
@@ -458,7 +531,7 @@ test("direct and resolved values follow variable types", () => {
 
 test("local aliases must resolve to a variable of the same type", () => {
   const root = fixture();
-  write(root, "design-system/tokens/Mixed.json", collection(["Default"], {
+  writeCollection(root, "Mixed.json", collection("Mixed", "COL-MIXED", ["Default"], {
     count: token("count-id", "FLOAT", { Default: 3 }),
     color: token("color-id", "COLOR", { Default: { targetVariableId: "count-id", source: "local", value: "#000000" } }),
   }));

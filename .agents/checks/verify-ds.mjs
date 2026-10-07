@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import postcss from "postcss";
 import selectorParser from "postcss-selector-parser";
 import ts from "typescript";
+import { isPortableTokenFileName, tokenFileKey } from "./lib/token-file-name.mjs";
 
 const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 const isText = (value) => typeof value === "string" && value.trim().length > 0;
@@ -406,6 +407,8 @@ export function verify(root) {
   }
 
   const tokensDir = path.join(root, "design-system/tokens");
+  const tokenCollections = new Map();
+  const tokenFiles = new Map();
   const localVariables = new Map();
   const externalVariables = new Map();
   const cssNameOwners = new Map();
@@ -431,11 +434,22 @@ export function verify(root) {
     }
   }
   if (existsSync(tokensDir)) {
-    for (const file of readdirSync(tokensDir).filter((item) => item.endsWith(".json"))) {
+    for (const file of readdirSync(tokensDir).filter((item) => /\.json$/i.test(item))) {
+      if (!isPortableTokenFileName(file)) fail(`tokens/${file}: invalid portable JSON filename`);
+      const fileKey = tokenFileKey(file);
+      if (tokenFiles.has(fileKey)) fail(`tokens: filename collision between ${tokenFiles.get(fileKey)} and ${file}`);
+      else tokenFiles.set(fileKey, file);
       const data = readJson(`design-system/tokens/${file}`);
       if (!isObject(data) || !isObject(data.variables)) {
         fail(`tokens/${file}: variables must be an object`);
         continue;
+      }
+      if (!isText(data.collection) || !isText(data.id)) {
+        fail(`tokens/${file}: collection and id must be nonempty text`);
+      } else if (tokenCollections.has(data.id)) {
+        fail(`tokens/${file}: duplicate collection id ${data.id}`);
+      } else {
+        tokenCollections.set(data.id, { file, data });
       }
       const modes = Array.isArray(data.modes) && data.modes.length > 0 && data.modes.every(isText) &&
         new Set(data.modes).size === data.modes.length ? new Set(data.modes) : null;
@@ -469,6 +483,64 @@ export function verify(root) {
           }
         }
       }
+    }
+  }
+  const stateCollections = isObject(state.collections) ? state.collections : null;
+  const stateVariables = isObject(state.variables) ? state.variables : null;
+  if (!stateCollections) fail("figma-state.json: collections must be an ID-keyed object");
+  if (!stateVariables) fail("figma-state.json: variables must be grouped by collection ID");
+  if (stateCollections) {
+    const referencedFiles = new Map();
+    for (const [id, record] of Object.entries(stateCollections)) {
+      if (!isText(id) || !isObject(record) || !isText(record.name) ||
+          !Array.isArray(record.modes) || !record.modes.length || !record.modes.every(isText) ||
+          new Set(record.modes).size !== record.modes.length ||
+          !Number.isInteger(record.varCount) || record.varCount < 0 ||
+          !isPortableTokenFileName(record.file)) {
+        fail(`state collection ${id}: name, modes, varCount and portable file are required`);
+        continue;
+      }
+      const fileKey = tokenFileKey(record.file);
+      if (referencedFiles.has(fileKey)) fail(`state collections ${id} and ${referencedFiles.get(fileKey)} share token file ${record.file}`);
+      else referencedFiles.set(fileKey, id);
+      const token = tokenCollections.get(id);
+      if (!token) {
+        fail(`state collection ${id}: missing token JSON`);
+        continue;
+      }
+      if (token.file !== record.file) fail(`state collection ${id}: file differs from token JSON ${token.file}`);
+      if (token.data.collection !== record.name || !Array.isArray(token.data.modes) ||
+          JSON.stringify(token.data.modes) !== JSON.stringify(record.modes) ||
+          Object.keys(token.data.variables).length !== record.varCount) {
+        fail(`state collection ${id}: name, modes or varCount differ from token JSON`);
+      }
+    }
+    for (const [id, { file, data }] of tokenCollections) {
+      if (!Object.hasOwn(stateCollections, id)) fail(`tokens/${file}: collection id ${id} is absent from figma-state.json`);
+      if (!stateVariables) continue;
+      const group = stateVariables[id];
+      if (!isObject(group) || !sameSet(new Set(Object.keys(group)), new Set(Object.keys(data.variables)))) {
+        fail(`state variables ${id}: variable names differ from token JSON`);
+        continue;
+      }
+      for (const [name, variable] of Object.entries(data.variables)) {
+        if (!isObject(group[name]) || group[name].id !== variable?.id || group[name].type !== variable?.type) {
+          fail(`state variables ${id}/${name}: id or type differs from token JSON`);
+        }
+      }
+    }
+    for (const file of tokenFiles.values()) {
+      if (![...tokenCollections.values()].some((token) => token.file === file)) {
+        fail(`tokens/${file}: JSON has no valid collection id`);
+      }
+    }
+  }
+  if (stateVariables && stateCollections) {
+    for (const id of Object.keys(stateVariables)) {
+      if (!Object.hasOwn(stateCollections, id)) fail(`state variables ${id}: no collection entry`);
+    }
+    for (const id of Object.keys(stateCollections)) {
+      if (!Object.hasOwn(stateVariables, id)) fail(`state collection ${id}: missing variables group`);
     }
   }
   if (entries.length) {

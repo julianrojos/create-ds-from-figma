@@ -95,7 +95,7 @@ Estos son los archivos que pertenecen al DS/app generado:
 design-system/inventory.json
 design-system/relationships/figma-code-map.json
 design-system/relationships/figma-state.json
-design-system/tokens/<Coleccion>.json   ← no está en plantillas; nace al volcar Figma
+design-system/tokens/<ArchivoDeColeccion>.json ← no está en plantillas; nace al volcar Figma
 design-system/components/<Nombre>/metadata.json
 design-system/components/<Nombre>/usage.md
 src/styles/tokens.css
@@ -112,7 +112,7 @@ package-lock.json  ← ya existe; se actualiza al instalar dependencias
 
 En la primera importación, añade una app Vite React TS compatible con `index.html` y `tsconfig.json`. Integra React, React DOM, Vite y las dependencias de tipos necesarias en el `package.json` existente; conserva `private`, `type`, `scripts.test`, cualquier otro script y todas las dependencias actuales (incluidas TypeScript, PostCSS, postcss-selector-parser y `yaml`). Añade `dev`, `build` y `preview` sin reemplazar scripts existentes. Actualiza el `package-lock.json` existente al instalar dependencias y conserva `.gitignore`; no ejecutes un scaffold que sobrescriba esos archivos del repo.
 
-`design-system/tokens/<Coleccion>.json` = **un archivo por colección de variables de Figma**, con el mismo nombre de la colección (caracteres inseguros para fichero → `-`). No uses `colors.json` / `spacing.json` / `typography.json` como resumen fijo.
+`design-system/tokens/` contiene **un JSON por colección de variables de Figma**. Su nombre lo decide el preflight de `scripts/preflight-token-files.mjs` y se guarda en `figma-state.json.collections[<ID>].file`; conserva espacios y la ruta registrada cuando Figma renombre una colección. `references/tokens.md` describe la codificación y los casos de colisión. No uses `colors.json` / `spacing.json` / `typography.json` como resumen fijo.
 
 `src/pages/` **no** se crea hasta que pidan una pantalla.
 
@@ -121,7 +121,7 @@ En la primera importación, añade una app Vite React TS compatible con `index.h
 No crees el árbol, tokens, fichas, código ni registros durante este preanálisis. Reutiliza sus resultados al implementar; no repitas llamadas a Figma salvo que falte información o los datos hayan cambiado.
 
 1. Lee el nodo de la URL con `get_metadata` para identificar tipo y estructura. Si es una variante, localiza su component set y analiza **todas** las variantes; conserva la variante enlazada como referencia. Si es una instancia, resuelve su `mainComponent`. Si es un frame o pantalla, detente. Si la instancia raíz es `remote`, pide la URL del componente en su file de origen; no asumas que las variables del file enlazado le pertenecen.
-2. En el file donde vive el componente, lee **todas** las colecciones y variables locales, con modos, modo por defecto y aliases, sin escribir aún. Lee `references/tokens.md` completo durante este inventario para comprobar tipos, modos y aliases. Si no hay variables locales, comprueba si el componente tiene bindings directos a variables externas con ID y valor resuelto; no inventes una colección local. `get_variable_defs` del nodo no sirve como inventario.
+2. En el file donde vive el componente, lee **todas** las colecciones y variables locales, con modos, modo por defecto y aliases, sin escribir aún. Lee `references/tokens.md` completo durante este inventario para comprobar tipos, modos y aliases. Antes de escribir, pasa todas las colecciones como JSON por stdin a `node .agents/skills/create-ds-from-figma/scripts/preflight-token-files.mjs .`; el script lee el estado y los JSON existentes, calcula el mapeo ID → archivo sin tocar el DS y falla ante archivos huérfanos, nombres en conflicto o un JSON registrado que falta cuando su ID tampoco está en esta entrada del preflight. Lee el JSON de stdout: `files` es el mapeo ID → archivo y `diagnostics` contiene `missingRegistered` y `registeredIdsNotInInput` (listas de `{ id, file }`, vacías si no hay avisos). Usa `files` para escribir tokens y `state.collections`; no trates las otras claves como IDs. Comunica `registeredIdsNotInInput` como diferencia respecto de esta entrada, conserva esos archivos y no infieras un cambio en Figma. Si `missingRegistered` tiene entradas, informa del hueco en el diagnóstico; **solo si la tabla permite reparar**, recréalas con los valores observados de Figma en los nombres ya registrados, sin sobrescribir otros archivos. Un diagnóstico no autoriza a escribir en las filas que lo prohíben ni en una sustitución limitada a una dependencia. Si el preflight falla, explica el problema y no escribas. Si no hay variables locales, comprueba si el componente tiene bindings directos a variables externas con ID y valor resuelto verificables; no inventes una colección local. `get_variable_defs` del nodo no sirve como inventario.
 3. Lee el contexto estructurado del componente o set (`get_design_context` o `use_figma`, según el detalle necesario). Inventaria variantes y props, propiedades expuestas, estados representados, bindings y variables realmente usadas. Lee `references/component-metadata.md` completo durante este análisis para clasificar cada valor de variante y preparar los datos de `metadata.json` solo con lo observado; la ficha se escribe después del diagnóstico. Separa lo medido de lo inferido, indica la fuente de cada hecho y declara lo no medido y lo no cubierto. No inventes estados, props ni tokens. Si falta información, intenta obtenerla con la otra herramienta o comunica la limitación. Una laguna que impida decidir la API o implementar fielmente bloquea la importación: informa `DS_GAP` y no registres una ficha incompleta. Esta lectura del nodo **no sustituye** el inventario de variables del file.
 4. Recorre todas las variantes, resuelve cada instancia hija según «Componentes anidados» y lee `references/relationships.md` completo para registrar sus refs. Consulta `find-component` para el nodo raíz si el mapa existe. En la primera vez, el mapa está vacío: las instancias locales son `missing`. Prepara el diagnóstico completo antes de decidir.
 
@@ -170,7 +170,7 @@ El inventario de tokens es siempre a **nivel de file**, no del nodo del componen
 
 1. Lista **todas** las colecciones locales: `figma.variables.getLocalVariableCollectionsAsync()`.
 2. Lista **todas** las variables locales: `figma.variables.getLocalVariablesAsync()`.
-3. Escribe un JSON por colección + un único `src/styles/tokens.css` con **todas** las variables.
+3. Escribe un JSON por colección en el archivo asignado por el preflight + un único `src/styles/tokens.css` con **todas** las variables. Usa IDs de colección como claves de `figma-state.json.collections` y `figma-state.json.variables`; cada entrada de colección guarda el nombre, modos, recuento y nombre de archivo.
 
 **Prohibido como inventario de tokens:**
 

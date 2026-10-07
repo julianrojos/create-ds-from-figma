@@ -2,7 +2,11 @@
 
 Consulta esta referencia durante el inventario previo de variables y antes de escribir los JSON de colección y `src/styles/tokens.css`. La política de bloqueo está en `../SKILL.md`.
 
-### Forma de cada `design-system/tokens/<Coleccion>.json`
+### Forma de cada JSON de `design-system/tokens/`
+
+El nombre se asigna una sola vez con `scripts/preflight-token-files.mjs` durante el preanálisis. Pasa por stdin `{ "collections": [{ "id": "<VariableCollectionId>", "name": "<nombre en Figma>" }] }` para **todas** las colecciones del file; el script lee `figma-state.json` y los JSON existentes si los hay y rechaza archivos huérfanos. Si termina bien, stdout contiene `{ "files": { "<ID>": "<archivo>.json" }, "diagnostics": { "missingRegistered": [], "registeredIdsNotInInput": [] } }`; cada diagnóstico es `{ "id": "<ID>", "file": "<archivo>.json" }`. `files` conserva los nombres de IDs existentes aunque Figma cambie `name`. `registeredIdsNotInInput` indica únicamente que un ID del estado no está en la entrada de este preflight; su archivo se conserva, sin inferir cambios en Figma. `missingRegistered` identifica archivos ausentes cuyo ID sí está en la entrada y pueden reconstruirse con los datos observados solo si la tabla de `SKILL.md` permite reparar. El script también muestra estos avisos por stderr, pero decide a partir del JSON. Si faltan tanto el archivo como su ID en la entrada, falla. No inventes rutas ni vuelvas a calcularlas a mano al escribir. Copia el nombre de `files[<ID>]` a `figma-state.json.collections[<ID>].file` y guarda el nombre original de Figma en `collection`.
+
+Para una colección nueva, el preflight conserva los espacios y sustituye `/ \\ : * ? " < > |` y controles por `-`; recorta puntos y espacios finales. Si la base queda vacía, es reservada, empieza por espacio o supera el límite portable de 255 bytes, usa `Collection`. Añade un sufijo con el ID codificado en `%HH` por byte UTF-8 (incluido `%`) cuando la base no sea utilizable, cuando el recorte de puntos o espacios finales cambie el nombre (`Size.` → `Size (<ID>).json`), o cuando colisione con otra colección nueva o un archivo existente. La sustitución de caracteres inseguros por `-` no exige sufijo por sí sola. Las colecciones nuevas del mismo grupo reciben todas sufijo; las existentes nunca se renombran solo por una colisión nueva. Si dos nombres finales aún coinciden sin distinguir mayúsculas, el preflight falla antes de escribir.
 
 ```json
 {

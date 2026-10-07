@@ -61,6 +61,8 @@ test("create-ds-from-figma kit layout stays consistent", () => {
   assert.ok(readFileSync(path.join(repoRoot, "AGENTS.md"), "utf8").includes(".agents/rules/design-system.md"));
   assert.ok(existsSync(path.join(repoRoot, ".agents/skills/create-ds-from-figma/plantillas/componentes/metadata.json")));
   assert.ok(existsSync(path.join(repoRoot, ".agents/checks/verify-ds.mjs")));
+  assert.ok(existsSync(path.join(repoRoot, ".agents/checks/lib/token-file-name.mjs")));
+  assert.ok(existsSync(path.join(repoRoot, ".agents/skills/create-ds-from-figma/scripts/preflight-token-files.mjs")));
   assert.ok(existsSync(path.join(repoRoot, ".agents/skills/find-component/SKILL.md")));
   assert.ok(existsSync(path.join(repoRoot, ".agents/skills/create-ds-from-figma/evals/cases.md")));
 });
@@ -82,6 +84,9 @@ test("skill helpers use current inventory, state and validation rules", () => {
   const state = JSON.parse(readFileSync(path.join(repoRoot, ".agents/skills/create-ds-from-figma/plantillas/design-system/relationships/figma-state.json"), "utf8"));
   for (const field of ["runId", "fileUrl"]) assert.ok(!(field in state), `${field} is not part of runtime state`);
   assert.ok(!state._schema.notes.some((note) => note.includes("Legacy phase and pages")));
+  assert.deepEqual(state.collections, {});
+  assert.deepEqual(state.variables, {});
+  assert.ok(state._schema.collections["<VariableCollectionId>"].file.endsWith(".json"));
 
   const find = readFileSync(path.join(repoRoot, ".agents/skills/find-component/SKILL.md"), "utf8");
   const map = readFileSync(path.join(repoRoot, ".agents/skills/map-figma-to-code/SKILL.md"), "utf8");
@@ -121,6 +126,7 @@ test("skill loads formats where they are needed without reference chains", (t) =
   assert.match(preanalysis, /2\.[^\n]*references\/tokens\.md/);
   assert.match(preanalysis, /3\.[^\n]*references\/component-metadata\.md/);
   assert.match(preanalysis, /4\.[^\n]*references\/relationships\.md/);
+  assert.ok(preanalysis.includes("preflight-token-files.mjs"), "token filenames must be planned before writing");
   assert.deepEqual(readdirSync(referenceDir).sort(), expectedReferences);
 
   for (const name of expectedReferences) {
