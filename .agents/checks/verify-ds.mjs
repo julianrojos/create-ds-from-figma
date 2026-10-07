@@ -22,6 +22,70 @@ const tokenTypes = {
 };
 // RegExp.test coerces its argument, so undefined would match as the text "undefined".
 const matches = (pattern, value) => typeof value === "string" && pattern.test(value);
+// Text nobody wrote. A value that is entirely <something> is a template placeholder, and TODO-style markers or
+// stock filler stand in for content just as well. Angle brackets inside a longer text (a description that
+// mentions <button>) are legitimate, and Spanish "Todo el ..." is ordinary prose, so the markers are
+// case-sensitive uppercase words at the start and the stock phrases must be the entire value.
+const stockFiller = /^(?:pendiente|por (?:rellenar|definir|completar)|lorem ipsum.*|\.{3}|…)$/i;
+// A whole line that is a tag, a closing tag or a JSX self-closing element is markup in prose, not a placeholder.
+// An attribute needs a value, except the HTML boolean ones, so a phrase such as "<Cuando usarlo.>" or "<Una frase.>"
+// is not a tag. A placeholder shaped like one (a lone <Nombre>, one lowercase word) is not detected in the body
+// of a usage.md; the heading rule still catches <Nombre> there. Wrap such a line in a code block to show it.
+const booleanAttributes = "open|disabled|hidden|checked|selected|readonly|required|controls|autoplay|loop|muted";
+const markupLine = new RegExp(
+  "^<\\/?[A-Za-z][A-Za-z0-9:.-]*" +
+  "(?:\\s+(?:[\\w:.-]+=(?:\"[^\"]*\"|'[^']*'|\\{[^{}]*\\}|[^\\s\"'<>=]+)|(?:" + booleanAttributes + ")(?![\\w:.-])))*" +
+  "\\s*\\/?>$",
+);
+function unfilledKind(text, { prose = false } = {}) {
+  const value = text.trim().replace(/^(?:[-*+]\s+)/, "");
+  if (/^<[^<>]+>$/.test(value) && !(prose && markupLine.test(value))) return "template placeholder";
+  if (/^(?:TODO|FIXME|TBD|XXX)\b/.test(value) || stockFiller.test(value) || stockFiller.test(value.replace(/[.:;!\s]+$/, ""))) return "filler text";
+  return null;
+}
+function placeholderPaths(value, trail = "metadata") {
+  if (typeof value === "string") {
+    const kind = unfilledKind(value);
+    return kind ? [{ where: trail, kind }] : [];
+  }
+  if (Array.isArray(value)) return value.flatMap((item, index) => placeholderPaths(item, `${trail}[${index}]`));
+  if (isObject(value)) return Object.entries(value).flatMap(([key, item]) => placeholderPaths(item, `${trail}.${key}`));
+  return [];
+}
+// The prose of a markdown file: HTML comments, fenced blocks (``` or ~~~), indented blocks and code spans are blanked,
+// keeping line numbers, because code may show <Component /> freely.
+function markdownProse(markdown) {
+  const lines = markdown.replace(/<!--[\s\S]*?-->/g, (comment) => comment.replace(/[^\n]/g, "")).split("\n");
+  let fence = null;
+  let previousBlankOrCode = true;
+  return lines.map((line) => {
+    if (fence) {
+      const close = line.match(/^ {0,3}(`{3,}|~{3,})\s*$/);
+      if (close && close[1][0] === fence[0] && close[1].length >= fence.length) fence = null;
+      previousBlankOrCode = true;
+      return "";
+    }
+    const open = line.match(/^ {0,3}(`{3,}|~{3,})/);
+    if (open) {
+      fence = open[1];
+      previousBlankOrCode = true;
+      return "";
+    }
+    if (/^(?: {4}|\t)/.test(line) && previousBlankOrCode && line.trim()) return "";
+    previousBlankOrCode = !line.trim();
+    return line.replace(/(`+)(?:(?!\1).)+?\1/g, "");
+  });
+}
+function usagePlaceholders(markdown) {
+  const found = [];
+  markdownProse(markdown).forEach((line, index) => {
+    const trimmed = line.trim();
+    const kind = unfilledKind(trimmed, { prose: true }) ??
+      (/^#/.test(trimmed) && /<[A-ZÁÉÍÓÚÑ][^<>]*>/.test(trimmed) ? "template placeholder" : null);
+    if (kind) found.push({ line: index + 1, kind });
+  });
+  return found;
+}
 const sameSet = (left, right) => left.size === right.size && [...left].every((item) => right.has(item));
 
 function selectedClasses(selector) {
@@ -123,6 +187,15 @@ export function verify(root) {
     if (!isObject(metadata)) continue;
     if (metadata.name !== name || metadata.code?.component !== name || metadata.code?.path !== entry.code.path) {
       fail(`${name}: metadata name/code differs from map`);
+    }
+    for (const { where, kind } of placeholderPaths(metadata)) fail(`${name}: ${where} still holds a ${kind}; fill it in or remove it`);
+    if (isText(entry.designSystem.usage) && existsSync(path.join(root, entry.designSystem.usage))) {
+      for (const { line, kind } of usagePlaceholders(readFileSync(path.join(root, entry.designSystem.usage), "utf8"))) {
+        fail(`${name}: ${entry.designSystem.usage}:${line} still holds a ${kind}; fill it in or remove it`);
+      }
+    }
+    if (typeof metadata.figma?.url === "string" && /[<>]/.test(metadata.figma.url)) {
+      fail(`${name}: metadata.figma.url still holds template placeholders`);
     }
     if (metadata.figma?.fileKey !== entry.figma.fileKey || metadata.figma?.nodeId !== entry.figma.nodeId) {
       fail(`${name}: metadata Figma identity differs from map`);

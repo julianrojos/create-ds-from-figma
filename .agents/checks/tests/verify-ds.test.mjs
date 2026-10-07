@@ -60,6 +60,7 @@ const withExampleComponent = () => {
   const metadataPath = "design-system/components/ExampleComponent/metadata.json";
   const metadata = JSON.parse(readFileSync(templateFile("componentes/metadata.json"), "utf8"));
   metadata.name = "ExampleComponent";
+  metadata.description = "Example component.";
   metadata.figma = { fileKey: "FILE", nodeId: "1:2", url: "https://www.figma.com/design/FILE?node-id=1-2", componentSet: "ExampleComponent" };
   metadata.code = { path: "src/components/ExampleComponent/ExampleComponent.tsx", component: "ExampleComponent" };
   metadata.variants = { Size: ["Small"] };
@@ -392,6 +393,75 @@ test("an absent style ref or CSS property is rejected instead of matching as tex
   metadata.measuredLiterals = [{ part: "root", variant: "Size=Small", source: "FILE:1:3", figmaProperty: "width", cssSelector: ".root", value: "4px", translation: "direct" }];
   write(root, relative, metadata);
   assert.ok(verify(root).errors.some((item) => item.includes("CSS property and selector must match the part record")));
+});
+
+test("unfilled template placeholders are rejected, but angle brackets inside a text are not", () => {
+  const root = withExampleComponent();
+  const relative = "design-system/components/ExampleComponent/metadata.json";
+  const metadata = read(root, relative);
+  metadata.description = "Wraps a native <button> element.";
+  write(root, relative, metadata);
+  assert.deepEqual(verify(root).errors, []);
+  const filled = structuredClone(metadata);
+  filled.description = "<Una frase.>";
+  filled.figmaCoverage.styles = { status: "unavailable", source: "<herramienta y llamada intentadas>", reason: "<por qué no se capturaron>" };
+  write(root, relative, filled);
+  const errors = verify(root).errors;
+  for (const where of ["metadata.description", "metadata.figmaCoverage.styles.source", "metadata.figmaCoverage.styles.reason"]) {
+    assert.ok(errors.some((item) => item.includes(`${where} still holds a template placeholder`)), where);
+  }
+  const url = structuredClone(metadata);
+  url.figma.url = "https://www.figma.com/design/<FILE_KEY>?node-id=<NODE_ID_GUION>";
+  write(root, relative, url);
+  assert.ok(verify(root).errors.some((item) => item.includes("figma.url still holds template placeholders")));
+});
+
+test("filler text and an unfilled usage.md are rejected, ordinary prose and code spans are not", () => {
+  const root = withExampleComponent();
+  const relative = "design-system/components/ExampleComponent/metadata.json";
+  const usage = "design-system/components/ExampleComponent/usage.md";
+  const metadata = read(root, relative);
+  metadata.description = "Todo el contenido va dentro; ver `<Nombre>` y TODO en prosa no al inicio.";
+  write(root, relative, metadata);
+  write(root, usage, "# ExampleComponent usage\n\n## Use\n\nUse `<ExampleComponent>` for actions.\n\n```tsx\n<Nombre />\n```\n");
+  assert.deepEqual(verify(root).errors, []);
+  for (const filler of ["TODO", "TODO: describe", "FIXME later", "TBD", "pendiente", "Por definir.", "lorem ipsum dolor", "..."]) {
+    const changed = structuredClone(metadata);
+    changed.description = filler;
+    write(root, relative, changed);
+    assert.ok(verify(root).errors.some((item) => item.includes("metadata.description still holds a filler text")), filler);
+  }
+  const changed = structuredClone(metadata);
+  changed.figmaCoverage.styles = { status: "unavailable", source: "get_design_context", reason: "pendiente" };
+  write(root, relative, changed);
+  assert.ok(verify(root).errors.some((item) => item.includes("figmaCoverage.styles.reason still holds a filler text")));
+  write(root, relative, metadata);
+  write(root, usage, "# <Nombre> usage\n\n## Use\n\n<Cuándo usarlo.>\n\n- TODO\n");
+  const errors = verify(root).errors;
+  for (const line of [1, 5, 7]) {
+    assert.ok(errors.some((item) => item.includes(`usage.md:${line} still holds a`)), `line ${line}`);
+  }
+});
+
+test("markup, code of every kind and comments in usage.md are prose, not placeholders", () => {
+  const root = withExampleComponent();
+  const usage = "design-system/components/ExampleComponent/usage.md";
+  const body = [
+    "# ExampleComponent usage", "", "## Use", "",
+    "<!-- internal note -->", "<!--", "<Nombre>", "-->", "",
+    "<details open>", "<input disabled />", "<summary>More</summary>", "<br>", '<img src="a.png" alt="x">', "</details>", "",
+    "- <ExampleComponent />", "<ExampleComponent variant=\"primary\" onClick={go} />", "",
+    "~~~tsx", "<Nombre />", "~~~", "", "````md", "```", "<Nombre>", "```", "````", "",
+    "Use ``<Nombre>`` or `<Nombre />` inline.", "", "    <Nombre />", "    <Cuándo usarlo.>", "",
+  ].join("\n");
+  write(root, usage, body);
+  assert.deepEqual(verify(root).errors, []);
+  for (const placeholder of ["<Cuándo usarlo.>", "<Cuando usarlo.>", "<Una frase.>", "<Button primary />"]) {
+    write(root, usage, `${body}\n${placeholder}\n`);
+    assert.ok(verify(root).errors.some((item) => item.includes("usage.md:") && item.includes("template placeholder")), placeholder);
+  }
+  write(root, usage, "# <Nombre> usage\n\n<!-- ok -->\n");
+  assert.ok(verify(root).errors.some((item) => item.includes("usage.md:1 still holds a template placeholder")));
 });
 
 test("whether styles were captured is recorded, so an empty list is not ambiguous", () => {
