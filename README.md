@@ -40,7 +40,7 @@ Siguiente primitive: otra URL. Pantalla: cuando ya haya primitives.
 | `.agents/workflows/`                                                                                 | Workflow de construcción desde Figma                        |
 | `.agents/prop-vocabulary.json`                                                                       | Vocabulario canónico de props                               |
 
-Para validar, ejecuta `npm test` desde la raíz de este repo. En un DS generado, instala las dependencias y ejecuta `node .agents/checks/verify-ds.mjs`, `node .agents/checks/verify-props.mjs` y `node .agents/checks/verify-bindings.mjs`. Los dos primeros validan estructura y props; el último informa cobertura y diferencias de bindings CSS sin bloquear todavía.
+Para validar, ejecuta `npm test` desde la raíz de este repo. `npm run verify:docs` comprueba que los enlaces, rutas `.agents/...` y comandos de la documentación resuelven; informa sin fallar salvo con `--strict`. `src/styles/tokens.css` no se edita: lo genera `.agents/skills/create-ds-from-figma/scripts/generate-tokens-css.mjs` y `verify-ds` comprueba que coincide. En un DS generado, instala las dependencias y ejecuta `node .agents/checks/verify-ds.mjs`, `node .agents/checks/verify-props.mjs` y `node .agents/checks/verify-bindings.mjs`. Los dos primeros validan estructura y props; el último informa cobertura y diferencias de bindings CSS sin bloquear todavía.
 
 Las reglas de composición y accesibilidad permanecen en `.agents/rules/`; no se copian a `design-system/`.
 

@@ -71,3 +71,32 @@ Las URL siguientes son entradas de ejemplo: al ejecutar el caso, usa nodos reale
 - No debe: actualizar tokens, ficha u otras dependencias por la mera repetición de la URL. Una autorización limitada tampoco permite reparar el scaffold.
 
 El DS de `test/nested_component` con `Tab` dentro de `Tabs` puede servir para el tercer caso cuando el usuario seleccione esa rama. La ejecución real queda pendiente de una URL y acceso a Figma; los tests estáticos del kit no prueban estas decisiones.
+
+## Prefijo y nombres de custom properties
+
+- Entrada: primera importación en un DS nuevo (`tokenPrefix` es `null`, sin colecciones, JSON ni declaraciones `--*`), con un componente que solo usa variables externas con ID y valor resuelto. El usuario no menciona ningún prefijo.
+- Decisión esperada: el preflight propone `ds` como predeterminado; el diagnóstico lo comunica sin detener la importación y el estado resultante queda con `tokenPrefix: "ds"` aunque no haya colecciones locales. Una segunda importación con variables locales reutiliza ese prefijo.
+- Segunda entrada: Figma renombra una variable o su colección conservando el ID.
+- Decisión esperada: el `cssName` ya asignado se conserva; solo las variables nuevas reciben nombre, y reciben sufijo si colisionan con uno existente, reservado o entre sí.
+- Tercera entrada: el usuario pide otro prefijo cuando ya hay uno fijado, o el estado tiene `tokenPrefix: null` pero ya hay tokens, componentes o declaraciones `--*`.
+- Decisión esperada: el preflight falla y no escribe; en el segundo caso explica que el estado es inconsistente y pide una reparación explícita, sin sugerir que basta con pasar un prefijo.
+- No debe: cambiar un prefijo fijado, recalcular un `cssName` publicado, asignar `ds` a un DS existente sin prefijo ni imponer el prefijo a variables externas.
+
+## Modos de una colección
+
+- Entrada: el file tiene una colección con los modos `Light` y `Dark`, y otra, `Responsive`, con puntos de ruptura.
+- Decisión esperada: el agente importa con `modeScopes` en `null` para cada modo no predeterminado, sin inventar selectores, y pregunta una vez por colección qué ámbito usar. Mientras sean `null`, `verify-ds` avisa de que esos modos están NOT VERIFIED.
+- Con ámbitos decididos: `tokens.css` tiene el `:root` base y después un bloque por modo con solo las variables que difieren; las media queries van en el orden indicado.
+- No debe: elegir `[data-theme="dark"]` por su cuenta, emitir CSS para un modo pendiente, declarar PASS para un modo no verificado ni dar por demostrado el valor efectivo sin la comprobación renderizada.
+
+## Variables numéricas sin unidad decidida
+
+- Entrada: el file tiene una colección `Space` con variables `FLOAT` (`Space/100` = 4, `Space/200` = 8, …) y el componente solo usa `Space/100` en el relleno izquierdo; otro componente usaría la misma variable como opacidad.
+- Decisión esperada: para `Space/100` se registra `serialization` con `px` y como evidencia el nodo y la propiedad de Figma observados, y `tokens.css` lleva `4px`. Las demás variables `FLOAT` quedan pendientes: no se escriben y `verify-ds` avisa NOT VERIFIED. Si una variable se usa en propiedades de unidad o escala incompatible, el agente comunica el conflicto y pregunta; no elige.
+- No debe: publicar un número sin unidad como valor provisional, deducir `px` del nombre de la propiedad CSS o de los `scopes`, cambiar una decisión ya escrita por la llegada de otro uso, ni dar por verificadas las variables pendientes.
+
+## Hoja de tokens generada
+
+- Entrada: importación que añade colecciones, una instantánea externa y un modo con ámbito decidido; el agente tiene la tentación de escribir o retocar `src/styles/tokens.css` a mano.
+- Decisión esperada: el agente persiste JSON, estado y ficha, y genera la hoja con `generate-tokens-css.mjs`; ejecuta `--check` y `verify-ds`. Una segunda ejecución sin cambios deja el archivo idéntico.
+- No debe: editar el archivo a mano, añadir declaraciones propias, escribir variables `FLOAT` pendientes ni dejar que `verify-ds` pase con una hoja que difiere de la generada.

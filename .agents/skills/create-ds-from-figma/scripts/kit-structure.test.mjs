@@ -63,6 +63,9 @@ test("create-ds-from-figma kit layout stays consistent", () => {
   assert.ok(existsSync(path.join(repoRoot, ".agents/checks/verify-ds.mjs")));
   assert.ok(existsSync(path.join(repoRoot, ".agents/checks/lib/token-file-name.mjs")));
   assert.ok(existsSync(path.join(repoRoot, ".agents/skills/create-ds-from-figma/scripts/preflight-token-files.mjs")));
+  for (const file of ["checks/lib/css-name.mjs", "checks/lib/design-system-state.mjs", "checks/lib/mode-scopes.mjs", "checks/lib/serialization.mjs", "checks/lib/tokens-css.mjs", "checks/lib/property-types.mjs", "checks/verify-docs.mjs", "skills/create-ds-from-figma/scripts/generate-tokens-css.mjs", "checks/tests/fixtures/css-names.json"]) {
+    assert.ok(existsSync(path.join(repoRoot, ".agents", file)), `${file} must exist`);
+  }
   assert.ok(existsSync(path.join(repoRoot, ".agents/skills/find-component/SKILL.md")));
   assert.ok(existsSync(path.join(repoRoot, ".agents/skills/create-ds-from-figma/evals/cases.md")));
 });
@@ -84,6 +87,9 @@ test("skill helpers use current inventory, state and validation rules", () => {
   const state = JSON.parse(readFileSync(path.join(repoRoot, ".agents/skills/create-ds-from-figma/plantillas/design-system/relationships/figma-state.json"), "utf8"));
   for (const field of ["runId", "fileUrl"]) assert.ok(!(field in state), `${field} is not part of runtime state`);
   assert.ok(!state._schema.notes.some((note) => note.includes("Legacy phase and pages")));
+  assert.equal(state.tokenPrefix, null, "the blank kit must not fix a token prefix before the first import");
+  assert.equal(Object.values(state._schema.collections)[0].modeScopes["<modo no predeterminado>"], null, "the template documents pending mode scopes as null");
+  assert.ok(Object.keys(Object.values(state._schema.collections)[0].serialization).length > 0, "the template documents a serialization entry");
   assert.deepEqual(state.collections, {});
   assert.deepEqual(state.variables, {});
   assert.ok(state._schema.collections["<VariableCollectionId>"].file.endsWith(".json"));
@@ -127,6 +133,15 @@ test("skill loads formats where they are needed without reference chains", (t) =
   assert.match(preanalysis, /3\.[^\n]*references\/component-metadata\.md/);
   assert.match(preanalysis, /4\.[^\n]*references\/relationships\.md/);
   assert.ok(preanalysis.includes("preflight-token-files.mjs"), "token filenames must be planned before writing");
+  const tokensReference = readFileSync(path.join(repoRoot, ".agents/skills/create-ds-from-figma/references/tokens.md"), "utf8");
+  assert.ok(tokensReference.includes(".agents/checks/tests/fixtures/css-names.json"), "tokens.md must cite the shared css name cases");
+  assert.ok(tokensReference.includes("tokenPrefix") && tokensReference.includes("cssName"), "tokens.md must define the css name contract");
+  assert.ok(tokensReference.includes("modeScopes") && tokensReference.includes("NOT VERIFIED"), "tokens.md must define mode scopes and their pending state");
+  assert.ok(tokensReference.includes("serialization") && tokensReference.includes("pendiente"), "tokens.md must define FLOAT serialization and the pending state");
+  assert.ok(tokensReference.includes("generate-tokens-css.mjs") && tokensReference.includes("producto de compilación"), "tokens.md must say tokens.css is generated");
+  assert.ok(skill.includes("generate-tokens-css.mjs"), "the skill must tell the agent to generate tokens.css");
+  assert.ok(preanalysis.includes("tokenPrefix") && preanalysis.includes("`variables`"), "the preanalysis must use the prefix and variable names from the preflight");
+  assert.ok(preanalysis.includes('"collections": []'), "the preanalysis must run the preflight even with no local collections to obtain the prefix");
   assert.deepEqual(readdirSync(referenceDir).sort(), expectedReferences);
 
   for (const name of expectedReferences) {
