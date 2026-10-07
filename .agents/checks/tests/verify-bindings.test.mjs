@@ -379,3 +379,21 @@ test("nested and at-rule declarations are reported once each", () => {
     assert.equal(results.filter((item) => item.property === property && item.status === "NOT_RUN").length, 1, property);
   }
 });
+
+test("a binding to a variable of a primitive collection is advisory and never changes a status", () => {
+  const root = fixture();
+  const tokens = JSON.parse(readFileSync(path.join(root, "design-system/tokens/Color.json"), "utf8"));
+  write(root, "design-system/tokens/Color.json", { ...tokens, collection: "Color Primitives" });
+  const results = report(root, "ExampleComponent");
+  assert.deepEqual(results.filter((item) => item.status !== "ADVISORY").map((item) => item.status), ["PASS", "PASS"]);
+  const advisories = results.filter((item) => item.type === "advisory");
+  assert.deepEqual(advisories.map((item) => [item.status, item.property]), [["ADVISORY", "background-color"], ["ADVISORY", "color"]]);
+  assert.match(advisories[0].reason, /binds --example-surface from the primitive collection Color Primitives directly; Figma's binding is mirrored/);
+});
+
+test("no advisory appears for semantic collections or for measured literals", () => {
+  const root = fixture();
+  const tokens = JSON.parse(readFileSync(path.join(root, "design-system/tokens/Color.json"), "utf8"));
+  write(root, "design-system/tokens/Color.json", { ...tokens, collection: "Color" });
+  assert.equal(report(root).some((item) => item.type === "advisory"), false);
+});

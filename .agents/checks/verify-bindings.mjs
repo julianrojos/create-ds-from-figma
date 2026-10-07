@@ -74,14 +74,21 @@ const mayAffect = (left, right) => borderEffectsOverlap(left, right) || radiusCo
 
 function tokenNames(root) {
   const names = new Map();
+  const collections = new Map();
   const directory = path.join(root, "design-system/tokens");
-  if (!existsSync(directory)) return names;
+  if (!existsSync(directory)) return { names, collections };
   for (const file of readdirSync(directory).filter((name) => name.endsWith(".json"))) {
     const collection = readJson(root, `design-system/tokens/${file}`);
-    for (const variable of Object.values(collection.variables || {})) names.set(variable.id, variable.cssName);
+    for (const variable of Object.values(collection.variables || {})) {
+      names.set(variable.id, variable.cssName);
+      collections.set(variable.id, collection.collection);
+    }
   }
-  return names;
+  return { names, collections };
 }
+
+// A collection whose name says it holds primitives is the base tier; components usually bind to roles.
+const primitiveTier = /primitive/i;
 
 function declaration(css, selector, property, partSelector) {
   if (!directClass.test(selector)) return { reason: "selector construct not supported" };
@@ -111,7 +118,7 @@ function declaration(css, selector, property, partSelector) {
 
 export function report(root, componentName) {
   const map = readJson(root, "design-system/relationships/figma-code-map.json");
-  const localNames = tokenNames(root);
+  const { names: localNames, collections: localCollections } = tokenNames(root);
   const tokenCss = postcss.parse(readFileSync(path.join(root, "src/styles/tokens.css"), "utf8"));
   const definedNames = new Set();
   tokenCss.walkDecls((decl) => {
@@ -128,6 +135,7 @@ export function report(root, componentName) {
     const names = new Map(localNames);
     for (const variable of metadata.externalVariables || []) names.set(variable.id, variable.cssName);
     const covered = new Set();
+    const advisories = [];
     if (!(metadata.bindings?.length || metadata.measuredLiterals?.length)) {
       results.push({ component: entry.name, type: "coverage", status: "NOT_RUN",
         reason: "no binding or measured literal observations recorded" });
@@ -137,6 +145,10 @@ export function report(root, componentName) {
         const result = { component: entry.name, type, part: record.part, variant: record.variant,
           property: record.cssProperty, selector: record.cssSelector };
         covered.add(`${record.cssSelector}\u0000${record.cssProperty}`);
+        if (type === "binding" && primitiveTier.test(localCollections.get(record.variableId) ?? "")) {
+          advisories.push({ ...result, status: "ADVISORY", type: "advisory",
+            reason: `binds ${names.get(record.variableId)} from the primitive collection ${localCollections.get(record.variableId)} directly; Figma's binding is mirrored, so this only suggests checking whether a semantic variable exists for the role` });
+        }
         const found = declaration(css, record.cssSelector, record.cssProperty, metadata.parts?.[record.part]?.selector);
         if (found.reason) {
           results.push({ ...result, status: "NOT_RUN", writtenStatus: "NOT_RUN", reason: found.reason });
@@ -179,6 +191,7 @@ export function report(root, componentName) {
         }
       }
     }
+    results.push(...advisories);
     css.walkDecls((decl) => {
       const parent = decl.parent;
       const selector = parent.type === "rule" ? parent.selector : `@${parent.name || parent.type}`;
@@ -220,7 +233,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       const written = result.writtenStatus ? ` [written ${result.writtenStatus}]` : "";
       console.log(`${result.status}${written} ${subject}: ${result.reason || `${result.actual} (expected ${result.expected})`}`);
     }
-    const counts = Object.fromEntries(["PASS", "FAIL", "NOT_RUN"].map((status) => [status, results.filter((item) => item.status === status).length]));
+    const counts = Object.fromEntries(["PASS", "FAIL", "NOT_RUN", "ADVISORY"].map((status) => [status, results.filter((item) => item.status === status).length])
+      .filter(([status, count]) => status !== "ADVISORY" || count > 0));
     console.log(`REPORT ${JSON.stringify(counts)}; written identity and effective browser values must both be verified`);
   } catch (error) {
     console.error(`NOT_RUN binding report: ${error.message}`);
