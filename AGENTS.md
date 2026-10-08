@@ -10,7 +10,11 @@ Instrucciones operativas para agentes de IA en este repositorio.
 
 - Si el usuario dice "crea un DS" o pega la URL de un componente de Figma, sigue `.agents/skills/create-ds-from-figma/SKILL.md`.
 - Si la tarea es construir UI o una pantalla desde un frame de Figma, sigue `.agents/workflows/build-from-figma.md`.
+- Si se pregunta si un elemento o nodo ya corresponde a un componente del DS, sigue `.agents/skills/find-component/SKILL.md`.
+- Si hay una coincidencia fiable con un componente ya mapeado y se pide consultar su ruta de código o sus props, sigue `.agents/skills/map-figma-to-code/SKILL.md`.
+- Si se pide validar UI existente o cerrar una implementación, sigue `.agents/skills/validate-ds/SKILL.md`; una validación independiente no autoriza editar documentación ni código.
 - Si lees, editas o generas archivos en `src/` o `design-system/`, aplica `.agents/rules/design-system.md`.
+- Antes de dar por terminada una implementación o modificación de UI, completa la verificación definida en `.agents/rules/design-system.md`, incluidos los checks manuales y la validación renderizada; informa de lo no ejecutado y del motivo.
 - Si dos skills solapan, usa la más específica; si hacen falta ambas por fases distintas, aplícalas explícitamente.
 
 ## Prioridad
@@ -25,7 +29,7 @@ Instrucciones operativas para agentes de IA en este repositorio.
 - No crear worktrees ni ramas auxiliares; trabajar en la rama activa del repositorio principal.
 - No hacer stage, commit ni crear ramas sin orden expresa del usuario.
 
-## Skill create-ds-from-figma
+## Mantenimiento del kit y contratos
 
 - `.agents/skills/create-ds-from-figma/SKILL.md` es la skill canónica; no crear copias sincronizadas.
 - Si se cambia el formato de relaciones Figma, actualizar juntas las plantillas `figma-state.json`, `figma-code-map.json`, la referencia `.agents/skills/create-ds-from-figma/references/relationships.md`, las skills auxiliares `find-component`, `map-figma-to-code` y `validate-ds`, y los checks de `.agents/checks/`.
