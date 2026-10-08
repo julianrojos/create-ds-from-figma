@@ -5,7 +5,7 @@ Apply when reading, editing or generating `src/` or `design-system/` files.
 - Before adding a UI component, search `design-system/inventory.json`, `design-system/components/` and `src/components/`; reuse an existing match.
 - Resolve Figma components through `design-system/relationships/figma-code-map.json`. Check `figma-state.json` for nested dependencies.
 - Reuse a mapped nested component from `src/components/`; do not redraw it. Report new variants before implementing them.
-- Use only Design System tokens. Do not invent color, spacing or typography values.
+- Use Design System tokens for observed Figma variable bindings. Where Figma has no variable binding, use only an observed literal recorded in the component's `measuredLiterals`, preserving any approximate-translation verification requirement. Do not invent color, spacing or typography values or replace a bound token with a literal.
 - Read and follow `.agents/rules/design-system-composition.md` and `.agents/rules/design-system-accessibility.md`.
 - Consult `.agents/prop-vocabulary.json` when naming props. Name boolean props as a bare adjective or state (`disabled`, `loading`), never `is*`, `has*` or `show*`, and write props in camelCase.
 - Do not invent a substitute for an unmapped element. Report `DS_GAP` and explain what is missing.
