@@ -11,15 +11,15 @@ description: >-
 
 # Crear DS desde un componente Figma
 
-El usuario trabaja en **este repo**, dice **crea un DS** y pega **un componente** de Figma (el file tiene variables).
+El usuario trabaja en **este repo**, dice **crea un DS** y pega **un componente** de Figma (con variables locales o bindings externos con ID y valor resuelto).
 
 Eso basta. No pidas el esqueleto en un paso aparte.
 
-No cites primitives ni pantallas que aún no existan en el DS generado. `design-system/inventory.json` empieza vacío y **se rellena al incluir cada pieza**.
+No cites componentes ni pantallas que aún no existan en el DS generado. `design-system/inventory.json` empieza vacío y **se rellena al incluir cada pieza**.
 
 ## Kit vacío
 
-Las plantillas van **en blanco**. No incluyen colecciones, tokens, primitives ni pantallas de ningún file de ejemplo.
+Las plantillas van **en blanco**. No incluyen colecciones, tokens, componentes ni pantallas de ningún file de ejemplo.
 
 - `design-system/inventory.json` → listas `components` y `screens` vacías
 - `figma-code-map.json` → solo `_schema`, sin entradas
@@ -42,7 +42,8 @@ En español, después del preanálisis y antes de tocar disco, comunica el diagn
 
 ```text
 **Modo:** primera vez | siguiente componente
-**Diagnóstico:** nodo y file de origen; variantes, propiedades y estados; colecciones/variables del file y tokens usados; anidados mapped/missing/external
+**Diagnóstico:** nodo y file de origen; variantes, propiedades y estados; estilos aplicados y procedencia no disponible; colecciones/variables del file y tokens usados; anidados mapped/missing/external
+**Prefijo de tokens:** fijado en el estado | pedido por el usuario | `ds` (predeterminado, solo en un DS nuevo); informativo, no detiene la importación
 **Medido en Figma:** hechos con fileKey, nodeId o variable ID y herramienta consultada
 **Inferido:** interpretación y evidencia en que se apoya; no presentarla como medición
 **No determinado:** campo, fuente intentada, motivo y si bloquea la importación
@@ -52,7 +53,7 @@ En español, después del preanálisis y antes de tocar disco, comunica el diagn
 **No construido:** qué diferencias de Figma no se convierten en API o componente y por qué
 **Decisión:** importar | reutilizar | actualizar dependencia | actualizar componente solicitado | solicitar actualización | pedir ref o autorización | DS_GAP | pedir URL de origen
 **Qué voy a hacer ahora:** ...
-**Qué no voy a hacer:** ni otros primitives que no estén en esta URL, ni una pantalla, ni Tailwind, ni copiar un DS ya relleno, ni resumir tokens a 3 archivos
+**Qué no voy a hacer:** ni otros componentes que no estén en esta URL, ni una pantalla, ni Tailwind, ni copiar un DS ya relleno, ni resumir tokens a 3 archivos
 ```
 
 Luego haz el trabajo. Al cerrar: archivos tocados + “para el siguiente, pega otra URL de componente”.
@@ -95,10 +96,10 @@ Estos son los archivos que pertenecen al DS/app generado:
 design-system/inventory.json
 design-system/relationships/figma-code-map.json
 design-system/relationships/figma-state.json
-design-system/tokens/<Coleccion>.json   ← no está en plantillas; nace al volcar Figma
+design-system/tokens/<ArchivoDeColeccion>.json ← no está en plantillas; nace al volcar Figma
 design-system/components/<Nombre>/metadata.json
 design-system/components/<Nombre>/usage.md
-src/styles/tokens.css
+src/styles/tokens.css   ← generado; no se edita a mano
 src/components/<Nombre>/<Nombre>.tsx
 src/components/<Nombre>/<Nombre>.module.css
 src/components/<Nombre>/index.ts
@@ -112,7 +113,7 @@ package-lock.json  ← ya existe; se actualiza al instalar dependencias
 
 En la primera importación, añade una app Vite React TS compatible con `index.html` y `tsconfig.json`. Integra React, React DOM, Vite y las dependencias de tipos necesarias en el `package.json` existente; conserva `private`, `type`, `scripts.test`, cualquier otro script y todas las dependencias actuales (incluidas TypeScript, PostCSS, postcss-selector-parser y `yaml`). Añade `dev`, `build` y `preview` sin reemplazar scripts existentes. Actualiza el `package-lock.json` existente al instalar dependencias y conserva `.gitignore`; no ejecutes un scaffold que sobrescriba esos archivos del repo.
 
-`design-system/tokens/<Coleccion>.json` = **un archivo por colección de variables de Figma**, con el mismo nombre de la colección (caracteres inseguros para fichero → `-`). No uses `colors.json` / `spacing.json` / `typography.json` como resumen fijo.
+`design-system/tokens/` contiene **un JSON por colección de variables de Figma**. Su nombre y los `cssName` los decide el preflight de `scripts/preflight-token-files.mjs`; el archivo se guarda en `figma-state.json.collections[<ID>].file` y el prefijo en `figma-state.json.tokenPrefix`; conserva espacios y la ruta registrada cuando Figma renombre una colección. `references/tokens.md` describe la codificación y los casos de colisión. No uses `colors.json` / `spacing.json` / `typography.json` como resumen fijo.
 
 `src/pages/` **no** se crea hasta que pidan una pantalla.
 
@@ -121,8 +122,10 @@ En la primera importación, añade una app Vite React TS compatible con `index.h
 No crees el árbol, tokens, fichas, código ni registros durante este preanálisis. Reutiliza sus resultados al implementar; no repitas llamadas a Figma salvo que falte información o los datos hayan cambiado.
 
 1. Lee el nodo de la URL con `get_metadata` para identificar tipo y estructura. Si es una variante, localiza su component set y analiza **todas** las variantes; conserva la variante enlazada como referencia. Si es una instancia, resuelve su `mainComponent`. Si es un frame o pantalla, detente. Si la instancia raíz es `remote`, pide la URL del componente en su file de origen; no asumas que las variables del file enlazado le pertenecen.
-2. En el file donde vive el componente, lee **todas** las colecciones y variables locales, con modos, modo por defecto y aliases, sin escribir aún. Lee `references/tokens.md` completo durante este inventario para comprobar tipos, modos y aliases. Si no hay variables locales, comprueba si el componente tiene bindings directos a variables externas con ID y valor resuelto; no inventes una colección local. `get_variable_defs` del nodo no sirve como inventario.
-3. Lee el contexto estructurado del componente o set (`get_design_context` o `use_figma`, según el detalle necesario). Inventaria variantes y props, propiedades expuestas, estados representados, bindings y variables realmente usadas. Lee `references/component-metadata.md` completo durante este análisis para clasificar cada valor de variante y preparar los datos de `metadata.json` solo con lo observado; la ficha se escribe después del diagnóstico. Separa lo medido de lo inferido, indica la fuente de cada hecho y declara lo no medido y lo no cubierto. No inventes estados, props ni tokens. Si falta información, intenta obtenerla con la otra herramienta o comunica la limitación. Una laguna que impida decidir la API o implementar fielmente bloquea la importación: informa `DS_GAP` y no registres una ficha incompleta. Esta lectura del nodo **no sustituye** el inventario de variables del file.
+2. En el file donde vive el componente, lee **todas** las colecciones y variables locales, con modos, modo por defecto y aliases, sin escribir aún. Lee `references/tokens.md` completo durante este inventario para comprobar tipos, modos y aliases. Antes de escribir, pasa todas las colecciones, con todas sus variables (`id` y nombre), como JSON por stdin a `node .agents/skills/create-ds-from-figma/scripts/preflight-token-files.mjs .` (añade `tokenPrefix` si el usuario pidió uno). Ejecútalo siempre, también con `"collections": []` cuando el file no tenga variables locales y el componente solo use variables externas: es la única forma de obtener el prefijo que debes escribir en `figma-state.json.tokenPrefix`; el script lee el estado y los JSON existentes, calcula el mapeo ID → archivo sin tocar el DS y falla ante archivos huérfanos, nombres de archivo o de custom property en conflicto, un prefijo distinto del ya fijado, tokens o componentes publicados sin `tokenPrefix` en el estado, o un JSON registrado que falta cuando su ID tampoco está en esta entrada del preflight. Lee el JSON de stdout: `tokenPrefix` es el prefijo (y su origen), `files` es el mapeo ID → archivo, `variables` es el mapeo `VariableID` → `cssName` y `diagnostics` contiene `missingRegistered` y `registeredIdsNotInInput` (listas de `{ id, file }`, vacías si no hay avisos). Usa `files` y `variables` para escribir los JSON de tokens, `tokens.css` y `state.collections`; si `tokenPrefix.source` es `default` o `input`, comunica el prefijo en el diagnóstico («Prefijo de tokens: `ds` (predeterminado)») sin esperar respuesta; no trates las otras claves como IDs. Si el preflight dice que hay tokens publicados sin `tokenPrefix`, no lo arregles pasando un prefijo: explica que el estado es inconsistente y pide una reparación explícita. Comunica `registeredIdsNotInInput` como diferencia respecto de esta entrada, conserva esos archivos y no infieras un cambio en Figma. Si `missingRegistered` tiene entradas, informa del hueco en el diagnóstico; **solo si la tabla permite reparar**, recréalas con los valores observados de Figma en los nombres ya registrados, sin sobrescribir otros archivos. Un diagnóstico no autoriza a escribir en las filas que lo prohíben ni en una sustitución limitada a una dependencia. Si el preflight falla, explica el problema y no escribas. Si no hay variables locales, comprueba si el componente tiene bindings directos a variables externas con ID y valor resuelto verificables; no inventes una colección local. `get_variable_defs` del nodo no sirve como inventario.
+
+Un JSON registrado que falta y contenía variables no se reconstruye desde sus nombres actuales en Figma: se perderían los `cssName` ya asignados. Restaura el archivo original antes de continuar. `missingRegistered` solo puede referirse a una colección que antes tenía cero variables.
+3. Lee el contexto estructurado del componente o set (`get_design_context` o `use_figma`, según el detalle necesario). Inventaria variantes y props, propiedades expuestas, estados representados, bindings y variables realmente usadas. Inspecciona los estilos de texto, efecto y relleno aplicados y, cuando existan, los rangos de texto mixto; distingue un estilo inexistente de uno que la herramienta no devuelve. Lee `references/component-metadata.md` completo durante este análisis para clasificar cada valor de variante, conservar la procedencia de los estilos y preparar los datos de `metadata.json` solo con lo observado; la ficha se escribe después del diagnóstico. Si no puedes obtener el ID del estilo pero sí los valores esenciales, continúa y registra `figmaCoverage.styles` como `unavailable` con la llamada intentada y el motivo (informa la captura de procedencia como `NOT RUN`); no supongas que el valor de una propiedad procede del estilo. Si las propiedades de segmentos mixtos esenciales no caben fielmente en una sola observación, informa `DS_GAP` antes de escribir; las no esenciales quedan en `unresolved` y `NOT VERIFIED`. Separa lo medido de lo inferido, indica la fuente de cada hecho y declara lo no medido y lo no cubierto. No inventes estados, props ni tokens. Si falta información, intenta obtenerla con la otra herramienta o comunica la limitación. Una laguna que impida decidir la API o implementar fielmente bloquea la importación: informa `DS_GAP` y no registres una ficha incompleta. Esta lectura del nodo **no sustituye** el inventario de variables del file.
 4. Recorre todas las variantes, resuelve cada instancia hija según «Componentes anidados» y lee `references/relationships.md` completo para registrar sus refs. Consulta `find-component` para el nodo raíz si el mapa existe. En la primera vez, el mapa está vacío: las instancias locales son `missing`. Prepara el diagnóstico completo antes de decidir.
 
 Evalúa esta tabla **de arriba abajo**; aplica la primera fila que corresponda:
@@ -144,7 +147,7 @@ Evalúa esta tabla **de arriba abajo**; aplica la primera fila que corresponda:
 | Anidado `external` sin otros bloqueos                                                                                                                        | Continuar y avisar de la librería externa                                                                                                       |
 | Componente nuevo sin bloqueos                                                                                                                                | Importar                                                                                                                                        |
 
-«Otros cambios observados» significa diferencias comprobables entre el análisis actual y los datos ya guardados: `metadata.json` (variantes, `variantClassification`, `figmaCoverage`, estados, tokens, `parts`, `bindings`, `externalVariables`, `measuredLiterals`, `unresolved`, `notApplicable` y `notBuilt`), la entrada correspondiente de `figma-code-map.json` (refs y props) y los `nestedComponents` de `figma-state.json` (instancias añadidas o quitadas, o un cambio de identidad verificado según la comparación indicada abajo). Compara las conclusiones de cobertura, lagunas y exclusiones con la evidencia actual: una decisión distinta requiere revisión explícita, pero no demuestra por sí sola que Figma haya cambiado. Un cambio verificado de identidad cuenta como otro cambio observado aunque el nuevo estado sea `mapped`. No deduzcas cambios visuales o de código que esos datos no permiten comparar.
+«Otros cambios observados» significa diferencias comprobables entre el análisis actual y los datos ya guardados: `metadata.json` (variantes, `variantClassification`, `figmaCoverage`, estados, tokens, `parts`, `styles`, `bindings`, `externalVariables`, `measuredLiterals`, `unresolved`, `notApplicable` y `notBuilt`), la entrada correspondiente de `figma-code-map.json` (refs y props) y los `nestedComponents` de `figma-state.json` (instancias añadidas o quitadas, o un cambio de identidad verificado según la comparación indicada abajo). Compara las conclusiones de cobertura, lagunas y exclusiones con la evidencia actual: una decisión distinta requiere revisión explícita, pero no demuestra por sí sola que Figma haya cambiado. La ausencia de datos de estilos en una herramienta no demuestra que se haya quitado un estilo de Figma. Un cambio verificado de identidad cuenta como otro cambio observado aunque el nuevo estado sea `mapped`. No deduzcas cambios visuales o de código que esos datos no permiten comparar.
 
 Repara antes el árbol o los tokens del file de origen si quedaron incompletos (ver «Dos modos»), sin sobrescribir lo existente, solo al importar, actualizar automáticamente una dependencia, continuar con un anidado `external`, reutilizar o realizar una actualización general solicitada. Una sustitución autorizada solo para una dependencia no permite reparar el scaffold. En cualquier fila cuya decisión sea no escribir —incluidas `DS_GAP`, pedir la URL de origen, identidad no verificable y «otros cambios observados»—, no repares el scaffold, salvo la excepción explícita de abajo.
 
@@ -170,12 +173,12 @@ El inventario de tokens es siempre a **nivel de file**, no del nodo del componen
 
 1. Lista **todas** las colecciones locales: `figma.variables.getLocalVariableCollectionsAsync()`.
 2. Lista **todas** las variables locales: `figma.variables.getLocalVariablesAsync()`.
-3. Escribe un JSON por colección + un único `src/styles/tokens.css` con **todas** las variables.
+3. Escribe un JSON por colección en el archivo asignado por el preflight. `src/styles/tokens.css` no se escribe a mano: genéralo después de guardar la ficha y su entrada en el mapa, porque el generador descubre las instantáneas externas mediante ese mapa. Las variables `FLOAT` sin decisión de serialización quedan pendientes y no se escriben. Para cada `FLOAT` que un `binding` del componente use, registra su decisión en `serialization` según `references/tokens.md` (con la propiedad de Figma como evidencia o con confirmación del usuario) antes de generar el CSS y escribir el componente. Usa IDs de colección como claves de `figma-state.json.collections` y `figma-state.json.variables`; cada entrada de colección guarda el nombre, modos, recuento y nombre de archivo. Para cada modo no predeterminado guarda su ámbito en `modeScopes` (`null` hasta que el usuario lo decida; nunca inventes el selector) y emite en `tokens.css` los bloques de los modos con ámbito según `references/tokens.md`. En la primera importación escribe también `figma-state.json.tokenPrefix` con `tokenPrefix.value`, aunque el componente solo use variables externas.
 
 **Prohibido como inventario de tokens:**
 
 - `get_variable_defs` del nodo del componente (solo trae las ligadas a ese nodo)
-- quedarse con las variables que usa el primitive de la URL
+- quedarse con las variables que usa el componente de la URL
 - fusionar colecciones distintas en tres buckets (color / spacing / type)
 
 `get_design_context` puede usarse en el preanálisis, pero nunca como fuente del inventario de tokens: ese inventario procede de todas las variables del file de origen.
@@ -208,10 +211,10 @@ Tras importar un componente, añade su nombre a `design-system/inventory.json` s
 
 1. **Preanálisis y diagnóstico** — identifica el nodo, lee variables del file de origen, analiza el set y sus anidados. Aplica la tabla de decisiones y comunica el resultado antes de escribir.
 2. **Árbol** — si se puede importar, integra Vite React TS (CSS modules, sin Tailwind) en este repo conservando su manifiesto, lockfile y `.gitignore` como se indica arriba; inicializa `design-system/` desde `plantillas/design-system/` sin sobrescribir archivos de un scaffold parcial.
-3. **Tokens** — persiste el inventario **file-level** ya leído: una JSON por colección + `src/styles/tokens.css`.
-4. **Ficha** — `metadata.json` + `usage.md` con variantes, estados y tokens observados (plantilla `plantillas/componentes/`).
-5. **Código** — `src/components/<Nombre>/` con tokens y reutilizando anidados `mapped`. Declara `interface <Nombre>Props extends ... { ... }` o `type <Nombre>Props = Omit<...> & { ... }` (también vale un literal sin herencia) en su TSX y úsalo en el componente; hereda props nativas en vez de redefinirlas cuando corresponda.
-6. **Mapa** — entradas en `figma-code-map.json` con `refs` y en `figma-state.json` con `nestedComponents` `mapped` o `external`.
+3. **Tokens** — persiste el inventario **file-level** ya leído: un JSON por colección y su entrada en `figma-state.json`. No escribas `src/styles/tokens.css` a mano.
+4. **Ficha** — `metadata.json` + `usage.md` con variantes, estados, estilos aplicados, valores medidos y tokens observados (plantilla `plantillas/componentes/`); conserva el valor bruto de Figma para traducciones CSS aproximadas.
+5. **Código** — `src/components/<Nombre>/` con tokens y reutilizando anidados `mapped`. Declara `interface <Nombre>Props extends ... { ... }` o `type <Nombre>Props = Omit<...> & { ... }` (también vale un literal sin herencia) en su TSX y úsalo en el componente; hereda props nativas en vez de redefinirlas cuando corresponda. Para los valores de `kind: prop`, documenta en `usage.md` las correspondencias candidatas Figma → código según `references/component-metadata.md`; la comparación renderizada del paso 9 puede confirmarlas, no el mero hecho de haber escrito ese código. Aplica el mismo criterio en importaciones y actualizaciones posteriores.
+6. **Mapa y CSS** — entradas en `figma-code-map.json` con `refs` y en `figma-state.json` con `nestedComponents` `mapped` o `external`. Después genera `src/styles/tokens.css` con `node .agents/skills/create-ds-from-figma/scripts/generate-tokens-css.mjs .` (falla sin escribir si las fuentes son inconsistentes); regenera siempre que cambien tokens, estado, mapa o `externalVariables`.
 7. **App** — `App.tsx` renderiza **solo** ese componente (para `npm run dev`).
 8. **Inventario** — añade solo ese componente a `design-system/inventory.json`.
 9. **Checks** — `node .agents/checks/verify-ds.mjs`, `node .agents/checks/verify-props.mjs` y `node .agents/checks/verify-bindings.mjs` (tras instalar las dependencias de `package.json`), más `.agents/skills/validate-ds/SKILL.md` sobre ese componente. Informa PASS, FAIL o NOT RUN con motivo para cada check; no llames conforme a lo no evaluado.
@@ -221,7 +224,7 @@ Tras importar un componente, añade su nombre a `design-system/inventory.json` s
 1. Preanálisis y diagnóstico completos antes de escribir, también si el componente ya existe. Si hay `missing`, para sin tocar el proyecto.
 2. `find-component` — si no existe, continúa con la importación. Si existe, compara el análisis actual con `metadata.json`, la entrada del mapa y `nestedComponents`, y aplica la tabla del preanálisis y su criterio de identidad. No supongas cambios que esos datos no permitan comparar ni reescribas por repetir la URL.
 3. Si el componente es nuevo o el usuario pidió expresamente una actualización general, mezcla las colecciones y variables leídas del file en los JSON existentes; no borres variables.
-4. Para un componente nuevo, crea ficha + código + mapa. Para uno existente, sigue «Actualización solicitada» si el usuario pidió una actualización general o autorizó una sustitución concreta; en otro caso, aplica únicamente la actualización automática permitida por la tabla y el criterio de identidad. Si no puedes aislar el cambio sin pisar trabajo existente, muestra la modificación propuesta y pide confirmación. No guardes `missing` ni estados `blocked`.
+4. Para un componente nuevo, crea ficha + código + mapa. Para uno existente, sigue «Actualización solicitada» si el usuario pidió una actualización general o autorizó una sustitución concreta; en otro caso, aplica únicamente la actualización automática permitida por la tabla y el criterio de identidad. Si no puedes aislar el cambio sin pisar trabajo existente, muestra la modificación propuesta y pide confirmación. No guardes `missing` ni estados `blocked`. Regenera `src/styles/tokens.css` después de actualizar el mapa cuando cambien tokens, estado, mapa o fichas.
 5. Si `App.tsx` está vacío porque solo se preparó el scaffold, renderiza ahí el primer componente que se importe. En los demás casos, no lo sustituyas salvo que pidan ver el nuevo; no borres componentes viejos.
 6. Inventario: añade solo nombres nuevos; no quites los anteriores.
 7. Checks de **este** componente, también tras una actualización localizada; ejecuta `node .agents/checks/verify-ds.mjs`, `node .agents/checks/verify-props.mjs` y `node .agents/checks/verify-bindings.mjs` e informa los checks no realizados con su motivo.

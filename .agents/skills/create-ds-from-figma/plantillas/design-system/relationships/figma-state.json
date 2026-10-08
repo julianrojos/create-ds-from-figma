@@ -1,5 +1,33 @@
 {
   "_schema": {
+    "collections": {
+      "<VariableCollectionId>": {
+        "name": "<nombre en Figma>",
+        "modes": ["<modo>"],
+        "varCount": 0,
+        "file": "<nombre de archivo>.json",
+        "modeScopes": {
+          "<modo no predeterminado>": null
+        },
+        "serialization": {
+          "<VariableID de una variable FLOAT con decisión>": {
+            "css": { "kind": "unit", "unit": "px" },
+            "source": {
+              "type": "bindings",
+              "evidence": [{ "node": "<FILE_KEY>:<NODE_ID>", "figmaProperty": "<propiedad de Figma>", "mode": "<modo>" }]
+            }
+          }
+        }
+      }
+    },
+    "variables": {
+      "<VariableCollectionId>": {
+        "<nombre de variable>": {
+          "id": "<VariableID>",
+          "type": "COLOR | FLOAT | STRING | BOOLEAN"
+        }
+      }
+    },
     "components": {
       "<ComponentName>": {
         "figmaNodeId": "<NODE_ID>",
@@ -19,6 +47,10 @@
     },
     "notes": [
       "Ignore keys that start with _ when reading runtime state.",
+      "tokenPrefix is null only before the first import. The first import writes the prefix (default ds, or the one the user requested) and the flow does not change it afterwards without an explicit migration. Every local cssName starts with --<tokenPrefix>-; a cssName already assigned to a variable ID is never recalculated, even if Figma renames the variable or its collection.",
+      "modeScopes has one entry per non-default mode of the collection: null means the CSS scope is not decided yet (the mode is NOT VERIFIED, never invented), { \"kind\": \"selector\", \"value\": \"[data-theme=\\\"dark\\\"]\" } is one selector emitted after the base :root, and { \"kind\": \"media\", \"query\": \"(min-width: 768px)\", \"order\": 1 } is a media query emitted in ascending order. The default mode always lives in :root and has no entry. Figma does not define these scopes: ask the user once per collection.",
+      "serialization holds one decision per direct FLOAT variable that is bound to a component: css is { kind: unit, unit: px|rem|em|%|ms|s|deg }, { kind: unitless } or { kind: scale, factor, unit }, and source is { type: bindings, evidence: [{ node, figmaProperty, mode? }] } observed in Figma or { type: user } confirmed by the user. A FLOAT variable without an entry is pending: it is not written to tokens.css and no binding may use it; never default to a bare number. A variable whose modes are all local aliases inherits its targets and has no entry. The unit is not derived from the CSS property name or from Figma scopes.",
+      "Key collections and variables by collection ID, never by collection name. Store only the token JSON basename in collections[id].file; preserve that filename when the Figma collection name changes.",
       "components contains only successfully imported components with available code; never store blocked components or pendingImports.",
       "missing is a pre-analysis diagnosis that stops before writing and is never persisted in nestedComponents.",
       "On a repeat URL, re-read Figma. Without an explicit update request, change an imported parent's nestedComponents and code only for a verified external-to-mapped transition that can be isolated safely. An explicit request may authorize a general update or a replacement limited to one dependency whose identity cannot be verified (see .agents/skills/create-ds-from-figma/SKILL.md).",
@@ -33,6 +65,7 @@
     ]
   },
   "fileKey": "",
+  "tokenPrefix": null,
   "collections": {},
   "variables": {},
   "components": {}

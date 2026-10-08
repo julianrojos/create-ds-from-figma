@@ -57,13 +57,33 @@ test("measured literals are exact and unrecorded literals are findings", () => {
     content: { selector: ".content" },
   }, bindings: [], measuredLiterals: [
     { part: "content", variant: "Content=Media, Size=Large", source: "EXAMPLE_FILE:1:3",
-      figmaProperty: "width", cssSelector: ".content", cssProperty: "width", value: "40px" },
+      figmaProperty: "width", cssSelector: ".content", cssProperty: "width", value: "40px", translation: "direct" },
   ] });
   write(root, "src/components/ExampleComponent/ExampleComponent.module.css", ".content { width: 42px; border-radius: 4px; }");
   const results = report(root, "ExampleComponent");
   assert.equal(results[0].status, "FAIL");
   assert.equal(results[0].expected, "40px");
   assert.ok(results.some((item) => item.type === "unrecorded-literal" && item.property === "border-radius"));
+});
+
+test("approximate literals retain written identity but need rendered comparison", () => {
+  const root = fixture();
+  const relative = "design-system/components/ExampleComponent/metadata.json";
+  const metadata = JSON.parse(readFileSync(path.join(root, relative), "utf8"));
+  metadata.bindings = [];
+  metadata.measuredLiterals = [{ part: "root", variant: "Content=Text, Size=Large", source: "EXAMPLE_FILE:1:1",
+    figmaProperty: "lineHeight", cssSelector: ".root", cssProperty: "line-height", value: "20px",
+    translation: "approximate", figmaValue: { source: "REST", field: "lineHeightPercentFontSize", value: 125 } }];
+  write(root, relative, metadata);
+  write(root, "src/components/ExampleComponent/ExampleComponent.module.css", ".root { line-height: 20px; }");
+  const result = report(root, "ExampleComponent")[0];
+  assert.equal(result.writtenStatus, "PASS");
+  assert.equal(result.status, "NOT_RUN");
+  assert.match(result.reason, /independent rendered comparison/);
+  assert.deepEqual(result.figmaValue, metadata.measuredLiterals[0].figmaValue);
+
+  write(root, "src/components/ExampleComponent/ExampleComponent.module.css", ".root { line-height: 21px; }");
+  assert.equal(report(root, "ExampleComponent")[0].status, "FAIL");
 });
 
 test("class combinations are checked, but a possible cascade override stays not evaluated", () => {
@@ -378,4 +398,22 @@ test("nested and at-rule declarations are reported once each", () => {
   for (const property of ["top", "syntax", "inherits", "initial-value"]) {
     assert.equal(results.filter((item) => item.property === property && item.status === "NOT_RUN").length, 1, property);
   }
+});
+
+test("a binding to a variable of a primitive collection is advisory and never changes a status", () => {
+  const root = fixture();
+  const tokens = JSON.parse(readFileSync(path.join(root, "design-system/tokens/Color.json"), "utf8"));
+  write(root, "design-system/tokens/Color.json", { ...tokens, collection: "Color Primitives" });
+  const results = report(root, "ExampleComponent");
+  assert.deepEqual(results.filter((item) => item.status !== "ADVISORY").map((item) => item.status), ["PASS", "PASS"]);
+  const advisories = results.filter((item) => item.type === "advisory");
+  assert.deepEqual(advisories.map((item) => [item.status, item.property]), [["ADVISORY", "background-color"], ["ADVISORY", "color"]]);
+  assert.match(advisories[0].reason, /binds --example-surface from the primitive collection Color Primitives directly; Figma's binding is mirrored/);
+});
+
+test("no advisory appears for semantic collections or for measured literals", () => {
+  const root = fixture();
+  const tokens = JSON.parse(readFileSync(path.join(root, "design-system/tokens/Color.json"), "utf8"));
+  write(root, "design-system/tokens/Color.json", { ...tokens, collection: "Color" });
+  assert.equal(report(root).some((item) => item.type === "advisory"), false);
 });

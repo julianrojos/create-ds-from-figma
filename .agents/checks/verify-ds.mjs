@@ -4,6 +4,13 @@ import { fileURLToPath } from "node:url";
 import postcss from "postcss";
 import selectorParser from "postcss-selector-parser";
 import ts from "typescript";
+import { aliasCycleProblems } from "./lib/alias-cycles.mjs";
+import { assessTokenPrefix, customPropertyDeclarations } from "./lib/design-system-state.mjs";
+import { modeDeclarationProblems, modeScopeProblems } from "./lib/mode-scopes.mjs";
+import { GENERATOR_COMMAND, firstDifference, generateTokensCss } from "./lib/tokens-css.mjs";
+import { bindingTypeProblem } from "./lib/property-types.mjs";
+import { createFloatResolver, floatAliasProblems, isLocalAliasVariable, serializationProblems, serializeNumber } from "./lib/serialization.mjs";
+import { isPortableTokenFileName, tokenFileKey } from "./lib/token-file-name.mjs";
 
 const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 const isText = (value) => typeof value === "string" && value.trim().length > 0;
@@ -13,6 +20,103 @@ const tokenTypes = {
   STRING: { format: "a string", valid: (value) => typeof value === "string" },
   BOOLEAN: { format: "a boolean", valid: (value) => typeof value === "boolean" },
 };
+// RegExp.test coerces its argument, so undefined would match as the text "undefined".
+const matches = (pattern, value) => typeof value === "string" && pattern.test(value);
+// Text nobody wrote. A value that is entirely <something> is a template placeholder, and TODO-style markers or
+// stock filler stand in for content just as well. Angle brackets inside a longer text (a description that
+// mentions <button>) are legitimate, and Spanish "Todo el ..." is ordinary prose, so the markers are
+// case-sensitive uppercase words at the start and the stock phrases must be the entire value.
+const stockFiller = /^(?:pendiente|por (?:rellenar|definir|completar)|lorem ipsum.*|\.{3}|…)$/i;
+// A whole line that is a tag, a closing tag or a JSX self-closing element is markup in prose, not a placeholder.
+// An attribute needs a value, except the HTML boolean ones, so a phrase such as "<Cuando usarlo.>" or "<Una frase.>"
+// is not a tag. A placeholder shaped like one (a lone <Nombre>, one lowercase word) is not detected in the body
+// of a usage.md; the heading rule still catches <Nombre> there. Wrap such a line in a code block to show it.
+const booleanAttributes = "open|disabled|hidden|checked|selected|readonly|required|controls|autoplay|loop|muted";
+const markupLine = new RegExp(
+  "^<\\/?[A-Za-z][A-Za-z0-9:.-]*" +
+  "(?:\\s+(?:[\\w:.-]+=(?:\"[^\"]*\"|'[^']*'|\\{[^{}]*\\}|[^\\s\"'<>=]+)|(?:" + booleanAttributes + ")(?![\\w:.-])))*" +
+  "\\s*\\/?>$",
+);
+function unfilledKind(text, { prose = false } = {}) {
+  const value = text.trim().replace(/^(?:[-*+]\s+)/, "");
+  if (/^<[^<>]+>$/.test(value) && !(prose && markupLine.test(value))) return "template placeholder";
+  if (/^(?:TODO|FIXME|TBD|XXX)\b/.test(value) || stockFiller.test(value) || stockFiller.test(value.replace(/[.:;!\s]+$/, ""))) return "filler text";
+  return null;
+}
+function placeholderPaths(value, trail = "metadata") {
+  if (typeof value === "string") {
+    const kind = unfilledKind(value);
+    return kind ? [{ where: trail, kind }] : [];
+  }
+  if (Array.isArray(value)) return value.flatMap((item, index) => placeholderPaths(item, `${trail}[${index}]`));
+  if (isObject(value)) return Object.entries(value).flatMap(([key, item]) => placeholderPaths(item, `${trail}.${key}`));
+  return [];
+}
+// The prose of a markdown file: HTML comments, fenced blocks (``` or ~~~), indented blocks and code spans are blanked,
+// keeping line numbers, because code may show <Component /> freely.
+function markdownProse(markdown, { keepInlineCode = false } = {}) {
+  const lines = markdown.replace(/<!--[\s\S]*?-->/g, (comment) => comment.replace(/[^\n]/g, "")).split("\n");
+  let fence = null;
+  let previousBlankOrCode = true;
+  return lines.map((line) => {
+    if (fence) {
+      const close = line.match(/^ {0,3}(`{3,}|~{3,})\s*$/);
+      if (close && close[1][0] === fence[0] && close[1].length >= fence.length) fence = null;
+      previousBlankOrCode = true;
+      return "";
+    }
+    const open = line.match(/^ {0,3}(`{3,}|~{3,})/);
+    if (open) {
+      fence = open[1];
+      previousBlankOrCode = true;
+      return "";
+    }
+    if (/^(?: {4}|\t)/.test(line) && previousBlankOrCode && line.trim()) return "";
+    previousBlankOrCode = !line.trim();
+    return keepInlineCode ? line : line.replace(/(`+)(?:(?!\1).)+?\1/g, "");
+  });
+}
+function usagePlaceholders(markdown) {
+  const found = [];
+  markdownProse(markdown).forEach((line, index) => {
+    const trimmed = line.trim();
+    const kind = unfilledKind(trimmed, { prose: true }) ??
+      (/^#/.test(trimmed) && /<[A-ZÁÉÍÓÚÑ][^<>]*>/.test(trimmed) ? "template placeholder" : null);
+    if (kind) found.push({ line: index + 1, kind });
+  });
+  return found;
+}
+function correspondenceSectionError(markdown) {
+  // Inline code stays: a table row made only of `code` cells is still a populated row.
+  const lines = markdownProse(markdown, { keepInlineCode: true });
+  const headings = lines.flatMap((line, index) =>
+    /^ {0,3}## Figma to code correspondences\s*(?:#+\s*)?$/.test(line) ? [index] : []);
+  if (headings.length !== 1) return "requires exactly one real ## Figma to code correspondences section";
+  const start = headings[0] + 1;
+  const next = lines.findIndex((line, index) => index >= start && /^ {0,3}#{1,2}(?:\s|$)/.test(line));
+  const section = lines.slice(start, next < 0 ? lines.length : next);
+  const body = section.filter((line) => line.trim());
+  if (body.length === 0) return "Figma to code correspondences section is empty";
+  for (const line of body) {
+    const match = line.trim().match(/^None:\s*(.*)$/);
+    if (!match) continue;
+    // Judge the reason without its code delimiters, which are kept in the text: `TODO` is still filler.
+    const reason = match[1].replace(/(`+)((?:(?!\1).)*?)\1/g, "$2").trim().replace(/[.:;!\s]+$/, "");
+    if (!reason || unfilledKind(reason) || /^(?:(?:con el )?motivo real|raz[oó]n real)$/i.test(reason)) {
+      return "Figma to code correspondences: None: requires a nonempty reason without placeholders or filler";
+    }
+    return null;
+  }
+  // Recognize a populated table, not its column contract or the truth of its evidence.
+  const delimiter = /^\s*\|?\s*:?-{3,}:?\s*(?:\|\s*:?-{3,}:?\s*)+\|?\s*$/;
+  // Header, delimiter and data row must be consecutive lines: blank lines split a Markdown table.
+  for (let index = 1; index < section.length - 1; index++) {
+    if (delimiter.test(section[index]) && section[index - 1].includes("|") &&
+        /^\s*\|.*\S.*\|\s*$/.test(section[index + 1]) && !delimiter.test(section[index + 1]) &&
+        section[index + 1].replace(/[|\s]/g, "")) return null;
+  }
+  return "Figma to code correspondences requires a populated table or None: followed by a reason";
+}
 const sameSet = (left, right) => left.size === right.size && [...left].every((item) => right.has(item));
 
 function selectedClasses(selector) {
@@ -115,6 +219,18 @@ export function verify(root) {
     if (metadata.name !== name || metadata.code?.component !== name || metadata.code?.path !== entry.code.path) {
       fail(`${name}: metadata name/code differs from map`);
     }
+    for (const { where, kind } of placeholderPaths(metadata)) fail(`${name}: ${where} still holds a ${kind}; fill it in or remove it`);
+    if (isText(entry.designSystem.usage) && existsSync(path.join(root, entry.designSystem.usage))) {
+      const usage = readFileSync(path.join(root, entry.designSystem.usage), "utf8");
+      for (const { line, kind } of usagePlaceholders(usage)) {
+        fail(`${name}: ${entry.designSystem.usage}:${line} still holds a ${kind}; fill it in or remove it`);
+      }
+      const sectionError = correspondenceSectionError(usage);
+      if (sectionError) fail(`${name}: ${entry.designSystem.usage}: ${sectionError}`);
+    }
+    if (typeof metadata.figma?.url === "string" && /[<>]/.test(metadata.figma.url)) {
+      fail(`${name}: metadata.figma.url still holds template placeholders`);
+    }
     if (metadata.figma?.fileKey !== entry.figma.fileKey || metadata.figma?.nodeId !== entry.figma.nodeId) {
       fail(`${name}: metadata Figma identity differs from map`);
     }
@@ -185,6 +301,49 @@ export function verify(root) {
     } else if (!sameSet(new Set(covered), new Set(Object.keys(isObject(variants) ? variants : {})))) {
       fail(`${name}: figmaCoverage.variants differs from figma-code-map.json`);
     }
+    // Whether the tool returned styles must outlive the run: an empty list alone cannot tell "none exist" from "not returned".
+    const styleCapture = metadata.figmaCoverage?.styles;
+    const captureOk = isObject(styleCapture) && ["captured", "unavailable"].includes(styleCapture.status) && isText(styleCapture.source) &&
+      (styleCapture.status === "unavailable" ? isText(styleCapture.reason) : !("reason" in styleCapture));
+    if (!captureOk) {
+      fail(`${name}: figmaCoverage.styles needs status captured (source) or unavailable (source and reason)`);
+    } else if (styleCapture.status === "unavailable" && Array.isArray(metadata.styles) && metadata.styles.length) {
+      fail(`${name}: figmaCoverage.styles is unavailable, so styles must be empty`);
+    }
+    const styleApplications = new Map();
+    if (!Array.isArray(metadata.styles)) {
+      fail(`${name}: styles must be a list`);
+    } else {
+      for (const [index, style] of metadata.styles.entries()) {
+        const label = `${name}: styles[${index}]`;
+        if (!isObject(style) || !matches(/^[a-z][a-z0-9-]*$/, style.ref) ||
+            !["TEXT", "EFFECT", "PAINT"].includes(style.type) ||
+            !isText(style.name) || !isText(style.id) || !isText(style.fileKey) ||
+            ("key" in style && !isText(style.key)) || !Array.isArray(style.nodes) || !style.nodes.length) {
+          fail(`${label}: ref, type, name, id, fileKey and application nodes are required`);
+          continue;
+        }
+        if (styleApplications.has(style.ref)) fail(`${label}: duplicate style ref ${style.ref}`);
+        const nodes = new Set();
+        for (const [nodeIndex, application] of style.nodes.entries()) {
+          const applicationLabel = `${label}.nodes[${nodeIndex}]`;
+          if (!isObject(application) || !isText(application.node) ||
+              !application.node.startsWith(`${entry.figma.fileKey}:`)) {
+            fail(`${applicationLabel}: node must be a ref in the component's Figma file`);
+            continue;
+          }
+          const hasRange = ["start", "end", "rangesSource"].some((field) => field in application);
+          if (hasRange && (style.type !== "TEXT" ||
+              !Number.isInteger(application.start) || application.start < 0 ||
+              !Number.isInteger(application.end) || application.end <= application.start ||
+              !isText(application.rangesSource))) {
+            fail(`${applicationLabel}: a text range needs start < end and rangesSource`);
+          }
+          nodes.add(application.node);
+        }
+        if (!styleApplications.has(style.ref)) styleApplications.set(style.ref, nodes);
+      }
+    }
     const parts = metadata.parts;
     if (!isObject(parts) || !isObject(parts.root)) {
       fail(`${name}: parts must contain a root part`);
@@ -212,7 +371,7 @@ export function verify(root) {
       const unvarianted = variantKeys.size === 0;
       for (const [partName, part] of Object.entries(parts)) {
         if (!/^[a-z][a-z0-9-]*$/.test(partName) || !isObject(part) ||
-            !/^\.[A-Za-z_][\w-]*$/.test(part.selector) || !isObject(part.nodes)) {
+            !matches(/^\.[A-Za-z_][\w-]*$/, part.selector) || !isObject(part.nodes)) {
           fail(`${name}: part ${partName} needs a CSS class selector and variant-to-node refs`);
           continue;
         }
@@ -238,6 +397,11 @@ export function verify(root) {
           fail(`${name}: root part must cover every Figma variant`);
         }
       }
+      for (const marker of jsxParts?.parts ?? []) {
+        if (!Object.hasOwn(parts, marker)) {
+          warn(`${name}: TSX has a static data-ds-part="${marker}" that metadata.parts does not declare; a marker shows what the source writes, not what renders, so confirm it in the DOM`);
+        }
+      }
     }
     const observations = [
       ["bindings", metadata.bindings],
@@ -253,7 +417,7 @@ export function verify(root) {
         const label = `${name}: ${kind}[${index}]`;
         const node = kind === "bindings" ? record?.node : record?.source;
         if (!isObject(record) || !isText(record.part) || !isText(record.variant) ||
-            !isText(record.figmaProperty) || !/^[a-z][a-z0-9-]*$/.test(record.cssProperty) ||
+            !isText(record.figmaProperty) || !matches(/^[a-z][a-z0-9-]*$/, record.cssProperty) ||
             !isText(record.cssSelector) || !isText(node) ||
             !isObject(parts?.[record.part]) || parts[record.part].nodes?.[record.variant] !== node) {
           fail(`${label}: part, variant, Figma node, Figma property, CSS property and selector must match the part record`);
@@ -267,16 +431,43 @@ export function verify(root) {
         const key = `${record.part}\u0000${record.variant}\u0000${record.cssProperty}`;
         if (observedProperties.has(key)) fail(`${label}: duplicate or conflicting property observation`);
         observedProperties.add(key);
+        if ("styleRef" in record) {
+          if (!isText(record.styleRef) || !styleApplications.has(record.styleRef)) {
+            fail(`${label}: styleRef must resolve to a style in this metadata`);
+          } else if (!styleApplications.get(record.styleRef).has(node)) {
+            fail(`${label}: styleRef has no application at ${node}`);
+          }
+          if (!["style", "override", "unknown"].includes(record.styleOrigin)) {
+            fail(`${label}: styleOrigin must be style, override or unknown`);
+          } else if (record.styleOrigin === "unknown" ? "styleOriginSource" in record : !isText(record.styleOriginSource)) {
+            fail(`${label}: styleOriginSource is required only for an evidenced style or override origin`);
+          }
+        } else if ("styleOrigin" in record || "styleOriginSource" in record) {
+          fail(`${label}: styleOrigin needs styleRef`);
+        }
         if (kind === "bindings") {
+          if ("translation" in record || "figmaValue" in record) fail(`${label}: translation and figmaValue belong to measuredLiterals`);
           if (!isText(record.variableId)) fail(`${label}: variableId is required`);
-          else bindingRecords.push({ name, label, variableId: record.variableId, node: record.node,
+          else bindingRecords.push({ name, label, variableId: record.variableId, node: record.node, cssProperty: record.cssProperty,
             modeOverride: record.modeOverride });
           if ("modeOverride" in record &&
               (!isObject(record.modeOverride) || !isText(record.modeOverride.collectionId) || !isText(record.modeOverride.modeName))) {
             fail(`${label}: modeOverride needs collectionId and modeName`);
           }
-        } else if (!isText(record.value)) {
-          fail(`${label}: measured literal value must be a nonempty CSS string`);
+        } else {
+          if (!isText(record.value)) fail(`${label}: measured literal value must be a nonempty CSS string`);
+          if (!["direct", "approximate"].includes(record.translation)) {
+            fail(`${label}: translation must be direct or approximate`);
+          }
+          if (record.translation === "approximate" && !("figmaValue" in record)) {
+            fail(`${label}: approximate translation needs figmaValue`);
+          }
+          if ("figmaValue" in record && (!isObject(record.figmaValue) ||
+              !isText(record.figmaValue.source) || !isText(record.figmaValue.field) ||
+              !Object.hasOwn(record.figmaValue, "value") || record.figmaValue.value === null ||
+              ("unit" in record.figmaValue && !isText(record.figmaValue.unit)))) {
+            fail(`${label}: figmaValue needs source, field, non-null value and optional unit`);
+          }
         }
       }
     }
@@ -406,36 +597,56 @@ export function verify(root) {
   }
 
   const tokensDir = path.join(root, "design-system/tokens");
+  const tokenCollections = new Map();
+  const tokenFiles = new Map();
   const localVariables = new Map();
   const externalVariables = new Map();
   const cssNameOwners = new Map();
   const aliases = [];
   const baseDeclarations = new Map();
+  const stylesheetFile = path.join(root, "src/styles/tokens.css");
+  let stylesheetRoot = null;
+  let stylesheetParseFailed = false;
+  const parsedStylesheet = () => {
+    if (stylesheetRoot || stylesheetParseFailed || !existsSync(stylesheetFile) || !statSync(stylesheetFile).isFile()) return stylesheetRoot;
+    try {
+      stylesheetRoot = postcss.parse(readFileSync(stylesheetFile, "utf8"), { from: "src/styles/tokens.css" });
+    } catch (error) {
+      fail(`token stylesheet: invalid CSS: ${error.message}`);
+      stylesheetParseFailed = true;
+    }
+    return stylesheetRoot;
+  };
   if (entries.length) {
     if (localFile("src/styles/tokens.css", "token stylesheet")) {
       const cssText = readFileSync(path.join(root, "src/styles/tokens.css"), "utf8");
       if (!cssText.trim()) fail("token stylesheet: src/styles/tokens.css is empty");
-      else {
-        try {
-          postcss.parse(cssText).walkRules(":root", (rule) => {
-            if (rule.parent.type !== "root") return;
-            for (const decl of rule.nodes.filter((node) => node.type === "decl")) {
-              if (baseDeclarations.has(decl.prop)) fail(`token stylesheet: duplicate base declaration ${decl.prop}`);
-              baseDeclarations.set(decl.prop, decl.value.trim());
-            }
-          });
-        } catch (error) {
-          fail(`token stylesheet: invalid CSS: ${error.message}`);
+      parsedStylesheet()?.walkRules(":root", (rule) => {
+        if (rule.parent.type !== "root") return;
+        for (const decl of rule.nodes.filter((node) => node.type === "decl")) {
+          if (baseDeclarations.has(decl.prop)) fail(`token stylesheet: duplicate base declaration ${decl.prop}`);
+          baseDeclarations.set(decl.prop, decl.value.trim());
         }
-      }
+      });
     }
   }
   if (existsSync(tokensDir)) {
-    for (const file of readdirSync(tokensDir).filter((item) => item.endsWith(".json"))) {
+    for (const file of readdirSync(tokensDir).filter((item) => /\.json$/i.test(item))) {
+      if (!isPortableTokenFileName(file)) fail(`tokens/${file}: invalid portable JSON filename`);
+      const fileKey = tokenFileKey(file);
+      if (tokenFiles.has(fileKey)) fail(`tokens: filename collision between ${tokenFiles.get(fileKey)} and ${file}`);
+      else tokenFiles.set(fileKey, file);
       const data = readJson(`design-system/tokens/${file}`);
       if (!isObject(data) || !isObject(data.variables)) {
         fail(`tokens/${file}: variables must be an object`);
         continue;
+      }
+      if (!isText(data.collection) || !isText(data.id)) {
+        fail(`tokens/${file}: collection and id must be nonempty text`);
+      } else if (tokenCollections.has(data.id)) {
+        fail(`tokens/${file}: duplicate collection id ${data.id}`);
+      } else {
+        tokenCollections.set(data.id, { file, data });
       }
       const modes = Array.isArray(data.modes) && data.modes.length > 0 && data.modes.every(isText) &&
         new Set(data.modes).size === data.modes.length ? new Set(data.modes) : null;
@@ -444,15 +655,18 @@ export function verify(root) {
         fail(`tokens/${file}: defaultMode must name a collection mode`);
       }
       for (const [name, variable] of Object.entries(data.variables)) {
-        if (!isObject(variable) || !isText(variable.id) || !/^--[A-Za-z_][\w-]*$/.test(variable.cssName) ||
+        if (!isObject(variable) || !isText(variable.id) || !matches(/^--[A-Za-z_][\w-]*$/, variable.cssName) ||
             !tokenTypes[variable.type] || !isObject(variable.valuesByMode)) {
           fail(`tokens/${file} ${name}: id, cssName, type and valuesByMode are required`);
           continue;
         }
+        if ("scopes" in variable && (!Array.isArray(variable.scopes) || !variable.scopes.every(isText))) {
+          fail(`tokens/${file} ${name}: scopes, when present, must be the list of scope names Figma returned`);
+        }
         if (cssNameOwners.has(variable.cssName)) fail(`tokens/${file} ${name}: duplicate cssName ${variable.cssName}`);
         else cssNameOwners.set(variable.cssName, variable.id);
         if (localVariables.has(variable.id)) fail(`tokens/${file} ${name}: duplicate variable id ${variable.id}`);
-        else localVariables.set(variable.id, { file, name, type: variable.type, cssName: variable.cssName,
+        else localVariables.set(variable.id, { id: variable.id, file, name, type: variable.type, cssName: variable.cssName, valuesByMode: variable.valuesByMode,
           baseValue: variable.valuesByMode[data.defaultMode], collectionId: data.id, modes });
         if (modes && !sameSet(new Set(Object.keys(variable.valuesByMode)), modes)) {
           fail(`tokens/${file} ${name}: valuesByMode keys differ from collection modes`);
@@ -471,14 +685,106 @@ export function verify(root) {
       }
     }
   }
+  const stateCollections = isObject(state.collections) ? state.collections : null;
+  const stateVariables = isObject(state.variables) ? state.variables : null;
+  if (!stateCollections) fail("figma-state.json: collections must be an ID-keyed object");
+  if (!stateVariables) fail("figma-state.json: variables must be grouped by collection ID");
+  const modeChecks = [];
+  const floatDecisions = new Map();
+  if (stateCollections) {
+    const referencedFiles = new Map();
+    for (const [id, record] of Object.entries(stateCollections)) {
+      if (!isText(id) || !isObject(record) || !isText(record.name) ||
+          !Array.isArray(record.modes) || !record.modes.length || !record.modes.every(isText) ||
+          new Set(record.modes).size !== record.modes.length ||
+          !Number.isInteger(record.varCount) || record.varCount < 0 ||
+          !isPortableTokenFileName(record.file)) {
+        fail(`state collection ${id}: name, modes, varCount and portable file are required`);
+        continue;
+      }
+      const fileKey = tokenFileKey(record.file);
+      if (referencedFiles.has(fileKey)) fail(`state collections ${id} and ${referencedFiles.get(fileKey)} share token file ${record.file}`);
+      else referencedFiles.set(fileKey, id);
+      const token = tokenCollections.get(id);
+      if (!token) {
+        fail(`state collection ${id}: missing token JSON`);
+        continue;
+      }
+      if (token.file !== record.file) fail(`state collection ${id}: file differs from token JSON ${token.file}`);
+      if (token.data.collection !== record.name || !Array.isArray(token.data.modes) ||
+          JSON.stringify(token.data.modes) !== JSON.stringify(record.modes) ||
+          Object.keys(token.data.variables).length !== record.varCount) {
+        fail(`state collection ${id}: name, modes or varCount differ from token JSON`);
+      }
+      const scopes = modeScopeProblems(record, token.data, `state collection ${id}`);
+      for (const message of scopes.errors) fail(message);
+      for (const message of scopes.warnings) warn(message);
+      if (!scopes.errors.length) modeChecks.push({ label: `tokens/${token.file}`, record, data: token.data });
+      const serialization = serializationProblems(record, token.data, `state collection ${id}`);
+      for (const message of serialization.errors) fail(message);
+      for (const [variableId, css] of serialization.decisions) floatDecisions.set(variableId, css);
+    }
+    for (const [id, { file, data }] of tokenCollections) {
+      if (!Object.hasOwn(stateCollections, id)) fail(`tokens/${file}: collection id ${id} is absent from figma-state.json`);
+      if (!stateVariables) continue;
+      const group = stateVariables[id];
+      if (!isObject(group) || !sameSet(new Set(Object.keys(group)), new Set(Object.keys(data.variables)))) {
+        fail(`state variables ${id}: variable names differ from token JSON`);
+        continue;
+      }
+      for (const [name, variable] of Object.entries(data.variables)) {
+        if (!isObject(group[name]) || group[name].id !== variable?.id || group[name].type !== variable?.type) {
+          fail(`state variables ${id}/${name}: id or type differs from token JSON`);
+        }
+      }
+    }
+    for (const file of tokenFiles.values()) {
+      if (![...tokenCollections.values()].some((token) => token.file === file)) {
+        fail(`tokens/${file}: JSON has no valid collection id`);
+      }
+    }
+  }
+  if (stateVariables && stateCollections) {
+    for (const id of Object.keys(stateVariables)) {
+      if (!Object.hasOwn(stateCollections, id)) fail(`state variables ${id}: no collection entry`);
+    }
+    for (const id of Object.keys(stateCollections)) {
+      if (!Object.hasOwn(stateVariables, id)) fail(`state collection ${id}: missing variables group`);
+    }
+  }
+  const cycles = aliasCycleProblems([...tokenCollections.values()].map(({ file, data }) =>
+    ({ file, data, record: stateCollections?.[data.id] })));
+  for (const message of cycles.errors) fail(message);
+  for (const message of cycles.warnings) warn(message);
+  const resolveFloat = createFloatResolver({ variables: localVariables, decisions: floatDecisions });
+  for (const message of floatAliasProblems({ variables: localVariables, resolveFloat })) fail(message);
+  const pendingFloats = new Map();
   if (entries.length) {
     for (const [cssName, id] of cssNameOwners) {
       const declaration = baseDeclarations.get(cssName);
+      const variable = localVariables.get(id);
+      if (variable?.type === "FLOAT") {
+        const resolved = resolveFloat(id);
+        if (resolved.status === "conflict") {
+          fail(`token stylesheet: ${cssName}: ${resolved.message}`);
+        } else if (resolved.status === "pending") {
+          pendingFloats.set(variable.file, [...(pendingFloats.get(variable.file) || []), variable.name]);
+          if (declaration !== undefined) fail(`token stylesheet: ${cssName} is declared without a serialization decision; remove it until the unit is decided`);
+        } else if (declaration === undefined) {
+          fail(`token stylesheet: missing base declaration ${cssName}`);
+        } else {
+          const raw = variable.baseValue;
+          const expected = isLocalAliasVariable(variable.valuesByMode)
+            ? `var(${localVariables.get(raw.targetVariableId)?.cssName})`
+            : serializeNumber(isObject(raw) ? raw.value : raw, resolved.css);
+          if (declaration !== expected) fail(`token stylesheet: ${cssName} must be ${expected} to match its serialization decision`);
+        }
+        continue;
+      }
       if (declaration === undefined) {
         fail(`token stylesheet: missing base declaration ${cssName}`);
         continue;
       }
-      const variable = localVariables.get(id);
       if (!variable) continue;
       const raw = variable.baseValue;
       const value = isObject(raw) ? raw.value : raw;
@@ -489,9 +795,6 @@ export function verify(root) {
         }
       } else if (variable.type === "COLOR" && typeof value === "string" && declaration.toUpperCase() !== value.toUpperCase()) {
         fail(`token stylesheet: ${cssName} base color differs from token JSON`);
-      } else if (variable.type === "FLOAT" && typeof value === "number" &&
-          !new RegExp(`^${String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:px)?$`).test(declaration)) {
-        fail(`token stylesheet: ${cssName} base number differs from token JSON`);
       } else if (variable.type === "STRING" && typeof value === "string" &&
           declaration !== value && declaration !== JSON.stringify(value) && declaration !== `'${value.replace(/'/g, "\\'")}'`) {
         fail(`token stylesheet: ${cssName} base string differs from token JSON`);
@@ -499,6 +802,9 @@ export function verify(root) {
         fail(`token stylesheet: ${cssName} base boolean differs from token JSON`);
       }
     }
+  }
+  for (const [file, names] of pendingFloats) {
+    warn(`tokens/${file}: ${names.length} FLOAT variable(s) have no serialization decision and are not written to tokens.css (NOT VERIFIED): ${names.slice(0, 3).join(", ")}${names.length > 3 ? ", ..." : ""}`);
   }
   for (const [key, entry] of entries) {
     if (!isObject(entry?.designSystem) || !isText(entry.designSystem.metadata) ||
@@ -511,7 +817,7 @@ export function verify(root) {
     }
     for (const [index, variable] of metadata.externalVariables.entries()) {
       const label = `${entry.name || key}: externalVariables[${index}]`;
-      if (!isObject(variable) || !isText(variable.id) || !/^--[A-Za-z_][\w-]*$/.test(variable.cssName) ||
+      if (!isObject(variable) || !isText(variable.id) || !matches(/^--[A-Za-z_][\w-]*$/, variable.cssName) ||
           !tokenTypes[variable.type] || !isText(variable.source) ||
           !variable.source.startsWith(`${entry.figma.fileKey}:`) || !tokenTypes[variable.type].valid(variable.value)) {
         fail(`${label}: id, cssName, type, resolved value and source node ref are required`);
@@ -533,11 +839,11 @@ export function verify(root) {
       } else externalVariables.set(variable.id, variable);
       cssNameOwners.set(variable.cssName, variable.id);
       const declaration = baseDeclarations.get(variable.cssName);
-      if (declaration === undefined) fail(`${label}: missing base declaration ${variable.cssName}`);
+      if (variable.type === "FLOAT") {
+        if (declaration !== undefined) fail(`${label}: ${variable.cssName} is declared without a serialization decision; external FLOAT snapshots are not written yet`);
+      } else if (declaration === undefined) fail(`${label}: missing base declaration ${variable.cssName}`);
       else if (variable.type === "COLOR" && declaration.toUpperCase() !== variable.value.toUpperCase()) {
         fail(`${label}: base color differs from resolved snapshot`);
-      } else if (variable.type === "FLOAT" && !new RegExp(`^${String(variable.value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:px)?$`).test(declaration)) {
-        fail(`${label}: base number differs from resolved snapshot`);
       } else if (variable.type === "BOOLEAN" && declaration !== String(variable.value)) {
         fail(`${label}: base boolean differs from resolved snapshot`);
       } else if (variable.type === "STRING" && declaration !== variable.value &&
@@ -550,11 +856,59 @@ export function verify(root) {
   for (const binding of bindingRecords) {
     const variable = localVariables.get(binding.variableId) || externalVariables.get(binding.variableId);
     if (!variable) fail(`${binding.label}: variableId ${binding.variableId} is missing from token inventory`);
+    else if (bindingTypeProblem(binding.cssProperty, variable.type)) {
+      fail(`${binding.label}: ${bindingTypeProblem(binding.cssProperty, variable.type)} (variable ${binding.variableId})`);
+    }
+    else if (externalVariables.get(binding.variableId)?.type === "FLOAT") {
+      fail(`${binding.label}: ${externalVariables.get(binding.variableId).cssName} is an external FLOAT snapshot without a serialization decision, so it cannot be consumed yet`);
+    }
+    else if (localVariables.has(binding.variableId) && localVariables.get(binding.variableId).type === "FLOAT" &&
+        resolveFloat(binding.variableId).status !== "decided") {
+      const resolved = resolveFloat(binding.variableId);
+      fail(`${binding.label}: ${localVariables.get(binding.variableId).cssName} has ${resolved.status === "conflict" ? `a serialization conflict (${resolved.message})` : "no serialization decision"}, so it cannot be consumed yet`);
+    }
     else if (binding.modeOverride && localVariables.has(binding.variableId) &&
         (binding.modeOverride.collectionId !== variable.collectionId || !variable.modes?.has(binding.modeOverride.modeName))) {
       fail(`${binding.label}: modeOverride does not match the bound variable collection and modes`);
     } else if (binding.modeOverride && externalVariables.has(binding.variableId)) {
       warn(`${binding.label}: external forced mode is not structurally verified`);
+    }
+  }
+  const declaredCustomProperties = parsedStylesheet() ? customPropertyDeclarations(stylesheetRoot) : [];
+  const publishedEvidence = {
+    tokenPrefix: state.tokenPrefix ?? null,
+    collectionIds: isObject(state.collections) ? Object.keys(state.collections) : [],
+    tokenFiles: existsSync(tokensDir) ? readdirSync(tokensDir).filter((item) => /\.json$/i.test(item)) : [],
+    declaredCustomProperties,
+    importedComponents: [...new Set([
+      ...entries.map(([key, entry]) => (isObject(entry) && isText(entry.name) ? entry.name : key)),
+      ...Object.keys(isObject(state.components) ? state.components : {}),
+      ...(existsSync(componentDir) ? readdirSync(componentDir, { withFileTypes: true }).filter((item) => item.isDirectory()).map((item) => item.name) : []),
+    ])],
+  };
+  const prefixVerdict = assessTokenPrefix(publishedEvidence);
+  if (prefixVerdict.status === "invalid" || prefixVerdict.status === "missing") {
+    fail(`figma-state.json: ${prefixVerdict.message}`);
+  } else if (prefixVerdict.status === "fixed") {
+    const required = `--${state.tokenPrefix}-`;
+    for (const [id, variable] of localVariables) {
+      if (!variable.cssName.startsWith(required)) fail(`tokens/${variable.file} ${variable.name}: cssName ${variable.cssName} must start with ${required} (tokenPrefix ${state.tokenPrefix})`);
+    }
+  }
+  if (entries.length && modeChecks.length && stylesheetRoot) {
+    const modes = modeDeclarationProblems({ root: stylesheetRoot, collections: modeChecks, cssNameOf: (id) => localVariables.get(id)?.cssName, resolveFloat });
+    for (const message of modes.errors) fail(`token stylesheet: ${message}`);
+    for (const message of modes.warnings) warn(message);
+  }
+  if (entries.length && stylesheetRoot && !stylesheetParseFailed) {
+    const generated = generateTokensCss(root);
+    if (generated.errors.length) {
+      for (const message of generated.errors) fail(`token stylesheet generation: ${message}`);
+    } else {
+      const difference = firstDifference(readFileSync(stylesheetFile, "utf8"), generated.css);
+      if (difference) {
+        fail(`token stylesheet: src/styles/tokens.css differs from the generated output at line ${difference.line}; it is a build product, so regenerate it with ${GENERATOR_COMMAND}`);
+      }
     }
   }
   if (entries.length && localVariables.size === 0 && externalVariables.size === 0) {

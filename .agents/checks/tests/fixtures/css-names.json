@@ -1,0 +1,265 @@
+{
+  "_doc": "Shared cases for planCssNames. The tests read this file; references/tokens.md cites a subset by path.",
+  "cases": [
+    {
+      "name": "spaces and slashes become one hyphen per run",
+      "prefix": "ds",
+      "collections": [
+        {
+          "name": "Color Primitives",
+          "variables": [
+            {
+              "id": "VariableID:1:1",
+              "name": "Slate/100"
+            },
+            {
+              "id": "VariableID:1:2",
+              "name": "Slate  //  200"
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "VariableID:1:1": "--ds-color-primitives-slate-100",
+        "VariableID:1:2": "--ds-color-primitives-slate-200"
+      }
+    },
+    {
+      "name": "accents are stripped and camelCase is not split",
+      "prefix": "ds",
+      "collections": [
+        {
+          "name": "Tamaño",
+          "variables": [
+            {
+              "id": "a:1",
+              "name": "fontSize"
+            },
+            {
+              "id": "a:2",
+              "name": "Font Size"
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "a:1": "--ds-tamano-fontsize",
+        "a:2": "--ds-tamano-font-size"
+      }
+    },
+    {
+      "name": "two new variables that collide both get the id suffix",
+      "prefix": "ds",
+      "collections": [
+        {
+          "name": "Color",
+          "variables": [
+            {
+              "id": "VariableID:1:2",
+              "name": "Brand/Primary"
+            },
+            {
+              "id": "VariableID:1:3",
+              "name": "Brand Primary"
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "VariableID:1:2": "--ds-color-brand-primary-VariableID_3a1_3a2",
+        "VariableID:1:3": "--ds-color-brand-primary-VariableID_3a1_3a3"
+      }
+    },
+    {
+      "name": "an existing name wins and only the newcomer is suffixed",
+      "prefix": "ds",
+      "collections": [
+        {
+          "name": "Color",
+          "variables": [
+            {
+              "id": "VariableID:1:2",
+              "name": "Brand/Primary"
+            },
+            {
+              "id": "VariableID:1:3",
+              "name": "Brand Primary"
+            }
+          ]
+        }
+      ],
+      "existing": {
+        "VariableID:1:2": "--ds-color-brand-primary"
+      },
+      "expected": {
+        "VariableID:1:2": "--ds-color-brand-primary",
+        "VariableID:1:3": "--ds-color-brand-primary-VariableID_3a1_3a3"
+      }
+    },
+    {
+      "name": "a name declared elsewhere is reserved",
+      "prefix": "ds",
+      "collections": [
+        {
+          "name": "Color",
+          "variables": [
+            {
+              "id": "x:1",
+              "name": "Brand"
+            }
+          ]
+        }
+      ],
+      "reserved": [
+        "--ds-color-brand"
+      ],
+      "expected": {
+        "x:1": "--ds-color-brand-x_3a1"
+      }
+    },
+    {
+      "name": "an empty segment uses a placeholder and forces the suffix",
+      "prefix": "ds",
+      "collections": [
+        {
+          "name": "日本語",
+          "variables": [
+            {
+              "id": "x:2",
+              "name": "Brand"
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "x:2": "--ds-collection-brand-x_3a2"
+      }
+    },
+    {
+      "name": "renaming in Figma never recalculates an assigned name",
+      "prefix": "ds",
+      "collections": [
+        {
+          "name": "Renamed Collection",
+          "variables": [
+            {
+              "id": "x:3",
+              "name": "Other name"
+            }
+          ]
+        }
+      ],
+      "existing": {
+        "x:3": "--ds-color-brand"
+      },
+      "expected": {
+        "x:3": "--ds-color-brand"
+      }
+    },
+    {
+      "name": "a legacy name without the prefix is preserved",
+      "prefix": "ds",
+      "collections": [
+        {
+          "name": "Color",
+          "variables": [
+            {
+              "id": "x:4",
+              "name": "Brand"
+            }
+          ]
+        }
+      ],
+      "existing": {
+        "x:4": "--sds-color-brand"
+      },
+      "expected": {
+        "x:4": "--sds-color-brand"
+      }
+    },
+    {
+      "name": "a too-long name is cut before the suffix, never the suffix",
+      "prefix": "ds",
+      "collections": [
+        {
+          "name": "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "variables": [
+            {
+              "id": "x:5",
+              "name": "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "x:5": "--ds-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc-vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv-x_3a5"
+      }
+    },
+    {
+      "name": "a suffix that cannot fit fails instead of being cut",
+      "prefix": "ds",
+      "collections": [
+        {
+          "name": "Color",
+          "variables": [
+            {
+              "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+              "name": "Brand"
+            }
+          ]
+        }
+      ],
+      "reserved": [
+        "--ds-color-brand"
+      ],
+      "error": "does not fit"
+    },
+    {
+      "name": "an invalid prefix fails",
+      "prefix": "DS",
+      "collections": [],
+      "error": "invalid token prefix"
+    },
+    {
+      "name": "a prefix may not start with a digit or end with a hyphen",
+      "prefix": "1ds",
+      "collections": [],
+      "error": "invalid token prefix"
+    },
+    {
+      "name": "a duplicate variable id fails",
+      "prefix": "ds",
+      "collections": [
+        {
+          "name": "A",
+          "variables": [
+            {
+              "id": "x",
+              "name": "a"
+            }
+          ]
+        },
+        {
+          "name": "B",
+          "variables": [
+            {
+              "id": "x",
+              "name": "b"
+            }
+          ]
+        }
+      ],
+      "error": "duplicate variable id"
+    },
+    {
+      "name": "two existing variables cannot share a name",
+      "prefix": "ds",
+      "collections": [],
+      "existing": {
+        "a": "--ds-x",
+        "b": "--ds-x"
+      },
+      "error": "css name collision"
+    }
+  ]
+}
