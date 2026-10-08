@@ -16,6 +16,7 @@ const templateFile = (relative) => {
   return source;
 };
 const active = new Set();
+const correspondences = "\n## Figma to code correspondences\n\n| Figma variant/ref | Code props | States, interactions and content | Status | Examined configuration | Figma/code revision | Evidence or missing verification |\n| --- | --- | --- | --- | --- | --- | --- |\n| Size=Small / FILE:1:3 | size=Small | Default content | candidate | Base mode | Fixture snapshot | Browser comparison not performed |\n";
 const write = (root, relative, value) => {
   const target = path.join(root, relative);
   mkdirSync(path.dirname(target), { recursive: true });
@@ -69,7 +70,7 @@ const withExampleComponent = () => {
   metadata.figmaCoverage.styles = { status: "captured", source: "test fixture" };
   metadata.parts = { root: { selector: ".root", nodes: { "Size=Small": "FILE:1:3" } } };
   write(root, metadataPath, metadata);
-  write(root, "design-system/components/ExampleComponent/usage.md", "# ExampleComponent\n");
+  write(root, "design-system/components/ExampleComponent/usage.md", `# ExampleComponent\n${correspondences}`);
   write(root, "src/components/ExampleComponent/ExampleComponent.tsx", "export interface ExampleComponentProps { size?: 'Small' }\nexport const ExampleComponent = (props: ExampleComponentProps) => <span data-ds-part=\"root\" />;\n");
   write(root, "src/components/ExampleComponent/ExampleComponent.module.css", ".root {}\n");
   writeCollection(root, "Colors.json", collection("Colors", "COL", ["Default"], {
@@ -423,7 +424,7 @@ test("filler text and an unfilled usage.md are rejected, ordinary prose and code
   const metadata = read(root, relative);
   metadata.description = "Todo el contenido va dentro; ver `<Nombre>` y TODO en prosa no al inicio.";
   write(root, relative, metadata);
-  write(root, usage, "# ExampleComponent usage\n\n## Use\n\nUse `<ExampleComponent>` for actions.\n\n```tsx\n<Nombre />\n```\n");
+  write(root, usage, `# ExampleComponent usage\n\n## Use\n\nUse \`<ExampleComponent>\` for actions.\n\n\`\`\`tsx\n<Nombre />\n\`\`\`\n${correspondences}`);
   assert.deepEqual(verify(root).errors, []);
   for (const filler of ["TODO", "TODO: describe", "FIXME later", "TBD", "pendiente", "Por definir.", "lorem ipsum dolor", "..."]) {
     const changed = structuredClone(metadata);
@@ -453,7 +454,7 @@ test("markup, code of every kind and comments in usage.md are prose, not placeho
     "- <ExampleComponent />", "<ExampleComponent variant=\"primary\" onClick={go} />", "",
     "~~~tsx", "<Nombre />", "~~~", "", "````md", "```", "<Nombre>", "```", "````", "",
     "Use ``<Nombre>`` or `<Nombre />` inline.", "", "    <Nombre />", "    <Cuándo usarlo.>", "",
-  ].join("\n");
+  ].join("\n") + correspondences;
   write(root, usage, body);
   assert.deepEqual(verify(root).errors, []);
   for (const placeholder of ["<Cuándo usarlo.>", "<Cuando usarlo.>", "<Una frase.>", "<Button primary />"]) {
@@ -462,6 +463,35 @@ test("markup, code of every kind and comments in usage.md are prose, not placeho
   }
   write(root, usage, "# <Nombre> usage\n\n<!-- ok -->\n");
   assert.ok(verify(root).errors.some((item) => item.includes("usage.md:1 still holds a template placeholder")));
+});
+
+test("usage requires a real populated correspondence section or None with a reason", () => {
+  const root = withExampleComponent();
+  const usage = "design-system/components/ExampleComponent/usage.md";
+  const header = "## Figma to code correspondences";
+  for (const body of ["# ExampleComponent\n", `\`\`\`md\n${header}\nNone: No variants.\n\`\`\``,
+    `<!-- ${header}\nNone: No variants. -->`, `    ${header}\n    None: No variants.`,
+    `${header}\n`, `${header}\n<!-- hidden -->\n## Other\nNone: Not in the section.`,
+    `${header}\nNone`, `${header}\nOnly explanatory prose.`,
+    ...["None con el motivo real", "None - No variants.", "None. No variants.", "None x", "None:",
+      "None: .", "None: <motivo real>", "None: <razón>.", "None: TODO", "None: pendiente",
+      "None: por rellenar", "None: con el motivo real", "None: motivo real", "None: razón real"].map((line) => `${header}\n${line}`),
+    `${header}\n| A | B |\n| --- | --- |`,
+    `${header}\n| A | B |\n| --- | --- |\n| | |`,
+    `${header}\nNone: No variants.\n${header}\nNone: Duplicate.`,
+    ...["`<motivo real>`", "`TODO`", "`pendiente`", "``", "`  `", "`motivo real`"].map((reason) => `${header}\nNone: ${reason}`),
+    `${header}\n| Figma | Code |\n\n| --- | --- |\n\n| a | b |`,
+    `${header}\n| Figma | Code |\n| --- | --- |\n\n| a | b |`]) {
+    write(root, usage, body);
+    assert.ok(verify(root).errors.some((item) => item.includes("correspondences")), body);
+  }
+  for (const body of [correspondences,
+    `${header}\n| Figma | Code |\n| --- | --- |\n| \`Size=Large\` | \`size="lg"\` |`,
+    `${header}\nNone: \`no public variant API\``, `${header}\nNone: This component has no variant-to-code correspondences.`,
+    `${header}\nNone: No public variant API.\n## Other\nOther guidance.`, `${header}\nNone: x`]) {
+    write(root, usage, body);
+    assert.deepEqual(verify(root).errors, [], body);
+  }
 });
 
 test("whether styles were captured is recorded, so an empty list is not ambiguous", () => {

@@ -11,15 +11,15 @@ description: >-
 
 # Crear DS desde un componente Figma
 
-El usuario trabaja en **este repo**, dice **crea un DS** y pega **un componente** de Figma (el file tiene variables).
+El usuario trabaja en **este repo**, dice **crea un DS** y pega **un componente** de Figma (con variables locales o bindings externos con ID y valor resuelto).
 
 Eso basta. No pidas el esqueleto en un paso aparte.
 
-No cites primitives ni pantallas que aún no existan en el DS generado. `design-system/inventory.json` empieza vacío y **se rellena al incluir cada pieza**.
+No cites componentes ni pantallas que aún no existan en el DS generado. `design-system/inventory.json` empieza vacío y **se rellena al incluir cada pieza**.
 
 ## Kit vacío
 
-Las plantillas van **en blanco**. No incluyen colecciones, tokens, primitives ni pantallas de ningún file de ejemplo.
+Las plantillas van **en blanco**. No incluyen colecciones, tokens, componentes ni pantallas de ningún file de ejemplo.
 
 - `design-system/inventory.json` → listas `components` y `screens` vacías
 - `figma-code-map.json` → solo `_schema`, sin entradas
@@ -53,7 +53,7 @@ En español, después del preanálisis y antes de tocar disco, comunica el diagn
 **No construido:** qué diferencias de Figma no se convierten en API o componente y por qué
 **Decisión:** importar | reutilizar | actualizar dependencia | actualizar componente solicitado | solicitar actualización | pedir ref o autorización | DS_GAP | pedir URL de origen
 **Qué voy a hacer ahora:** ...
-**Qué no voy a hacer:** ni otros primitives que no estén en esta URL, ni una pantalla, ni Tailwind, ni copiar un DS ya relleno, ni resumir tokens a 3 archivos
+**Qué no voy a hacer:** ni otros componentes que no estén en esta URL, ni una pantalla, ni Tailwind, ni copiar un DS ya relleno, ni resumir tokens a 3 archivos
 ```
 
 Luego haz el trabajo. Al cerrar: archivos tocados + “para el siguiente, pega otra URL de componente”.
@@ -178,7 +178,7 @@ El inventario de tokens es siempre a **nivel de file**, no del nodo del componen
 **Prohibido como inventario de tokens:**
 
 - `get_variable_defs` del nodo del componente (solo trae las ligadas a ese nodo)
-- quedarse con las variables que usa el primitive de la URL
+- quedarse con las variables que usa el componente de la URL
 - fusionar colecciones distintas en tres buckets (color / spacing / type)
 
 `get_design_context` puede usarse en el preanálisis, pero nunca como fuente del inventario de tokens: ese inventario procede de todas las variables del file de origen.
@@ -213,7 +213,7 @@ Tras importar un componente, añade su nombre a `design-system/inventory.json` s
 2. **Árbol** — si se puede importar, integra Vite React TS (CSS modules, sin Tailwind) en este repo conservando su manifiesto, lockfile y `.gitignore` como se indica arriba; inicializa `design-system/` desde `plantillas/design-system/` sin sobrescribir archivos de un scaffold parcial.
 3. **Tokens** — persiste el inventario **file-level** ya leído: un JSON por colección y su entrada en `figma-state.json`. No escribas `src/styles/tokens.css` a mano.
 4. **Ficha** — `metadata.json` + `usage.md` con variantes, estados, estilos aplicados, valores medidos y tokens observados (plantilla `plantillas/componentes/`); conserva el valor bruto de Figma para traducciones CSS aproximadas.
-5. **Código** — `src/components/<Nombre>/` con tokens y reutilizando anidados `mapped`. Declara `interface <Nombre>Props extends ... { ... }` o `type <Nombre>Props = Omit<...> & { ... }` (también vale un literal sin herencia) en su TSX y úsalo en el componente; hereda props nativas en vez de redefinirlas cuando corresponda.
+5. **Código** — `src/components/<Nombre>/` con tokens y reutilizando anidados `mapped`. Declara `interface <Nombre>Props extends ... { ... }` o `type <Nombre>Props = Omit<...> & { ... }` (también vale un literal sin herencia) en su TSX y úsalo en el componente; hereda props nativas en vez de redefinirlas cuando corresponda. Para los valores de `kind: prop`, documenta en `usage.md` las correspondencias candidatas Figma → código según `references/component-metadata.md`; la comparación renderizada del paso 9 puede confirmarlas, no el mero hecho de haber escrito ese código. Aplica el mismo criterio en importaciones y actualizaciones posteriores.
 6. **Mapa y CSS** — entradas en `figma-code-map.json` con `refs` y en `figma-state.json` con `nestedComponents` `mapped` o `external`. Después genera `src/styles/tokens.css` con `node .agents/skills/create-ds-from-figma/scripts/generate-tokens-css.mjs .` (falla sin escribir si las fuentes son inconsistentes); regenera siempre que cambien tokens, estado, mapa o `externalVariables`.
 7. **App** — `App.tsx` renderiza **solo** ese componente (para `npm run dev`).
 8. **Inventario** — añade solo ese componente a `design-system/inventory.json`.

@@ -54,7 +54,7 @@ function placeholderPaths(value, trail = "metadata") {
 }
 // The prose of a markdown file: HTML comments, fenced blocks (``` or ~~~), indented blocks and code spans are blanked,
 // keeping line numbers, because code may show <Component /> freely.
-function markdownProse(markdown) {
+function markdownProse(markdown, { keepInlineCode = false } = {}) {
   const lines = markdown.replace(/<!--[\s\S]*?-->/g, (comment) => comment.replace(/[^\n]/g, "")).split("\n");
   let fence = null;
   let previousBlankOrCode = true;
@@ -73,7 +73,7 @@ function markdownProse(markdown) {
     }
     if (/^(?: {4}|\t)/.test(line) && previousBlankOrCode && line.trim()) return "";
     previousBlankOrCode = !line.trim();
-    return line.replace(/(`+)(?:(?!\1).)+?\1/g, "");
+    return keepInlineCode ? line : line.replace(/(`+)(?:(?!\1).)+?\1/g, "");
   });
 }
 function usagePlaceholders(markdown) {
@@ -85,6 +85,37 @@ function usagePlaceholders(markdown) {
     if (kind) found.push({ line: index + 1, kind });
   });
   return found;
+}
+function correspondenceSectionError(markdown) {
+  // Inline code stays: a table row made only of `code` cells is still a populated row.
+  const lines = markdownProse(markdown, { keepInlineCode: true });
+  const headings = lines.flatMap((line, index) =>
+    /^ {0,3}## Figma to code correspondences\s*(?:#+\s*)?$/.test(line) ? [index] : []);
+  if (headings.length !== 1) return "requires exactly one real ## Figma to code correspondences section";
+  const start = headings[0] + 1;
+  const next = lines.findIndex((line, index) => index >= start && /^ {0,3}#{1,2}(?:\s|$)/.test(line));
+  const section = lines.slice(start, next < 0 ? lines.length : next);
+  const body = section.filter((line) => line.trim());
+  if (body.length === 0) return "Figma to code correspondences section is empty";
+  for (const line of body) {
+    const match = line.trim().match(/^None:\s*(.*)$/);
+    if (!match) continue;
+    // Judge the reason without its code delimiters, which are kept in the text: `TODO` is still filler.
+    const reason = match[1].replace(/(`+)((?:(?!\1).)*?)\1/g, "$2").trim().replace(/[.:;!\s]+$/, "");
+    if (!reason || unfilledKind(reason) || /^(?:(?:con el )?motivo real|raz[oó]n real)$/i.test(reason)) {
+      return "Figma to code correspondences: None: requires a nonempty reason without placeholders or filler";
+    }
+    return null;
+  }
+  // Recognize a populated table, not its column contract or the truth of its evidence.
+  const delimiter = /^\s*\|?\s*:?-{3,}:?\s*(?:\|\s*:?-{3,}:?\s*)+\|?\s*$/;
+  // Header, delimiter and data row must be consecutive lines: blank lines split a Markdown table.
+  for (let index = 1; index < section.length - 1; index++) {
+    if (delimiter.test(section[index]) && section[index - 1].includes("|") &&
+        /^\s*\|.*\S.*\|\s*$/.test(section[index + 1]) && !delimiter.test(section[index + 1]) &&
+        section[index + 1].replace(/[|\s]/g, "")) return null;
+  }
+  return "Figma to code correspondences requires a populated table or None: followed by a reason";
 }
 const sameSet = (left, right) => left.size === right.size && [...left].every((item) => right.has(item));
 
@@ -190,9 +221,12 @@ export function verify(root) {
     }
     for (const { where, kind } of placeholderPaths(metadata)) fail(`${name}: ${where} still holds a ${kind}; fill it in or remove it`);
     if (isText(entry.designSystem.usage) && existsSync(path.join(root, entry.designSystem.usage))) {
-      for (const { line, kind } of usagePlaceholders(readFileSync(path.join(root, entry.designSystem.usage), "utf8"))) {
+      const usage = readFileSync(path.join(root, entry.designSystem.usage), "utf8");
+      for (const { line, kind } of usagePlaceholders(usage)) {
         fail(`${name}: ${entry.designSystem.usage}:${line} still holds a ${kind}; fill it in or remove it`);
       }
+      const sectionError = correspondenceSectionError(usage);
+      if (sectionError) fail(`${name}: ${entry.designSystem.usage}: ${sectionError}`);
     }
     if (typeof metadata.figma?.url === "string" && /[<>]/.test(metadata.figma.url)) {
       fail(`${name}: metadata.figma.url still holds template placeholders`);
