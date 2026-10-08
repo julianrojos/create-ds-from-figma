@@ -1,10 +1,10 @@
 # AGENTS.md
 
-Operational instructions for AI agents in this repository.
+Instrucciones operativas para agentes de IA en este repositorio.
 
-## Canonical Source
+## Fuente canónica
 
-- `AGENTS.md` and `.agents/` are the tool-neutral source of truth.
+- `AGENTS.md` y `.agents/` son la fuente de verdad, independiente de la herramienta.
 
 ## Uso del DS
 
@@ -22,13 +22,12 @@ Operational instructions for AI agents in this repository.
 
 ## Restricciones de entorno
 
-- NUNCA crear worktrees ni ramas auxiliares (`isolation: "worktree"` prohibido).
-- Nunca hacer commit ni stage si no hay orden previo del usuario.
-- Trabajar siempre en la rama activa del repositorio principal.
-- El usuario es quien decide cuándo crear ramas, stages y commits. No hacerlo de forma autónoma.
+- No crear worktrees ni ramas auxiliares; trabajar en la rama activa del repositorio principal.
+- No hacer stage, commit ni crear ramas sin orden expresa del usuario.
 
 ## Skill create-ds-from-figma
 
-- `.agents/skills/create-ds-from-figma/SKILL.md` es la skill canónica y detectable; no crear copias sincronizadas.
+- `.agents/skills/create-ds-from-figma/SKILL.md` es la skill canónica; no crear copias sincronizadas.
 - Si se cambia el formato de relaciones Figma, actualizar juntas las plantillas `figma-state.json`, `figma-code-map.json`, la referencia `.agents/skills/create-ds-from-figma/references/relationships.md`, las skills auxiliares `find-component`, `map-figma-to-code` y `validate-ds`, y los checks de `.agents/checks/`.
-- Tras cambiar documentación, rutas o comandos del kit, ejecuta `npm run verify:docs`: informa de enlaces, rutas `.agents/...` y comandos que no resuelven (con `--strict` falla).
+- Tras modificar checks, scripts o sus contratos (plantillas y referencias de formato), ejecuta `npm test`.
+- Tras cambiar documentación, rutas o comandos del kit, ejecuta `npm run verify:docs`.
