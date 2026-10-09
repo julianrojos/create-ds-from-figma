@@ -6,7 +6,9 @@
 ._*
 
 # Custom folder icons
-Icon
+# The brackets below contain a literal carriage return (U+000D), not an empty class.
+# Ignore Finder's special Icon filename without ignoring src/components/Icon/.
+Icon[]
 
 # Volume root files
 .DocumentRevisions-V100
@@ -77,3 +79,4 @@ out/
 
 # Local reference material
 /INSPIRATION/
+.kilo
