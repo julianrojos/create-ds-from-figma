@@ -25,6 +25,13 @@
   "tokens": [],
   "styles": [],
   "parts": {},
+  "evidence": {
+    "snapshot": "<ruta relativa del snapshot de importación>",
+    "hash": "<SHA-256 devuelto por figma-capture save>",
+    "decisions": [],
+    "translations": [],
+    "dispositions": []
+  },
   "bindings": [],
   "externalVariables": [],
   "measuredLiterals": [],

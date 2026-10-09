@@ -12,7 +12,7 @@ const packagePath = path.join(repoRoot, "package.json");
 const readmePath = path.join(repoRoot, "README.md");
 const nestedReadmePath = path.join(repoRoot, ".agents/skills/create-ds-from-figma/README.md");
 const referenceDir = path.join(repoRoot, ".agents/skills/create-ds-from-figma/references");
-const expectedReferences = ["component-metadata.md", "relationships.md", "tokens.md"];
+const expectedReferences = ["component-metadata.md", "figma-evidence.md", "relationships.md", "tokens.md"];
 
 test("skill catalog has scoped discovery metadata", (t) => {
   const skillDir = path.join(repoRoot, ".agents/skills");
@@ -149,6 +149,15 @@ test("skill loads formats where they are needed without reference chains", (t) =
     assert.ok(skill.includes(reference), `skill must link ${reference}`);
     const body = readFileSync(path.join(referenceDir, name), "utf8");
     assert.doesNotMatch(body, /references\/[\w-]+\.md/, `${name} must not chain to another reference`);
+    for (const sibling of expectedReferences.filter((candidate) => candidate !== name)) {
+      const escaped = sibling.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const mention = new RegExp(`(?<![\\w-])${escaped}(?![\\w-]|\\.[\\w])`);
+      assert.ok(mention.test(`Consulta \`${sibling}\`.`), "detect a bare reference filename");
+      assert.ok(mention.test(`Consulta ${sibling}.`), "detect a filename followed by sentence punctuation");
+      assert.ok(mention.test(`[Formato](./${sibling})`), "detect a relative Markdown link");
+      assert.ok(!mention.test(`other-${sibling}.backup`), "do not match a different filename");
+      assert.doesNotMatch(body, mention, `${name} must not chain to ${sibling}, even without references/`);
+    }
   }
 
   const bytes = Buffer.byteLength(skill);

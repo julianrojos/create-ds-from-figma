@@ -73,7 +73,8 @@ test("approximate literals retain written identity but need rendered comparison"
   metadata.bindings = [];
   metadata.measuredLiterals = [{ part: "root", variant: "Content=Text, Size=Large", source: "EXAMPLE_FILE:1:1",
     figmaProperty: "lineHeight", cssSelector: ".root", cssProperty: "line-height", value: "20px",
-    translation: "approximate", figmaValue: { source: "REST", field: "lineHeightPercentFontSize", value: 125 } }];
+    observation: "1:1#lineHeight#property",
+    translation: "approximate", figmaValue: { source: "PLUGIN", field: "lineHeight", value: { unit: "PERCENT", value: 125 } } }];
   write(root, relative, metadata);
   write(root, "src/components/ExampleComponent/ExampleComponent.module.css", ".root { line-height: 20px; }");
   const result = report(root, "ExampleComponent")[0];

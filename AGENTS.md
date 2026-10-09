@@ -33,5 +33,6 @@ Instrucciones operativas para agentes de IA en este repositorio.
 
 - `.agents/skills/create-ds-from-figma/SKILL.md` es la skill canónica; no crear copias sincronizadas.
 - Si se cambia el formato de relaciones Figma, actualizar juntas las plantillas `figma-state.json`, `figma-code-map.json`, la referencia `.agents/skills/create-ds-from-figma/references/relationships.md`, las skills auxiliares `find-component`, `map-figma-to-code` y `validate-ds`, y los checks de `.agents/checks/`.
+- Si se cambia el contrato de evidencia o snapshot Figma, mantener sincronizados la plantilla `metadata.json`, las referencias `component-metadata.md` y `figma-evidence.md`, el colector y la persistencia de capturas, las skills consumidoras y los checks (incluido `verify-figma-evidence.mjs`), sus tests y los casos de evaluación afectados. Si también cambia el formato de relaciones, aplicar además la regla anterior.
 - Tras modificar checks, scripts o sus contratos (plantillas y referencias de formato), ejecuta `npm test`.
 - Tras cambiar documentación, rutas o comandos del kit, ejecuta `npm run verify:docs`.

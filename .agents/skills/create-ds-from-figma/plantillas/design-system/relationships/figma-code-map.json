@@ -36,6 +36,7 @@
     "notes": [
       "Each entry is a top-level key next to _schema. Ignore keys that start with _ when reading.",
       "Create entries only for successfully imported components with available code; a blocked diagnosis is never a mapping.",
+      "Every entry must point through designSystem.metadata to a ficha with mandatory evidence: snapshot, hash, decisions, translations and dispositions. Evidence belongs to that metadata file, not to an extra field in this map; verify it against the linked capture.",
       "Use <FILE_KEY>:<COMPONENT_OR_SET_NODE_ID> as the default entry key. For remotes without a reliable file/node id, use componentKey:<COMPONENT_KEY>.",
       "The entry key is an identifier; include that same ref in figma.refs.",
       "Use <FILE_KEY>:<NODE_ID> with the file key of the file where the node lives (the DS file for local nodes; the library's file key for a remote component when the tool returns it) and componentKey:<KEY> whenever the tool returns a component key.",

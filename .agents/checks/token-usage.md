@@ -1,5 +1,7 @@
 # Token usage check
 
+- Run `node .agents/checks/verify-figma-evidence.mjs .` against the import snapshot. Captured bindings and styles must be accounted for; dispositions and composite translations need review. Its scope excludes unused variable values, vector/image contents and rendered fidelity. Do not infer complete token inventory from it.
+
 ## PASS
 
 - `node .agents/checks/verify-ds.mjs` passes, including the comparison of `src/styles/tokens.css` with the generated output. Its structural PASS alone does not complete this manual check; review pending-variable and mode warnings too.

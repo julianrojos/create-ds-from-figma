@@ -6,6 +6,8 @@ import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { verify } from "../verify-ds.mjs";
+import { componentCapture } from './fixtures/component-capture.mjs';
+import { persistCapture } from '../../skills/create-ds-from-figma/scripts/figma-capture.mjs';
 import { MISSING_PREFIX_MESSAGE } from "../lib/design-system-state.mjs";
 import { generateTokensCss } from "../lib/tokens-css.mjs";
 
@@ -16,6 +18,14 @@ const templateFile = (relative) => {
   return source;
 };
 const active = new Set();
+const evidenceWarnings = root => {
+  const file = path.join(root, 'design-system/components/ExampleComponent/metadata.json');
+  if (!existsSync(file)) return [];
+  const metadata = JSON.parse(readFileSync(file, 'utf8'));
+  const count = metadata.evidence.decisions.filter(d => d.rule === 'manual').length;
+  return count ? [`ExampleComponent: ${count} manual decision(s): justification NOT VERIFIED; see review.manualDecisions`] : [];
+};
+const assertValid = root => assert.deepEqual(verify(root), { errors: [], warnings: evidenceWarnings(root) });
 const correspondences = "\n## Figma to code correspondences\n\n| Figma variant/ref | Code props | States, interactions and content | Status | Examined configuration | Figma/code revision | Evidence or missing verification |\n| --- | --- | --- | --- | --- | --- | --- |\n| Size=Small / FILE:1:3 | size=Small | Default content | candidate | Base mode | Fixture snapshot | Browser comparison not performed |\n";
 const write = (root, relative, value) => {
   const target = path.join(root, relative);
@@ -37,6 +47,42 @@ const regenerate = (root) => {
   write(root, "src/styles/tokens.css", generated.css);
 };
 const read = (root, relative) => JSON.parse(readFileSync(path.join(root, relative), "utf8"));
+const recordCapture = (root, metadata, { seeds = componentCapture().nodes, styles = [], variables = [], collections = [] } = {}) => {
+  const capture = componentCapture({ seeds, styles, variables, collections });
+  metadata.evidence = { ...persistCapture(root, capture), decisions: Object.entries(metadata.variantClassification).flatMap(([axis, values]) => Object.keys(values).map(value => ({
+    target: `variantClassification.${axis}.${value}`, rule: 'manual', reason: 'Fixture API interpretation requires semantic review.', observations: ['1:2#componentPropertyDefinitions#property'],
+  }))), translations: [], dispositions: [] };
+  for (const [index] of metadata.notBuilt.entries()) metadata.evidence.decisions.push({ target: `notBuilt[${index}]`, rule: 'manual', reason: 'Fixture exclusion requires semantic review.', observations: ['1:2#componentPropertyDefinitions#property'] });
+  for (const b of metadata.bindings) {
+    const o = capture.observations.find(o => o.kind === 'binding' && `FILE:${o.node}` === b.node && o.field === b.figmaProperty);
+    assert.ok(o, 'The test must independently provide the bound raw property'); b.observation = o.id;
+  }
+  for (const literal of metadata.measuredLiterals) {
+    const o = capture.observations.find(o => o.kind === 'property' && `FILE:${o.node}` === literal.source && o.field === literal.figmaProperty);
+    assert.ok(o, 'The test must independently provide the measured raw property'); literal.observation = o.id;
+  }
+};
+const recordBinding = (root, metadata, field, id, { nodeId = '1:3', explicitMode = false, type = 'COLOR' } = {}) => {
+  const seeds = componentCapture().nodes;
+  if (nodeId === '1:2') { seeds.splice(1); seeds[0].type = 'COMPONENT'; seeds[0].children = []; }
+  const node = seeds.find(n => n.id === nodeId);
+  node.properties.boundVariables = { [field]: { type: 'VARIABLE_ALIAS', id } };
+  if (explicitMode) node.properties.explicitVariableModes = { COL: 'Default' };
+  recordCapture(root, metadata, { seeds, variables: [{ id, name: 'Observed variable', type, collectionId: 'COL', valuesByMode: { Default: type === 'FLOAT' ? 4 : { r: 0, g: 0, b: 0, a: 1 } } }],
+    collections: [{ id: 'COL', name: 'Observed collection', defaultModeId: 'Default', modes: [{ modeId: 'Default', name: 'Default' }], variableIds: [id] }] });
+};
+const recordButtonStyle = (root, metadata, { lineHeight = false, binding = false } = {}) => {
+  const seeds = componentCapture().nodes;
+  seeds[1].properties.textStyleId = 'S:1';
+  if (lineHeight) seeds[1].properties.lineHeight = { unit: 'PERCENT', value: 125 };
+  const variables = [], collections = [];
+  if (binding) {
+    seeds[1].properties.boundVariables = { 'fills[0]': { type: 'VARIABLE_ALIAS', id: 'foreground-id' } };
+    variables.push({ id: 'foreground-id', type: 'COLOR', collectionId: 'COL', valuesByMode: { Default: { r: 0, g: 0, b: 0, a: 1 } } });
+    collections.push({ id: 'COL', defaultModeId: 'Default', modes: [{ modeId: 'Default', name: 'Default' }], variableIds: ['foreground-id'] });
+  }
+  recordCapture(root, metadata, { seeds, variables, collections, styles: [{ id: 'S:1', name: 'UI/Button', type: 'TEXT' }] });
+};
 const collection = (name, id, modes, variables) => ({ collection: name, id, modes, defaultMode: modes[0], variables });
 const token = (id, type, valuesByMode) => ({ id, cssName: `--ds-${id}`, type, valuesByMode });
 const writeCollection = (root, file, data) => {
@@ -54,7 +100,8 @@ const writeCollection = (root, file, data) => {
 const assertOnlyPendingModes = (root) => {
   const { errors, warnings } = verify(root);
   assert.deepEqual(errors, []);
-  assert.ok(warnings.length > 0 && warnings.every((item) => item.includes("has no CSS scope yet; its values are NOT VERIFIED")), warnings.join("\n"));
+  assert.ok(warnings.some(item => item.includes('has no CSS scope yet; its values are NOT VERIFIED')));
+  assert.ok(warnings.every(item => item.includes('has no CSS scope yet; its values are NOT VERIFIED') || evidenceWarnings(root).includes(item)), warnings.join('\n'));
 };
 const withExampleComponent = () => {
   const root = fixture();
@@ -69,6 +116,9 @@ const withExampleComponent = () => {
   metadata.figmaCoverage.variants = ["Size=Small"];
   metadata.figmaCoverage.styles = { status: "captured", source: "test fixture" };
   metadata.parts = { root: { selector: ".root", nodes: { "Size=Small": "FILE:1:3" } } };
+  metadata.evidence = { ...persistCapture(root, componentCapture()), decisions: [
+    { target: 'variantClassification.Size.Small', rule: 'manual', reason: 'The consumer controls the observed size through size.', observations: ['1:2#componentPropertyDefinitions#property'] },
+  ], translations: [], dispositions: [] };
   write(root, metadataPath, metadata);
   write(root, "design-system/components/ExampleComponent/usage.md", `# ExampleComponent\n${correspondences}`);
   write(root, "src/components/ExampleComponent/ExampleComponent.tsx", "export interface ExampleComponentProps { size?: 'Small' }\nexport const ExampleComponent = (props: ExampleComponentProps) => <span data-ds-part=\"root\" />;\n");
@@ -102,6 +152,36 @@ test("empty kit is valid", () => {
   assert.deepEqual(verify(fixture()), { errors: [], warnings: [] });
 });
 
+test("every imported component requires evidence without exceptions or policy files", () => {
+  const root = withExampleComponent();
+  const relative = 'design-system/components/ExampleComponent/metadata.json';
+  const metadata = read(root, relative);
+  metadata.evidence = null;
+  write(root, relative, metadata);
+  assert.ok(verify(root).errors.some(e => e.includes('import evidence is required')));
+});
+
+test("a malformed code-map entry yields controlled errors, not an exception", () => {
+  const root = fixture();
+  const mapPath = "design-system/relationships/figma-code-map.json";
+  const map = read(root, mapPath);
+  map["FILE:1:2"] = null;
+  write(root, mapPath, map);
+  let result;
+  assert.doesNotThrow(() => { result = verify(root); });
+  assert.ok(result.errors.length > 0);
+  assert.ok(result.errors.some(error => error.includes("FILE:1:2")));
+});
+
+test("structural verification incorporates errors from linked capture evidence", () => {
+  const root = withExampleComponent();
+  const relative = "design-system/components/ExampleComponent/metadata.json";
+  const metadata = read(root, relative);
+  metadata.evidence = { snapshot: "outside.json", hash: "invalid", decisions: [], translations: [], dispositions: [] };
+  write(root, relative, metadata);
+  assert.ok(verify(root).errors.some(error => error.includes("Invalid snapshot path")));
+});
+
 test("collection JSONs match ID-keyed state, including names, modes, counts and variables", () => {
   const root = fixture();
   const file = "Color Primitives.json";
@@ -132,7 +212,7 @@ test("a Figma collection rename keeps its file, while same-named collections use
   const root = fixture();
   writeCollection(root, "Color.json", collection("Color", "COL-ONE", ["Default"], {}));
   writeCollection(root, "Color (COL-TWO).json", collection("Color", "COL-TWO", ["Default"], {}));
-  assert.deepEqual(verify(root), { errors: [], warnings: [] });
+  assertValid(root);
   const first = read(root, "design-system/tokens/Color.json");
   first.collection = "Hue";
   write(root, "design-system/tokens/Color.json", first);
@@ -140,7 +220,7 @@ test("a Figma collection rename keeps its file, while same-named collections use
   const state = read(root, statePath);
   state.collections["COL-ONE"].name = "Hue";
   write(root, statePath, state);
-  assert.deepEqual(verify(root), { errors: [], warnings: [] });
+  assertValid(root);
 });
 
 test("orphan, missing and duplicate collection JSONs fail independently", () => {
@@ -177,7 +257,7 @@ test("inventory must exist and contain valid unique entries", () => {
 });
 
 test("an imported component is valid", () => {
-  assert.deepEqual(verify(withExampleComponent()), { errors: [], warnings: [] });
+  assertValid(withExampleComponent());
 });
 
 test("a component without variants uses its root ref as the default part observation", () => {
@@ -194,8 +274,9 @@ test("a component without variants uses its root ref as the default part observa
   metadata.parts.root.nodes = { default: "FILE:1:2" };
   metadata.bindings = [{ part: "root", variant: "default", node: "FILE:1:2", figmaProperty: "fills[0]",
     cssProperty: "background-color", cssSelector: ".root", variableId: "foreground-id" }];
+  recordBinding(root, metadata, 'fills[0]', 'foreground-id', { nodeId: '1:2' });
   write(root, metadataPath, metadata);
-  assert.deepEqual(verify(root), { errors: [], warnings: [] });
+  assertValid(root);
   metadata.parts.root.nodes.default = "FILE:1:9";
   write(root, metadataPath, metadata);
   assert.ok(verify(root).errors.some((item) => item.includes("root node ref")));
@@ -229,6 +310,7 @@ test("a direct external binding needs a sourced resolved snapshot", () => {
     cssProperty: "background-color", cssSelector: ".root", variableId: "VariableID:external" }];
   metadata.externalVariables = [{ id: "VariableID:external", cssName: "--external-surface", type: "COLOR",
     value: "#112233", source: "FILE:1:3" }];
+  recordBinding(root, metadata, 'fills[0]', 'VariableID:external');
   write(root, metadataPath, metadata);
   regenerate(root);
   const valid = verify(root);
@@ -262,6 +344,7 @@ test("an external-only component does not require a fictitious local collection"
     cssProperty: "background-color", cssSelector: ".root", variableId: "VariableID:external" }];
   metadata.externalVariables = [{ id: "VariableID:external", cssName: "--external-surface", type: "COLOR",
     value: "#112233", source: "FILE:1:3" }];
+  recordBinding(root, metadata, 'fills[0]', 'VariableID:external');
   write(root, metadataPath, metadata);
   regenerate(root);
   assert.deepEqual(verify(root).errors, []);
@@ -346,8 +429,9 @@ test("Figma style applications and literal translations keep their provenance", 
     nodes: [{ node: "FILE:1:3" }] }];
   metadata.measuredLiterals = [{ part: "root", variant: "Size=Small", source: "FILE:1:3",
     figmaProperty: "lineHeight", cssProperty: "line-height", cssSelector: ".root", value: "20px",
-    translation: "approximate", figmaValue: { source: "REST", field: "lineHeightPercentFontSize", value: 125 },
+    translation: "approximate", figmaValue: { source: "PLUGIN", field: "lineHeight", value: { unit: 'PERCENT', value: 125 } },
     styleRef: "text-button", styleOrigin: "unknown" }];
+  recordButtonStyle(root, metadata, { lineHeight: true });
   write(root, relative, metadata);
   assert.deepEqual(verify(root).errors, []);
 
@@ -363,6 +447,15 @@ test("Figma style applications and literal translations keep their provenance", 
   expectError((item) => item.measuredLiterals[0].styleOrigin = "style", "styleOriginSource is required");
   expectError((item) => delete item.measuredLiterals[0].figmaValue, "approximate translation needs figmaValue");
   expectError((item) => item.measuredLiterals[0].figmaValue.field = "", "figmaValue needs source");
+  expectError((item) => item.measuredLiterals[0].figmaValue.source = "REST", "figmaValue needs source PLUGIN");
+  for (const unit of ["PERCENT", null, 125]) {
+    expectError((item) => item.measuredLiterals[0].figmaValue.unit = unit, "not figmaValue.unit");
+    const errors = verify(root).errors;
+    assert.equal(errors.filter((item) => item.includes("not figmaValue.unit")).length, 1,
+      "structural and evidence checks must report the same unit error only once");
+    assert.ok(!errors.some((item) => item.includes("figmaValue needs source")),
+      "a valid raw value with an extra unit must not also receive a shape error");
+  }
   expectError((item) => item.styles[0].nodes[0] = { node: "FILE:1:3", start: 3, end: 3,
     rangesSource: "getStyledTextSegments" }, "a text range needs start < end");
   expectError((item) => delete item.measuredLiterals[0].translation, "translation must be direct or approximate");
@@ -373,6 +466,7 @@ test("Figma style applications and literal translations keep their provenance", 
   bound.bindings = [{ part: "root", variant: "Size=Small", node: "FILE:1:3", figmaProperty: "fills[0]",
     cssProperty: "color", cssSelector: ".root", variableId: "foreground-id", styleRef: "text-button",
     styleOrigin: "override", styleOriginSource: "Plugin segment property override: fills[0]" }];
+  recordButtonStyle(root, bound, { binding: true });
   write(root, relative, bound);
   assert.deepEqual(verify(root).errors, []);
   delete bound.bindings[0].styleOriginSource;
@@ -385,6 +479,7 @@ test("an absent style ref or CSS property is rejected instead of matching as tex
   const relative = "design-system/components/ExampleComponent/metadata.json";
   const metadata = read(root, relative);
   metadata.styles = [{ ref: "text-button", type: "TEXT", name: "UI/Button", id: "S:1", fileKey: "FILE", nodes: [{ node: "FILE:1:3" }] }];
+  recordButtonStyle(root, metadata);
   write(root, relative, metadata);
   assert.deepEqual(verify(root).errors, []);
   delete metadata.styles[0].ref;
@@ -528,6 +623,12 @@ test("style ranges can document mixed text without claiming a scalar property", 
     { ref: "label-second", type: "TEXT", name: "UI/Emphasis", id: "S:2", fileKey: "FILE",
       nodes: [{ node: "FILE:1:7", start: 5, end: 7, rangesSource: "getStyledTextSegments" }] },
   ];
+  const seeds = componentCapture().nodes;
+  seeds[1].children.push('1:7');
+  seeds.push({ id: '1:7', parentId: '1:3', type: 'TEXT', name: 'Mixed text', children: [], properties: { segments: [
+    { start: 0, end: 5, textStyleId: 'S:1' }, { start: 5, end: 7, textStyleId: 'S:2' },
+  ] } });
+  recordCapture(root, metadata, { seeds, styles: [{ id: 'S:1', name: 'UI/Label', type: 'TEXT' }, { id: 'S:2', name: 'UI/Emphasis', type: 'TEXT' }] });
   write(root, relative, metadata);
   assert.deepEqual(verify(root).errors, []);
   delete metadata.styles[0].nodes[0].rangesSource;
@@ -553,7 +654,7 @@ test("every exported variable needs a unique base CSS declaration", () => {
   write(root, "src/styles/tokens.css", ":root { --ds-foreground-id: #000000; } @media (prefers-color-scheme: dark) { :root { --ds-foreground-id: #FFFFFF; } }");
   assert.ok(verify(root).errors.some((item) => item.includes("differs from the generated output")), "a hand-written stylesheet is not accepted even when its declarations look right");
   regenerate(root);
-  assert.deepEqual(verify(root), { errors: [], warnings: [] });
+  assertValid(root);
 });
 
 test("invalid token CSS is reported once", () => {
@@ -590,8 +691,9 @@ test("a forced mode must belong to the bound variable collection", () => {
   write(root, relative, metadata);
   assert.ok(verify(root).errors.some((item) => item.includes("modeOverride does not match")));
   metadata.bindings[0].modeOverride = { collectionId: "COL", modeName: "Default" };
+  recordBinding(root, metadata, 'fills[0]', 'foreground-id', { explicitMode: true });
   write(root, relative, metadata);
-  assert.deepEqual(verify(root), { errors: [], warnings: [] });
+  assertValid(root);
 });
 
 test("an imported component requires collection tokens and tokens.css", () => {
@@ -653,7 +755,7 @@ test("local aliases resolve by variable id even when names repeat across collect
   writeCollection(root, "Two.json", collection("Two", "COL-TWO", ["Default"], {
     base: token("two", "COLOR", { Default: "#000000" }),
   }));
-  assert.deepEqual(verify(root), { errors: [], warnings: [] });
+  assertValid(root);
   const one = read(root, "design-system/tokens/One.json");
   one.variables.selected.valuesByMode.Default.alias = "wrong";
   write(root, "design-system/tokens/One.json", one);
@@ -707,7 +809,7 @@ test("boolean resolved aliases are valid", () => {
     enabled: token("enabled-id", "BOOLEAN", { Default: true }),
     active: token("active-id", "BOOLEAN", { Default: { alias: "enabled", targetVariableId: "enabled-id", source: "local", value: true } }),
   }));
-  assert.deepEqual(verify(root), { errors: [], warnings: [] });
+  assertValid(root);
 });
 
 test("mode values must match collection modes exactly", () => {
@@ -775,7 +877,7 @@ test("mapped nested refs must resolve to the declared component", () => {
   const state = read(root, relative);
   state.components.ExampleComponent.nestedComponents = [{ figmaNodeId: "9:1", mainComponentRef: "FILE:1:2", status: "mapped", resolvedComponent: "ExampleComponent" }];
   write(root, relative, state);
-  assert.deepEqual(verify(root), { errors: [], warnings: [] });
+  assertValid(root);
   state.components.ExampleComponent.nestedComponents[0].mainComponentRef = "FILE:missing";
   write(root, relative, state);
   assert.ok(verify(root).errors.some((item) => item.includes("no consistent stable ref")));
@@ -789,7 +891,7 @@ test("a listed screen needs a page, but is not a mapped component", () => {
   write(root, inventoryPath, inventory);
   assert.ok(verify(root).errors.some((item) => item.includes("screen Home is listed")));
   write(root, "src/pages/Home.tsx", "export const Home = () => null;\n");
-  assert.deepEqual(verify(root), { errors: [], warnings: [] });
+  assertValid(root);
   inventory.screens[0].composition.components = ["MissingComponent"];
   write(root, inventoryPath, inventory);
   assert.ok(verify(root).errors.some((item) => item.includes("screen Home uses unincluded component MissingComponent")));
@@ -820,8 +922,13 @@ test("mixed Figma axis values require separate kinds and state owners", () => {
   };
   metadata.states = [{ name: "hover", control: "internal" }, { name: "disabled", control: "consumer" }];
   metadata.notBuilt = [{ item: "hover prop", reason: "browser owns hover", evidence: "FILE:1:4" }];
+  const seeds = componentCapture().nodes;
+  seeds[0].children.push('1:4', '1:5');
+  seeds[0].properties.componentPropertyDefinitions.State = { type: 'VARIANT', variantOptions: ['Hover', 'Disabled'] };
+  for (const [id, value] of [['1:4', 'Hover'], ['1:5', 'Disabled']]) seeds.push({ id, parentId: '1:2', type: 'COMPONENT', name: `State=${value}`, children: [], properties: { variantProperties: { State: value } } });
+  recordCapture(root, metadata, { seeds });
   write(root, metadataPath, metadata);
-  assert.deepEqual(verify(root), { errors: [], warnings: [] });
+  assertValid(root);
   metadata.states[0].control = "shared";
   write(root, metadataPath, metadata);
   assert.ok(verify(root).errors.some((item) => item.includes("interaction state must be internal")));
@@ -923,6 +1030,7 @@ test("every local cssName must start with the fixed prefix, while external snaps
   const metadataPath = "design-system/components/ExampleComponent/metadata.json";
   const metadata = read(external, metadataPath);
   metadata.bindings = [{ part: "root", variant: "Size=Small", node: "FILE:1:3", figmaProperty: "fills[0]", cssSelector: ".root", cssProperty: "color", variableId: "VariableID:external" }];
+  recordBinding(external, metadata, 'fills[0]', 'VariableID:external');
   metadata.externalVariables = [{ id: "VariableID:external", cssName: "--lib-surface", type: "COLOR", value: "#112233", source: "FILE:1:3" }];
   write(external, metadataPath, metadata);
   regenerate(external);
@@ -959,7 +1067,7 @@ const darkScope = { kind: "selector", value: '[data-theme="dark"]' };
 const darkCss = ':root { --ds-foreground-id: #000000; }\n[data-theme="dark"] { --ds-foreground-id: #FFFFFF; }\n';
 
 test("a collection mode with a decided scope is verified against tokens.css", () => {
-  assert.deepEqual(verify(withModes(darkScope)), { errors: [], warnings: [] });
+  assertValid(withModes(darkScope));
   const wrong = verify(withModes(darkScope, darkCss.replace("#FFFFFF", "#EEEEEE")));
   assert.ok(wrong.errors.some((item) => item.includes("token stylesheet:") && item.includes("is #EEEEEE, expected #FFFFFF")));
   const missingBlock = verify(withModes(darkScope, ":root { --ds-foreground-id: #000000; }\n"));
@@ -1001,6 +1109,7 @@ const bindSpace = (root, variableId) => {
   const metadata = read(root, relative);
   metadata.bindings = [{ part: "root", variant: "Size=Small", node: "FILE:1:3", figmaProperty: "paddingLeft",
     cssSelector: ".root", cssProperty: "padding-left", variableId }];
+  recordBinding(root, metadata, 'paddingLeft', variableId, { type: 'FLOAT' });
   write(root, relative, metadata);
   write(root, "src/components/ExampleComponent/ExampleComponent.module.css", ".root { padding-left: var(--ds-gap-id); }\n");
 };
@@ -1009,7 +1118,7 @@ test("a FLOAT variable with a decision must be written exactly as decided", () =
   const root = withFloat({ gap: token("gap-id", "FLOAT", { Default: 4 }) });
   decide(root, { "gap-id": { css: px, source: evidence } });
   regenerate(root);
-  assert.deepEqual(verify(root), { errors: [], warnings: [] });
+  assertValid(root);
   write(root, "src/styles/tokens.css", ":root { --ds-foreground-id: #000000; --ds-gap-id: 4; }\n");
   assert.ok(verify(root).errors.some((item) => item.includes("--ds-gap-id must be 4px to match its serialization decision")));
   write(root, "src/styles/tokens.css", ":root { --ds-foreground-id: #000000; }\n");
@@ -1120,6 +1229,7 @@ test("a binding whose variable type cannot drive its CSS property is reported", 
   const metadata = read(root, relative);
   const bind = (cssProperty) => {
     metadata.bindings = [{ part: "root", variant: "Size=Small", node: "FILE:1:3", figmaProperty: "fills[0]", cssSelector: ".root", cssProperty, variableId: "foreground-id" }];
+    recordBinding(root, metadata, 'fills[0]', 'foreground-id');
     write(root, relative, metadata);
     return verify(root).errors;
   };
@@ -1141,7 +1251,7 @@ test("a FLOAT variable bound to a color property is reported even when it has a 
 
 test("a static data-ds-part marker that the metadata does not declare is a warning, not a failure", () => {
   const root = withExampleComponent();
-  assert.deepEqual(verify(root), { errors: [], warnings: [] });
+  assertValid(root);
   const tsx = "src/components/ExampleComponent/ExampleComponent.tsx";
   const source = readFileSync(path.join(root, tsx), "utf8");
   write(root, tsx, source.replace('<span data-ds-part="root" />', '<span data-ds-part="root"><i data-ds-part="icon" /></span>'));

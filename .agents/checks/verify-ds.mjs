@@ -11,6 +11,7 @@ import { GENERATOR_COMMAND, firstDifference, generateTokensCss } from "./lib/tok
 import { bindingTypeProblem } from "./lib/property-types.mjs";
 import { createFloatResolver, floatAliasProblems, isLocalAliasVariable, serializationProblems, serializeNumber } from "./lib/serialization.mjs";
 import { isPortableTokenFileName, tokenFileKey } from "./lib/token-file-name.mjs";
+import { verifyFigmaEvidence } from './verify-figma-evidence.mjs';
 
 const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 const isText = (value) => typeof value === "string" && value.trim().length > 0;
@@ -463,10 +464,12 @@ export function verify(root) {
             fail(`${label}: approximate translation needs figmaValue`);
           }
           if ("figmaValue" in record && (!isObject(record.figmaValue) ||
-              !isText(record.figmaValue.source) || !isText(record.figmaValue.field) ||
-              !Object.hasOwn(record.figmaValue, "value") || record.figmaValue.value === null ||
-              ("unit" in record.figmaValue && !isText(record.figmaValue.unit)))) {
-            fail(`${label}: figmaValue needs source, field, non-null value and optional unit`);
+              record.figmaValue.source !== "PLUGIN" || !isText(record.figmaValue.field) ||
+              !Object.hasOwn(record.figmaValue, "value") || record.figmaValue.value === null)) {
+            fail(`${label}: figmaValue needs source PLUGIN, field and non-null value`);
+          }
+          if (isObject(record.figmaValue) && Object.hasOwn(record.figmaValue, "unit")) {
+            fail(`${label}: raw units belong inside value, not figmaValue.unit`);
           }
         }
       }
@@ -936,6 +939,11 @@ export function verify(root) {
       warn(`tokens/${file} ${name}: external alias ${value.targetVariableId} uses a resolved snapshot; verify it against the source library when possible`);
     }
   }
+  const evidence = verifyFigmaEvidence(root);
+  for (const error of evidence.errors) {
+    if (!errors.includes(error)) errors.push(error);
+  }
+  warnings.push(...evidence.warnings);
   return { errors, warnings };
 }
 

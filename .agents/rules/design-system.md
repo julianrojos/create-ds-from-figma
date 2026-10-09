@@ -2,6 +2,8 @@
 
 Apply when reading, editing or generating `src/` or `design-system/` files.
 
+For imported components, run `node .agents/checks/verify-figma-evidence.mjs .` against the persisted import snapshot before rendered validation. Every map entry requires evidence, without exceptions. Capture gaps, manual decisions and composite translations need review. Static evidence coverage does not prove visual fidelity or complete file-level token extraction.
+
 - Before adding a UI component, search `design-system/inventory.json`, `design-system/components/` and `src/components/`; reuse an existing match.
 - Resolve Figma components through `design-system/relationships/figma-code-map.json`. Check `figma-state.json` for nested dependencies.
 - Reuse a mapped nested component from `src/components/`; do not redraw it. Report new variants before implementing them.

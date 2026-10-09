@@ -21,9 +21,22 @@ Las URL siguientes son entradas de ejemplo: al ejecutar el caso, usa nodos reale
 ## Primera importación
 
 - Entrada: repo sin `figma-code-map.json` ni `tokens.css`; URL de un componente local con variables del file resueltas y sin anidados locales `missing`.
-- Decisión esperada: modo primera vez; diagnóstico completo antes de escribir; importa solo el componente solicitado y todas las colecciones de variables del file.
-- Debe producir: scaffold con `index.html` y `tsconfig.json`, tokens por colección, ficha, código, mapa, estado e inventario coherentes; checks ejecutados y resultado explícito. Amplía el `package.json` existente con Vite/React y scripts de app, actualiza su lockfile y conserva `npm test`, `yaml`, las demás dependencias y `.gitignore`.
+- Decisión esperada: modo primera vez; captura temporal estructurada mediante un transporte operativo y autorizado, con procedencia y valores brutos, y diagnóstico completo antes de escribir en el repo; importa solo el componente solicitado y todas las colecciones de variables del file.
+- Debe producir: tras el diagnóstico permitido, snapshot persistido por `save` y ficha con `evidence` enlazando su ruta y hash; bindings y literales referencian observaciones existentes y las decisiones quedan justificadas. Scaffold con `index.html` y `tsconfig.json`, tokens por colección, ficha, código, mapa, estado e inventario coherentes; `verify-figma-evidence`, `verify-ds` y demás checks ejecutados con resultado explícito. Amplía el `package.json` existente con Vite/React y scripts de app, actualiza su lockfile y conserva `npm test`, `yaml`, las demás dependencias y `.gitignore`.
 - No debe: reemplazar `package.json` o `package-lock.json` desde un starter, generar pantallas, otros componentes del file, tokens de ejemplo ni copiar recursos auxiliares de `.agents/`.
+
+## Captura obligatoria no disponible
+
+- Entrada: componente nuevo, sin transporte operativo para obtener la captura estructurada, o con una captura truncada o inválida.
+- Decisión esperada: informa `NOT RUN` y `DS_GAP` con el motivo concreto antes de escribir el scaffold o registrar el componente; solicita la configuración faltante sin pedir secretos en el chat.
+- No debe: transcribir respuestas manualmente, inventar observaciones, omitir `evidence` ni presentar una conexión simulada como validada con Figma real.
+
+## Cambio solo en evidencia de un componente importado
+
+- Entrada: URL repetida; código, variantes, bindings y demás campos no cambian, pero el análisis propone modificar `evidence.decisions`, `translations` o `dispositions`.
+- Decisión esperada: muestra la diferencia como «otros cambios observados» y solicita actualización explícita; una interpretación nueva no demuestra un cambio en Figma. No escribe ficha, mapa ni snapshot enlazado.
+- Segunda entrada: solo difiere el hash o enlace de una captura nueva, sin decisiones nuevas.
+- Decisión esperada: compara las capturas del mismo origen y raíz, comunica las diferencias verificables y conserva el enlace histórico salvo actualización autorizada. No deduce una revisión Figma a partir del hash ni reescribe al reutilizar o sustituir solo una dependencia.
 
 ## Inventario ausente tras una importación
 
@@ -103,15 +116,15 @@ El DS de `test/nested_component` con `Tab` dentro de `Tabs` puede servir para el
 
 ## Estilo aplicado con literal aproximado
 
-- Entrada: un nodo de texto usa un estilo `TEXT` identificable, pero su altura de línea procede de `REST.lineHeightPercentFontSize = 124.874997...`; la herramienta no prueba si esa propiedad procede del estilo o de un override.
-- Decisión esperada: `styles` registra ID, nombre, file y nodo; el literal conserva `figmaValue` bruto, `translation: approximate`, `styleRef` y `styleOrigin: unknown`. No redondea en silencio ni inventa un origen. `verify-bindings` deja `writtenStatus: PASS` solo si coincide el CSS y `status: NOT_RUN` hasta la comparación renderizada.
-- Cierre esperado: `validate-ds` obtiene el tamaño de fuente de Figma independientemente, calcula la expectativa solo para ese par `(REST, lineHeightPercentFontSize)` y compara el valor calculado en navegador para las configuraciones pertinentes; informa resultado estático, calculado y visual por separado.
+- Entrada: un nodo de texto usa un estilo `TEXT` identificable y su observación PLUGIN de `lineHeight` tiene `{ unit: "PERCENT", value: 124.874997... }`; la herramienta no prueba si esa propiedad procede del estilo o de un override.
+- Decisión esperada: `styles` registra ID, nombre, file y nodo; el literal enlaza `observation`, conserva `figmaValue: { source: "PLUGIN", field: "lineHeight", value: <objeto bruto observado> }`, `translation: approximate`, `styleRef` y `styleOrigin: unknown`. No redondea en silencio ni inventa un origen. `verify-figma-evidence` rechaza fuente REST, otro campo o un valor normalizado aunque el CSS coincida. `verify-bindings` deja `writtenStatus: PASS` solo si coincide el CSS y `status: NOT_RUN` hasta la comparación renderizada.
+- Cierre esperado: `validate-ds` obtiene el tamaño de fuente de Figma independientemente para el mismo nodo (o segmento y rango), variante y modos; calcula `fontSize × p / 100` solo para ese `lineHeight` PERCENT y compara el valor calculado en navegador para las configuraciones pertinentes. Con tamaño mixto o ausente no aplica la fórmula. Informa resultado estático, calculado y visual por separado.
 - No debe: considerar cualquier porcentaje como porcentaje del tamaño de fuente, ni convertir un `NOT_RUN` estático en PASS sin prueba renderizada.
 
 ## AUTO y procedencia de estilo no disponible
 
 - Entrada: Figma devuelve `AUTO` para line-height y la herramienta no devuelve el ID del estilo, pero sí los valores esenciales del nodo.
-- Decisión esperada: `figmaCoverage.styles` queda `unavailable` con la llamada intentada y el motivo (la captura de procedencia es `NOT RUN`), y `styles` vacío; no bloquea la importación solo por faltar procedencia ni degrada por sí solo el Overall. Si el CSS usa `normal`, el literal registra `translation: approximate` y `figmaValue` con `source`, `field` y `value: AUTO`.
+- Decisión esperada: `figmaCoverage.styles` queda `unavailable` con la llamada intentada y el motivo (la captura de procedencia es `NOT RUN`), y `styles` vacío; no bloquea la importación solo por faltar procedencia ni degrada por sí solo el Overall. La evidencia y el snapshot siguen siendo obligatorios. Si el CSS usa `normal`, el literal enlaza la observación y registra `translation: approximate` y `figmaValue: { source: "PLUGIN", field: "lineHeight", value: { unit: "AUTO" } }`.
 - Cierre esperado: `validate-ds` compara visualmente los mismos contenidos, fuente, tamaño, variante y modo; limita cualquier PASS a las configuraciones observadas. Sin esa comparación, el literal y el Overall quedan NOT VERIFIED.
 - No debe: afirmar que `normal` equivale siempre a `AUTO`, ni usar solo la altura de la caja de texto como prueba.
 

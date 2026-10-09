@@ -15,6 +15,8 @@ description: >-
 Resolve a Design System component from Figma to its code implementation.
 When the Figma node is nested inside another imported component, resolve it without recreating the nested UI.
 
+Read required `metadata.evidence.decisions` and their snapshot observations. Classification proposals are candidates, not established prop mappings. Missing evidence is an incomplete record; manual reasons need review. This lookup never rewrites evidence or creates retrospective captures.
+
 ## Read
 
 - `design-system/relationships/figma-code-map.json`

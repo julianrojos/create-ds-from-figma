@@ -14,6 +14,8 @@ description: >-
 
 Resolve a UI element to an existing Design System component.
 
+A persisted snapshot documents origin and coverage, but does not replace stable Figma refs or prove a rendered mapping. Every mapped record requires evidence: missing evidence is an incomplete record, not proof that the component is absent. This lookup does not create or rewrite snapshots.
+
 ## Input
 
 A Figma node or UI element description.

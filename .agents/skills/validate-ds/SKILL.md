@@ -30,6 +30,10 @@ Write correspondence entries only within an authorized component import/update, 
 - `design-system/relationships/figma-state.json`, the relevant collection JSON files and `.agents/skills/create-ds-from-figma/references/tokens.md` for mode scopes, alias resolution and serialization;
 - `.agents/rules/design-system.md`, `.agents/rules/design-system-composition.md` and `.agents/rules/design-system-accessibility.md`.
 
+## Captured evidence
+
+Run `node .agents/checks/verify-figma-evidence.mjs .` and read the component's required immutable `metadata.evidence.snapshot`. Missing evidence is FAIL, without exceptions. Capture issues, manual decisions, composite translations and delegated overrides remain NOT VERIFIED pending review. Detailed grouped findings are in each component's review report. This checks accounting against the import capture, not live completeness or rendering. Optional rereads do not authorize updates.
+
 ## API state control
 
 Prepare each Figma variant through `.agents/skills/map-figma-to-code/SKILL.md`: use `variantClassification` to separate code props, states, interactions and content.
@@ -85,7 +89,7 @@ Report each check as `variant | collectionId-to-active-mode mapping | part | css
 
 Keep three results distinct for each `measuredLiterals` record with `translation: approximate`: its written CSS identity from `verify-bindings`, its browser-computed value when an **independent, comparable** Figma expectation exists, and a contextual visual comparison otherwise. The static report intentionally leaves such a literal at `status: NOT_RUN` even when `writtenStatus: PASS`. A CSS mismatch is FAIL and cannot be rescued by a visual match.
 
-Only derive `fontSize × percentage` for `figmaValue.source: REST` with `figmaValue.field: lineHeightPercentFontSize`; the font size must be observed independently in the same Figma context. Another percentage field does not prove that formula. For a comparable expected value, read `getComputedStyle` in every applicable variant, mode and state and report `variant | mode | part | cssProperty | figmaValue | expected | actual | PASS / FAIL / NOT RUN`, with browser URL and Figma ref. Do not derive the expected value from the same browser element. A computed PASS resolves only this comparable value, not style provenance or visual fidelity.
+First verify each literal's `observation` against the linked snapshot: approximate `figmaValue` must have `source: PLUGIN` and the exact observation field and raw value. For `lineHeight` with `{ unit: "PERCENT", value: p }`, derive the independent pixel expectation as `fontSize × p / 100` only when the font size is independently observed in Figma for the same node, variant and modes. For `segments[n].lineHeight`, use the font size of that same segment and range. A mixed or unavailable font size does not authorize that formula; another percentage field does not either. For `{ unit: "PIXELS", value: n }`, the comparable expectation is `n` pixels; `{ unit: "AUTO" }` requires the contextual lane below. Do not relabel REST data as PLUGIN. For a comparable expected value, read `getComputedStyle` in every applicable variant, mode and state and report `variant | mode | part | cssProperty | figmaValue | expected | actual | PASS / FAIL / NOT RUN`, with browser URL and Figma ref. Do not derive the expected value from the same browser element. A computed PASS resolves only this comparable value, not style provenance or visual fidelity.
 
 For `AUTO` or another value without an independent comparable expectation, compare the exact Figma and browser contexts visually: font, content, size, mode and state. Record the examined configurations, screenshots or refs, and differences. A contextual PASS applies only to those configurations; never claim `normal` and `AUTO` are generally equivalent. Text-box height alone is insufficient evidence. If neither comparison can be performed, report NOT RUN with reason and Overall NOT VERIFIED. Every approximate literal needs a PASS in its applicable computed or contextual lane for Overall PASS; do not require both lanes when one is inapplicable.
 
@@ -100,6 +104,7 @@ If Figma or a browser is unavailable, report this check as NOT RUN with the reas
 Return a report:
 
 Structural validation: PASS / FAIL / NOT RUN (reason)
+Captured evidence: PASS / FAIL / NOT VERIFIED / NOT RUN (reason)
 Figma style provenance: PASS / FAIL / NOT RUN (reason; or NOT APPLICABLE)
 Prop vocabulary and TSX: PASS / FAIL / NOT RUN (reason)
 Component reuse: PASS / FAIL / NOT RUN (reason)
