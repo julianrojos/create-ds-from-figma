@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { verifyRenderPlan } from './lib/render-plan.mjs';
+import { objectRecords, verifyRenderPlan } from './lib/render-plan.mjs';
 import { verifyFigmaEvidence } from './verify-figma-evidence.mjs';
 import { verifyIntrinsicCss } from './lib/intrinsic-css.mjs';
 import { caseInputs } from './lib/comparison-evidence.mjs';
@@ -23,7 +23,7 @@ export function verifyRenderPlans(root, { contexts, dependencySession } = {}) {
         const tokens = verifyTokenStyles(root, metadata, { dependencySession });
         result.errors.push(...tokens.errors); result.warnings.push(...tokens.warnings);
         const css = verifyIntrinsicCss(root, metadata, entry.code?.style);
-        for (const c of metadata.verification?.cases || []) result.warnings.push(...caseInputs(root, metadata, c, entry.code?.style, { dependencySession }).warnings);
+        for (const c of objectRecords(metadata.verification?.cases)) result.warnings.push(...caseInputs(root, metadata, c, entry.code?.style, { dependencySession }).warnings);
         result.errors.push(...css.errors); result.warnings.push(...css.warnings);
         errors.push(...result.errors.map(e => `${name}: ${e}`));
         warnings.push(...result.warnings.map(e => `${name}: ${e}`));

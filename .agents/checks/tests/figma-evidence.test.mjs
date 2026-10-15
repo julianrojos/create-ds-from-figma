@@ -6,7 +6,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { captureFigma, transportChecksum } from '../../skills/create-ds-from-figma/scripts/lib/capture-figma.mjs';
 import { captureCode, assembleChunks, persistCapture } from '../../skills/create-ds-from-figma/scripts/figma-capture.mjs';
-import { canonicalJson, captureHash, captureProblems, sealCapture, loadSnapshot, verifyEvidence, classificationProposals } from '../lib/figma-evidence.mjs';
+import { canonicalJson, captureHash, captureProblems, sealCapture, loadSnapshot, verifyEvidence, classificationProposals, essentialReadFailures } from '../lib/figma-evidence.mjs';
 import { verifyFigmaEvidence, entryRefs, mappedComponentsOf } from '../verify-figma-evidence.mjs';
 import { bridgeCode, captureViaBridge } from '../../skills/create-ds-from-figma/scripts/lib/capture-bridge.mjs';
 
@@ -43,6 +43,27 @@ function mockFigma() {
 async function fixture() {
   return captureFigma(mockFigma(), { fileKey: 'FILE', nodeId: '1:1' });
 }
+
+test('capture v2 preserves absolute bounds/transforms without deriving them and rejects v1', async () => {
+  const figma = mockFigma(), source = figma.nodes.get('1:2');
+  source.absoluteBoundingBox = { x: 10.25, y: 20.5, width: 32, height: 32 };
+  source.absoluteTransform = [[-1, 0, 42.25], [0, 1, 20.5]];
+  const captured = await captureFigma(figma, { fileKey: 'FILE', nodeId: '1:1' });
+  assert.equal(captured.schemaVersion, 2);
+  assert.equal(captured.source.collector, 'capture-figma-v2');
+  const node = captured.nodes.find(n => n.id === source.id);
+  assert.deepEqual(node.properties.absoluteBoundingBox, source.absoluteBoundingBox);
+  assert.deepEqual(node.properties.absoluteTransform, source.absoluteTransform);
+  assert.ok(!captured.profile.fields.includes('absoluteRenderBounds'));
+  const old = structuredClone(captured); old.schemaVersion = 1; old.source.collector = 'capture-figma-v1';
+  assert.deepEqual(captureProblems(old), ['Invalid capture schema']);
+  source.absoluteBoundingBox = null;
+  Object.defineProperty(source, 'absoluteTransform', { get() { throw new Error('Unavailable transform'); } });
+  const failed = await captureFigma(figma, { fileKey: 'FILE', nodeId: '1:1' });
+  assert.equal(failed.nodes.find(n => n.id === source.id).properties.absoluteBoundingBox, null);
+  assert.ok(failed.coverage.issues.some(i => i.node === source.id && i.field === 'absoluteTransform'));
+  assert.deepEqual(captureProblems(failed), []);
+});
 
 function metadata(capture) {
   const rootObservation = '1:1#componentPropertyDefinitions#property';
@@ -564,4 +585,41 @@ test('malformed code-map entries produce controlled errors instead of aborting t
     assert.deepEqual(entryRefs('K', { figma: { variants: { A: null, B: { refs: [1, 'r'] } } } }), ['K', 'r']);
     assert.deepEqual(mappedComponentsOf(root, [['a', null], ['b', 'x']]), []);
   } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('an unreadable essential field is a capture gap, not the absence that its requirements would silently assume', async () => {
+  const base = await fixture();
+  const gap = (mutate, label) => {
+    const c = structuredClone(base); mutate(c);
+    const errors = verifyEvidence(metadata(c), c).errors.filter(e => e.startsWith('Essential capture field'));
+    assert.ok(errors.length, label);
+    return errors;
+  };
+  const failed = (id, field) => c => { delete c.nodes.find(n => n.id === id).properties[field]; c.coverage.issues.push({ node: id, field, reason: 'getter threw' }); };
+  const unavailable = (id, field) => c => { c.observations.find(o => o.id === `${id}#${field}#property`).value = { unavailable: true }; };
+  assert.match(gap(failed('1:4', 'lineHeight'), 'text typography read failure')[0], /1:4#lineHeight could not be read/);
+  gap(failed('1:4', 'characters'), 'text content read failure');
+  gap(failed('1:4', 'segments'), 'text segments read failure');
+  gap(failed('1:4', 'layoutSizingHorizontal'), 'text sizing read failure');
+  gap(unavailable('1:4', 'fontName'), 'a text font that reads as unavailable');
+  gap(failed('1:2', 'variantProperties'), 'variant identity read failure');
+  gap(failed('1:5', 'componentProperties'), 'instance configuration read failure');
+  gap(failed('1:2', 'explicitVariableModes'), 'mode context of a node that uses variables');
+  gap(unavailable('1:2', 'resolvedVariableModes'), 'resolved mode of a node that uses variables');
+  // Reads that other checks already treat as unknown, and mixed values that segments explain, are not capture gaps.
+  const quiet = structuredClone(base);
+  failed('1:2', 'strokes')(quiet); failed('1:3', 'explicitVariableModes')(quiet);
+  assert.deepEqual(essentialReadFailures(quiet), []);
+  assert.equal(essentialReadFailures(base).length, 0, 'the healthy capture has no gaps');
+  assert.deepEqual(verifyEvidence(metadata(base), base).errors, []);
+});
+
+test('the real collector turns a throwing text getter into an essential gap that structural validation still accepts', async () => {
+  const figma = mockFigma();
+  Object.defineProperty(figma.nodes.get('1:4'), 'lineHeight', { get() { throw new Error('Figma could not read lineHeight'); } });
+  const capture = await captureFigma(figma, { fileKey: 'FILE', nodeId: '1:1' });
+  assert.deepEqual(captureProblems(capture), [], 'the failure is reported, so the capture is well formed');
+  assert.ok(capture.coverage.issues.some(i => i.node === '1:4' && i.field === 'lineHeight'));
+  assert.ok(!capture.observations.some(o => o.id === '1:4#lineHeight#property'), 'and no observation exists to require coverage for it');
+  assert.ok(verifyEvidence(metadata(capture), capture).errors.some(e => e.includes('1:4#lineHeight could not be read')));
 });

@@ -57,6 +57,8 @@ If the requested root component is already mapped, return that match. Repeating 
 
 ## Output
 
+Distinguish a reliable identity match from current visual confirmation. Capture v2 and report v4 account for geometry/resources, but a static match does not cover pending, failed or noncomparable rendered checks. Independent comparator/measurement rules versions control evidence currency. Pending verification does not imply a visual defect. This lookup does not recapture older snapshots.
+
 Return:
 
 - DS component;

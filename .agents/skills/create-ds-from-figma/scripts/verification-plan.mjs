@@ -2,11 +2,13 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, renameS
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadSnapshot, sealCapture } from '../../../checks/lib/figma-evidence.mjs';
-import { projectFile, renderRequirements, sha256 } from '../../../checks/lib/render-plan.mjs';
+import { projectFile, renderRequirements, sha256, verifyRenderPlan } from '../../../checks/lib/render-plan.mjs';
 import { verify } from '../../../checks/verify-ds.mjs';
-import { caseInputs, checkedArtifacts } from '../../../checks/lib/comparison-evidence.mjs';
+import { caseInputs, checkedArtifacts, renderedChecks, validateBrowserMeasurement } from '../../../checks/lib/comparison-evidence.mjs';
+import { assertConfirmationChecks, compareRendered } from '../../../checks/lib/render-comparison.mjs';
 import { publishMeasurement } from '../../../checks/lib/publish-measurement.mjs';
 import { createDependencySession } from '../../../checks/lib/local-dependencies.mjs';
+import { deriveBehaviorEvidence } from '../../../checks/lib/behavior-evidence.mjs';
 
 const forbidden = (record, keys) => {
   if (!record || typeof record !== 'object' || Array.isArray(record) || Object.keys(record).some(k => !keys.includes(k))) throw new Error(`Decision accepts only ${keys.join(', ')}`);
@@ -31,6 +33,7 @@ export function materializePlan(metadata, capture, decisions) {
     return expected.map(fact => result.find(record => (record.id ?? record.observation) === (fact.id ?? fact.observation) && (fact.index === undefined || record.index === fact.index)));
   };
   result.verification = { schemaVersion: 1,
+    geometryPolicy: 'mapped-layout-v1',
     fonts: select(decisions.fonts, requirements.fonts, ['id', 'css', 'source'], r => ({ id: r.id })),
     assets: select(decisions.assets, requirements.assets, ['observation', 'index', 'source'], r => ({ observation: r.observation, index: r.index, imageHash: r.imageHash })),
     stylesheets: decisions.stylesheets, inputs: decisions.inputs ?? [], unestablished: decisions.unestablished,
@@ -71,10 +74,15 @@ export function comparisonReport(root, metadata, caseId, review, style, metadata
   const hashFile = file => ({ path: file, sha256: sha256(readFileSync(projectFile(root, file))) });
   const scoped = caseInputs(root, metadata, configuration, style, { dependencySession });
   const inputs = [...new Set([...scoped.files, ...(review.inputs || [])])].sort();
-  return { schemaVersion: 2, kind: 'rendered-comparison', result: 'PASS', caseId, snapshotHash: metadata.evidence.hash, sourceSnapshot: metadata.evidence.snapshot,
+  const artifacts = checkedArtifacts(root, review.artifacts, metadata, configuration, { derive: true, dependencySession });
+  const renderChecks = renderedChecks(root, metadata, configuration, artifacts);
+  assertConfirmationChecks(renderChecks, review.checkReviews, artifacts.map(a => a.path));
+  const behaviors = deriveBehaviorEvidence(root, metadata, configuration, artifacts, review.behaviors ?? [], { dependencySession });
+  return { schemaVersion: 4, kind: 'rendered-comparison', result: 'PASS', caseId, snapshotHash: metadata.evidence.hash, sourceSnapshot: metadata.evidence.snapshot,
     configuration: structuredClone(configuration), comparison: { method: review.comparison.method, reason: review.comparison.reason, figmaRef: configuration.figmaRef },
     metadataHash: scoped.metadataHash, ...(metadataPath ? { metadataAudit: hashFile(metadataPath) } : {}),
-    figmaRevision: review.figmaRevision, codeRevision: review.codeRevision, files: inputs.map(hashFile), artifacts: checkedArtifacts(root, review.artifacts, metadata, configuration, { derive: true, dependencySession }) };
+    figmaRevision: review.figmaRevision, codeRevision: review.codeRevision, files: inputs.map(hashFile), artifacts,
+    renderChecks, checkReviews: review.checkReviews || [], behaviors };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
@@ -84,6 +92,27 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       const snapshot = JSON.parse(readFileSync(args[0], 'utf8')), sealed = sealCapture(snapshot.capture);
       if (sealed.hash !== snapshot.hash) throw new Error('Snapshot hash mismatch');
       console.log(JSON.stringify({ snapshotHash: snapshot.hash, ...renderRequirements(snapshot.capture) }, null, 2));
+    } else if (command === 'compare' && [4, 5].includes(args.length)) {
+      const [root, metadataPath, caseId, bodyPath, baselinePath] = args;
+      const metadata = JSON.parse(readFileSync(projectFile(root, metadataPath), 'utf8'));
+      const snapshot = loadSnapshot(root, metadata.evidence.snapshot);
+      if (snapshot.hash !== metadata.evidence.hash) throw new Error('Metadata snapshot hash mismatch');
+      const plan = verifyRenderPlan(path.resolve(root), metadata, snapshot.capture);
+      if (plan.errors.length) throw new Error(plan.errors.join('\n'));
+      const configuration = metadata.verification?.cases.find(c => c.id === caseId);
+      if (!configuration) throw new Error('Unknown case');
+      const body = JSON.parse(readFileSync(bodyPath, 'utf8'));
+      validateBrowserMeasurement(body, metadata, configuration);
+      let baselineMeasurement;
+      if (baselinePath) {
+        const baseline = metadata.verification.cases.find(c => c.id === configuration.baseline && c.kind === 'fidelity');
+        if (configuration.kind !== 'behavior' || !baseline) throw new Error('Baseline body requires a behavior case with a fidelity baseline');
+        baselineMeasurement = JSON.parse(readFileSync(baselinePath, 'utf8'));
+        validateBrowserMeasurement(baselineMeasurement, metadata, baseline);
+      }
+      const result = compareRendered(snapshot.capture, metadata, configuration, body, { baselineMeasurement });
+      console.log(JSON.stringify(result, null, 2));
+      if (result.summary.FAIL) process.exitCode = 1;
     } else if (command === 'apply' && args.length === 3) {
       const [root, metadataPath, decisionsPath] = args, file = projectFile(root, metadataPath);
       const original = readFileSync(file), metadata = JSON.parse(original.toString('utf8')), snapshot = loadSnapshot(root, metadata.evidence.snapshot);
@@ -126,6 +155,6 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       if (existsSync(output)) { if (sha256(readFileSync(projectFile(root, relative))) !== hash) throw new Error('Existing report differs'); }
       else writeFileSync(output, bytes, { flag: 'wx' });
       console.log(JSON.stringify({ path: relative, sha256: hash, limitation: 'Judgment supplied by reviewer; hashes and configuration generated, not authenticity or visual proof.' }));
-    } else throw new Error('Usage: verification-plan.mjs requirements SNAPSHOT | apply ROOT METADATA DECISIONS | publish ROOT METADATA CASE RECEIPT | report ROOT METADATA CASE REVIEW');
+    } else throw new Error('Usage: verification-plan.mjs requirements SNAPSHOT | compare ROOT METADATA CASE BODY [BASELINE_BODY] | apply ROOT METADATA DECISIONS | publish ROOT METADATA CASE RECEIPT | report ROOT METADATA CASE REVIEW');
   } catch (error) { console.error(error.message); process.exitCode = 1; }
 }

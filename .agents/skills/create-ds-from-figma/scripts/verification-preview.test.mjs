@@ -8,6 +8,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { previewModule, receiptHandler, startPreview } from './verification-preview.mjs';
 import { sha256 } from '../../../checks/lib/render-plan.mjs';
+import { MEASUREMENT_VERSION } from '../../../checks/lib/measurement-version.mjs';
 import { componentCapture, fixtureRenderPlan } from '../../../checks/tests/fixtures/component-capture.mjs';
 
 test('preview mounts recorded props without editing App, escapes source content, imports explicit styles and exposes measurement limits', () => {
@@ -53,8 +54,20 @@ test('generated collector scopes parts to the outer component and excludes neste
   vm.runInNewContext(source, context);
   await context.window.__dsVerification.collect();
   assert.equal(context.window.__dsVerification.status, 'recorded');
+  assert.equal(bodies.at(-1).schemaVersion, 2);
+  assert.equal(bodies.at(-1).producer, 'verification-preview-v2');
+  assert.equal(bodies.at(-1).measurementVersion, MEASUREMENT_VERSION);
+  assert.equal(bodies.at(-1).parts.root.elements[0].geometry.axisAligned, true);
+  assert.equal(bodies.at(-1).parts.root.elements[0].geometry.affine2d, true);
   assert.equal(bodies.at(-1).parts.root.count, 1);
   assert.deepEqual(bodies.at(-1).parts.initial.elements.map(e => e.text), ['F']);
+  context.getComputedStyle = element => ({ getPropertyValue: property => property === 'transform' && element.part === 'initial' ? 'matrix(0.707,0.707,-0.707,0.707,0,0)' : '' });
+  await context.window.__dsVerification.collect();
+  assert.equal(bodies.at(-1).parts.initial.elements[0].geometry.axisAligned, false);
+  assert.equal(bodies.at(-1).parts.initial.elements[0].geometry.affine2d, true);
+  context.getComputedStyle = () => ({ getPropertyValue: property => property === 'perspective' ? '100px' : '' });
+  await context.window.__dsVerification.collect();
+  assert.equal(bodies.at(-1).parts.initial.elements[0].geometry.affine2d, false);
   target.children.push(element('root', 'sibling', target));
   await assert.rejects(context.window.__dsVerification.collect(), /root part is missing or ambiguous/);
   target.children = [];
@@ -79,12 +92,13 @@ test('HTTP receipt preserves original bytes, checks both hashes, rejects unsafe 
   await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
   t.after(async () => { await new Promise(resolve => server.close(resolve)); rmSync(directory, { recursive: true, force: true }); });
   const url = `http://127.0.0.1:${server.address().port}/__ds_verification/receipt`;
-  const body = '{ "schemaVersion": 1, "caseId": "source", "phase": "measurement", "parts": {}, "fonts": [], "viewport": { "width": 640, "height": 480 }, "configuration": {"id":"source","viewport":{"width":640,"height":480}} }\n';
+  const body = `{ "schemaVersion": 2, "measurementVersion": "${MEASUREMENT_VERSION}", "caseId": "source", "phase": "measurement", "parts": {}, "fonts": [], "viewport": { "width": 640, "height": 480 }, "configuration": {"id":"source","viewport":{"width":640,"height":480}} }\n`;
   const post = (value, session = 'secret', hash = sha256(Buffer.from(value))) => fetch(url, { method: 'POST', headers: { 'content-type': 'application/json', 'x-ds-session': session, 'x-body-sha256': hash }, body: value });
   assert.equal((await post(body, 'wrong')).status, 403);
   assert.equal((await post(body, 'secret', 'wrong')).status, 400);
   assert.equal((await post('a'.repeat(513))).status, 413);
   assert.equal((await post('{}')).status, 400);
+  assert.equal((await post(body.replace(MEASUREMENT_VERSION, 'measurement-rules-v999'))).status, 400);
   assert.equal((await post(body.replace('"id":"source"', '"id":"fabricated"'))).status, 400);
   const response = await post(body); assert.equal(response.status, 200);
   const receipt = await response.json();
@@ -94,6 +108,7 @@ test('HTTP receipt preserves original bytes, checks both hashes, rejects unsafe 
   const report = JSON.parse(readFileSync(path.join(directory, 'source-1.receipt.json'), 'utf8'));
   assert.equal(report.status, 'NOT VERIFIED'); assert.equal(report.viewportMatches, true);
   assert.equal(report.metadataHash, 'a'.repeat(64));
+  assert.equal(report.measurementVersion, MEASUREMENT_VERSION);
   files = [{ path: 'component.tsx', sha256: 'changed-input-hash' }];
   await post(body); assert.equal(readdirSync(directory).length, 4);
   const changed = JSON.parse(readFileSync(path.join(directory, 'source-2.receipt.json'), 'utf8'));

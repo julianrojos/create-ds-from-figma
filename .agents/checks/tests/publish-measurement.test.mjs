@@ -5,7 +5,7 @@ import path from 'node:path';
 import { publishMeasurement } from '../lib/publish-measurement.mjs';
 import { checkedArtifacts } from '../lib/comparison-evidence.mjs';
 import { createPreviewProject } from './fixtures/preview-project.mjs';
-import { renderedArtifacts } from './fixtures/rendered-artifacts.mjs';
+import { renderedArtifacts, renderedBehaviors } from './fixtures/rendered-artifacts.mjs';
 import { comparisonReport } from '../../skills/create-ds-from-figma/scripts/verification-plan.mjs';
 
 test('publication preserves original bytes, is immutable/idempotent and rejects changed inputs or transport', t => {
@@ -44,7 +44,7 @@ test('publish and report both require mapped component CSS outside the enumerate
   const receipt = JSON.parse(readFileSync(receiptPath));
   assert.ok(receipt.files.some(f => f.path === css));
   const report = comparisonReport(root, m, c.id, { result: 'PASS', comparison: { method: 'agent-rendered-review', reason: 'Synthetic test only.' },
-    figmaRevision: { id: null, reason: 'Synthetic source.' }, codeRevision: { id: null, reason: 'Synthetic source.' }, artifacts });
+    figmaRevision: { id: null, reason: 'Synthetic source.' }, codeRevision: { id: null, reason: 'Synthetic source.' }, artifacts, behaviors: renderedBehaviors(root, m, c) });
   assert.ok(report.files.some(f => f.path === css));
   receipt.files = receipt.files.filter(f => f.path !== css); writeFileSync(receiptPath, JSON.stringify(receipt));
   assert.throws(() => publishMeasurement(root, m, c.id, receiptPath), /input not recorded: styles\/PreviewGlyph.module.css/);

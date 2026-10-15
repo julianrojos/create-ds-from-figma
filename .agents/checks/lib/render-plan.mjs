@@ -7,6 +7,8 @@ const object = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const text = v => typeof v === 'string' && v.trim().length > 0;
 const canonical = value => Array.isArray(value) ? value.map(canonical) : object(value) ? Object.fromEntries(Object.keys(value).sort().map(k => [k, canonical(value[k])])) : value;
 const equal = (a, b) => JSON.stringify(canonical(a)) === JSON.stringify(canonical(b));
+// Only well-formed records of a possibly malformed list; the plan validator reports the malformation itself.
+export const objectRecords = value => Array.isArray(value) ? value.filter(item => item !== null && typeof item === 'object' && !Array.isArray(item)) : [];
 export const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
 
 export function projectFile(root, relative) {
@@ -59,6 +61,7 @@ function subtree(capture, ref) {
 export function verifyRenderPlan(root, metadata, capture, { delegations = [] } = {}) {
   const errors = [], warnings = [], requirements = renderRequirements(capture), plan = metadata.verification;
   if (!object(plan) || plan.schemaVersion !== 1) return { errors: ['verification schemaVersion 1 is required'], warnings, requirements };
+  if (plan.geometryPolicy !== 'mapped-layout-v1') errors.push('verification.geometryPolicy must be mapped-layout-v1');
   const arrays = ['fonts', 'assets', 'stylesheets', 'inputs', 'cases', 'unestablished'];
   for (const key of arrays) if (!Array.isArray(plan[key])) errors.push(`verification.${key} must be an array`);
   if (errors.length) return { errors, warnings, requirements };
@@ -141,10 +144,23 @@ export function verifyRenderPlan(root, metadata, capture, { delegations = [] } =
     const base = cases.get(c.baseline);
     if (!base || base.kind !== 'fidelity' || base.figmaRef !== c.figmaRef || !equal(c.viewport, base.viewport) || !equal(c.modes, base.modes) || !equal(c.environment, base.environment) || !equal(c.states, base.states)) errors.push(`${c.id}: behavior baseline must be a fidelity case with the same ref and environment`);
     for (const e of Array.isArray(c.expectations) ? c.expectations : []) {
+      if (e && ['contained', 'anchored', 'centered'].includes(e.kind)) {
+        const variantKeys = Object.keys(metadata.parts?.root?.nodes || {}).filter(key => metadata.parts.root.nodes[key] === c.figmaRef);
+        const ids = subtree(capture, c.figmaRef);
+        const mapped = part => {
+          const refs = [...new Set(variantKeys.map(key => metadata.parts?.[part]?.nodes?.[key]).filter(Boolean))];
+          return refs.length === 1 && refs[0].startsWith(capture.source.fileKey + ':') && ids.has(refs[0].slice(capture.source.fileKey.length + 1));
+        };
+        const keys = e.kind === 'contained' ? ['kind', 'part', 'container', 'inset', 'reason'] : e.kind === 'centered' ? ['kind', 'part', 'container', 'axis', 'relation', 'reason'] : ['kind', 'part', 'container', 'edge', 'reason'];
+        if (Object.keys(e).some(key => !keys.includes(key)) || !text(e.reason) || !mapped(e.part) || !mapped(e.container) || e.part === e.container || e.kind === 'contained' && e.inset !== undefined && (!Number.isFinite(e.inset) || e.inset < 0) || e.kind === 'anchored' && !['left', 'right', 'top', 'bottom'].includes(e.edge)) errors.push(`${c.id}: explicit ${e.kind} invariant needs distinct mapped parts, reason and valid inset/edge`);
+        if (e.kind === 'centered' && (!['x', 'y'].includes(e.axis) || !['center', 'preserve-offset'].includes(e.relation))) errors.push(`${c.id}: centered needs axis x/y and relation center/preserve-offset`);
+        continue;
+      }
       const requirement = requirements.dimensions.find(d => d.observation === e?.observation && d.behavior === 'content');
       if (!requirement || e.kind !== 'intrinsic-size' || !text(e.part) || !Object.values(metadata.parts?.[e.part]?.nodes || {}).includes(requirement.node) || e.axis !== requirement.field || !subtree(capture, c.figmaRef).has(requirement.node.slice(capture.source.fileKey.length + 1))) { errors.push(`${c.id}: intrinsic-size expectation needs a captured content dimension, axis and its mapped text part`); continue; }
       if (base && c.content?.[requirement.node] !== undefined && c.content[requirement.node] !== base.content?.[requirement.node]) exercised.add(requirement.observation);
       else errors.push(`${c.id}: intrinsic-size case must vary the content of the examined text node`);
+      if (Object.keys(e).some(key => !['kind', 'observation', 'axis', 'part', 'relation', 'reason'].includes(key)) || e.relation !== undefined && (!['grow', 'shrink', 'equal', 'change'].includes(e.relation) || !text(e.reason))) errors.push(`${c.id}: dimensional relation must be explicit, supported and justified`);
     }
   }
   for (const d of requirements.dimensions.filter(d => d.behavior === 'content' && !delegatedNodes.has(d.node.slice(capture.source.fileKey.length + 1)) && !unestablishedNodes.has(d.node.slice(capture.source.fileKey.length + 1)))) if (!exercised.has(d.observation)) errors.push(`Missing alternate-content behavior case: ${d.observation}`);

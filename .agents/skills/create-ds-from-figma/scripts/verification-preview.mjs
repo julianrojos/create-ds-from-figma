@@ -12,12 +12,13 @@ import { verifyIntrinsicCss } from '../../../checks/lib/intrinsic-css.mjs';
 import { mappedComponentsOf } from '../../../checks/verify-figma-evidence.mjs';
 import { verifyTokenStyles } from '../../../checks/lib/token-styles.mjs';
 import { createDependencySession } from '../../../checks/lib/local-dependencies.mjs';
+import { MEASUREMENT_VERSION } from '../../../checks/lib/measurement-version.mjs';
 
 const json = value => JSON.stringify(value).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
 const urlPath = relative => '/' + relative.split('/').map(encodeURIComponent).join('/');
 
 export function previewModule(metadata, capture, session) {
-  const data = { verification: metadata.verification, parts: metadata.parts, snapshotHash: metadata.evidence?.hash, session, literals: [], bindings: metadata.bindings || [] };
+  const data = { measurementVersion: MEASUREMENT_VERSION, verification: metadata.verification, parts: metadata.parts, snapshotHash: metadata.evidence?.hash, session, literals: [], bindings: metadata.bindings || [] };
   for (const literal of metadata.measuredLiterals || []) {
     const observation = capture.observations.find(o => o.id === literal.observation);
     const prefix = observation?.field.match(/^segments\[\d+\]\./)?.[0] || '';
@@ -45,6 +46,30 @@ const componentRoot = () => {
   return roots[0];
 };
 const queryPart = (root, part) => part === 'root' ? [root] : [...root.querySelectorAll('[data-ds-part]')].filter(e => e.getAttribute('data-ds-part') === part && e.closest('[data-ds-part="root"]') === root);
+const geometry = element => {
+  let visible = true, laidOut = true, axisAligned = true, affine2d = true;
+  if (['hidden', 'collapse'].includes(getComputedStyle(element).getPropertyValue('visibility'))) visible = false;
+  for (let current = element; current; current = current.parentElement) {
+    const style = getComputedStyle(current);
+    if (style.getPropertyValue('display') === 'none') { visible = false; laidOut = false; }
+    if (Number.parseFloat(style.getPropertyValue('opacity')) === 0) visible = false;
+    for (const property of ['rotate', 'scale', 'zoom']) {
+      const value = style.getPropertyValue(property);
+      if (value && !['none', 'normal', '1'].includes(value)) axisAligned = false;
+      if (property === 'rotate' && value && value !== 'none' && !/^[+-]?[\\d.]+(?:deg|grad|rad|turn)$/.test(value)) affine2d = false;
+      if (property === 'scale' && value && value !== 'none' && (value.trim().split(/\\s+/).length > 2 || value.trim().split(/\\s+/).some(v => !Number.isFinite(Number(v))))) affine2d = false;
+    }
+    const perspective = style.getPropertyValue('perspective'), translate = style.getPropertyValue('translate');
+    if (perspective && perspective !== 'none' || translate && translate !== 'none' && translate.trim().split(/\\s+/).length > 2) { affine2d = false; axisAligned = false; }
+    const transform = style.getPropertyValue('transform');
+    if (transform && transform !== 'none') {
+      const values = transform.startsWith('matrix(') ? transform.slice(7, -1).split(',').map(Number) : [];
+      if (values.length !== 6 || values.some(v => !Number.isFinite(v))) affine2d = false;
+      if (values.length !== 6 || values.some(v => !Number.isFinite(v)) || Math.abs(values[0] - 1) > 1e-8 || Math.abs(values[3] - 1) > 1e-8 || Math.abs(values[1]) > 1e-8 || Math.abs(values[2]) > 1e-8) axisAligned = false;
+    }
+  }
+  return { visible, laidOut, axisAligned, affine2d };
+};
 let sequence = Promise.resolve();
 const frames = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 const mounted = () => target.querySelectorAll('[data-ds-part="root"]').length > 0;
@@ -71,7 +96,7 @@ async function collect() {
       const style = getComputedStyle(element), rect = element.getBoundingClientRect();
       const properties = new Set(['width', 'height', 'font-family', 'font-size', 'font-weight', 'font-style', 'line-height', 'letter-spacing', 'text-align', 'overflow']);
       for (const r of [...data.literals, ...data.bindings].filter(r => r.part === name)) properties.add(r.cssProperty);
-      return { text: element.textContent, className: element.className, rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+      return { text: element.textContent, className: element.className, geometry: geometry(element), rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
         computed: Object.fromEntries([...properties].map(p => [p, style.getPropertyValue(p).trim()])) };
     }) };
   }
@@ -79,9 +104,9 @@ async function collect() {
   const fonts = data.verification.fonts.map(f => {
     const descriptor = f.css.style + ' ' + f.css.weight + ' 16px ' + JSON.stringify(f.css.family);
     return { id: f.id, descriptor, checkResult: document.fonts.check(descriptor),
-      faces: [...document.fonts].filter(face => face.family.replace(/^['\"]|['\"]$/g, '') === f.css.family).map(face => ({ family: face.family, weight: face.weight, style: face.style, status: face.status })) };
+      faces: [...document.fonts].filter(face => face.family.replace(/^['\"]|['\"]$/g, '').toLowerCase() === f.css.family.toLowerCase()).map(face => ({ family: face.family.replace(/^['\"]|['\"]$/g, ''), weight: face.weight, style: face.style, status: face.status })) };
   });
-  const payload = JSON.stringify({ schemaVersion: 1, kind: 'browser-measurement', producer: 'verification-preview-v1', capturedAt: new Date().toISOString(), snapshotHash: data.snapshotHash, caseId: configuration.id, phase: 'measurement', url: location.href,
+  const payload = JSON.stringify({ schemaVersion: 2, measurementVersion: data.measurementVersion, kind: 'browser-measurement', producer: 'verification-preview-v2', capturedAt: new Date().toISOString(), snapshotHash: data.snapshotHash, caseId: configuration.id, phase: 'measurement', url: location.href,
     viewport: { width: innerWidth, height: innerHeight, devicePixelRatio }, configuration, parts, fonts,
     images: [...target.querySelectorAll('img')].map(img => ({ src: img.currentSrc, complete: img.complete, naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight })),
     limitations: ['Measurements are not visual fidelity or authenticity proof.', 'State activations and mode scopes require independent verification.', 'Font availability and matching faces do not prove the rendered glyph font.'] });
@@ -121,8 +146,9 @@ export function receiptHandler({ session, directory, manifest, cases, currentFil
       const bytes = Buffer.concat(chunks), hash = sha256(bytes);
       if (req.headers['x-body-sha256'] !== hash) return send(400, { error: 'Transport hash mismatch' });
       const result = JSON.parse(bytes.toString('utf8'));
+      if (result.measurementVersion !== MEASUREMENT_VERSION) return send(400, { error: 'Measurement rules version differs from this producer' });
       const configuration = cases.find(c => c.id === result.caseId);
-      if (!configuration || result.schemaVersion !== 1 || result.phase !== 'measurement' || !result.parts || !result.viewport || !Array.isArray(result.fonts)) return send(400, { error: 'Invalid measurement envelope' });
+      if (!configuration || result.schemaVersion !== 2 || result.phase !== 'measurement' || !result.parts || !result.viewport || !Array.isArray(result.fonts)) return send(400, { error: 'Invalid measurement envelope' });
       if (JSON.stringify(result.configuration) !== JSON.stringify(configuration)) return send(400, { error: 'Measurement configuration differs from the declared case' });
       // Store the original body, not a parsed/reserialized copy. Hashes cover only declared inputs.
       const name = `${configuration.id}-${++sequence}`;
@@ -130,7 +156,7 @@ export function receiptHandler({ session, directory, manifest, cases, currentFil
       writeFileSync(file, bytes, { flag: 'wx' });
       const files = currentFiles ? currentFiles(configuration) : manifest.files;
       const { caseFiles, caseMetadataHashes, ...capturedManifest } = manifest;
-      writeFileSync(path.join(directory, `${name}.receipt.json`), JSON.stringify({ ...capturedManifest, metadataHash: caseMetadataHashes?.[configuration.id], files, inputsUnchangedSinceStart: JSON.stringify(files) === JSON.stringify(caseFiles?.[configuration.id] || manifest.files), caseId: configuration.id, configuration, body: { file: `${name}.json`, sha256: hash, bytes: size }, recordedAt: new Date().toISOString(), status: 'NOT VERIFIED',
+      writeFileSync(path.join(directory, `${name}.receipt.json`), JSON.stringify({ ...capturedManifest, measurementVersion: MEASUREMENT_VERSION, metadataHash: caseMetadataHashes?.[configuration.id], files, inputsUnchangedSinceStart: JSON.stringify(files) === JSON.stringify(caseFiles?.[configuration.id] || manifest.files), caseId: configuration.id, configuration, body: { file: `${name}.json`, sha256: hash, bytes: size }, recordedAt: new Date().toISOString(), status: 'NOT VERIFIED',
         viewportMatches: result.viewport.width === configuration.viewport.width && result.viewport.height === configuration.viewport.height }, null, 2), { flag: 'wx' });
       send(200, { file, sha256: hash, bytes: size });
     } catch (error) { if (!res.headersSent) send(400, { error: error.message }); }

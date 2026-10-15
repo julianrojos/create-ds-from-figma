@@ -1,6 +1,6 @@
 export function captureProfile() {
   const fields = [
-    'width', 'height', 'x', 'y', 'visible', 'opacity', 'rotation', 'layoutMode',
+    'width', 'height', 'x', 'y', 'absoluteBoundingBox', 'absoluteTransform', 'visible', 'opacity', 'rotation', 'layoutMode',
     'layoutSizingHorizontal', 'layoutSizingVertical', 'layoutPositioning',
     'primaryAxisSizingMode', 'counterAxisSizingMode', 'primaryAxisAlignItems',
     'counterAxisAlignItems', 'itemSpacing', 'counterAxisSpacing', 'layoutWrap',
@@ -181,7 +181,7 @@ export async function captureFigma(figma, options, extract = extractObservations
     }
     const variants = root.type === 'COMPONENT_SET'
       ? nodes.filter(n => n.parentId === root.id && n.type === 'COMPONENT').map(n => ({ nodeId: n.id, key: n.name, properties: n.properties.variantProperties || {} })) : [];
-    return { schemaVersion: 1, source: { tool: 'use_figma', api: 'PLUGIN', collector: 'capture-figma-v1',
+    return { schemaVersion: 2, source: { tool: 'use_figma', api: 'PLUGIN', collector: 'capture-figma-v2',
       fileKey: options.fileKey, requestedNodeId: options.nodeId, rootNodeId: root.id, revision: null },
       profile: { fields, textFields, scope: 'component-subtree-and-used-variable-aliases', excluded: ['vector geometry', 'image bytes', 'file-wide variable values', 'CSS and API decisions'] },
       variants, nodes, observations, collections, variables, styles,

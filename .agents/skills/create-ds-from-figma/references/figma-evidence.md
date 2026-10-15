@@ -53,7 +53,9 @@ Toda entrada del mapa exige evidence. No hay política externa, excepciones, mig
 
 Tras un diagnóstico permitido, ejecuta `node .agents/skills/create-ds-from-figma/scripts/figma-capture.mjs save . --chunks-dir DIRECTORIO_TEMPORAL`. Guarda literalmente snapshot/hash devueltos. save no importa componentes, cambia relaciones ni elimina capturas anteriores. Las órdenes de bajo nivel code, stage, validate-session y session sirven para adaptadores: `node .agents/skills/create-ds-from-figma/scripts/figma-capture.mjs session` crea un directorio único. stage usa wx deliberadamente: EEXIST exige otra sesión. Si ningún transporte es operativo, informa NOT RUN y DS_GAP para la importación antes de escribir; no relajes la evidencia.
 
-## Snapshot v1
+## Captura v2
+
+capture exige schemaVersion=2 y source.collector=capture-figma-v2. El perfil añade absoluteBoundingBox y absoluteTransform, capturados directamente como caja absoluta y matriz 2x3. Null/lecturas fallidas no autorizan geometría inventada. La matriz absoluta evita multiplicar relativeTransform siguiendo parentId sin respetar las particularidades de grupos/booleanos. absoluteRenderBounds, geometría vectorial y bytes de imagen quedan fuera. Se exige recapturar v1, sin alterar evidencia histórica para simular una captura v2.
 
 Ruta: `design-system/figma/snapshots/FILE_KEY/NODE_ID_CON_GUION/SHA256.json`, fuera de las carpetas de componentes, que conservan metadata.json y usage.md. El kit vacío no trae snapshots.
 
@@ -81,7 +83,7 @@ evidence guarda snapshot, hash, decisions, textDimensions, translations y dispos
 
 Un tratamiento declaration requiere fixed y un binding/literal de esa dimensión con el mismo destino CSS; translation exige selector, propiedad dimensional y una entrada translations que incluya la dimensión y las refs de apoyo; delegation exige pertenecer a los descendientes de una instancia mapped validada con su configuración; unresolved solo admite unknown y una entrada `unresolved` explícita, con field `textDimensions.<observation>`, motivo, fuente y blocking false. La incertidumbre esencial sigue causando DS_GAP, no un unresolved no bloqueante. Los destinos dimensionales son width/inline-size y height/block-size. No admite excluir dimensiones capturadas por estar ocultas. Los literales que congelan dimensiones content fallan aunque coincidan con la medida de ejemplo o se llamen approximate.
 
-El resultado aparece en review.textDimensions y conserva NOT VERIFIED para comportamiento CSS y renderizado. Estos requisitos solo cubren dimensiones de texto, no todas las propiedades visuales. Una traducción enlazada sigue siendo una decisión pendiente de comprobar, no evidencia de implementación correcta. El snapshot v1 y el colector permanecen intactos; no hay que recapturar por este cambio de ficha.
+El resultado aparece en review.textDimensions y conserva NOT VERIFIED para comportamiento CSS y renderizado. Estos requisitos solo cubren dimensiones de texto, no todas las propiedades visuales. Una traducción enlazada sigue siendo una decisión pendiente de comprobar, no evidencia de implementación correcta. El contrato dimensional se conserva; el perfil geométrico v2 exige recapturar las importaciones anteriores.
 
 decisions contiene `{ target, rule, reason, observations }`. target es `variantClassification.Eje.Valor` o `notBuilt[indice]`, único y existente. Cada clasificación y notBuilt necesita decisión. Se validan referencias y condiciones de reglas conocidas, no calidad del argumento. Las decisiones manuales generan un aviso agrupado de justificación NOT VERIFIED, con detalle en review.manualDecisions. reason no demuestra una decisión correcta.
 
@@ -91,7 +93,7 @@ Para un componente mapped admite una disposition `{ kind: "delegated", instance,
 
 ## Verificación Y Comparación
 
-El snapshot Figma no cambia de formato. Los informes de comparación v2 usan huella semántica por caso, medida original del navegador y captura Figma PNG tipadas; no aceptan archivos arbitrarios como evidencia renderizada. apply valida la propuesta en memoria antes de publicar metadata. Ni ese gate ni hashes/artefactos tipados autentican una valoración visual. El CSS intrínseco contempla especializaciones y pares físicos/lógicos, manteniendo revisión para ámbitos inciertos.
+La captura Figma usa el perfil v2. El comparador y el productor de mediciones tienen versiones independientes y huellas de sus declaraciones/dependencias locales relevantes. Los cuerpos y recibos originales requieren measurementVersion idéntica; una versión anterior caduca la evidencia y una discrepancia interna es error. No se necesita recapturar Figma solo por cambiar reglas del navegador. Los informes de comparación v4 usan huella semántica por caso, medida original del navegador y captura Figma PNG tipadas; no aceptan archivos arbitrarios como evidencia renderizada. Todo caso behavior asociado por baseline exige su medición publicada y checks en PASS antes de confirmed, sin rescate manual; sus cambios caducan la confirmación. apply valida la propuesta en memoria antes de publicar metadata. Ni ese gate ni hashes/artefactos tipados autentican una valoración visual. El CSS intrínseco contempla especializaciones y pares físicos/lógicos, manteniendo revisión para ámbitos inciertos.
 
 verify-ds comparte las capturas y los resultados de evidencia con el check de planes en la misma ejecución, sin caché global ni comprobación duplicada. El arranque de una vista independiente vuelve a verificar: no hereda un PASS anterior. Las traducciones generan un único aviso y detalle en review.translations. Los requisitos deterministas y fuentes agrupadas se obtienen con scripts/verification-plan.mjs, sin modificar el perfil del colector. Confirmaciones de usage se contrastan por caseId, configuración, informe y hashes; esto no autentica el juicio renderizado.
 
@@ -101,6 +103,7 @@ La ficha exige además verification con recursos y casos reproducibles. `node .a
 
 Reglas concretas de ese check:
 
+- Los requisitos de cobertura se derivan de lo observado, así que un campo que no se pudo leer eliminaría su propio requisito. Por eso una lectura fallida (`coverage.issues`) o un valor `{ "unavailable": true }` en un campo esencial es un error de captura, no una ausencia: tipografía, `fontName`, `characters`, `segments`, tamaño y `layoutSizing*` de nodos de texto; `variantProperties` de cada variante; `componentProperties` de cada instancia; y `explicitVariableModes`/`resolvedVariableModes` de los nodos que usan variables. Se resuelve capturando de nuevo o informando `DS_GAP`. Las lecturas que otro check ya trata como desconocidas (trazos, bounds, transformaciones, modos de la raíz) siguen siendo `NOT COMPARABLE`, no error.
 - `variants` y `variantClassification` se contrastan con los ejes y valores de las variantes capturadas: un eje o valor ausente del snapshot, o un valor capturado sin clasificar, es error. Un eje inventado no se salva con una decisión `manual`.
 - Un valor `{ "mixed": true }` o `{ "unavailable": true }` no puede registrarse como literal, ni `direct` ni `approximate`. Los campos de segmentos de texto (`segments[n].campo`) se comparan igual que los del nodo.
 - Un binding cubre a sus descendientes por `.` y por `[`: un literal sobre `fills` no puede sustituir a `fills[0].color`.

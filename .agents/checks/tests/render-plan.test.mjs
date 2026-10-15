@@ -73,6 +73,25 @@ test('intrinsic-size expectations cannot substitute the container for the mapped
   assert.ok(verifyRenderPlan(f.root, f.metadata, f.capture).errors.some(e => e.includes('mapped text part')));
 });
 
+test('behavior invariants require explicit mapped participants, valid parameters and justified relations', t => {
+  const f = fixture(t), behavior = f.metadata.verification.cases[1];
+  f.metadata.parts.root = { nodes: { 'Size=Small': 'FILE:1:3' } };
+  behavior.expectations.push({ kind: 'contained', part: 'initial', container: 'root', inset: 8, reason: 'Consumer requires this minimum inset.' },
+    { kind: 'anchored', part: 'initial', container: 'root', edge: 'right', reason: 'Preserve the baseline edge distance.' },
+    { kind: 'centered', part: 'initial', container: 'root', axis: 'x', relation: 'center', reason: 'Consumer requires centered content.' });
+  behavior.expectations[0].relation = 'grow'; behavior.expectations[0].reason = 'Declared wider text test.';
+  assert.deepEqual(verifyRenderPlan(f.root, f.metadata, f.capture).errors, []);
+  const saved = structuredClone(behavior.expectations);
+  for (const mutate of [
+    e => e[2].container = 'missing', e => e[2].container = 'initial', e => e[2].inset = -1,
+    e => e[3].edge = 'center', e => e[3].reason = '', e => e[0].relation = 'automatic', e => delete e[0].reason,
+    e => e[2].insett = 1, e => e[4].axis = 'z', e => delete e[4].relation, e => e[4].relation = 'automatic', e => e[4].reason = '',
+  ]) {
+    behavior.expectations = structuredClone(saved); mutate(behavior.expectations);
+    assert.ok(verifyRenderPlan(f.root, f.metadata, f.capture).errors.length);
+  }
+});
+
 test('all captured collections need independently specified active modes', t => {
   const f = fixture(t); f.capture.collections.push({ id: 'COL', defaultModeId: 'light', modes: [{ modeId: 'light', name: 'Light' }, { modeId: 'dark', name: 'Dark' }] });
   assert.ok(verifyRenderPlan(f.root, f.metadata, f.capture).errors.some(e => e.includes('active captured mode')));

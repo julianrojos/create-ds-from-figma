@@ -5,6 +5,8 @@ import { canonicalJson, loadSnapshot } from './figma-evidence.mjs';
 import { projectFile, renderRequirements, sha256 } from './render-plan.mjs';
 import { localDependencies } from './local-dependencies.mjs';
 import { StaleEvidenceError, UnverifiedEvidenceError } from './evidence-status.mjs';
+import { caseFonts, compareRendered } from './render-comparison.mjs';
+import { MEASUREMENT_VERSION, isMeasurementVersion } from './measurement-version.mjs';
 
 const text = v => typeof v === 'string' && v.trim().length > 0;
 const object = v => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -13,10 +15,25 @@ const list = v => Array.isArray(v) ? v : [];
 export const DIMENSION_TOLERANCE = 1;
 export const configurationHash = configuration => sha256(canonicalJson(configuration));
 
+export function renderedChecks(root, metadata, configuration, artifacts, { baselineMeasurement } = {}) {
+  const { capture } = loadSnapshot(root, metadata.evidence.snapshot);
+  const browser = artifacts.find(a => a.kind === 'browser-measurement');
+  const measurement = browser ? JSON.parse(readFileSync(projectFile(root, browser.path), 'utf8')) : undefined;
+  for (const font of caseFonts(capture, configuration)) {
+    const source = metadata.verification?.fonts?.find(f => f.id === font.id)?.source;
+    if (source?.kind === 'file') checkInputHash(root, { path: source.path, sha256: source.sha256 });
+  }
+  return compareRendered(capture, metadata, configuration, measurement, { baselineMeasurement });
+}
+
 export function validateBrowserMeasurement(body, metadata, configuration) {
+  if (!isMeasurementVersion(body.measurementVersion)) throw new Error('Original measurement rules version required');
   const elements = body.parts?.root?.elements;
-  if (body.schemaVersion !== 1 || body.kind !== 'browser-measurement' || body.producer !== 'verification-preview-v1' || !/^\d{4}-\d{2}-\d{2}T/.test(body.capturedAt || '') || !Number.isFinite(Date.parse(body.capturedAt)) || body.caseId !== configuration.id || body.snapshotHash !== metadata.evidence.hash || canonicalJson(body.configuration) !== canonicalJson(configuration) || !text(body.url) || body.viewport?.width !== configuration.viewport?.width || body.viewport?.height !== configuration.viewport?.height || body.parts?.root?.count !== 1 || !Array.isArray(elements) || elements.length !== 1 || !Array.isArray(body.fonts) || !Array.isArray(body.images)) throw new Error('Browser artifact is not an original measurement of the exact case/viewport');
-  for (const e of elements) if (typeof e.text !== 'string' || !object(e.computed) || !['x', 'y', 'width', 'height'].every(k => Number.isFinite(e.rect?.[k])) || e.rect.width < 0 || e.rect.height < 0) throw new Error('Browser artifact has invalid rendered geometry');
+  if (body.schemaVersion !== 2 || body.kind !== 'browser-measurement' || body.producer !== 'verification-preview-v2' || !/^\d{4}-\d{2}-\d{2}T/.test(body.capturedAt || '') || !Number.isFinite(Date.parse(body.capturedAt)) || body.caseId !== configuration.id || body.snapshotHash !== metadata.evidence.hash || canonicalJson(body.configuration) !== canonicalJson(configuration) || !text(body.url) || body.viewport?.width !== configuration.viewport?.width || body.viewport?.height !== configuration.viewport?.height || body.parts?.root?.count !== 1 || !Array.isArray(elements) || elements.length !== 1 || !Array.isArray(body.fonts) || !Array.isArray(body.images)) throw new Error('Browser artifact is not an original measurement of the exact case/viewport');
+  for (const part of Object.values(body.parts)) {
+    if (!object(part) || !Array.isArray(part.elements) || part.count !== part.elements.length) throw new Error('Browser artifact has invalid part counts');
+    for (const e of part.elements) if (typeof e.text !== 'string' || !object(e.computed) || !['x', 'y', 'width', 'height'].every(k => Number.isFinite(e.rect?.[k])) || e.rect.width < 0 || e.rect.height < 0 || !['visible', 'laidOut', 'axisAligned'].every(k => typeof e.geometry?.[k] === 'boolean')) throw new Error('Browser artifact has invalid rendered geometry');
+  }
 }
 
 export function caseInputs(root, metadata, configuration, style, { dependencySession } = {}) {
@@ -60,6 +77,8 @@ export function caseInputs(root, metadata, configuration, style, { dependencySes
     dispositions: list(metadata.evidence?.dispositions).filter(d => refs.has(d.instance) || list(d.observations).some(id => observations.has(id))).map(omitProse),
     states: list(metadata.states).filter(s => stateNames.has(s.name?.toLowerCase())).map(omitProse),
     fonts: fonts.map(resource), assets: assets.map(resource), stylesheets: metadata.verification?.stylesheets, inputs: metadata.verification?.inputs,
+    geometryPolicy: metadata.verification?.geometryPolicy,
+    associatedBehavior: configuration.kind === 'fidelity' ? list(metadata.verification?.cases).filter(c => c.kind === 'behavior' && c.baseline === configuration.id) : [],
     mappedCode: entries[0][1].code,
     componentState: state.components?.[metadata.name], collectionState,
     externalVariables: list(metadata.externalVariables).filter(v => usedIds.has(v.id)),
@@ -72,6 +91,8 @@ export function caseInputs(root, metadata, configuration, style, { dependencySes
 }
 
 export function validateMeasurementInputs(root, receipt, metadata, configuration, options = {}) {
+  if (!isMeasurementVersion(receipt.measurementVersion)) throw new Error('Original receipt measurement rules version required');
+  if (receipt.measurementVersion !== MEASUREMENT_VERSION) throw new StaleEvidenceError(`Measurement rules version changed: ${receipt.measurementVersion} -> ${MEASUREMENT_VERSION}`);
   const inputs = caseInputs(root, metadata, configuration, undefined, options);
   if (receipt.metadataHash !== inputs.metadataHash) throw new StaleEvidenceError('Stale measurement decisions for this configuration');
   if (inputs.warnings.length) throw new UnverifiedEvidenceError(inputs.warnings.join('; '));
@@ -132,6 +153,7 @@ export function readArtifact(root, artifact, metadata, configuration, { derive =
     const receiptBytes = readFileSync(artifactFile(publication.path));
     if (sha256(receiptBytes) !== publication.sha256) throw new Error('Published receipt hash mismatch');
     const receipt = JSON.parse(receiptBytes);
+    if (!isMeasurementVersion(body.measurementVersion) || body.measurementVersion !== receipt.measurementVersion) throw new Error('Measurement rules version differs from original receipt');
     if (receipt.body?.sha256 !== sha256(bytes) || receipt.body?.bytes !== bytes.length || receipt.snapshotHash !== metadata.evidence.hash || receipt.caseId !== configuration.id || canonicalJson(receipt.configuration) !== canonicalJson(configuration) || receipt.status !== 'NOT VERIFIED' || receipt.inputsUnchangedSinceStart !== true || receipt.viewportMatches !== true) throw new Error('Published receipt differs from original measurement or case');
     if (!/^[a-f0-9]{64}$/.test(receipt.metadataHash || '') || !Array.isArray(receipt.files) || !receipt.files.length || receipt.files.some(f => !text(f?.path) || path.isAbsolute(f.path) || f.path.includes('\\') || f.path.split('/').some(p => ['.', '..'].includes(p)) || !/^[a-f0-9]{64}$/.test(f.sha256 || '')) || new Set(receipt.files.map(f => f.path)).size !== receipt.files.length) throw new Error('Receipt semantic fingerprint and unique safe input hashes required');
     validateBrowserMeasurement(body, metadata, configuration);

@@ -105,7 +105,11 @@ test('configuration metadata fingerprint ignores prose and unrelated cases, but 
   const m = JSON.parse(readFileSync(path.join(root, metadataPath))), c = m.verification.cases[0];
   const hash = () => caseInputs(root, m, c, 'src/PreviewGlyph.module.css').metadataHash;
   const initial = hash();
-  m.description = 'Different wording'; m.verification.cases[1].props.initial = 'MMMM'; m.evidence.translations[0].reason = 'Reworded explanation';
+  m.description = 'Different wording'; m.evidence.translations[0].reason = 'Reworded explanation';
+  m.verification.cases.push({ ...structuredClone(c), id: 'unrelated-fidelity' });
   assert.equal(hash(), initial);
+  m.verification.cases[1].props.initial = 'MMMM';
+  assert.notEqual(hash(), initial, 'behavior linked by baseline is relevant to confirmation');
+  m.verification.cases[1].props.initial = 'W';
   m.measuredLiterals[0].value = '999px'; assert.notEqual(hash(), initial);
 });

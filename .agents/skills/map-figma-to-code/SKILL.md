@@ -17,7 +17,7 @@ Distinguish corrupt evidence from stale evidence. A stale but valid confirmed re
 Resolve a Design System component from Figma to its code implementation.
 When the Figma node is nested inside another imported component, resolve it without recreating the nested UI.
 
-For confirmed mappings, review the v2 report's per-case metadata fingerprint, current examined files, original browser measurement and retained Figma PNG provenance. A full metadata audit hash may differ after prose-only changes; that alone is not staleness. Typed artifacts and hashes are accounting evidence, not authenticated visual truth.
+For confirmed mappings, require current PASS results for every behavior case associated by baseline, with published original measurements. Review the v4 report's per-case metadata fingerprint, current examined files, original browser measurement and retained Figma PNG provenance. A full metadata audit hash may differ after prose-only changes; that alone is not staleness. Check the independent comparator and original measurement rules versions; outdated measurementVersion means recollection, not editing historical bytes. Unexecuted/noncomparable required behavior is pending verification, not a demonstrated design defect. Typed artifacts and hashes are accounting evidence, not authenticated visual truth.
 
 Consult metadata.verification for exact candidate props, content, modes, viewport and activation instructions. Fidelity and alternate-content behavior cases are separate. Test configurations do not confirm correspondences or prove that the code admits their props; use usage.md and rendered evidence for confirmation.
 
@@ -47,6 +47,10 @@ Read required `metadata.evidence.decisions` and their snapshot observations. Cla
 5. The create/import flow writes `nestedComponents` only for a successfully imported parent. On reanalysis, `external` to `mapped` alone does not authorize an update: follow the decision table in `.agents/skills/create-ds-from-figma/SKILL.md`. Update automatically only when the main component's identity is verified unchanged, there are no other observed differences, and the code edit can be isolated without overwriting existing work. If identity cannot be verified, do not write; request an additional ref or explicit authorization for a dependency-only replacement. A `missing` diagnosis stops before writing.
 
 ## Output
+
+Treat a changed comparatorVersion as stale, not a corrupt mapping; reason/scope prose alone does not change validity. A position PASS and a shape review have distinct scopes.
+
+For a confirmed configuration, retain the distinction between derived renderChecks and reviewer checkReviews. A specific visual review covers only a noncomparable requirement; it never rescues a numeric FAIL, NOT RUN or unresolved essential font. Do not infer overall fidelity from the static result or the identity match.
 
 Read the canonical JSON under `## Figma to code correspondences` in usage.md. Each caseId points to the exact fidelity configuration in metadata.verification; confirmed references a durable rendered-comparison report with hashes. This lookup remains read-only. Check integrity, current files/configuration/revisions and the scope of the visual judgment before returning an established mapping. Structural conformance does not prove fidelity, admissible props or live Figma currency. Preserve historical evidence and report candidates requiring review when stale or unverifiable. Only an authorized import/update or explicit request may record the proposed JSON entry.
 

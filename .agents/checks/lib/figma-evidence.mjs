@@ -17,7 +17,7 @@ export function captureHash(capture) {
 
 export function captureProblems(capture) {
   const errors = [];
-  if (capture?.schemaVersion !== 1 || capture.source?.collector !== 'capture-figma-v1' || capture.source?.api !== 'PLUGIN' ||
+  if (capture?.schemaVersion !== 2 || capture.source?.collector !== 'capture-figma-v2' || capture.source?.api !== 'PLUGIN' ||
       !capture.source?.fileKey || !capture.source?.rootNodeId || !Array.isArray(capture.nodes) ||
       !Array.isArray(capture.observations) || !Array.isArray(capture.variants) || !Array.isArray(capture.collections) ||
       !Array.isArray(capture.variables) || !Array.isArray(capture.styles) || !Array.isArray(capture.coverage?.issues) ||
@@ -136,6 +136,32 @@ function inheritedMode(capture, nodeId, collectionId) {
   }
   return ancestor || (typeof resolved === 'string' && fallback && resolved !== fallback)
     ? { resolvedModeId: typeof resolved === 'string' ? resolved : null, ancestor } : null;
+}
+
+// The checks derive their requirements from what was observed, so a field that could not be read silently removes its own
+// requirement. For fields the import depends on, an unreadable value is a capture gap (DS_GAP), never an absence.
+const TEXT_ESSENTIAL = new Set(['fontName', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'textAlignHorizontal', 'textAlignVertical',
+  'textAutoResize', 'characters', 'layoutSizingHorizontal', 'layoutSizingVertical', 'width', 'height', 'segments']);
+export function essentialReadFailures(capture) {
+  const nodes = new Map(capture.nodes.map(n => [n.id, n]));
+  const bound = new Set(capture.observations.filter(o => o.kind === 'binding').map(o => o.node));
+  const essential = (node, field) => {
+    const base = field.replace(/^segments\[\d+\]\./, '');
+    if (node.type === 'TEXT' && TEXT_ESSENTIAL.has(base)) return true;
+    if (base === 'variantProperties' && nodes.get(node.parentId)?.type === 'COMPONENT_SET') return true;
+    if (base === 'componentProperties' && node.type === 'INSTANCE') return true;
+    return ['explicitVariableModes', 'resolvedVariableModes'].includes(base) && bound.has(node.id);
+  };
+  const failures = new Map();
+  for (const issue of capture.coverage.issues) {
+    const node = nodes.get(issue.node);
+    if (node && essential(node, issue.field)) failures.set(`${issue.node}#${issue.field}`, 'could not be read');
+  }
+  for (const o of capture.observations) {
+    const node = nodes.get(o.node);
+    if (o.kind === 'property' && node && o.value !== null && typeof o.value === 'object' && !Array.isArray(o.value) && o.value.unavailable === true && essential(node, o.field)) failures.set(`${o.node}#${o.field}`, 'was unavailable');
+  }
+  return [...failures].map(([id, reason]) => ({ id, reason })).sort((a, b) => a.id < b.id ? -1 : 1);
 }
 
 export function variantAxes(capture) {
@@ -291,6 +317,7 @@ export function verifyEvidence(metadata, capture, { mappedComponents = [] } = {}
     if (!(metadata.evidence?.decisions || []).some(d => d.target === `variantClassification.${axis}.${value}`)) errors.push(`Missing decision evidence for ${axis}=${value}`);
   }
   for (const [index] of (metadata.notBuilt || []).entries()) if (!(metadata.evidence?.decisions || []).some(d => d.target === `notBuilt[${index}]`)) errors.push(`Missing decision evidence for notBuilt[${index}]`);
+  for (const failure of essentialReadFailures(capture)) errors.push(`Essential capture field ${failure.id} ${failure.reason}: capture again or report DS_GAP; its requirements cannot be derived from an unobserved value`);
   if (capture.coverage.issues.length) warnings.push(`Capture has ${capture.coverage.issues.length} unavailable reads; capture completeness NOT VERIFIED`);
   if (review.inheritedModes.length) {
     const named = (name, id) => name ? `${JSON.stringify(name)} (${id})` : id;

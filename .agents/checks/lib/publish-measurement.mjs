@@ -17,10 +17,11 @@ export function publishMeasurement(root, metadata, caseId, receiptPath) {
   if (path.dirname(source) !== directory) throw new Error('Receipt body escapes receipt directory');
   const bytes = readFileSync(source), hash = sha256(bytes);
   if (receipt.body.sha256 !== hash || receipt.body.bytes !== bytes.length) throw new Error('Receipt body hash/size mismatch');
-  validateMeasurementInputs(root, receipt, metadata, configuration, { dependencySession });
   const body = JSON.parse(bytes);
+  if (body.measurementVersion !== receipt.measurementVersion) throw new Error('Measurement rules version differs from original receipt');
   if (body.snapshotHash !== metadata.evidence.hash || canonicalJson(body.configuration) !== canonicalJson(configuration) || body.caseId !== caseId || body.kind !== 'browser-measurement') throw new Error('Measurement body differs from receipt case');
   validateBrowserMeasurement(body, metadata, configuration);
+  validateMeasurementInputs(root, receipt, metadata, configuration, { dependencySession });
   const base = realpathSync(root), ds = realpathSync(path.join(base, 'design-system'));
   if (!ds.startsWith(base + path.sep)) throw new Error('Publication directory escapes project');
   let parent = ds;

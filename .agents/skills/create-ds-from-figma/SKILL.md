@@ -11,11 +11,15 @@ description: >-
 
 # Crear DS desde un componente Figma
 
+Toda importación usa captura v2 con absoluteBoundingBox/absoluteTransform y verification.geometryPolicy=mapped-layout-v1. No completes hechos geométricos a mano ni migres capturas v1: recaptura. Antes de confirmar, usa verification-plan.mjs compare con la medición v2 del caso y revisa los checks; el informe v4 deriva renderChecks. FAIL/NOT RUN y fuentes esenciales pendientes bloquean confirmed. Cada NOT COMPARABLE de fidelidad necesita checkReviews específico con evidencia del mismo caso, sin cambiar su resultado numérico. El informe final debe separar conformidad estática de cobertura visual: casos confirmados, pendientes, registros fallidos y no establecidos, más motivos de no comparabilidad. No presentes una importación visual como terminada solo porque verify-ds devuelve PASS.
+
 El usuario trabaja en **este repo**, dice **crea un DS** y pega **un componente** de Figma (con variables locales o bindings externos con ID y valor resuelto).
 
 Eso basta. No pidas el esqueleto en un paso aparte.
 
 No cites componentes ni pantallas que aún no existan en el DS generado. `design-system/inventory.json` empieza vacío y **se rellena al incluir cada pieza**.
+
+El diagnóstico compare admite BASELINE_BODY opcional para invariantes behavior explícitas. Para confirmed, publica todas las mediciones behavior asociadas por baseline y pásalas como behaviors: [{ caseId, artifact }] en REVIEW; report deriva sus resultados y exige todos los checks en PASS. No rescates behavior no comparable con texto libre ni confirmes variantes nuevas por probar contenido alternativo. Revisa position y geometry por separado: la forma no comparable no exime de una posición incorrecta. La versión del comparador, no la redacción de reason/scope, gobierna la caducidad de sus reglas. measurementVersion identifica por separado las reglas del productor en cuerpo/recibo; si quedó antigua, recoge de nuevo sin reescribir el original. Una obligación no comparable/no ejecutada mantiene candidate/NOT VERIFIED, no demuestra un defecto de diseño.
 
 ## Kit vacío
 

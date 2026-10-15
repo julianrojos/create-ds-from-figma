@@ -13,7 +13,7 @@ import { createFloatResolver, floatAliasProblems, isLocalAliasVariable, serializ
 import { isPortableTokenFileName, tokenFileKey } from "./lib/token-file-name.mjs";
 import { verifyFigmaEvidence } from './verify-figma-evidence.mjs';
 import { verifyRenderPlans } from './verify-render-plan.mjs';
-import { verifyCorrespondences } from './lib/correspondences.mjs';
+import { verifyCorrespondences, correspondenceSummary } from './lib/correspondences.mjs';
 import { createDependencySession } from './lib/local-dependencies.mjs';
 
 const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -115,7 +115,7 @@ function staticJsxParts(source, fileName) {
   return { parts, hasSyntaxErrors: tree.parseDiagnostics.length > 0 };
 }
 
-export function verify(root, { metadataOverrides = new Map() } = {}) {
+export function verify(root, { metadataOverrides = new Map(), visualSummaries = new Map() } = {}) {
   const errors = [];
   const warnings = [];
   const fail = (message) => errors.push(message);
@@ -201,6 +201,7 @@ export function verify(root, { metadataOverrides = new Map() } = {}) {
         fail(`${name}: ${entry.designSystem.usage}:${line} still holds a ${kind}; fill it in or remove it`);
       }
       const correspondences = verifyCorrespondences(root, metadata, usage, markdownProse(usage), { style: entry.code.style, metadataPath: entry.designSystem.metadata, dependencySession });
+      visualSummaries.set(name, correspondenceSummary(metadata, correspondences));
       for (const error of correspondences.errors) fail(`${name}: ${entry.designSystem.usage}: ${error}`);
       for (const warning of correspondences.warnings) warn(`${name}: ${entry.designSystem.usage}: ${warning}`);
     }
@@ -928,9 +929,12 @@ export function verify(root, { metadataOverrides = new Map() } = {}) {
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const root = path.resolve(process.argv[2] || ".");
-  const { errors, warnings } = verify(root);
+  const visualSummaries = new Map();
+  const { errors, warnings } = verify(root, { visualSummaries });
   for (const warning of warnings) console.warn(`WARN ${warning}`);
   for (const error of errors) console.error(`FAIL ${error}`);
   console.log(`${errors.length ? "FAIL" : "PASS"}: ${errors.length} error(s), ${warnings.length} warning(s)`);
+  for (const [name, summary] of visualSummaries) console.log(`VISUAL ${name}: ${JSON.stringify(summary)}`);
+  console.log('Static conformance is not visual fidelity. Pending or unestablished cases remain NOT VERIFIED.');
   if (errors.length) process.exitCode = 1;
 }
