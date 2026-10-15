@@ -1,0 +1,363 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "commit": "31b869be49ae142bd82d52ab34331b6e4d149fa3",
+    "branchAtCapture": "test/15_octubre_2",
+    "inputsVerifiedAgainstCommit": true,
+    "inputOverrides": [],
+    "fontPackage": "@fontsource/inter@5.3.0",
+    "reproductionScope": "All 14 recorded input hashes match Git blobs at this commit. Reconstruct the inputs in a temporary directory; do not switch or reset the active branch. The browser was 155.0.8059.40; a newer renderer reruns the experiment but does not promise identical metrics. Font files were injected only into the calibration browser. This is a historical exploration, not the current real-browser regression or a completed Tooltip closure."
+  },
+  "snapshotHash": "da5999950f44915189095e24bdf12321a03db10b54104446b762201a5fa7acb4",
+  "browser": "155.0.8059.40",
+  "devicePixelRatio": 1,
+  "inputs": [
+    {
+      "path": "design-system/components/Tooltip/metadata.json",
+      "sha256": "ba7f261f535264a87ef0787bf43f2b342c8fd2a669d4d31d85d903747bd9a832"
+    },
+    {
+      "path": "design-system/figma/snapshots/aRtHrPY6dKyJcBhRp1eoRA/315-32700/da5999950f44915189095e24bdf12321a03db10b54104446b762201a5fa7acb4.json",
+      "sha256": "2e01791d96fbd0d552735a093d0c10cbb4f9052c99ce89e25df01630a77747f2"
+    },
+    {
+      "path": "design-system/tokens/Color Primitives.json",
+      "sha256": "e10f3f6b4500ea7fdcc42cf54a3bcc551f8e6d87807bfac5f5272a430ba6b0cf"
+    },
+    {
+      "path": "design-system/tokens/Color.json",
+      "sha256": "34f1d212aa9001e5718adbf2b596039cb461ce9f4ee699b62233db51c9e72990"
+    },
+    {
+      "path": "design-system/tokens/Responsive.json",
+      "sha256": "05368d393a7a0c856dc26ee19abfadcc165091924b714d3a9e954cfafa2ae474"
+    },
+    {
+      "path": "design-system/tokens/Size.json",
+      "sha256": "180a3a8bd5af84081dc3f041bd29379bc310af5a8ade0bd91fd7522b22f89de7"
+    },
+    {
+      "path": "design-system/tokens/Typography Primitives.json",
+      "sha256": "4a0b2137d4a750c23a16d88ace29ae3900008506272bed34e60aac42bf0d3152"
+    },
+    {
+      "path": "design-system/tokens/Typography.json",
+      "sha256": "d183dbb7a7c989545a25fbfd01096df7711cee7ddbf4ea6a9dd026ba99ac8d4a"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "d2ae6e583aeeb1cc2bdde73b2243f7c58721908befcfec96a72723fa2700d492"
+    },
+    {
+      "path": "package.json",
+      "sha256": "6386c55595a179ce89d06ba5fab0f3d172b85438a21eab95e90cc8516bd6d31d"
+    },
+    {
+      "path": "src/components/Tooltip/Tooltip.module.css",
+      "sha256": "ccf2ee53f8551f928183120550ab3d58f424fc12a9577b84e87538f5f6b5b7ee"
+    },
+    {
+      "path": "src/components/Tooltip/Tooltip.tsx",
+      "sha256": "f90438a2cf70c089c2ee78471bbbf7c92181879269978f1579095b79e05cefb9"
+    },
+    {
+      "path": "src/styles/tokens.css",
+      "sha256": "8698055367450a2009ba1300e66dc41d16237da06a762d2923ad806e2160aac3"
+    },
+    {
+      "path": "tsconfig.json",
+      "sha256": "3dbbde6e820d93d3bc05d0c54de9aba50d39b9e7fb6b736713a60a2edf5a17af"
+    }
+  ],
+  "fonts": [
+    {
+      "family": "Inter",
+      "weight": "400",
+      "style": "normal",
+      "file": "inter-latin-400-normal.woff2",
+      "sha256": "8909904ab6c872eb994093482a88a28eca2cd95912d7b6fecd72103b0dc07edc"
+    },
+    {
+      "family": "Inter",
+      "weight": "600",
+      "style": "normal",
+      "file": "inter-latin-600-normal.woff2",
+      "sha256": "f9a06e79cd3a2a20951c0f0e28f66dd0e6d3fda73911d640a2125c8fcb78f21a"
+    }
+  ],
+  "samples": [
+    {
+      "caseId": "placement-top",
+      "part": "title",
+      "node": "aRtHrPY6dKyJcBhRp1eoRA:368:11411",
+      "expected": {
+        "width": 35,
+        "height": 22
+      },
+      "actual": {
+        "text": "Title",
+        "width": 34.078125,
+        "height": 22.40625,
+        "family": "Inter",
+        "weight": "600",
+        "faces": [
+          {
+            "family": "Inter",
+            "weight": "400",
+            "style": "normal",
+            "status": "loaded"
+          },
+          {
+            "family": "Inter",
+            "weight": "600",
+            "style": "normal",
+            "status": "loaded"
+          }
+        ]
+      },
+      "delta": {
+        "width": -0.921875,
+        "height": 0.40625
+      }
+    },
+    {
+      "caseId": "placement-top",
+      "part": "body",
+      "node": "aRtHrPY6dKyJcBhRp1eoRA:368:11412",
+      "expected": {
+        "width": 64,
+        "height": 20
+      },
+      "actual": {
+        "text": "Body text",
+        "width": 62.796875,
+        "height": 19.59375,
+        "family": "Inter",
+        "weight": "400",
+        "faces": [
+          {
+            "family": "Inter",
+            "weight": "400",
+            "style": "normal",
+            "status": "loaded"
+          },
+          {
+            "family": "Inter",
+            "weight": "600",
+            "style": "normal",
+            "status": "loaded"
+          }
+        ]
+      },
+      "delta": {
+        "width": -1.203125,
+        "height": -0.40625
+      }
+    },
+    {
+      "caseId": "placement-bottom",
+      "part": "title",
+      "node": "aRtHrPY6dKyJcBhRp1eoRA:368:11413",
+      "expected": {
+        "width": 35,
+        "height": 22
+      },
+      "actual": {
+        "text": "Title",
+        "width": 34.078125,
+        "height": 22.40625,
+        "family": "Inter",
+        "weight": "600",
+        "faces": [
+          {
+            "family": "Inter",
+            "weight": "400",
+            "style": "normal",
+            "status": "loaded"
+          },
+          {
+            "family": "Inter",
+            "weight": "600",
+            "style": "normal",
+            "status": "loaded"
+          }
+        ]
+      },
+      "delta": {
+        "width": -0.921875,
+        "height": 0.40625
+      }
+    },
+    {
+      "caseId": "placement-bottom",
+      "part": "body",
+      "node": "aRtHrPY6dKyJcBhRp1eoRA:368:11414",
+      "expected": {
+        "width": 64,
+        "height": 20
+      },
+      "actual": {
+        "text": "Body text",
+        "width": 62.796875,
+        "height": 19.59375,
+        "family": "Inter",
+        "weight": "400",
+        "faces": [
+          {
+            "family": "Inter",
+            "weight": "400",
+            "style": "normal",
+            "status": "loaded"
+          },
+          {
+            "family": "Inter",
+            "weight": "600",
+            "style": "normal",
+            "status": "loaded"
+          }
+        ]
+      },
+      "delta": {
+        "width": -1.203125,
+        "height": -0.40625
+      }
+    },
+    {
+      "caseId": "placement-left",
+      "part": "title",
+      "node": "aRtHrPY6dKyJcBhRp1eoRA:368:11423",
+      "expected": {
+        "width": 35,
+        "height": 22
+      },
+      "actual": {
+        "text": "Title",
+        "width": 34.078125,
+        "height": 22.40625,
+        "family": "Inter",
+        "weight": "600",
+        "faces": [
+          {
+            "family": "Inter",
+            "weight": "400",
+            "style": "normal",
+            "status": "loaded"
+          },
+          {
+            "family": "Inter",
+            "weight": "600",
+            "style": "normal",
+            "status": "loaded"
+          }
+        ]
+      },
+      "delta": {
+        "width": -0.921875,
+        "height": 0.40625
+      }
+    },
+    {
+      "caseId": "placement-left",
+      "part": "body",
+      "node": "aRtHrPY6dKyJcBhRp1eoRA:368:11424",
+      "expected": {
+        "width": 64,
+        "height": 20
+      },
+      "actual": {
+        "text": "Body text",
+        "width": 62.796875,
+        "height": 19.59375,
+        "family": "Inter",
+        "weight": "400",
+        "faces": [
+          {
+            "family": "Inter",
+            "weight": "400",
+            "style": "normal",
+            "status": "loaded"
+          },
+          {
+            "family": "Inter",
+            "weight": "600",
+            "style": "normal",
+            "status": "loaded"
+          }
+        ]
+      },
+      "delta": {
+        "width": -1.203125,
+        "height": -0.40625
+      }
+    },
+    {
+      "caseId": "placement-right",
+      "part": "title",
+      "node": "aRtHrPY6dKyJcBhRp1eoRA:368:11425",
+      "expected": {
+        "width": 35,
+        "height": 22
+      },
+      "actual": {
+        "text": "Title",
+        "width": 34.078125,
+        "height": 22.40625,
+        "family": "Inter",
+        "weight": "600",
+        "faces": [
+          {
+            "family": "Inter",
+            "weight": "400",
+            "style": "normal",
+            "status": "loaded"
+          },
+          {
+            "family": "Inter",
+            "weight": "600",
+            "style": "normal",
+            "status": "loaded"
+          }
+        ]
+      },
+      "delta": {
+        "width": -0.921875,
+        "height": 0.40625
+      }
+    },
+    {
+      "caseId": "placement-right",
+      "part": "body",
+      "node": "aRtHrPY6dKyJcBhRp1eoRA:368:11426",
+      "expected": {
+        "width": 64,
+        "height": 20
+      },
+      "actual": {
+        "text": "Body text",
+        "width": 62.796875,
+        "height": 19.59375,
+        "family": "Inter",
+        "weight": "400",
+        "faces": [
+          {
+            "family": "Inter",
+            "weight": "400",
+            "style": "normal",
+            "status": "loaded"
+          },
+          {
+            "family": "Inter",
+            "weight": "600",
+            "style": "normal",
+            "status": "loaded"
+          }
+        ]
+      },
+      "delta": {
+        "width": -1.203125,
+        "height": -0.40625
+      }
+    }
+  ],
+  "scope": "Exploratory metrics for exact source content with explicitly loaded files; not universal tolerance calibration, glyph-font proof or equality with the Figma font binary."
+}
