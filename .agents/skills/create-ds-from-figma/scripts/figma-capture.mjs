@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { canonicalJson, sealCapture, classificationProposals } from '../../../checks/lib/figma-evidence.mjs';
+import { textDimensionRequirements } from '../../../checks/lib/figma-dimensions.mjs';
 import { bridgeCode } from './lib/capture-bridge.mjs';
 
 import { captureCode, assembleChunks } from './lib/capture-code.mjs';
@@ -60,11 +61,11 @@ async function main() {
     const directory = args[1] === '--chunks-dir' ? args[2] : null;
     const input = directory ? { chunks: readdirSync(directory).filter(f => /^\d+\.json$/.test(f)).map(f => JSON.parse(readFileSync(path.join(directory, f), 'utf8'))) } : JSON.parse(readFileSync(0, 'utf8'));
     console.log(JSON.stringify(persistCapture(args[0] || '.', assembleChunks(input.chunks)), null, 2));
-  } else if (command === 'propose') {
+  } else if (command === 'propose' || command === 'dimensions') {
     const snapshot = JSON.parse(readFileSync(args[0], 'utf8'));
     const sealed = sealCapture(snapshot.capture);
     if (snapshot.hash !== sealed.hash) throw new Error('Snapshot hash mismatch');
-    console.log(JSON.stringify(classificationProposals(snapshot.capture), null, 2));
+    console.log(JSON.stringify(command === 'dimensions' ? textDimensionRequirements(snapshot.capture) : classificationProposals(snapshot.capture), null, 2));
   } else if (command === 'compare') {
     const snapshots = args.slice(0, 2).map(file => JSON.parse(readFileSync(file, 'utf8')));
     if (snapshots.length !== 2) throw new Error('Two snapshot files required');
@@ -74,7 +75,7 @@ async function main() {
     const sections = ['nodes', 'observations', 'variants', 'collections', 'variables', 'styles', 'coverage'];
     console.log(JSON.stringify({ sameCapture: snapshots[0].hash === snapshots[1].hash, changedSections: sections.filter(k => canonicalJson(before[k]) !== canonicalJson(after[k])),
       note: 'Divergence between captures, not proof of a Figma revision or an import error.' }, null, 2));
-  } else throw new Error('Use capture FILE_KEY NODE_ID CONFIG --approve-connection [--keep-failed], bridge/code FILE_KEY NODE_ID [OFFSET], session, stage DIRECTORY, validate-session DIRECTORY, save ROOT, propose SNAPSHOT, or compare BEFORE AFTER');
+  } else throw new Error('Use capture FILE_KEY NODE_ID CONFIG --approve-connection [--keep-failed], bridge/code FILE_KEY NODE_ID [OFFSET], session, stage DIRECTORY, validate-session DIRECTORY, save ROOT, propose/dimensions SNAPSHOT, or compare BEFORE AFTER');
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

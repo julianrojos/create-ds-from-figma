@@ -12,6 +12,9 @@ import { bindingTypeProblem } from "./lib/property-types.mjs";
 import { createFloatResolver, floatAliasProblems, isLocalAliasVariable, serializationProblems, serializeNumber } from "./lib/serialization.mjs";
 import { isPortableTokenFileName, tokenFileKey } from "./lib/token-file-name.mjs";
 import { verifyFigmaEvidence } from './verify-figma-evidence.mjs';
+import { verifyRenderPlans } from './verify-render-plan.mjs';
+import { verifyCorrespondences } from './lib/correspondences.mjs';
+import { createDependencySession } from './lib/local-dependencies.mjs';
 
 const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 const isText = (value) => typeof value === "string" && value.trim().length > 0;
@@ -87,37 +90,6 @@ function usagePlaceholders(markdown) {
   });
   return found;
 }
-function correspondenceSectionError(markdown) {
-  // Inline code stays: a table row made only of `code` cells is still a populated row.
-  const lines = markdownProse(markdown, { keepInlineCode: true });
-  const headings = lines.flatMap((line, index) =>
-    /^ {0,3}## Figma to code correspondences\s*(?:#+\s*)?$/.test(line) ? [index] : []);
-  if (headings.length !== 1) return "requires exactly one real ## Figma to code correspondences section";
-  const start = headings[0] + 1;
-  const next = lines.findIndex((line, index) => index >= start && /^ {0,3}#{1,2}(?:\s|$)/.test(line));
-  const section = lines.slice(start, next < 0 ? lines.length : next);
-  const body = section.filter((line) => line.trim());
-  if (body.length === 0) return "Figma to code correspondences section is empty";
-  for (const line of body) {
-    const match = line.trim().match(/^None:\s*(.*)$/);
-    if (!match) continue;
-    // Judge the reason without its code delimiters, which are kept in the text: `TODO` is still filler.
-    const reason = match[1].replace(/(`+)((?:(?!\1).)*?)\1/g, "$2").trim().replace(/[.:;!\s]+$/, "");
-    if (!reason || unfilledKind(reason) || /^(?:(?:con el )?motivo real|raz[oó]n real)$/i.test(reason)) {
-      return "Figma to code correspondences: None: requires a nonempty reason without placeholders or filler";
-    }
-    return null;
-  }
-  // Recognize a populated table, not its column contract or the truth of its evidence.
-  const delimiter = /^\s*\|?\s*:?-{3,}:?\s*(?:\|\s*:?-{3,}:?\s*)+\|?\s*$/;
-  // Header, delimiter and data row must be consecutive lines: blank lines split a Markdown table.
-  for (let index = 1; index < section.length - 1; index++) {
-    if (delimiter.test(section[index]) && section[index - 1].includes("|") &&
-        /^\s*\|.*\S.*\|\s*$/.test(section[index + 1]) && !delimiter.test(section[index + 1]) &&
-        section[index + 1].replace(/[|\s]/g, "")) return null;
-  }
-  return "Figma to code correspondences requires a populated table or None: followed by a reason";
-}
 const sameSet = (left, right) => left.size === right.size && [...left].every((item) => right.has(item));
 
 function selectedClasses(selector) {
@@ -143,13 +115,14 @@ function staticJsxParts(source, fileName) {
   return { parts, hasSyntaxErrors: tree.parseDiagnostics.length > 0 };
 }
 
-export function verify(root) {
+export function verify(root, { metadataOverrides = new Map() } = {}) {
   const errors = [];
   const warnings = [];
   const fail = (message) => errors.push(message);
   const warn = (message) => warnings.push(message);
   const readJson = (relative) => {
     try {
+      if (metadataOverrides.has(relative)) return structuredClone(metadataOverrides.get(relative));
       return JSON.parse(readFileSync(path.join(root, relative), "utf8"));
     } catch (error) {
       fail(`${relative}: ${error.message}`);
@@ -172,6 +145,7 @@ export function verify(root) {
   const map = readJson("design-system/relationships/figma-code-map.json");
   const state = readJson("design-system/relationships/figma-state.json");
   if (!isObject(map) || !isObject(state)) return { errors, warnings };
+  const dependencySession = createDependencySession(root);
   if (!isObject(state.components)) fail("figma-state.json: components must be an object");
 
   const entries = Object.entries(map).filter(([key]) => !key.startsWith("_"));
@@ -226,8 +200,9 @@ export function verify(root) {
       for (const { line, kind } of usagePlaceholders(usage)) {
         fail(`${name}: ${entry.designSystem.usage}:${line} still holds a ${kind}; fill it in or remove it`);
       }
-      const sectionError = correspondenceSectionError(usage);
-      if (sectionError) fail(`${name}: ${entry.designSystem.usage}: ${sectionError}`);
+      const correspondences = verifyCorrespondences(root, metadata, usage, markdownProse(usage), { style: entry.code.style, metadataPath: entry.designSystem.metadata, dependencySession });
+      for (const error of correspondences.errors) fail(`${name}: ${entry.designSystem.usage}: ${error}`);
+      for (const warning of correspondences.warnings) warn(`${name}: ${entry.designSystem.usage}: ${warning}`);
     }
     if (typeof metadata.figma?.url === "string" && /[<>]/.test(metadata.figma.url)) {
       fail(`${name}: metadata.figma.url still holds template placeholders`);
@@ -939,11 +914,15 @@ export function verify(root) {
       warn(`tokens/${file} ${name}: external alias ${value.targetVariableId} uses a resolved snapshot; verify it against the source library when possible`);
     }
   }
-  const evidence = verifyFigmaEvidence(root);
+  const contexts = new Map();
+  const evidence = verifyFigmaEvidence(root, { contexts, metadataOverrides });
   for (const error of evidence.errors) {
     if (!errors.includes(error)) errors.push(error);
   }
   warnings.push(...evidence.warnings);
+  const renderPlans = verifyRenderPlans(root, { contexts, dependencySession });
+  for (const error of renderPlans.errors) if (!errors.includes(error)) errors.push(error);
+  warnings.push(...renderPlans.warnings);
   return { errors, warnings };
 }
 

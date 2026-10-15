@@ -29,10 +29,20 @@
     "snapshot": "<ruta relativa del snapshot de importación>",
     "hash": "<SHA-256 devuelto por figma-capture save>",
     "decisions": [],
+    "textDimensions": [],
     "translations": [],
     "dispositions": []
   },
   "bindings": [],
+  "verification": {
+    "schemaVersion": 1,
+    "fonts": [],
+    "assets": [],
+    "stylesheets": [],
+    "inputs": [],
+    "cases": [],
+    "unestablished": []
+  },
   "externalVariables": [],
   "measuredLiterals": [],
   "unresolved": [],

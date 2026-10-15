@@ -2,6 +2,8 @@
 
 Apply when reading, editing or generating `src/` or `design-system/` files.
 
+Every imported component requires metadata.verification with font/image sources and reproducible fidelity/behavior cases. Run `node .agents/checks/verify-render-plan.mjs .` before rendering (included in verify-ds). A valid plan or transferred measurement never establishes visual PASS; follow validate-ds for independent state/mode/font/content comparison.
+
 For imported components, run `node .agents/checks/verify-figma-evidence.mjs .` against the persisted import snapshot before rendered validation. Every map entry requires evidence, without exceptions. Capture gaps, manual decisions and composite translations need review. Static evidence coverage does not prove visual fidelity or complete file-level token extraction.
 
 - Before adding a UI component, search `design-system/inventory.json`, `design-system/components/` and `src/components/`; reuse an existing match.

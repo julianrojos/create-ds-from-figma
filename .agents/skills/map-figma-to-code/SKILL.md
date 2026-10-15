@@ -12,8 +12,14 @@ description: >-
 
 ## Goal
 
+Distinguish corrupt evidence from stale evidence. A stale but valid confirmed record is candidate/NOT VERIFIED for the current query, not a current confirmation or a DS conformance error. Preserve usage.md and historical reports. The verifier returns errors, warnings and current correspondence status; dependency scope is component-local plus shared/explicit inputs, not the entire repo.
+
 Resolve a Design System component from Figma to its code implementation.
 When the Figma node is nested inside another imported component, resolve it without recreating the nested UI.
+
+For confirmed mappings, review the v2 report's per-case metadata fingerprint, current examined files, original browser measurement and retained Figma PNG provenance. A full metadata audit hash may differ after prose-only changes; that alone is not staleness. Typed artifacts and hashes are accounting evidence, not authenticated visual truth.
+
+Consult metadata.verification for exact candidate props, content, modes, viewport and activation instructions. Fidelity and alternate-content behavior cases are separate. Test configurations do not confirm correspondences or prove that the code admits their props; use usage.md and rendered evidence for confirmation.
 
 Read required `metadata.evidence.decisions` and their snapshot observations. Classification proposals are candidates, not established prop mappings. Missing evidence is an incomplete record; manual reasons need review. This lookup never rewrites evidence or creates retrospective captures.
 
@@ -22,8 +28,9 @@ Read required `metadata.evidence.decisions` and their snapshot observations. Cla
 - `design-system/relationships/figma-code-map.json`
 - `design-system/relationships/figma-state.json`
 - relevant component metadata;
+- required `evidence.textDimensions` and its captured sizing observations; do not treat a text sample's measured dimensions as fixed API geometry or inherit a behavior PASS from static coverage;
 - the component's `usage.md` for recorded variant-to-code correspondences and their verification evidence;
-- `.agents/skills/create-ds-from-figma/references/component-metadata.md` for the correspondence table and revision-review policy;
+- `.agents/skills/create-ds-from-figma/references/component-metadata.md` for the canonical JSON correspondences and revision-review policy;
 - `src/components/`.
 
 ## Process
@@ -41,7 +48,7 @@ Read required `metadata.evidence.decisions` and their snapshot observations. Cla
 
 ## Output
 
-Read the correspondences in `usage.md` under `## Figma to code correspondences`, which use the template columns and `candidate` / `confirmed` statuses defined in the metadata reference. This lookup is read-only: it never edits `usage.md`. When a correspondence should be created or updated, return the proposed entry with its evidence. The owning flow writes it only within an authorized component import/update or an explicit user request to record results; a standalone `validate-ds` invocation reports the proposal without writing. Before returning a mapping as established, check its documented Figma/code revision and examined configuration against the current ones. If changed or unverifiable, return it as a candidate requiring review, preserve historical evidence and state what is missing. A date or the word `confirmed` alone does not establish current validity. The table is documentation, not a machine-validated contract.
+Read the canonical JSON under `## Figma to code correspondences` in usage.md. Each caseId points to the exact fidelity configuration in metadata.verification; confirmed references a durable rendered-comparison report with hashes. This lookup remains read-only. Check integrity, current files/configuration/revisions and the scope of the visual judgment before returning an established mapping. Structural conformance does not prove fidelity, admissible props or live Figma currency. Preserve historical evidence and report candidates requiring review when stale or unverifiable. Only an authorized import/update or explicit request may record the proposed JSON entry.
 
 Return:
 

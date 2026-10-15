@@ -4,6 +4,28 @@ Estos casos describen decisiones observables, no sustituyen una ejecución real 
 
 ## Enrutado de skills
 
+### Publicación Y Vigencia De Artefactos
+
+- FLOAT sin decisión ni consumo: solo aviso. Añade binding: error de serialización y token sin definición cargada. Decide explícitamente la unidad y regenera: ambos errores desaparecen.
+- Dentro de una ejecución, repetir el mismo grafo reutiliza resultados sin compartir arrays mutables; los grafos de ejecución y auditoría no se confunden. Entre ejecuciones, añade un import y comprueba que se detecta sin reiniciar el proceso. Los hashes de recibos se siguen leyendo en cada recogida.
+- Ejecuta benchmark-static-analysis.mjs con un proyecto fijo, sin cargas concurrentes; guarda alcance, Node, casos, iteraciones, mediana/p95 y recuentos. No deduzcas arranque frío o rendimiento general de esa microprueba ni uses umbrales temporales en tests.
+
+- Pon un tsconfig inválido en el padre de un proyecto sin tsconfig local: no debe consultarse ni añadirse a inputs. Herencia local encadenada debe resolver aliases y registrar todos los JSON; extends/symlinks externos generan NOT VERIFIED sin leer contenido externo.
+- Usa un token y omite sus definiciones del CSS de la vista: verify-ds y preview deben rechazarlo. Añadir tokens.css solo a inputs o mediante import type no basta. Un import de ejecución, un @import local o stylesheets con definiciones alcanzables satisface disponibilidad estática; modo, cascada y valor efectivo siguen pendientes de comparación renderizada.
+
+- Confirma un componente y luego importa otro: cambios en su código y en entradas ajenas del mapa/estado no caducan el primero. Finder .DS_Store no entra en los inputs. Modificar un import real o recurso compartido sí produce caducidad actual NOT VERIFIED, no error de DS ni edición automática de usage.
+- Corrompe un artefacto de un informe también caducado: debe seguir fallando por integridad. sourceSnapshot conserva la referencia histórica para comprobar artefactos antes de evaluar vigencia.
+- Imports, CSS URLs y aliases TypeScript deben seguir archivos locales y symlinks internos sin ciclos. Symlinks externos, imports dinámicos y globs no resueltos deben generar un diagnóstico NOT VERIFIED, no afirmar cobertura completa.
+
+- Publica una recogida, cambia CSS y solicita un informe nuevo: debe rechazarse por los hashes originales del recibo. Refrescar manualmente los hashes del informe tampoco debe permitir confirmed. Cambiar decisiones relevantes exige nueva recogida; reescribir descripción o prosa no.
+- Renderiza un padre con un hijo DS que tenga root y partes con los mismos nombres: recoge solo las partes del padre sin error de raíz ambigua. Dos raíces superiores hermanas o ninguna deben seguir fallando.
+- CSS .initial.large con width fijo seguido de .initial.initial con width auto tiene igual especificidad y gana auto. Invierte el orden y comprueba que gana el valor fijo; aumentar clases repetidas aumenta especificidad sin exigir más clases DOM.
+
+- Recoge un caso en navegador y publica su .receipt.json mediante verification-plan.mjs publish: cuerpo y recibo deben conservar exactamente sus bytes y hashes, sin transcripción. Repetir es idempotente y conserva NOT VERIFIED.
+- Altera el cuerpo o recibo: error de integridad. Cambia una dependencia real, una colección usada o añade un import: la publicación rechaza la recogida desactualizada; el informe íntegro anterior queda NOT VERIFIED, no bloquea el DS. Un archivo nuevo ajeno no cambia ese alcance.
+- Prueba PNG truncado, CRC corrupto y cabecera sin datos: deben fallar. Prueba escalas positivas y dimensiones fraccionarias de origen: no se debe imponer un redondeo Figma supuesto. El informe deriva los píxeles reales y conserva dimensionComparison NOT VERIFIED; un registro image adulterado falla. Una captura íntegra, incluso 1x1, aún necesita procedencia real y revisión visual; no se deduce autenticidad ni PASS de la decodificación.
+- Mapea CSS fuera de src/public y elimínalo de los inputs del recibo: publish debe rechazarlo y report debe exigir su hash, igual que con CSS dentro de src/.
+
 Las URL siguientes son entradas de ejemplo: al ejecutar el caso, usa nodos reales y registra qué skill o workflow se activó como tarea principal y cuáles se invocaron como subpasos. Un test de frontmatter no demuestra este enrutado.
 
 | Petición y contexto                                               | Ruta principal esperada                                                                                       | No debe ocurrir                                                    |
@@ -19,6 +41,8 @@ Las URL siguientes son entradas de ejemplo: al ejecutar el caso, usa nodos reale
 | "Crea un DS" + URL que resulta ser un frame                       | `create-ds-from-figma` inspecciona el nodo y devuelve `DS_GAP` sin escribir                                   | Construir la pantalla o preparar el scaffold automáticamente       |
 
 ## Primera importación
+
+La ficha exige también verification con recursos autorizados/hashes, tipografía esencial cubierta y casos concretos fidelity/behavior. Ejecuta verify-render-plan y la vista aislada sin editar App.tsx; un recibo de medidas no confirma fidelidad. Registra activaciones reales, viewport, fuentes y limitaciones.
 
 - Entrada: repo sin `figma-code-map.json` ni `tokens.css`; URL de un componente local con variables del file resueltas y sin anidados locales `missing`.
 - Decisión esperada: modo primera vez; captura temporal estructurada mediante un transporte operativo y autorizado, con procedencia y valores brutos, y diagnóstico completo antes de escribir en el repo; importa solo el componente solicitado y todas las colecciones de variables del file.
@@ -160,10 +184,10 @@ El DS de `test/nested_component` con `Tab` dentro de `Tabs` puede servir para el
 
 ## Vigencia de correspondencias documentadas
 
-- Entrada: `usage.md` contiene una tabla en `## Figma to code correspondences` con `Status: confirmed`, una configuración examinada y evidencia de una revisión anterior; el TSX o la variante Figma relevante cambiaron, o no se puede establecer qué revisión se examinó.
+- Entrada: usage.md contiene JSON canónico con status confirmed, caseId y ruta/hash de un informe rendered-comparison; el TSX o la variante Figma cambiaron, o la revisión no es verificable.
 - Decisión esperada: el agente no hereda el PASS. Conserva la evidencia histórica, trata el estado actual como `candidate` en el informe, indica qué debe revisar y compara la configuración actual antes de volver a confirmar. Propone la entrada con revisión y evidencia en las columnas fijas y solo la escribe dentro de una importación/actualización autorizada o por petición expresa de registrar el resultado; una fecha no sustituye esas pruebas.
-- Sin correspondencias: mantiene la sección y escribe `None:` seguido del motivo concreto; no deja una tabla vacía sin explicación ni copia marcadores o frases de la plantilla como razón. El check rechaza `None con el motivo real`, `None: <motivo real>` y `None: pendiente`.
-- No debe: considerar que el detector de relleno valida la tabla, que `confirmed` garantiza vigencia, ni inventar una revisión para completar la documentación.
+- Sin correspondencias: mantiene el JSON con correspondences vacío y contabiliza refs/motivos en verification.unestablished. Cada caso fidelity establecido sí requiere su entrada. Tabla manual o None son errores, sin retrocompatibilidad.
+- No debe: considerar que hashes/configuración conforme prueban el juicio visual, que confirmed garantiza vigencia, ni inventar revisiones.
 
 ## Consulta y validación sin escritura implícita
 
@@ -183,7 +207,35 @@ El DS de `test/nested_component` con `Tab` dentro de `Tabs` puede servir para el
 ## Consulta de mapeo de solo lectura
 
 - Entrada: el usuario pregunta «¿qué props implementan este botón?» y la ficha del componente tiene correspondencias `candidate` y `confirmed` en `usage.md`.
-- Decisión esperada: `map-figma-to-code` lee la tabla, comprueba la revisión y la configuración documentadas frente a las actuales, y devuelve el diagnóstico: props de código con su evidencia, estados, interacciones, contenido y correspondencias sin resolver. Si una correspondencia debería crearse o actualizarse, devuelve la entrada propuesta.
-- No debe: editar `usage.md`, `metadata.json` ni código por haber hecho la consulta. Escribir la tabla requiere una importación/actualización autorizada del componente o una petición expresa de registrar el resultado; pedir una validación independiente no autoriza esa escritura ni correcciones de implementación.
+- Decisión esperada: map-figma-to-code lee el JSON, sigue caseId hasta la configuración y revisa informe/hashes/revisión frente a lo actual; devuelve props, estados, contenido, evidencia y dudas. Si necesita cambios, devuelve una propuesta sin editar.
+- No debe: editar usage.md, metadata.json ni código en una consulta. Registrar el JSON exige importación/actualización autorizada o petición expresa; validar no autoriza escribir ni corregir implementación.
 
 Estos casos especifican el comportamiento esperado; no prueban por sí solos la ejecución del agente. Su confirmación requiere evidencia Figma y una revisión real en navegador.
+
+## Dimensiones De Texto Intrínsecas
+
+- Entrada: texto con WIDTH_AND_HEIGHT, medida 12x24 y contenido de ejemplo F. Otro caso usa HEIGHT, ancho fijo 120 y contenido que puede envolver.
+- Decisión esperada: el comando dimensions deriva por dimensión sus observaciones y comportamiento; la ficha registra todos los requisitos en evidence.textDimensions. WIDTH_AND_HEIGHT requiere content en ancho y alto; HEIGHT permite fixed en ancho, content en alto. Las traducciones incluyen la dimensión y las refs de sizing; no convierten 12x24 en medidas CSS fijas para toda inicial.
+- El check debe fallar si falta el array o una dimensión, si se clasifica como fixed sin evidencia, si se registra un literal sobre una dimensión content (también approximate), o si el tratamiento no tiene declaración/traducción/delegación válida. Texto oculto con control de visibilidad no se excluye automáticamente.
+- Con FILL, auto-resize desconocido o un binding que interfiera con sizing intrínseco: unknown y una duda explícita, o DS_GAP si bloquea una implementación fiel. No se inventan reglas de constraints o centrado.
+- Cierre esperado: comparar F y su geometría con Figma; por separado probar W y M, en cada tamaño/forma aplicable, mediante la API real. Comprobar sizing, anclaje y clipping, sin exigir igual anchura para letras diferentes ni confirmar W/M como variantes Figma. Sin renderizado: NOT RUN/NOT VERIFIED. Las pruebas sintéticas del check no sustituyen estas pruebas de comportamiento.
+
+## Recursos, Tipografía Y Vista Reproducible
+
+- Registra .initial o inline-size y usa .initial.large { width:12px }: el contrato intrínseco debe detectar esa especialización y ambos sentidos físicos/lógicos; ámbitos condicionados/writing-mode incierto requieren revisión.
+- apply con viewport, tratamiento o correspondencias inválidas debe fallar antes de escribir, dejando los bytes originales intactos. Una propuesta válida se publica atómicamente tras preparar el resto del DS.
+- Informes v2: exige medida original exacta y PNG Figma con procedencia bajo verification/artifacts; código/JSON genérico, refs/viewport ajenos y falta de uno de los tipos no confirman.
+- Cambia descripción/razones o un caso ajeno: la huella del caso confirmado sigue igual. Cambia medida, selector, recurso o configuración relevantes: caduca; hashes compartidos de código/CSS siguen siendo conservadores. Esto no prueba veracidad visual ni autenticidad.
+
+- Deriva requisitos, materializa decisiones y comprueba que familia/estilo/refs, imageHash, datos dimensionales y figmaValue no se copian a mano. Una fuente idéntica aparece una vez; la equivalencia de segmento completo no borra rangos/overrides distintos.
+- Dimensión content con width:12px local ganador: error de CSS; regla condicional o conflicto de cascada: NOT VERIFIED. Un motivo translation no evita el check.
+- Fuente inexistente con checkResult true y faces vacío: no hay prueba de carga ni glifos. No se informa available.
+- confirmed sin informe, con simple recibo measurement, artefacto corrupto o hash de evidencia incorrecto: error. Una configuración anterior o input modificado con evidencia íntegra queda NOT VERIFIED para la ejecución actual. Un informe conforme no prueba por sí solo fidelidad ni autenticidad.
+
+- Omite lineHeight observado de un TEXT: verify-ds debe fallar aunque el resto de bindings/literales estén contabilizados.
+- Cambia bytes de una fuente o asset declarado: debe fallar su SHA-256; un origen no disponible exige motivo y NOT VERIFIED, o DS_GAP si es esencial. Un paint oculto o segmento mixto no desaparece del inventario.
+- Omite una variante de cases y unestablished, cambia contenido de un caso fidelity o inventa un modo: error de plan. Un caso behavior requiere base y texto alternativo, y no confirma una variante Figma.
+- Abre la vista con viewport incorrecto: el recibo debe registrar viewportMatches false. Captura con F, W y M solo si son entradas válidas de la API; inspecciona el comportamiento sin exigir que todas las dimensiones cambien.
+- Revisa la transferencia navegador/archivo: cuerpo original, tamaño/hash coincidentes y sin reescritura del agente. Hash incorrecto, sesión incorrecta o cuerpo mayor de 256 KiB deben rechazarse. El recibo siempre queda NOT VERIFIED.
+- Cambia un input durante la sesión: el recibo identifica los nuevos hashes e inputsUnchangedSinceStart false, sin afirmar qué versión ejecutó el navegador. Reinicia antes de cerrar validación.
+- Fuente declarada pero no cargada, imagen rota, estado no activado o contexto de app ausente: no hay PASS de fidelidad. Separa la conformidad del plan de la comparación visual contra Figma real.

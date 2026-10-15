@@ -6,7 +6,7 @@ import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { verify } from "../verify-ds.mjs";
-import { componentCapture } from './fixtures/component-capture.mjs';
+import { componentCapture, fixtureRenderPlan } from './fixtures/component-capture.mjs';
 import { persistCapture } from '../../skills/create-ds-from-figma/scripts/figma-capture.mjs';
 import { MISSING_PREFIX_MESSAGE } from "../lib/design-system-state.mjs";
 import { generateTokensCss } from "../lib/tokens-css.mjs";
@@ -26,7 +26,8 @@ const evidenceWarnings = root => {
   return count ? [`ExampleComponent: ${count} manual decision(s): justification NOT VERIFIED; see review.manualDecisions`] : [];
 };
 const assertValid = root => assert.deepEqual(verify(root), { errors: [], warnings: evidenceWarnings(root) });
-const correspondences = "\n## Figma to code correspondences\n\n| Figma variant/ref | Code props | States, interactions and content | Status | Examined configuration | Figma/code revision | Evidence or missing verification |\n| --- | --- | --- | --- | --- | --- | --- |\n| Size=Small / FILE:1:3 | size=Small | Default content | candidate | Base mode | Fixture snapshot | Browser comparison not performed |\n";
+const correspondenceBlock = plan => `\n## Figma to code correspondences\n\n\`\`\`json\n${JSON.stringify({ schemaVersion: 1, correspondences: plan.cases.filter(c => c.kind === 'fidelity').map(c => ({ caseId: c.id, status: 'candidate' })) }, null, 2)}\n\`\`\`\n`;
+const correspondences = correspondenceBlock(fixtureRenderPlan(componentCapture()));
 const write = (root, relative, value) => {
   const target = path.join(root, relative);
   mkdirSync(path.dirname(target), { recursive: true });
@@ -49,9 +50,12 @@ const regenerate = (root) => {
 const read = (root, relative) => JSON.parse(readFileSync(path.join(root, relative), "utf8"));
 const recordCapture = (root, metadata, { seeds = componentCapture().nodes, styles = [], variables = [], collections = [] } = {}) => {
   const capture = componentCapture({ seeds, styles, variables, collections });
+  metadata.verification = fixtureRenderPlan(capture);
+  metadata.verification.stylesheets = ['src/styles/tokens.css'];
+  write(root, 'design-system/components/ExampleComponent/usage.md', `# ExampleComponent\n${correspondenceBlock(metadata.verification)}`);
   metadata.evidence = { ...persistCapture(root, capture), decisions: Object.entries(metadata.variantClassification).flatMap(([axis, values]) => Object.keys(values).map(value => ({
     target: `variantClassification.${axis}.${value}`, rule: 'manual', reason: 'Fixture API interpretation requires semantic review.', observations: ['1:2#componentPropertyDefinitions#property'],
-  }))), translations: [], dispositions: [] };
+  }))), textDimensions: [], translations: [], dispositions: [] };
   for (const [index] of metadata.notBuilt.entries()) metadata.evidence.decisions.push({ target: `notBuilt[${index}]`, rule: 'manual', reason: 'Fixture exclusion requires semantic review.', observations: ['1:2#componentPropertyDefinitions#property'] });
   for (const b of metadata.bindings) {
     const o = capture.observations.find(o => o.kind === 'binding' && `FILE:${o.node}` === b.node && o.field === b.figmaProperty);
@@ -116,9 +120,11 @@ const withExampleComponent = () => {
   metadata.figmaCoverage.variants = ["Size=Small"];
   metadata.figmaCoverage.styles = { status: "captured", source: "test fixture" };
   metadata.parts = { root: { selector: ".root", nodes: { "Size=Small": "FILE:1:3" } } };
+  metadata.verification = fixtureRenderPlan(componentCapture());
+  metadata.verification.stylesheets = ['src/styles/tokens.css'];
   metadata.evidence = { ...persistCapture(root, componentCapture()), decisions: [
     { target: 'variantClassification.Size.Small', rule: 'manual', reason: 'The consumer controls the observed size through size.', observations: ['1:2#componentPropertyDefinitions#property'] },
-  ], translations: [], dispositions: [] };
+  ], textDimensions: [], translations: [], dispositions: [] };
   write(root, metadataPath, metadata);
   write(root, "design-system/components/ExampleComponent/usage.md", `# ExampleComponent\n${correspondences}`);
   write(root, "src/components/ExampleComponent/ExampleComponent.tsx", "export interface ExampleComponentProps { size?: 'Small' }\nexport const ExampleComponent = (props: ExampleComponentProps) => <span data-ds-part=\"root\" />;\n");
@@ -158,7 +164,9 @@ test("every imported component requires evidence without exceptions or policy fi
   const metadata = read(root, relative);
   metadata.evidence = null;
   write(root, relative, metadata);
-  assert.ok(verify(root).errors.some(e => e.includes('import evidence is required')));
+  const errors = verify(root).errors;
+  assert.equal(errors.filter(e => e.includes('import evidence is required')).length, 1);
+  assert.ok(!errors.some(e => e.includes('render plan:')));
 });
 
 test("a malformed code-map entry yields controlled errors, not an exception", () => {
@@ -171,6 +179,23 @@ test("a malformed code-map entry yields controlled errors, not an exception", ()
   assert.doesNotThrow(() => { result = verify(root); });
   assert.ok(result.errors.length > 0);
   assert.ok(result.errors.some(error => error.includes("FILE:1:2")));
+});
+
+test("structural verification requires the text dimension contract even when the component has no text", () => {
+  const root = withExampleComponent();
+  const relative = 'design-system/components/ExampleComponent/metadata.json';
+  const metadata = read(root, relative);
+  assertValid(root);
+  delete metadata.evidence.textDimensions;
+  write(root, relative, metadata);
+  assert.ok(verify(root).errors.some(e => e.includes('evidence.textDimensions must be an array')));
+});
+
+test("structural verification requires a render plan, not only internally coherent captured evidence", () => {
+  const root = withExampleComponent(), relative = 'design-system/components/ExampleComponent/metadata.json';
+  const metadata = read(root, relative); delete metadata.verification;
+  write(root, relative, metadata);
+  assert.ok(verify(root).errors.some(e => e.includes('verification schemaVersion 1 is required')));
 });
 
 test("structural verification incorporates errors from linked capture evidence", () => {
@@ -560,7 +585,7 @@ test("markup, code of every kind and comments in usage.md are prose, not placeho
   assert.ok(verify(root).errors.some((item) => item.includes("usage.md:1 still holds a template placeholder")));
 });
 
-test("usage requires a real populated correspondence section or None with a reason", () => {
+test("usage requires a real canonical JSON correspondence section, without legacy tables or None", () => {
   const root = withExampleComponent();
   const usage = "design-system/components/ExampleComponent/usage.md";
   const header = "## Figma to code correspondences";
@@ -580,10 +605,7 @@ test("usage requires a real populated correspondence section or None with a reas
     write(root, usage, body);
     assert.ok(verify(root).errors.some((item) => item.includes("correspondences")), body);
   }
-  for (const body of [correspondences,
-    `${header}\n| Figma | Code |\n| --- | --- |\n| \`Size=Large\` | \`size="lg"\` |`,
-    `${header}\nNone: \`no public variant API\``, `${header}\nNone: This component has no variant-to-code correspondences.`,
-    `${header}\nNone: No public variant API.\n## Other\nOther guidance.`, `${header}\nNone: x`]) {
+  for (const body of [correspondences, `${correspondences}\n## Other\nOther guidance.`]) {
     write(root, usage, body);
     assert.deepEqual(verify(root).errors, [], body);
   }
@@ -1129,6 +1151,7 @@ test("a FLOAT variable without a decision is not written, and writing it fails",
   const pending = withFloat({ gap: token("gap-id", "FLOAT", { Default: 4 }) });
   const result = verify(pending);
   assert.deepEqual(result.errors, []);
+  assert.ok(!result.errors.some(item => item.includes('no definition in CSS loaded')));
   assert.ok(result.warnings.some((item) => item.includes("have no serialization decision and are not written to tokens.css (NOT VERIFIED): gap")));
   const raw = withFloat({ gap: token("gap-id", "FLOAT", { Default: 4 }) }, "--ds-gap-id: 4;");
   assert.ok(verify(raw).errors.some((item) => item.includes("--ds-gap-id is declared without a serialization decision")));
@@ -1137,7 +1160,9 @@ test("a FLOAT variable without a decision is not written, and writing it fails",
 test("a binding cannot consume a pending FLOAT variable until it is decided", () => {
   const root = withFloat({ gap: token("gap-id", "FLOAT", { Default: 4 }) });
   bindSpace(root, "gap-id");
-  assert.ok(verify(root).errors.some((item) => item.includes("--ds-gap-id has no serialization decision, so it cannot be consumed yet")));
+  const pending = verify(root);
+  assert.ok(pending.errors.some((item) => item.includes("--ds-gap-id has no serialization decision, so it cannot be consumed yet")));
+  assert.ok(pending.errors.some((item) => item.includes('Token --ds-gap-id has no definition in CSS loaded')));
   decide(root, { "gap-id": { css: px, source: evidence } });
   regenerate(root);
   assert.deepEqual(verify(root).errors, []);

@@ -14,3 +14,12 @@ export function componentCapture({ seeds, fileKey = 'FILE', rootNodeId = '1:2', 
     nodes, observations: extractObservations(nodes).observations, variants: nodes.filter(n => n.parentId === rootNodeId && n.type === 'COMPONENT').map(n => ({ nodeId: n.id, key: n.name, properties: n.properties.variantProperties || {} })),
     variables, collections, styles, coverage: { traversal: 'children-recursive-including-hidden-and-instance-descendants', nodeCount: nodes.length, issues: [] } };
 }
+
+export function fixtureRenderPlan(capture) {
+  const refs = capture.variants.length ? capture.variants.map(v => v.nodeId) : [capture.source.rootNodeId];
+  return { schemaVersion: 1, fonts: [], assets: [], stylesheets: [], inputs: [], unestablished: [], cases: refs.map((id, index) => ({
+    id: `source-${index}`, kind: 'fidelity', figmaRef: `${capture.source.fileKey}:${id}`, props: {}, content: {},
+    modes: Object.fromEntries(capture.collections.map(c => [c.id, c.defaultModeId])), viewport: { width: 640, height: 480 },
+    environment: { attributes: {}, classes: [] }, states: [], expectations: [],
+  })) };
+}

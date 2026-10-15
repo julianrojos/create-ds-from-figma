@@ -173,6 +173,22 @@ Para una actualización general, compara el contexto de diseño actual (`get_des
 
 Si el usuario solo autoriza sustituir una dependencia de identidad no verificable, cambia únicamente su composición en el código y su entrada en `nestedComponents` (`status`, `resolvedComponent` y los refs e identificadores del nuevo principal que Figma haya devuelto); no actualices tokens, ficha, mapa ni otras dependencias. Comunica las demás diferencias observadas sin aplicarlas y ejecuta los checks del componente.
 
+## Dimensiones De Texto
+
+Tras persistir la captura y antes de escribir la ficha o el TSX, ejecuta `node .agents/skills/create-ds-from-figma/scripts/figma-capture.mjs dimensions SNAPSHOT`. Completa el array obligatorio `evidence.textDimensions` con cada requisito, su comportamiento y refs exactas, y el tratamiento enlazado a declaración, traducción, delegación o duda no bloqueante según el contrato de ficha ya leído. WIDTH_AND_HEIGHT no autoriza fijar width/height a la medida de la letra de ejemplo; HEIGHT permite ancho fijo, no alto fijo. No excluyas automáticamente texto oculto, no supongas fixed cuando el resultado sea unknown y no ocultes incertidumbre esencial en unresolved. Si no hay dimensiones TEXT capturadas, guarda el array vacío. El comando no genera CSS ni modifica snapshots: las traducciones requieren revisión del código y del comportamiento renderizado, incluyendo contenido alternativo permitido por la API; esa prueba no confirma variantes nuevas de Figma.
+
+## Recursos Y Casos
+
+apply es el paso de publicación de la ficha: tras planificar desde requirements, prepara código/CSS, tokens, relaciones y usage para esa propuesta; apply la valida en memoria contra el DS antes de reemplazar metadata.json. Un error deja el archivo intacto. Esto no confirma renderizado. confirmed exige informe v2 con huella semántica del caso, medida original del navegador y captura PNG Figma tipadas y retenidas, no cualquier archivo del proyecto.
+
+Tras una recogida real y con escritura autorizada, publica cuerpo y recibo con `node .agents/skills/create-ds-from-figma/scripts/verification-plan.mjs publish . METADATA CASE RECEIPT`; usa el artefacto devuelto en REVIEW sin transcribir valores. El PNG requiere export node-bounds y escala explícita y decodificación íntegra; sus dimensiones reales se derivan y deben quedar a ≤1 px del tamaño capturado del nodo por la escala declarada (tolerancia, no una regla de redondeo de Figma); sin tamaño legible, la comparación queda NOT VERIFIED. publish y report exigen el CSS mapeado también fuera de src/. La caducidad incluye conservadoramente fuentes locales, tokens, relaciones y archivos de dependencias/configuración. Estas comprobaciones no autentican la captura ni generan el juicio visual PASS.
+
+Los cambios de verification (recursos, fuentes, casos y tratamientos) también cuentan como otros cambios observados del preanálisis, junto con evidence: no se reescriben al reutilizar ni en una sustitución limitada a otra dependencia sin autorización. Cambiar un plan o informe no prueba por sí solo que Figma haya cambiado.
+
+Genera requisitos con `node .agents/skills/create-ds-from-figma/scripts/verification-plan.mjs requirements SNAPSHOT`; escribe solo las decisiones del contrato y combínalas con `node .agents/skills/create-ds-from-figma/scripts/verification-plan.mjs apply . METADATA DECISIONS`. No copies hechos ni repitas fuentes por nodo. usage.md usa un único bloque JSON por caseId; confirmed exige informe renderizado durable, configuración exacta y hashes vigentes. Los recibos de medidas no habilitan confirmed.
+
+Antes del TSX, completa también `metadata.verification` según `references/component-metadata.md`: recursos autorizados con hashes, CSS global, casos de contenido Figma exacto y contenido alternativo admitido. No inventes paquetes de fuente; una carencia esencial sigue siendo DS_GAP. Tras implementar, ejecuta `node .agents/checks/verify-render-plan.mjs .` (integrado en verify-ds) y usa `node .agents/skills/create-ds-from-figma/scripts/verification-preview.mjs . design-system/components/Nombre/metadata.json 5174` sin cambiar App.tsx. Separa el recibo de medidas de la valoración visual; revisa fuentes reales, modos, estados y contenido, y detén el servidor al terminar.
+
 ## Tokens (inventario file-level)
 
 El inventario de tokens es siempre a **nivel de file**, no del nodo del componente. En el preanálisis se lee sin escribir; tras superar el diagnóstico se persiste.
@@ -194,6 +210,12 @@ Si no hay variables locales en el file, deja el inventario local vacío. Solo co
 Antes de persistir los tokens, aplica el formato de `references/tokens.md` leído durante el preanálisis. Antes de escribir `figma-state.json` o `figma-code-map.json`, aplica `references/relationships.md`. No inventes valores ni refs; conserva los ya importados.
 
 ## Componentes anidados
+
+La vista debe cargar las definiciones de los tokens usados mediante imports reales o verification.stylesheets: listar tokens.css solo en inputs no las carga. El gate rechaza definiciones ausentes, pero su presencia no confirma el modo o valor efectivo. La resolución TypeScript solo lee configuración local y extends contenidos en el proyecto; no hereda automáticamente configuración del directorio padre.
+
+La verificación no debe bloquear la siguiente importación por confirmaciones caducadas de otros componentes: caducidad íntegra es aviso NOT VERIFIED, sin reescribir usage.md; corrupción sigue siendo error. Declara verification.inputs para archivos adicionales y sigue la clausura local de imports/CSS, sin hashear el árbol completo ni las relaciones completas. Imports/globs no resolubles requieren revisión; no inventes cobertura.
+
+En la vista de verificación, la raíz superior delimita las partes de la instancia: los marcadores root y partes homónimas de anidados no se cuentan como partes del padre. Los recibos incluyen huella semántica del caso y hashes originales; ni publicar ni generar un informe nuevo permite confirmar una recogida caducada por cambios de implementación. Recoge de nuevo si cambiaron esos inputs o decisiones relevantes.
 
 Durante el preanálisis, detecta las instancias de todas las variantes antes de escribir ningún archivo. Reutiliza ese análisis al implementar.
 

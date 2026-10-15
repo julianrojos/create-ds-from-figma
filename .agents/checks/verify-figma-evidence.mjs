@@ -22,7 +22,7 @@ export function mappedComponentsOf(root, entries) {
   }).map(([ref, e]) => ({ name: e.name, refs: entryRefs(ref, e) }));
 }
 
-export function verifyFigmaEvidence(root) {
+export function verifyFigmaEvidence(root, { contexts = new Map(), metadataOverrides = new Map() } = {}) {
   const errors = [], warnings = [], components = [];
   const mapFile = path.join(root, 'design-system/relationships/figma-code-map.json');
   if (!existsSync(mapFile)) return { errors, warnings: ['No generated DS; evidence check NOT RUN'], components };
@@ -42,7 +42,7 @@ export function verifyFigmaEvidence(root) {
       if (typeof relative !== 'string' || path.isAbsolute(relative) || relative.split(/[\\/]/).includes('..')) throw new Error('Invalid metadata path');
       const base = realpathSync(root), file = realpathSync(path.join(base, relative));
       if (!file.startsWith(base + path.sep)) throw new Error('Metadata escapes project root');
-      const metadata = JSON.parse(readFileSync(file, 'utf8'));
+      const metadata = metadataOverrides.has(relative) ? structuredClone(metadataOverrides.get(relative)) : JSON.parse(readFileSync(file, 'utf8'));
       if (!metadata.evidence) {
         errors.push(`${name}: import evidence is required`);
         continue;
@@ -50,6 +50,7 @@ export function verifyFigmaEvidence(root) {
       const snapshot = loadSnapshot(root, metadata.evidence.snapshot);
       if (metadata.evidence.hash !== snapshot.hash) throw new Error('Metadata snapshot hash mismatch');
       const result = verifyEvidence(metadata, snapshot.capture, { mappedComponents });
+      contexts.set(key, { metadata, capture: snapshot.capture, entry, result });
       errors.push(...result.errors.map(e => `${name}: ${e}`));
       warnings.push(...result.warnings.map(e => `${name}: ${e}`));
       components.push({ name, ...result.coverage, review: result.review });

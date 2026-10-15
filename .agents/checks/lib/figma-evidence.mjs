@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { realpathSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { captureProfile, extractObservations } from '../../skills/create-ds-from-figma/scripts/lib/capture-figma.mjs';
+import { verifyTextDimensions } from './figma-dimensions.mjs';
 
 export function canonicalJson(value) {
   if (Array.isArray(value)) return '[' + value.map(canonicalJson).join(',') + ']';
@@ -148,12 +149,13 @@ export function variantAxes(capture) {
 
 export function verifyEvidence(metadata, capture, { mappedComponents = [] } = {}) {
   const errors = [], warnings = [];
-  const review = { literals: [], manualDecisions: [], delegations: [], inheritedModes: [] };
+  const review = { literals: [], translations: [], manualDecisions: [], delegations: [], inheritedModes: [], textDimensions: [] };
   const source = capture.source;
   if (metadata.figma?.fileKey !== source.fileKey || metadata.figma?.nodeId !== source.rootNodeId) errors.push('Metadata root differs from snapshot');
   const nodes = new Map(capture.nodes.map(n => [source.fileKey + ':' + n.id, n]));
   const observations = new Map(capture.observations.map(o => [o.id, o]));
   const accounted = new Set();
+  const dimensionDelegations = new Map();
   const use = (id, label, account = true) => {
     const o = observations.get(id);
     if (!o) errors.push(`${label}: missing observation ${id}`);
@@ -227,7 +229,7 @@ export function verifyEvidence(metadata, capture, { mappedComponents = [] } = {}
   for (const [index, t] of (metadata.evidence?.translations || []).entries()) {
     if (!Array.isArray(t.observations) || !t.observations.length || !t.cssSelector || !t.cssProperty || !t.reason) errors.push(`translations[${index}]: observations and translation explanation required`);
     for (const id of t.observations || []) use(id, `translations[${index}]`);
-    warnings.push(`Translation ${index}: accounted for, CSS identity and rendering NOT VERIFIED by this check`);
+    review.translations.push({ index, observations: t.observations, cssSelector: t.cssSelector, cssProperty: t.cssProperty });
   }
   for (const [index, d] of (metadata.evidence?.dispositions || []).entries()) {
     if (d.kind === 'delegated' && d.instance) {
@@ -241,6 +243,7 @@ export function verifyEvidence(metadata, capture, { mappedComponents = [] } = {}
         const descendants = new Set();
         const visit = id => { descendants.add(id); for (const child of nodes.get(source.fileKey + ':' + id)?.children || []) visit(child); };
         for (const child of instance.children) visit(child);
+        dimensionDelegations.set(d.instance, new Set([...descendants].map(id => source.fileKey + ':' + id)));
         for (const o of capture.observations) if (descendants.has(o.node) && ['binding', 'style'].includes(o.kind)) accounted.add(o.id);
         review.delegations.push({ index, instance: d.instance, resolvedComponent: d.resolvedComponent, descendants: descendants.size });
         warnings.push(`Delegation ${index}: mapped identity and configuration checked; descendant overrides and rendering NOT VERIFIED`);
@@ -262,6 +265,11 @@ export function verifyEvidence(metadata, capture, { mappedComponents = [] } = {}
     for (const n of s.nodes || []) if (!capture.observations.some(o => o.kind === 'style' && o.styleId === s.id && source.fileKey + ':' + o.node === n.node && n.start === o.start && n.end === o.end)) errors.push(`Style ${s.id}: application absent from snapshot`);
   }
   for (const o of capture.observations.filter(o => o.kind === 'binding')) if (!accounted.has(o.id)) errors.push(`Unaccounted binding ${o.id}`);
+  const dimensions = verifyTextDimensions(metadata, capture, { delegations: dimensionDelegations });
+  errors.push(...dimensions.errors);
+  review.textDimensions = dimensions.review;
+  for (const dimension of dimensions.review) accounted.add(dimension.observation);
+  if (dimensions.review.length) warnings.push(`${dimensions.review.length} text dimension(s): sizing semantics checked against snapshot; CSS behavior and rendering NOT VERIFIED; see review.textDimensions`);
   const proposals = classificationProposals(capture);
   const targets = new Set([
     ...Object.entries(metadata.variantClassification || {}).flatMap(([axis, values]) => Object.keys(values).map(value => `variantClassification.${axis}.${value}`)),
@@ -291,9 +299,10 @@ export function verifyEvidence(metadata, capture, { mappedComponents = [] } = {}
     warnings.push(`${review.inheritedModes.length} binding(s) need mode review: inherited from an ancestor or from outside the captured subtree. Fidelity NOT VERIFIED until the required mode is checked. ${details.join('; ')}. See review.inheritedModes for captured ancestor details.`);
   }
   if (review.literals.length) warnings.push(`${review.literals.length} literal translation(s) need contextual verification; see review.literals`);
+  if (review.translations.length) warnings.push(`${review.translations.length} translation(s): accounted for, CSS identity and rendering NOT VERIFIED; see review.translations`);
   if (review.manualDecisions.length) warnings.push(`${review.manualDecisions.length} manual decision(s): justification NOT VERIFIED; see review.manualDecisions`);
   const remainingProperties = capture.observations.filter(o => o.kind === 'property' && !accounted.has(o.id)).length;
   return { errors, warnings, review, coverage: { capturedNodes: capture.nodes.length, bindings: capture.observations.filter(o => o.kind === 'binding').length,
-    styles: capture.observations.filter(o => o.kind === 'style').length, unreferencedProperties: remainingProperties,
+    styles: capture.observations.filter(o => o.kind === 'style').length, textDimensions: dimensions.count, unreferencedProperties: remainingProperties,
     captureIssues: capture.coverage.issues.length, scope: 'captured bindings/styles, variant identities and referenced facts; not all Figma properties or rendering' } };
 }

@@ -51,7 +51,7 @@ function metadata(capture) {
     bindings: capture.observations.filter(o => o.kind === 'binding').map(o => ({ observation: o.id, node: 'FILE:' + o.node, variableId: o.variableId, figmaProperty: o.field })),
     measuredLiterals: [], styles: [{ id: 'S:body', key: 'body-key', name: 'Body', type: 'TEXT', nodes: [{ node: 'FILE:1:4' }, { node: 'FILE:1:4', start: 0, end: 1 }] }],
     variantClassification: { State: { Hover: { kind: 'interaction', state: 'hover' }, Disabled: { kind: 'state', state: 'disabled' } } },
-    notBuilt: [], evidence: { translations: [], dispositions: [], decisions: [
+    notBuilt: [], evidence: { textDimensions: [], translations: [], dispositions: [], decisions: [
       { target: 'variantClassification.State.Hover', rule: 'browser-interaction-v1', reason: 'Reviewed browser interaction semantics', observations: [rootObservation] },
       { target: 'variantClassification.State.Disabled', rule: 'manual', reason: 'Consumer-controlled state reviewed', observations: [rootObservation] },
     ] } };

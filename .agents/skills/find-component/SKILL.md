@@ -14,6 +14,8 @@ description: >-
 
 Resolve a UI element to an existing Design System component.
 
+metadata.verification records resources and reproducible fidelity/behavior cases. A valid plan or measurement receipt is not a confirmed Figma match; preserve that distinction in reuse findings.
+
 A persisted snapshot documents origin and coverage, but does not replace stable Figma refs or prove a rendered mapping. Every mapped record requires evidence: missing evidence is an incomplete record, not proof that the component is absent. This lookup does not create or rewrite snapshots.
 
 ## Input
@@ -29,6 +31,7 @@ For a nested component, include the instance node id for traceability only, Figm
 - `src/components/`
 - `design-system/relationships/figma-code-map.json`
 - `design-system/relationships/figma-state.json`
+- relevant metadata `evidence.textDimensions`; missing dimensional coverage is an incomplete record, not proof that no component match exists
 
 `figma-state.json` records only successfully imported components. A `missing` nested instance is a diagnosis, not a persisted component or dependency.
 

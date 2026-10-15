@@ -8,10 +8,14 @@
 
 `confirmed` means verified only for the documented configuration and revision, not a permanent PASS. Recheck after relevant Figma or code changes. `candidate` means not yet confirmed by rendered comparison.
 
-| Figma variant/ref | Code props | States, interactions and content | Status | Examined configuration | Figma/code revision | Evidence or missing verification |
-| --- | --- | --- | --- | --- | --- | --- |
+```json
+{
+  "schemaVersion": 1,
+  "correspondences": []
+}
+```
 
-<Completa la tabla con las correspondencias documentadas o sustitúyela por una línea None: seguida de la razón real si no hay correspondencias. No copies este marcador como razón.>
+<Añade una entrada por caso fidelity de metadata.verification con caseId y status. confirmed exige evidence con ruta y SHA-256 de un informe renderizado persistido. Sin correspondencia establecida, registra el motivo en verification.unestablished.>
 
 ## Do not
 
