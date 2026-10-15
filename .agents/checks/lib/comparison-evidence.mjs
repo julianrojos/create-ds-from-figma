@@ -7,6 +7,7 @@ import { localDependencies } from './local-dependencies.mjs';
 import { StaleEvidenceError, UnverifiedEvidenceError } from './evidence-status.mjs';
 import { caseFonts, compareRendered } from './render-comparison.mjs';
 import { MEASUREMENT_VERSION, isMeasurementVersion } from './measurement-version.mjs';
+import { collectCssDiagnostics, compareCssDiagnostics } from './css-diagnostics.mjs';
 
 const text = v => typeof v === 'string' && v.trim().length > 0;
 const object = v => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -23,7 +24,12 @@ export function renderedChecks(root, metadata, configuration, artifacts, { basel
     const source = metadata.verification?.fonts?.find(f => f.id === font.id)?.source;
     if (source?.kind === 'file') checkInputHash(root, { path: source.path, sha256: source.sha256 });
   }
-  return compareRendered(capture, metadata, configuration, measurement, { baselineMeasurement });
+  const result = compareRendered(capture, metadata, configuration, measurement, { baselineMeasurement });
+  const inputs = caseInputs(root, metadata, configuration);
+  const syntax = collectCssDiagnostics(root, inputs.files);
+  result.checks.push(...compareCssDiagnostics(syntax, measurement));
+  result.summary = Object.fromEntries(['PASS', 'FAIL', 'NOT COMPARABLE', 'NOT RUN'].map(status => [status, result.checks.filter(c => c.status === status).length]));
+  return result;
 }
 
 export function validateBrowserMeasurement(body, metadata, configuration) {
@@ -78,6 +84,7 @@ export function caseInputs(root, metadata, configuration, style, { dependencySes
     states: list(metadata.states).filter(s => stateNames.has(s.name?.toLowerCase())).map(omitProse),
     fonts: fonts.map(resource), assets: assets.map(resource), stylesheets: metadata.verification?.stylesheets, inputs: metadata.verification?.inputs,
     geometryPolicy: metadata.verification?.geometryPolicy,
+    nodeCoverage: list(metadata.verification?.nodeCoverage).filter(r => refs.has(r.node)).map(omitProse),
     associatedBehavior: configuration.kind === 'fidelity' ? list(metadata.verification?.cases).filter(c => c.kind === 'behavior' && c.baseline === configuration.id) : [],
     mappedCode: entries[0][1].code,
     componentState: state.components?.[metadata.name], collectionState,

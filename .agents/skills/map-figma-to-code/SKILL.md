@@ -21,6 +21,8 @@ For confirmed mappings, require current PASS results for every behavior case ass
 
 Consult metadata.verification for exact candidate props, content, modes, viewport and activation instructions. Fidelity and alternate-content behavior cases are separate. Test configurations do not confirm correspondences or prove that the code admits their props; use usage.md and rendered evidence for confirmation.
 
+Read verification.nodeCoverage exceptions as conditional rules, not permission to omit source nodes. Unresolved obligations and missing CSS syntax measurements prevent confirmation. A measured closure still lacks the general rendered judgment; preserve it as candidate. This query does not run a publishing headless adapter or change historical records.
+
 Read required `metadata.evidence.decisions` and their snapshot observations. Classification proposals are candidates, not established prop mappings. Missing evidence is an incomplete record; manual reasons need review. This lookup never rewrites evidence or creates retrospective captures.
 
 ## Read
@@ -50,7 +52,7 @@ Read required `metadata.evidence.decisions` and their snapshot observations. Cla
 
 Treat a changed comparatorVersion as stale, not a corrupt mapping; reason/scope prose alone does not change validity. A position PASS and a shape review have distinct scopes.
 
-For a confirmed configuration, retain the distinction between derived renderChecks and reviewer checkReviews. A specific visual review covers only a noncomparable requirement; it never rescues a numeric FAIL, NOT RUN or unresolved essential font. Do not infer overall fidelity from the static result or the identity match.
+For a confirmed configuration, retain the distinction between derived renderChecks and reviewer checkReviews. A specific visual review covers a fidelity noncomparable requirement or the provisional typography threshold of a TEXT geometry PASS check (geometry:PART); it never rescues a numeric FAIL, NOT RUN or unresolved essential font. The 1px text margin is not universally calibrated. Do not infer overall fidelity from the static result or the identity match.
 
 Read the canonical JSON under `## Figma to code correspondences` in usage.md. Each caseId points to the exact fidelity configuration in metadata.verification; confirmed references a durable rendered-comparison report with hashes. This lookup remains read-only. Check integrity, current files/configuration/revisions and the scope of the visual judgment before returning an established mapping. Structural conformance does not prove fidelity, admissible props or live Figma currency. Preserve historical evidence and report candidates requiring review when stale or unverifiable. Only an authorized import/update or explicit request may record the proposed JSON entry.
 

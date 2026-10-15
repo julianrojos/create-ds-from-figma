@@ -1,0 +1,30 @@
+name: Kit verification
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.17.0'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            .agents/browser-tests/package-lock.json
+      - run: npm ci
+      - run: npm ci --prefix .agents/browser-tests
+      - run: node .agents/browser-tests/node_modules/playwright/cli.js install --with-deps chromium
+      - run: npm test
+      - run: npm run verify:docs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-verification
+          path: test-results/browser/
+          if-no-files-found: warn

@@ -37,6 +37,7 @@
   "verification": {
     "schemaVersion": 1,
     "geometryPolicy": "mapped-layout-v1",
+    "nodeCoverage": [],
     "fonts": [],
     "assets": [],
     "stylesheets": [],

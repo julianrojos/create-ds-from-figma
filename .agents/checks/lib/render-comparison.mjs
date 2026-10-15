@@ -1,9 +1,12 @@
 import { renderRequirements } from './render-plan.mjs';
 import { compareBehavior } from './behavior-comparison.mjs';
+import { nodeCoverage } from './node-coverage.mjs';
 
 // CSS pixels, independent of the PNG export tolerance. Never supplied by the reviewer.
 export const GEOMETRY_TOLERANCE = 1;
-export const COMPARATOR_VERSION = 'render-comparator-v10';
+export const TEXT_METRIC_TOLERANCE = 1;
+export const VECTOR_POSITION_TOLERANCE = 1;
+export const COMPARATOR_VERSION = 'render-comparator-v13';
 const matrix = m => Array.isArray(m) && m.length === 2 && m.every(row => Array.isArray(row) && row.length === 3 && row.every(Number.isFinite));
 const translationOnly = m => matrix(m) && Math.abs(m[0][0] - 1) < 1e-8 && Math.abs(m[1][1] - 1) < 1e-8 && Math.abs(m[0][1]) < 1e-8 && Math.abs(m[1][0]) < 1e-8;
 const invertible = m => matrix(m) && Math.abs(m[0][0] * m[1][1] - m[0][1] * m[1][0]) > 1e-8;
@@ -109,6 +112,11 @@ export function compareRendered(capture, metadata, configuration, measurement, {
   const checks = [], scope = caseNodes(capture, configuration), sourceRoot = scope.nodes.get(scope.rootId);
   const browserRoot = measurement?.parts?.root?.elements?.[0];
   const add = (id, status, reason, detail = {}) => checks.push({ id, status, reason, ...detail });
+  if (configuration.kind === 'fidelity') {
+    const coverage = nodeCoverage(metadata, capture, configuration);
+    for (const [index, reason] of coverage.errors.entries()) add(`coverage:invalid:${index}`, 'FAIL', reason);
+    for (const obligation of coverage.pending) add(`coverage:${obligation.node}`, 'NOT RUN', obligation.reason);
+  }
   // Modes a descendant forces for itself differ from the case's global context. They are facts about the source, recorded beside
   // the measurement: the rendered boxes are compared as they are, but nothing here verifies that the code scopes that mode.
   const localModes = nodeId => {
@@ -133,8 +141,8 @@ export function compareRendered(capture, metadata, configuration, measurement, {
     const center = (box, origin) => ({ x: box.x - origin.x + box.width / 2, y: box.y - origin.y + box.height / 2 });
     const expected = center(expectedBox, rootBox), measured = center(actual.rect, browserRoot.rect);
     const delta = { x: measured.x - expected.x, y: measured.y - expected.y };
-    add(id, Object.values(delta).every(d => Math.abs(d) <= GEOMETRY_TOLERANCE) ? 'PASS' : 'FAIL', 'AABB center relative to an untransformed root; position only, never shape or size fidelity.',
-      { ...localModes(node.id), expected, measured, delta, tolerance: GEOMETRY_TOLERANCE, informationalSize: { expected: { width: expectedBox.width, height: expectedBox.height }, measured: { width: actual.rect.width, height: actual.rect.height } } });
+    add(id, Object.values(delta).every(d => Math.abs(d) <= VECTOR_POSITION_TOLERANCE) ? 'PASS' : 'FAIL', 'AABB center relative to an untransformed root; position only, never shape or size fidelity.',
+      { ...localModes(node.id), expected, measured, delta, tolerance: VECTOR_POSITION_TOLERANCE, informationalSize: { expected: { width: expectedBox.width, height: expectedBox.height }, measured: { width: actual.rect.width, height: actual.rect.height } } });
   };
   const variantKeys = Object.entries(metadata.parts?.root?.nodes || {}).filter(([, ref]) => ref === configuration.figmaRef).map(([key]) => key);
   for (const [part, mapping] of Object.entries(metadata.parts || {})) {
@@ -186,7 +194,9 @@ export function compareRendered(capture, metadata, configuration, measurement, {
     const expected = { x: expectedBox.x - rootBox.x, y: expectedBox.y - rootBox.y, width: expectedBox.width, height: expectedBox.height };
     const measured = { x: actual.rect.x - browserRoot.rect.x, y: actual.rect.y - browserRoot.rect.y, width: actual.rect.width, height: actual.rect.height };
     const delta = Object.fromEntries(Object.keys(expected).map(k => [k, measured[k] - expected[k]]));
-    add(id, Object.values(delta).every(d => Math.abs(d) <= GEOMETRY_TOLERANCE) ? 'PASS' : 'FAIL', 'Layout bounds relative to the root; CSS border-box corresponds to unstroked or INSIDE-stroked source bounds.', { ...localModes(node.id), expected, measured, delta, tolerance: GEOMETRY_TOLERANCE });
+    const tolerances = { x: GEOMETRY_TOLERANCE, y: GEOMETRY_TOLERANCE, width: node.type === 'TEXT' ? TEXT_METRIC_TOLERANCE : GEOMETRY_TOLERANCE, height: node.type === 'TEXT' ? TEXT_METRIC_TOLERANCE : GEOMETRY_TOLERANCE };
+    add(id, Object.entries(delta).every(([key, d]) => Math.abs(d) <= tolerances[key]) ? 'PASS' : 'FAIL', 'Layout bounds relative to the root; CSS border-box corresponds to unstroked or INSIDE-stroked source bounds.', { ...localModes(node.id), expected, measured, delta, tolerance: GEOMETRY_TOLERANCE, tolerances,
+      ...(node.type === 'TEXT' ? { typographyTolerance: { status: 'provisional', requiresRenderedReview: true, basis: 'No cross-font or cross-renderer Figma calibration establishes this threshold.' } } : {}) });
   }
   if (configuration.kind === 'behavior') compareBehavior(metadata, configuration, measurement, baselineMeasurement, GEOMETRY_TOLERANCE, add);
   for (const font of caseFonts(capture, configuration)) {
@@ -207,11 +217,12 @@ export function assertConfirmationChecks(result, reviews, artifactPaths) {
   if (!Array.isArray(records)) throw new Error('checkReviews must be an array');
   const seen = new Set();
   for (const review of records) {
-    if (!review || seen.has(review.checkId) || !result.checks.some(c => c.id === review.checkId && c.status === 'NOT COMPARABLE') || review.result !== 'PASS' || typeof review.reason !== 'string' || !review.reason.trim() || !Array.isArray(review.artifacts) || !review.artifacts.length || review.artifacts.some(p => !artifactPaths.includes(p))) throw new Error('Each alternative review must identify one noncomparable check, a PASS judgment, reason and retained artifact paths');
+    if (!review || seen.has(review.checkId) || !result.checks.some(c => c.id === review.checkId && (c.status === 'NOT COMPARABLE' || c.status === 'PASS' && c.typographyTolerance?.requiresRenderedReview === true)) || review.result !== 'PASS' || typeof review.reason !== 'string' || !review.reason.trim() || !Array.isArray(review.artifacts) || !review.artifacts.length || review.artifacts.some(p => !artifactPaths.includes(p))) throw new Error('Each specific review must identify a noncomparable or provisional text check, a PASS judgment, reason and retained artifact paths');
     seen.add(review.checkId);
   }
   for (const check of result.checks) {
     if (['FAIL', 'NOT RUN'].includes(check.status)) throw new Error(`Confirmation blocked: ${check.id} ${check.status}: ${check.reason}`);
     if (check.status === 'NOT COMPARABLE' && !seen.has(check.id)) throw new Error(`Specific rendered review required: ${check.id}`);
+    if (check.typographyTolerance?.requiresRenderedReview === true && !seen.has(check.id)) throw new Error(`Specific typography review required: ${check.id}; the numeric threshold is provisional, not calibrated fidelity`);
   }
 }

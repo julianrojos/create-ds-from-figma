@@ -24,7 +24,7 @@ function fixture(t) {
   source.props = { initial: 'F' }; source.content = { 'FILE:1:4': 'F' };
   verification.cases.push({ ...structuredClone(source), id: 'wide', kind: 'behavior', baseline: source.id, props: { initial: 'W' }, content: { 'FILE:1:4': 'W' },
     expectations: requirements.dimensions.map(d => ({ kind: 'intrinsic-size', observation: d.observation, part: 'initial', axis: d.field })) });
-  const metadata = { verification, parts: { initial: { selector: '.initial', nodes: { 'Size=Small': 'FILE:1:4' } } }, bindings: [],
+  const metadata = { verification, parts: { root: { selector: '.root', nodes: { 'Size=Small': 'FILE:1:3' } }, initial: { selector: '.initial', nodes: { 'Size=Small': 'FILE:1:4' } } }, bindings: [],
     measuredLiterals: requirements.typography.map(r => ({ observation: r.observation })), evidence: { translations: [] } };
   return { root, metadata, capture };
 }
@@ -103,7 +103,7 @@ test('image resources include hidden paints and require observed hash, paint ind
   const f = fixture(t), nodes = componentCapture().nodes;
   nodes[1].properties = { fills: [{ type: 'IMAGE', imageHash: 'img-1', visible: false }, { type: 'IMAGE', imageHash: 'img-2' }] };
   const capture = componentCapture({ seeds: nodes });
-  const metadata = { verification: fixtureRenderPlan(capture), parts: {} };
+  const metadata = { verification: fixtureRenderPlan(capture), parts: { root: { nodes: { 'Size=Small': 'FILE:1:3' } } } };
   assert.equal(renderRequirements(capture).assets.length, 2);
   assert.equal(verifyRenderPlan(f.root, metadata, capture).errors.length, 2);
   metadata.verification.assets = renderRequirements(capture).assets.map(r => ({ ...r, source: { kind: 'file', path: 'font.woff2', sha256: sha256(readFileSync(path.join(f.root, 'font.woff2'))) } }));

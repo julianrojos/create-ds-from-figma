@@ -185,10 +185,7 @@ test("verifier dependencies and workflow commands stay available", () => {
 
 test("npm test covers the skill and check tests", () => {
   const packageJson = JSON.parse(readFileSync(packagePath, "utf8"));
-  // Check the command's contract rather than its exact spelling so adding another test target or
-  // changing an unrelated script does not require updating this assertion.
-  assert.match(packageJson.scripts.test, /\bnode\s+--test\b/);
-  assert.ok(packageJson.scripts.test.includes(".agents/skills/create-ds-from-figma/scripts/"));
-  assert.ok(packageJson.scripts.test.includes(".agents/checks/tests/"));
-  assert.ok(packageJson.scripts.test.includes("*.test.mjs"));
+  assert.match(packageJson.scripts.test, /test-kit\.mjs all$/);
+  assert.match(packageJson.scripts['test:unit'], /test-kit\.mjs unit$/);
+  assert.match(packageJson.scripts['test:browser'], /test-kit\.mjs browser$/);
 });

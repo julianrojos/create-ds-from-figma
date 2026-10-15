@@ -5,6 +5,7 @@ import { caseInputs, configurationHash } from '../../lib/comparison-evidence.mjs
 import { publishMeasurement } from '../../lib/publish-measurement.mjs';
 import { sha256 } from '../../lib/render-plan.mjs';
 import { MEASUREMENT_VERSION } from '../../lib/measurement-version.mjs';
+import { collectCssDiagnostics } from '../../lib/css-diagnostics.mjs';
 
 // Synthetic schema fixtures, not genuine browser/Figma fidelity evidence.
 export function renderedArtifacts(root, metadata, configuration, { mutateBody } = {}) {
@@ -21,7 +22,9 @@ export function renderedArtifacts(root, metadata, configuration, { mutateBody } 
     return [part, { count: 1, elements: [{ text, rect: measured,
       geometry: { visible: true, laidOut: true, axisAligned: true, affine2d: true }, computed: { width: `${bounds.width}px` } }] }];
   }));
+  const syntax = collectCssDiagnostics(root, caseInputs(root, metadata, configuration).files);
   const body = { schemaVersion: 2, measurementVersion: MEASUREMENT_VERSION, kind: 'browser-measurement', producer: 'verification-preview-v2', capturedAt,
+    cssDiagnostics: { schemaVersion: 1, results: syntax.declarations.map(d => ({ id: d.id, supported: true })) },
     snapshotHash: metadata.evidence.hash, caseId: configuration.id, configuration, viewport: configuration.viewport,
     url: `http://127.0.0.1:5199/__ds_verification?case=${configuration.id}`, fonts: [], images: [],
     parts };
@@ -46,4 +49,12 @@ export function renderedArtifacts(root, metadata, configuration, { mutateBody } 
 export function renderedBehaviors(root, metadata, baseline) {
   return metadata.verification.cases.filter(c => c.kind === 'behavior' && c.baseline === baseline.id)
     .map(c => ({ caseId: c.id, artifact: renderedArtifacts(root, metadata, c)[0] }));
+}
+
+// Explicit fake judgments used ONLY by schema tests. Never use these as real import evidence.
+export function syntheticTypographyReviews(root, metadata, configuration) {
+  const capture = JSON.parse(readFileSync(path.join(root, metadata.evidence.snapshot))).capture;
+  const keys = Object.keys(metadata.parts.root.nodes).filter(k => metadata.parts.root.nodes[k] === configuration.figmaRef);
+  return Object.entries(metadata.parts).filter(([, p]) => keys.some(key => capture.nodes.some(n => n.type === 'TEXT' && p.nodes[key] === `${capture.source.fileKey}:${n.id}`)))
+    .map(([part]) => ({ checkId: `geometry:${part}`, result: 'PASS', reason: 'Synthetic contract fixture only; no genuine typography or Figma fidelity judgment.', artifacts: [`design-system/verification/artifacts/${configuration.id}/figma.png`] }));
 }

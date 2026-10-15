@@ -43,8 +43,8 @@ test('generated collector scopes parts to the outer component and excludes neste
   target.children = [outer]; outer.children = [initial, inner]; inner.children = [innerInitial]; target.setAttribute = () => {};
   const capture = componentCapture(), verification = fixtureRenderPlan(capture), bodies = [];
   const context = { React: { createElement() {} }, createRoot: () => ({ render() {} }), exports: { Example() {} }, URL, TextEncoder,
-    location: { href: `http://127.0.0.1/?case=${verification.cases[0].id}` }, window: {},
-    document: { getElementById: () => target, fonts: { ready: Promise.resolve() }, addEventListener() {} },
+    location: { href: `http://127.0.0.1/?case=${verification.cases[0].id}` }, window: { addEventListener() {} }, setTimeout, clearTimeout, AbortController,
+    document: { getElementById: id => id === 'component' ? target : null, fonts: { ready: Promise.resolve() }, addEventListener() {} },
     requestAnimationFrame: callback => callback(), getComputedStyle: () => ({ getPropertyValue: () => '' }),
     innerWidth: 640, innerHeight: 480, devicePixelRatio: 1, crypto: webcrypto, console: { error() {} },
     fetch: async (_url, request) => { bodies.push(JSON.parse(new TextDecoder().decode(request.body))); return { ok: true, json: async () => ({ sha256: sha256(request.body), bytes: request.body.length }) }; },
@@ -129,8 +129,8 @@ test('measurement waits for the mount and then for fonts, even when fonts.ready 
   let frames = 0;
   const fonts = { ready: Promise.resolve(), status: 'loaded' };
   const context = { React: { createElement() {} }, createRoot: () => ({ render() {} }), exports: { Example() {} }, URL, TextEncoder,
-    location: { href: `http://127.0.0.1/?case=${verification.cases[0].id}` }, window: {},
-    document: { getElementById: () => target, fonts, addEventListener() {} },
+    location: { href: `http://127.0.0.1/?case=${verification.cases[0].id}` }, window: { addEventListener() {} }, setTimeout, clearTimeout, AbortController,
+    document: { getElementById: id => id === 'component' ? target : null, fonts, addEventListener() {} },
     // The component mounts on frame 3 and only then asks for a font, which finishes loading on frame 7.
     requestAnimationFrame: callback => {
       frames++;
@@ -153,4 +153,31 @@ test('measurement waits for the mount and then for fonts, even when fonts.ready 
   fonts.status = 'loading'; frames = 100;
   context.requestAnimationFrame = callback => callback();
   await assert.rejects(context.window.__dsVerification.collect(), /still loading|Fonts were/);
+});
+
+test('collection reports expected/actual viewport before sending and bounds suspended frame/font waits', async () => {
+  const capture = componentCapture(), verification = fixtureRenderPlan(capture), bodies = [], output = { textContent: '' };
+  const target = { setAttribute() {}, closest: () => null, querySelectorAll: () => [root] };
+  const root = { parentElement: target, textContent: 'F', className: 'root', querySelectorAll: () => [],
+    getBoundingClientRect: () => ({ x: 0, y: 0, width: 48, height: 48 }) };
+  const context = { React: { createElement() {} }, createRoot: () => ({ render() {} }), exports: { Example() {} }, URL, TextEncoder,
+    location: { href: `http://127.0.0.1/?case=${verification.cases[0].id}` }, window: { addEventListener() {} },
+    document: { getElementById: id => id === 'component' ? target : output, fonts: { ready: Promise.resolve(), status: 'loaded' }, visibilityState: 'hidden', addEventListener() {} },
+    setTimeout, clearTimeout, AbortController, requestAnimationFrame() {}, getComputedStyle: () => ({ getPropertyValue: () => '' }),
+    innerWidth: 800, innerHeight: 600, devicePixelRatio: 1, crypto: webcrypto, console: { error() {} },
+    fetch: async (_url, request) => { bodies.push(request.body); return { ok: true, json: async () => ({ sha256: sha256(request.body), bytes: request.body.length }) }; },
+  };
+  const source = previewModule({ code: { component: 'Example', path: 'src/Example.tsx' }, evidence: { hash: 'a'.repeat(64) }, verification, parts: { root: {} } }, capture, 'session', { timeoutMs: 250 }).replace(/^import .*;$/gm, '');
+  vm.runInNewContext(source, context);
+  await assert.rejects(context.window.__dsVerification.collect(), /Viewport mismatch/);
+  assert.match(output.textContent, /expected 640x480, obtained 800x600/);
+  assert.equal(bodies.length, 0);
+  await context.window.__dsVerification.collect({ diagnostic: true });
+  assert.equal(context.window.__dsVerification.status, 'diagnostic-recorded');
+  context.innerWidth = 640; context.innerHeight = 480;
+  context.document.fonts.ready = new Promise(() => {});
+  await assert.rejects(context.window.__dsVerification.collect(), /timed out.*visibility: hidden/);
+  assert.equal(context.window.__dsVerification.status, 'failed');
+  assert.equal(context.window.__dsVerification.receipt, undefined, 'a previous successful receipt cannot masquerade as this failed attempt');
+  assert.equal(bodies.length, 1, 'a timed-out collection cannot send a late measurement');
 });

@@ -6,6 +6,7 @@ import { verifyIntrinsicCss } from './lib/intrinsic-css.mjs';
 import { caseInputs } from './lib/comparison-evidence.mjs';
 import { verifyTokenStyles } from './lib/token-styles.mjs';
 import { createDependencySession } from './lib/local-dependencies.mjs';
+import { collectCssDiagnostics } from './lib/css-diagnostics.mjs';
 
 export function verifyRenderPlans(root, { contexts, dependencySession } = {}) {
   const errors = [], warnings = [];
@@ -23,6 +24,8 @@ export function verifyRenderPlans(root, { contexts, dependencySession } = {}) {
         const tokens = verifyTokenStyles(root, metadata, { dependencySession });
         result.errors.push(...tokens.errors); result.warnings.push(...tokens.warnings);
         const css = verifyIntrinsicCss(root, metadata, entry.code?.style);
+        const syntax = collectCssDiagnostics(root, [metadata.code.path, entry.code?.style, ...(Array.isArray(metadata.verification?.stylesheets) ? metadata.verification.stylesheets : [])]);
+        result.errors.push(...syntax.errors); result.warnings.push(...syntax.warnings);
         for (const c of objectRecords(metadata.verification?.cases)) result.warnings.push(...caseInputs(root, metadata, c, entry.code?.style, { dependencySession }).warnings);
         result.errors.push(...css.errors); result.warnings.push(...css.warnings);
         errors.push(...result.errors.map(e => `${name}: ${e}`));

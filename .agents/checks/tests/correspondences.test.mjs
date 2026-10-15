@@ -7,7 +7,7 @@ import { verifyCorrespondences } from '../lib/correspondences.mjs';
 import { readCorrespondences, correspondenceSummary } from '../lib/correspondences.mjs';
 import { sha256 } from '../lib/render-plan.mjs';
 import { createPreviewProject } from './fixtures/preview-project.mjs';
-import { renderedArtifacts, renderedBehaviors } from './fixtures/rendered-artifacts.mjs';
+import { renderedArtifacts, renderedBehaviors, syntheticTypographyReviews } from './fixtures/rendered-artifacts.mjs';
 import { comparisonReport } from '../../skills/create-ds-from-figma/scripts/verification-plan.mjs';
 
 test('confirmed is tied to an exact fidelity configuration, durable rendered report and current input/artifact bytes', t => {
@@ -17,6 +17,7 @@ test('confirmed is tied to an exact fidelity configuration, durable rendered rep
   const metadata = JSON.parse(readFileSync(path.join(root, metadataPath), 'utf8'));
   const configuration = metadata.verification.cases[0];
   const report = comparisonReport(root, metadata, configuration.id, { result: 'PASS',
+    checkReviews: syntheticTypographyReviews(root, metadata, configuration),
     comparison: { method: 'agent-rendered-review', reason: 'Synthetic schema judgment, not real Figma evidence.' },
     figmaRevision: { id: null, reason: 'Synthetic source.' }, codeRevision: { id: null, reason: 'Fixture files hashed.' }, artifacts: renderedArtifacts(root, metadata, configuration), behaviors: renderedBehaviors(root, metadata, configuration) }, 'src/PreviewGlyph.module.css', metadataPath);
   let evidence = write('design-system/verification/report.json', JSON.stringify(report));
@@ -62,6 +63,7 @@ test('a new report cannot refresh a stale original browser measurement', t => {
   const m = JSON.parse(readFileSync(path.join(root, metadataPath))), c = m.verification.cases[0];
   const artifacts = renderedArtifacts(root, m, c);
   const review = { result: 'PASS', comparison: { method: 'agent-rendered-review', reason: 'Synthetic judgment only.' },
+    checkReviews: syntheticTypographyReviews(root, m, c),
     figmaRevision: { id: null, reason: 'Synthetic fixture.' }, codeRevision: { id: null, reason: 'Synthetic fixture.' }, artifacts, behaviors: renderedBehaviors(root, m, c) };
   const prior = comparisonReport(root, m, c.id, review, undefined, metadataPath);
   const css = path.join(root, 'src/PreviewGlyph.module.css'), original = readFileSync(css);
@@ -94,6 +96,7 @@ test('a general PASS cannot confirm mismatched geometry and stored checks are in
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const m = JSON.parse(readFileSync(path.join(root, metadataPath))), c = m.verification.cases[0];
   const review = { result: 'PASS', comparison: { method: 'agent-rendered-review', reason: 'Synthetic review.' },
+    checkReviews: syntheticTypographyReviews(root, m, c),
     figmaRevision: { id: null, reason: 'Synthetic.' }, codeRevision: { id: null, reason: 'Synthetic.' }, behaviors: renderedBehaviors(root, m, c) };
   const bad = renderedArtifacts(root, m, c, { mutateBody: body => { body.parts.root.elements[0].rect.height += 2; } });
   assert.throws(() => comparisonReport(root, m, c.id, { ...review, artifacts: bad }), /Confirmation blocked: geometry:root FAIL/);
@@ -121,6 +124,7 @@ test('prose edits do not invalidate confirmations; comparator version changes ar
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const metadata = JSON.parse(readFileSync(path.join(root, metadataPath))), c = metadata.verification.cases[0];
   const report = comparisonReport(root, metadata, c.id, { result: 'PASS', comparison: { method: 'agent-rendered-review', reason: 'Synthetic.' },
+    checkReviews: syntheticTypographyReviews(root, metadata, c),
     figmaRevision: { id: null, reason: 'Synthetic.' }, codeRevision: { id: null, reason: 'Synthetic.' }, artifacts: renderedArtifacts(root, metadata, c), behaviors: renderedBehaviors(root, metadata, c) }, undefined, metadataPath);
   const file = 'design-system/verification/versioned.json';
   const check = () => {

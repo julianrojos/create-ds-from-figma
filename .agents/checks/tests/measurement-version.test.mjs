@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
 import { createPreviewProject } from './fixtures/preview-project.mjs';
-import { renderedArtifacts, renderedBehaviors } from './fixtures/rendered-artifacts.mjs';
+import { renderedArtifacts, renderedBehaviors, syntheticTypographyReviews } from './fixtures/rendered-artifacts.mjs';
 import { comparisonReport } from '../../skills/create-ds-from-figma/scripts/verification-plan.mjs';
 import { verifyCorrespondences } from '../lib/correspondences.mjs';
 import { sha256 } from '../lib/render-plan.mjs';
@@ -14,6 +14,7 @@ function fixture(t) {
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const metadata = JSON.parse(readFileSync(path.join(root, metadataPath))), configuration = metadata.verification.cases[0];
   const review = { result: 'PASS', comparison: { method: 'agent-rendered-review', reason: 'Synthetic version contract only.' },
+    checkReviews: syntheticTypographyReviews(root, metadata, configuration),
     figmaRevision: { id: null, reason: 'Synthetic.' }, codeRevision: { id: null, reason: 'Synthetic.' },
     artifacts: renderedArtifacts(root, metadata, configuration), behaviors: renderedBehaviors(root, metadata, configuration) };
   const produce = () => comparisonReport(root, metadata, configuration.id, review, undefined, metadataPath);

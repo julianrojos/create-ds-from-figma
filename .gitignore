@@ -45,6 +45,7 @@ node_modules/
 
 # Coverage
 coverage/
+/test-results/
 *.lcov
 .nyc_output
 

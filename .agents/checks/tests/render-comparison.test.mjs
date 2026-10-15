@@ -95,7 +95,8 @@ test('source and DOM ambiguity, missing bounds and missing measurements have dis
   f.measurement = undefined;
   assert.equal(compare(f).summary['NOT RUN'], 2);
   f.metadata.parts.label.nodes = {};
-  assert.equal(compare(f).checks[1].status, 'NOT COMPARABLE');
+  assert.equal(compare(f).checks.find(c => c.id === 'geometry:label').status, 'NOT COMPARABLE');
+  assert.ok(compare(f).checks.some(c => c.id.startsWith('coverage:') && c.status === 'FAIL'));
 });
 
 test('essential fonts are scoped to visible nonempty source text and need a loaded matching face', () => {
@@ -129,6 +130,18 @@ test('specific visual reviews can cover only noncomparable checks, never FAIL or
   assert.throws(() => assertConfirmationChecks(compare(f), reviews, ['figma.png']), /Confirmation blocked/);
   reviews[0].artifacts = ['irrelevant.txt'];
   assert.throws(() => assertConfirmationChecks(result, reviews, ['figma.png']), /retained artifact/);
+});
+
+test('a provisional text tolerance cannot confirm typography by numerical agreement alone', () => {
+  const f = fixture(), result = compare(f);
+  const text = result.checks.find(c => c.id === 'geometry:label');
+  assert.equal(text.status, 'PASS');
+  assert.equal(text.typographyTolerance.status, 'provisional');
+  assert.throws(() => assertConfirmationChecks(result, [], ['figma.png']), /Specific typography review required/);
+  const review = [{ checkId: 'geometry:label', result: 'PASS', reason: 'Rendered exact typography compared independently; threshold is not assumed calibrated.', artifacts: ['figma.png'] }];
+  assert.doesNotThrow(() => assertConfirmationChecks(result, review, ['figma.png']));
+  f.measurement.parts.label.elements[0].rect.width += 2;
+  assert.throws(() => assertConfirmationChecks(compare(f), [], ['figma.png']), /Confirmation blocked/);
 });
 
 test('behavior cases need the font of every text node they can render, including empty or hidden source text', () => {

@@ -9,10 +9,10 @@ import { startPreview } from '../../../skills/create-ds-from-figma/scripts/verif
 import { generateTokensCss } from '../../lib/tokens-css.mjs';
 
 // Synthetic browser fixture, never a real DS import or a Figma fidelity baseline.
-export function createPreviewProject({ configured = false } = {}) {
+export function createPreviewProject({ configured = false, runtimeModules } = {}) {
   const root = mkdtempSync(path.join(os.tmpdir(), 'ds-preview-fixture-'));
   const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
-  symlinkSync(path.join(repo, 'node_modules'), path.join(root, 'node_modules'));
+  symlinkSync(runtimeModules || path.join(repo, 'node_modules'), path.join(root, 'node_modules'));
   const write = (relative, value) => { const file = path.join(root, relative); mkdirSync(path.dirname(file), { recursive: true }); writeFileSync(file, typeof value === 'string' ? value : JSON.stringify(value, null, 2)); };
   const capture = componentCapture({ seeds: [
     { id: '1:2', parentId: null, type: 'COMPONENT', name: 'PreviewGlyph', children: ['1:3'], properties: { width: 48, height: 48,

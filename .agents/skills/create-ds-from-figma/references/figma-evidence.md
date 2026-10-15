@@ -2,7 +2,11 @@
 
 ## Responsabilidades
 
+Las pruebas del kit separan conformidad estática, ejecución real de navegador y fidelidad. npm test exige el perfil Chromium fijado; npm run test:browser:setup lo prepara en un runtime aislado. Un corpus de texto repetible no demuestra calibración contra Figma. El margen TEXT de 1 px sigue provisional: los PASS geométricos de texto necesitan checkReviews específicos con artefactos del caso antes de measured/confirmed. Ningún juicio rescata FAIL/NOT RUN. Esto no modifica la captura ni autoriza inventar valores de Figma.
+
 El snapshot guarda observaciones, no API ni CSS. La ficha conserva decisiones y enlaza observaciones. No transcribas respuestas ni reconstruyas valores a partir del código de referencia. El colector solo lee Figma mediante Plugin API; carga la skill figma-use antes de ejecutarlo. La comparación visual sigue necesitando contexto y screenshots.
+
+La cobertura renderizada se exige para todos los nodos de cada subárbol fidelity, no solo los que el agente eligió mapear. Las excepciones de verification.nodeCoverage requieren condiciones comprobables; unresolved mantiene una obligación pendiente, no justifica omitirla. Esto no cambia el perfil de captura. Las mediciones del navegador incluyen resultados CSS.supports por declaración literal; conserva measurementVersion original y recoge de nuevo al cambiar sus reglas, sin transcribir ni reetiquetar recibos.
 
 ## CLI Portable
 

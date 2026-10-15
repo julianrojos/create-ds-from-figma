@@ -58,7 +58,7 @@ function placeholderPaths(value, trail = "metadata") {
 }
 // The prose of a markdown file: HTML comments, fenced blocks (``` or ~~~), indented blocks and code spans are blanked,
 // keeping line numbers, because code may show <Component /> freely.
-function markdownProse(markdown, { keepInlineCode = false } = {}) {
+export function markdownProse(markdown, { keepInlineCode = false } = {}) {
   const lines = markdown.replace(/<!--[\s\S]*?-->/g, (comment) => comment.replace(/[^\n]/g, "")).split("\n");
   let fence = null;
   let previousBlankOrCode = true;

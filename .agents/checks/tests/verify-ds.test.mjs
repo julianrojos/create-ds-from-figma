@@ -651,6 +651,7 @@ test("style ranges can document mixed text without claiming a scalar property", 
     { start: 0, end: 5, textStyleId: 'S:1' }, { start: 5, end: 7, textStyleId: 'S:2' },
   ] } });
   recordCapture(root, metadata, { seeds, styles: [{ id: 'S:1', name: 'UI/Label', type: 'TEXT' }, { id: 'S:2', name: 'UI/Emphasis', type: 'TEXT' }] });
+  metadata.verification.nodeCoverage = [{ node: 'FILE:1:7', rule: 'unresolved', reason: 'This fixture documents mixed style ranges, not a rendered scalar text mapping.' }];
   write(root, relative, metadata);
   assert.deepEqual(verify(root).errors, []);
   delete metadata.styles[0].nodes[0].rangesSource;

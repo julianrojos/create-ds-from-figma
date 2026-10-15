@@ -13,12 +13,14 @@ import { mappedComponentsOf } from '../../../checks/verify-figma-evidence.mjs';
 import { verifyTokenStyles } from '../../../checks/lib/token-styles.mjs';
 import { createDependencySession } from '../../../checks/lib/local-dependencies.mjs';
 import { MEASUREMENT_VERSION } from '../../../checks/lib/measurement-version.mjs';
+import { collectCssDiagnostics } from '../../../checks/lib/css-diagnostics.mjs';
 
 const json = value => JSON.stringify(value).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
 const urlPath = relative => '/' + relative.split('/').map(encodeURIComponent).join('/');
 
-export function previewModule(metadata, capture, session) {
-  const data = { measurementVersion: MEASUREMENT_VERSION, verification: metadata.verification, parts: metadata.parts, snapshotHash: metadata.evidence?.hash, session, literals: [], bindings: metadata.bindings || [] };
+export function previewModule(metadata, capture, session, { timeoutMs = 15000, cssDiagnostics = { declarations: [] } } = {}) {
+  if (!Number.isInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 300000) throw new Error('Bounded positive collection timeout required');
+  const data = { timeoutMs, cssDiagnostics, measurementVersion: MEASUREMENT_VERSION, verification: metadata.verification, parts: metadata.parts, snapshotHash: metadata.evidence?.hash, session, literals: [], bindings: metadata.bindings || [] };
   for (const literal of metadata.measuredLiterals || []) {
     const observation = capture.observations.find(o => o.id === literal.observation);
     const prefix = observation?.field.match(/^segments\[\d+\]\./)?.[0] || '';
@@ -33,6 +35,7 @@ ${metadata.verification.stylesheets.map(file => `import ${json(urlPath(file))};`
 const data = ${json(data)};
 const id = new URL(location.href).searchParams.get('case');
 const configuration = data.verification.cases.find(c => c.id === id);
+const syntax = data.cssDiagnostics.byCase?.[id] || data.cssDiagnostics;
 const target = document.getElementById('component');
 if (!configuration) throw new Error('Select an established case id through ?case=ID');
 const Component = exports[${json(metadata.code.component)}];
@@ -71,13 +74,25 @@ const geometry = element => {
   return { visible, laidOut, axisAligned, affine2d };
 };
 let sequence = Promise.resolve();
-const frames = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+// Hidden tabs may never produce a frame. The timer fallback allows diagnostics, not a claim of a painted frame.
+const frames = () => new Promise(resolve => {
+  const timer = setTimeout(resolve, 50);
+  requestAnimationFrame(() => requestAnimationFrame(() => { clearTimeout(timer); resolve(); }));
+});
+const viewport = () => ({ expected: configuration.viewport, actual: { width: innerWidth, height: innerHeight },
+  matches: innerWidth === configuration.viewport.width && innerHeight === configuration.viewport.height });
+const showStatus = () => {
+  const status = document.getElementById('verification-status'), v = viewport();
+  window.__dsVerification.viewport = v;
+  if (status) status.textContent = window.__dsVerification.status + ': viewport expected ' + v.expected.width + 'x' + v.expected.height + ', obtained ' + v.actual.width + 'x' + v.actual.height + (window.__dsVerification.error ? '. ' + window.__dsVerification.error : '');
+};
 const mounted = () => target.querySelectorAll('[data-ds-part="root"]').length > 0;
 // React mounts asynchronously and a component asks for its fonts only once it has rendered, so fonts.ready is awaited
 // after the mount and the loading state is re-checked after layout, instead of trusting a promise that may predate it.
-async function settle() {
+async function settle(signal) {
   for (let attempt = 0; attempt < 120; attempt++) {
     await frames();
+    if (signal.aborted) throw new Error('Collection cancelled');
     if (!mounted()) continue;
     await document.fonts.ready;
     await frames();
@@ -86,8 +101,10 @@ async function settle() {
   // Without a mounted root, componentRoot() reports the missing or ambiguous root precisely.
   if (mounted()) throw new Error('Fonts were still loading when the measurement was due');
 }
-async function collect() {
-  await settle();
+async function collect(signal, diagnostic) {
+  if (!viewport().matches && !diagnostic) throw new Error('Viewport mismatch: adjust the browser viewport to the expected CSS pixels, then collect again; use collect({ diagnostic: true }) only to retain diagnostics');
+  await settle(signal);
+  if (signal.aborted) throw new Error('Collection cancelled');
   const parts = {};
   const root = componentRoot();
   for (const name of Object.keys(data.parts)) {
@@ -108,21 +125,41 @@ async function collect() {
   });
   const payload = JSON.stringify({ schemaVersion: 2, measurementVersion: data.measurementVersion, kind: 'browser-measurement', producer: 'verification-preview-v2', capturedAt: new Date().toISOString(), snapshotHash: data.snapshotHash, caseId: configuration.id, phase: 'measurement', url: location.href,
     viewport: { width: innerWidth, height: innerHeight, devicePixelRatio }, configuration, parts, fonts,
+    cssDiagnostics: { schemaVersion: 1, results: syntax.declarations.map(d => ({ id: d.id, supported: CSS.supports(d.property, d.value), ...(d.supports?.length ? { applicable: d.supports.every(query => CSS.supports(query)) } : {}) })) },
     images: [...target.querySelectorAll('img')].map(img => ({ src: img.currentSrc, complete: img.complete, naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight })),
     limitations: ['Measurements are not visual fidelity or authenticity proof.', 'State activations and mode scopes require independent verification.', 'Font availability and matching faces do not prove the rendered glyph font.'] });
   const bytes = new TextEncoder().encode(payload);
   const hash = [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map(v => v.toString(16).padStart(2, '0')).join('');
-  const response = await fetch('/__ds_verification/receipt', { method: 'POST', headers: { 'content-type': 'application/json', 'x-ds-session': data.session, 'x-body-sha256': hash }, body: bytes });
+  if (signal.aborted) throw new Error('Collection cancelled');
+  const response = await fetch('/__ds_verification/receipt', { method: 'POST', headers: { 'content-type': 'application/json', 'x-ds-session': data.session, 'x-body-sha256': hash }, body: bytes, signal });
   const receipt = await response.json();
   if (!response.ok || receipt.sha256 !== hash || receipt.bytes !== bytes.byteLength) throw new Error('Measurement transfer failed: ' + JSON.stringify(receipt));
+  if (signal.aborted) throw new Error('Collection cancelled');
   window.__dsVerification.receipt = receipt;
-  window.__dsVerification.status = 'recorded';
+  window.__dsVerification.status = viewport().matches ? 'recorded' : 'diagnostic-recorded';
+  showStatus();
   return receipt;
 }
-window.__dsVerification = { status: 'loading', configuration, expectations: data.literals, collect: () => {
-  sequence = sequence.catch(() => {}).then(collect);
-  return sequence.catch(error => { window.__dsVerification.status = 'failed'; window.__dsVerification.error = error.message; throw error; });
+async function boundedCollect(diagnostic) {
+  const controller = new AbortController();
+  let timer;
+  window.__dsVerification.status = 'collecting';
+  delete window.__dsVerification.error;
+  delete window.__dsVerification.receipt;
+  showStatus();
+  const timeout = new Promise((_, reject) => { timer = setTimeout(() => {
+    controller.abort(); reject(new Error('Collection timed out after ' + data.timeoutMs + 'ms; page visibility: ' + (document.visibilityState || 'unknown') + '. Keep the page active and inspect mount/font/network failures.'));
+  }, data.timeoutMs); });
+  try { return await Promise.race([collect(controller.signal, diagnostic), timeout]); }
+  catch (error) { window.__dsVerification.status = 'failed'; window.__dsVerification.error = error.message; showStatus(); throw error; }
+  finally { clearTimeout(timer); controller.abort(); }
+}
+window.__dsVerification = { status: 'loading', configuration, expectations: data.literals, collect: ({ diagnostic = false } = {}) => {
+  sequence = sequence.catch(() => {}).then(() => boundedCollect(diagnostic));
+  return sequence;
 } };
+showStatus();
+window.addEventListener('resize', showStatus);
 window.__dsVerification.collect().catch(console.error);
 document.addEventListener('keydown', event => {
   if (event.key === 'F8') { event.preventDefault(); window.__dsVerification.collect().catch(console.error); }
@@ -203,7 +240,8 @@ export async function startPreview(root, metadataPath, { port = 5173, directory,
     caseMetadataHashes: Object.fromEntries(scopedCases.map(([c, scoped]) => [c.id, scoped.metadataHash])),
     renderer: { vite: viteInfo.version, react: JSON.parse(readFileSync(require.resolve('react/package.json'), 'utf8')).version },
     limitations: ['Declared input hashes do not cover all transitive dependencies, fonts or browser changes.', 'The collector preserves bytes; it does not certify fidelity, authenticity or state activation.'] };
-  const module = previewModule(metadata, snapshot.capture, session);
+  const syntax = { byCase: Object.fromEntries(scopedCases.map(([c, scoped]) => [c.id, collectCssDiagnostics(root, scoped.files)])) };
+  const module = previewModule(metadata, snapshot.capture, session, { cssDiagnostics: syntax });
   const server = await createServer({ root, configFile, appType: 'custom', esbuild: { jsx: 'automatic' },
     server: { host: '127.0.0.1', port, strictPort: true },
     plugins: [{ name: 'ds-verification-preview', resolveId(id) { if (id === '/__ds_verification.tsx') return '\0ds-verification.tsx'; },
@@ -212,15 +250,23 @@ export async function startPreview(root, metadataPath, { port = 5173, directory,
   server.middlewares.use(receiptHandler({ session, directory, manifest, cases: metadata.verification.cases,
     currentFiles: configuration => casePaths.get(configuration.id).map(file => ({ path: file, sha256: sha256(readFileSync(projectFile(root, file))) })) }));
   server.middlewares.use(async (req, res, next) => {
+    if (req.url?.split('?')[0] === '/__ds_css_diagnostics') {
+      try {
+        const diagnostic = collectCssDiagnostics(root, [], { application: true });
+        res.setHeader('content-type', 'text/html');
+        res.end('<!doctype html><html><head><meta charset="utf-8"><title>Application CSS diagnostics</title></head><body><pre id="result"></pre><script>const source=' + json(diagnostic) + '; window.__dsCssDiagnostics={...source, results:source.declarations.map(d=>({...d,supported:CSS.supports(d.property,d.value),...(d.supports?.length?{applicable:d.supports.every(query=>CSS.supports(query))}:{})}))}; document.getElementById("result").textContent=JSON.stringify(window.__dsCssDiagnostics,null,2);</script></body></html>');
+      } catch (error) { next(error); }
+      return;
+    }
     if (req.url?.split('?')[0] !== '/__ds_verification') return next();
     try {
-      const html = await server.transformIndexHtml(req.url, '<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DS verification</title></head><body><main id="component"></main><script type="module" src="/__ds_verification.tsx"></script></body></html>');
+      const html = await server.transformIndexHtml(req.url, '<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DS verification</title></head><body><main id="component"></main><output id="verification-status" style="display:block;margin-top:24px"></output><script type="module" src="/__ds_verification.tsx"></script></body></html>');
       res.setHeader('content-type', 'text/html'); res.end(html);
     } catch (error) { next(error); }
   });
   try { await server.listen(); }
   catch (error) { await server.close(); throw error; }
-  return { server, directory, warnings: [...evidence.warnings, ...plan.warnings, ...scopedCases.flatMap(([, scoped]) => scoped.warnings)], urls: metadata.verification.cases.map(c => ({ id: c.id, viewport: c.viewport, url: `http://127.0.0.1:${server.httpServer.address().port}/__ds_verification?case=${c.id}` })) };
+  return { server, directory, diagnosticsUrl: `http://127.0.0.1:${server.httpServer.address().port}/__ds_css_diagnostics`, warnings: [...evidence.warnings, ...plan.warnings, ...scopedCases.flatMap(([, scoped]) => scoped.warnings), ...Object.values(syntax.byCase).flatMap(s => [...s.errors, ...s.warnings])], urls: metadata.verification.cases.map(c => ({ id: c.id, viewport: c.viewport, url: `http://127.0.0.1:${server.httpServer.address().port}/__ds_verification?case=${c.id}` })) };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
@@ -236,7 +282,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       else throw new Error('Unknown or duplicated preview option');
     }
     const preview = await startPreview(root, metadata, { port, viteConfig, approveConfig });
-    console.log(JSON.stringify({ directory: preview.directory, cases: preview.urls, warnings: preview.warnings }, null, 2));
+    console.log(JSON.stringify({ directory: preview.directory, cases: preview.urls, diagnosticsUrl: preview.diagnosticsUrl, warnings: preview.warnings }, null, 2));
     for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, async () => { await preview.server.close(); });
   } catch (error) { console.error(error.message); process.exitCode = 1; }
 }

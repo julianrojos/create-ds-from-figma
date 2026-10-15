@@ -16,6 +16,10 @@ Resolve a UI element to an existing Design System component.
 
 metadata.verification records resources and reproducible fidelity/behavior cases. A valid plan or measurement receipt is not a confirmed Figma match; preserve that distinction in reuse findings.
 
+A TEXT geometry PASS uses a provisional 1px margin and requires its own rendered checkReviews entry (geometry:PART) before confirmation. Do not infer calibrated typography or a confirmed match from numerical agreement alone.
+
+Node coverage obligations and literal CSS syntax checks also apply to current confirmations. An unresolved node or a measured-only closure is not a confirmed visual match. Keep lookup read-only; optional browser collection publishes evidence and needs separate authorization.
+
 A persisted snapshot documents origin and coverage, but does not replace stable Figma refs or prove a rendered mapping. Every mapped record requires evidence: missing evidence is an incomplete record, not proof that the component is absent. This lookup does not create or rewrite snapshots.
 
 ## Input

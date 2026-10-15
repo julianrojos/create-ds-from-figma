@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { createPreviewProject } from '../../../checks/tests/fixtures/preview-project.mjs';
 import { componentCapture } from '../../../checks/tests/fixtures/component-capture.mjs';
 import { renderRequirements } from '../../../checks/lib/render-plan.mjs';
-import { renderedArtifacts, renderedBehaviors } from '../../../checks/tests/fixtures/rendered-artifacts.mjs';
+import { renderedArtifacts, renderedBehaviors, syntheticTypographyReviews } from '../../../checks/tests/fixtures/rendered-artifacts.mjs';
 
 test('source requirements group equal fonts and full equivalent segments without losing provenance or distinct overrides', () => {
   const nodes = componentCapture().nodes; nodes[1].children = ['1:4'];
@@ -66,6 +66,7 @@ test('CLI derives, applies and persists reports against the same snapshot withou
   assert.deepEqual(readFileSync(path.join(root, metadataPath)), original);
   const reviewFile = path.join(root, 'review.json');
   writeFileSync(reviewFile, JSON.stringify({ result: 'PASS', comparison: { method: 'agent-rendered-review', reason: 'Synthetic CLI test judgment, not a real Figma fidelity claim.' },
+    checkReviews: syntheticTypographyReviews(root, updated, updated.verification.cases[0]),
     figmaRevision: { id: null, reason: 'Synthetic source.' }, codeRevision: { id: null, reason: 'Fixture files hashed.' }, artifacts: renderedArtifacts(root, updated, updated.verification.cases[0]), behaviors: renderedBehaviors(root, updated, updated.verification.cases[0]) }));
   const recorded = run('report', root, metadataPath, 'source-0', reviewFile); assert.equal(recorded.status, 0, recorded.stderr);
   const reference = JSON.parse(recorded.stdout), bytes = readFileSync(path.join(root, reference.path));
@@ -80,6 +81,7 @@ test('report producer derives configuration and hashes without converting a meas
   const metadata = JSON.parse(readFileSync(path.join(root, metadataPath), 'utf8'));
   const configuration = metadata.verification.cases[0];
   const review = { result: 'PASS', comparison: { method: 'agent-rendered-review', reason: 'Compared exact configuration with source rendering.' },
+    checkReviews: syntheticTypographyReviews(root, metadata, configuration),
     figmaRevision: { id: null, reason: 'Revision unavailable.' }, codeRevision: { id: null, reason: 'Uncommitted files hashed.' }, artifacts: renderedArtifacts(root, metadata, configuration), behaviors: renderedBehaviors(root, metadata, configuration) };
   const report = comparisonReport(root, metadata, configuration.id, review);
   assert.deepEqual(report.configuration, configuration); assert.ok(report.files.length >= 2);

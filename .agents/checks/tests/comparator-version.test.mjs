@@ -5,7 +5,8 @@ import { COMPARATOR_VERSION } from '../lib/render-comparison.mjs';
 import { MEASUREMENT_VERSION } from '../lib/measurement-version.mjs';
 import { ruleFingerprint } from './fixtures/rule-fingerprint.mjs';
 
-const comparator = [{ file: new URL('../lib/render-comparison.mjs', import.meta.url), names: ['compareRendered', 'renderResultFacts', 'assertConfirmationChecks'] }];
+const comparator = [{ file: new URL('../lib/render-comparison.mjs', import.meta.url), names: ['compareRendered', 'renderResultFacts', 'assertConfirmationChecks'] },
+  { file: new URL('../lib/css-diagnostics.mjs', import.meta.url), names: ['collectCssDiagnostics', 'compareCssDiagnostics'] }];
 const measurement = [{ file: new URL('../../skills/create-ds-from-figma/scripts/verification-preview.mjs', import.meta.url), names: ['previewModule', 'receiptHandler'] }];
 const versions = {
   comparator: {
@@ -17,8 +18,16 @@ const versions = {
     'render-comparator-v8': 'aeefe61b56dffe983430699dd1a4f1170f29f50cfc63afa6c2af1dda68064583',
     'render-comparator-v9': '69b79945687245e57708bbe451db97bc7533829d554e11a84f80cb0d1600f568',
     'render-comparator-v10': 'd4d005cbe8ab874ffae258d73f9f7db0f4f23536ec4d2d038b69654e93cd160d',
+    'render-comparator-v11': '7bdcf67976318c8fe0bcf6f5a77ed412284a1d7154527c12222b9900c34ff705',
+    'render-comparator-v12': 'cd6f0b2d07128af54d3c44dae8c4b189cc7637d73f9eea820c0d39e791a9e44c',
+    'render-comparator-v13': '6cf8fddf3dcb98689a562975e5b5ea21bf98d430512db62005f9baa1b6906320',
   },
-  measurement: { 'measurement-rules-v1': 'c5fc3f91d47851f0db30839789f3dbbf18c3eae6aee8c936342c6a2e93462a99' },
+  measurement: {
+    'measurement-rules-v1': 'c5fc3f91d47851f0db30839789f3dbbf18c3eae6aee8c936342c6a2e93462a99',
+    'measurement-rules-v2': '1b1e90895e055e8b3b7e167b16c8f98708b56517281e8d0d8490b60be562b005',
+    'measurement-rules-v3': 'ac90008c34389942824dc88fbfae4e53bb8e6917e05aa3b6441067dd6f431517',
+    'measurement-rules-v4': 'fd2f922ee2e2e606ef21276e177b7f599178b05330b23a4a86a8d9b33a83f9e4',
+  },
 };
 const altered = (entries, suffix, before, after) => {
   let changed = false;
@@ -71,9 +80,9 @@ test('new named helpers join the guard automatically; unsupported dynamic rule i
   } }), /Dynamic rule import needs an explicit boundary/);
 });
 
-test('documentation never pins a comparator version other than the current one', () => {
+test('documentation never pins comparator or measurement rules other than the current versions', () => {
   const root = new URL('../../../', import.meta.url);
   const files = [new URL('README.md', root), ...readdirSync(new URL('.agents/', root), { recursive: true }).filter(f => f.endsWith('.md')).map(f => new URL(`.agents/${f}`, root))];
-  const stale = files.flatMap(file => [...readFileSync(file, 'utf8').matchAll(/render-comparator-v\d+/g)].filter(m => m[0] !== COMPARATOR_VERSION).map(() => file.pathname));
+  const stale = files.flatMap(file => [...readFileSync(file, 'utf8').matchAll(/(?:render-comparator|measurement-rules)-v\d+/g)].filter(m => ![COMPARATOR_VERSION, MEASUREMENT_VERSION].includes(m[0])).map(() => file.pathname));
   assert.deepEqual(stale, [], 'Use the constant name instead of a version number, or update the document with the version bump.');
 });

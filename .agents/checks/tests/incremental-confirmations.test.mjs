@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import { mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import { createPreviewProject } from './fixtures/preview-project.mjs';
-import { renderedArtifacts, renderedBehaviors } from './fixtures/rendered-artifacts.mjs';
+import { renderedArtifacts, renderedBehaviors, syntheticTypographyReviews } from './fixtures/rendered-artifacts.mjs';
 import { componentCapture, fixtureRenderPlan } from './fixtures/component-capture.mjs';
 import { persistCapture } from '../../skills/create-ds-from-figma/scripts/figma-capture.mjs';
 import { comparisonReport } from '../../skills/create-ds-from-figma/scripts/verification-plan.mjs';
@@ -17,6 +17,7 @@ test('a second import leaves the first confirmation current; staleness warns wit
   const read = file => JSON.parse(readFileSync(path.join(root, file)));
   const m = read(metadataPath), c = m.verification.cases[0], artifacts = renderedArtifacts(root, m, c);
   const report = comparisonReport(root, m, c.id, { result: 'PASS', comparison: { method: 'agent-rendered-review', reason: 'Synthetic test, not genuine fidelity.' },
+    checkReviews: syntheticTypographyReviews(root, m, c),
     figmaRevision: { id: null, reason: 'Synthetic.' }, codeRevision: { id: null, reason: 'Synthetic.' }, artifacts, behaviors: renderedBehaviors(root, m, c) }, undefined, metadataPath);
   const bytes = Buffer.from(JSON.stringify(report)), reportPath = 'design-system/verification/confirmed.json'; write(reportPath, bytes);
   const usagePath = 'design-system/components/PreviewGlyph/usage.md';

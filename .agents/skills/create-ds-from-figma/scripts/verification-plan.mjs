@@ -9,6 +9,9 @@ import { assertConfirmationChecks, compareRendered } from '../../../checks/lib/r
 import { publishMeasurement } from '../../../checks/lib/publish-measurement.mjs';
 import { createDependencySession } from '../../../checks/lib/local-dependencies.mjs';
 import { deriveBehaviorEvidence } from '../../../checks/lib/behavior-evidence.mjs';
+import { closeVerification } from '../../../checks/lib/verification-closure.mjs';
+import { waitForMeasurement } from '../../../checks/lib/wait-measurement.mjs';
+import { collectCssDiagnostics } from '../../../checks/lib/css-diagnostics.mjs';
 
 const forbidden = (record, keys) => {
   if (!record || typeof record !== 'object' || Array.isArray(record) || Object.keys(record).some(k => !keys.includes(k))) throw new Error(`Decision accepts only ${keys.join(', ')}`);
@@ -34,6 +37,7 @@ export function materializePlan(metadata, capture, decisions) {
   };
   result.verification = { schemaVersion: 1,
     geometryPolicy: 'mapped-layout-v1',
+    nodeCoverage: decisions.nodeCoverage ?? [],
     fonts: select(decisions.fonts, requirements.fonts, ['id', 'css', 'source'], r => ({ id: r.id })),
     assets: select(decisions.assets, requirements.assets, ['observation', 'index', 'source'], r => ({ observation: r.observation, index: r.index, imageHash: r.imageHash })),
     stylesheets: decisions.stylesheets, inputs: decisions.inputs ?? [], unestablished: decisions.unestablished,
@@ -88,7 +92,19 @@ export function comparisonReport(root, metadata, caseId, review, style, metadata
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
     const [, , command, ...args] = process.argv;
-    if (command === 'requirements' && args.length === 1) {
+    if (command === 'diagnose' && args.length === 1) {
+      const result = collectCssDiagnostics(args[0], [], { application: true });
+      console.log(JSON.stringify(result, null, 2));
+      if (result.errors.length) process.exitCode = 1;
+    } else if (command === 'close' && args.length === 3) {
+      const [root, metadataPath, manifestPath] = args;
+      const result = closeVerification(root, metadataPath, JSON.parse(readFileSync(manifestPath, 'utf8')));
+      console.log(JSON.stringify(result, null, 2));
+      if (!result.complete) process.exitCode = 1;
+    } else if (command === 'wait' && [2, 3].includes(args.length)) {
+      const [directory, caseId, timeout] = args;
+      console.log(JSON.stringify(await waitForMeasurement(directory, caseId, { timeoutMs: timeout === undefined ? 20000 : Number(timeout) }), null, 2));
+    } else if (command === 'requirements' && args.length === 1) {
       const snapshot = JSON.parse(readFileSync(args[0], 'utf8')), sealed = sealCapture(snapshot.capture);
       if (sealed.hash !== snapshot.hash) throw new Error('Snapshot hash mismatch');
       console.log(JSON.stringify({ snapshotHash: snapshot.hash, ...renderRequirements(snapshot.capture) }, null, 2));
@@ -155,6 +171,6 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       if (existsSync(output)) { if (sha256(readFileSync(projectFile(root, relative))) !== hash) throw new Error('Existing report differs'); }
       else writeFileSync(output, bytes, { flag: 'wx' });
       console.log(JSON.stringify({ path: relative, sha256: hash, limitation: 'Judgment supplied by reviewer; hashes and configuration generated, not authenticity or visual proof.' }));
-    } else throw new Error('Usage: verification-plan.mjs requirements SNAPSHOT | compare ROOT METADATA CASE BODY [BASELINE_BODY] | apply ROOT METADATA DECISIONS | publish ROOT METADATA CASE RECEIPT | report ROOT METADATA CASE REVIEW');
+    } else throw new Error('Usage: verification-plan.mjs diagnose ROOT | requirements SNAPSHOT | wait DIRECTORY CASE [TIMEOUT_MS] | close ROOT METADATA MANIFEST | compare ROOT METADATA CASE BODY [BASELINE_BODY] | apply ROOT METADATA DECISIONS | publish ROOT METADATA CASE RECEIPT | report ROOT METADATA CASE REVIEW');
   } catch (error) { console.error(error.message); process.exitCode = 1; }
 }

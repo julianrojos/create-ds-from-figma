@@ -2,7 +2,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test .agents/skills/create-ds-from-figma/scripts/*.test.mjs .agents/checks/tests/*.test.mjs",
+    "test": "node .agents/scripts/test-kit.mjs all",
+    "test:unit": "node .agents/scripts/test-kit.mjs unit",
+    "test:browser": "node .agents/scripts/test-kit.mjs browser",
+    "test:browser:setup": "node .agents/scripts/setup-browser-tests.mjs",
     "verify:docs": "node .agents/checks/verify-docs.mjs"
   },
   "devDependencies": {

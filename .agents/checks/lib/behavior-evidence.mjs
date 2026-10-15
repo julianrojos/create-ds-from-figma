@@ -9,7 +9,7 @@ const casesFor = (metadata, baseline) => objectRecords(metadata.verification?.ca
 const readBody = (root, artifact) => JSON.parse(readFileSync(projectFile(root, artifact.path), 'utf8'));
 const baselineBody = (root, artifacts) => readBody(root, artifacts.find(a => a.kind === 'browser-measurement'));
 
-function requirePassed(result) {
+export function requirePassed(result) {
   renderResultFacts(result);
   for (const check of result.checks) if (check.status !== 'PASS') {
     const pending = ['NOT RUN', 'NOT COMPARABLE'].includes(check.status);

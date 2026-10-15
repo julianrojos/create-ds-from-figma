@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync, realpathSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { textDimensionRequirements } from './figma-dimensions.mjs';
+import { nodeCoverage } from './node-coverage.mjs';
 
 const object = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const text = v => typeof v === 'string' && v.trim().length > 0;
@@ -62,6 +63,7 @@ export function verifyRenderPlan(root, metadata, capture, { delegations = [] } =
   const errors = [], warnings = [], requirements = renderRequirements(capture), plan = metadata.verification;
   if (!object(plan) || plan.schemaVersion !== 1) return { errors: ['verification schemaVersion 1 is required'], warnings, requirements };
   if (plan.geometryPolicy !== 'mapped-layout-v1') errors.push('verification.geometryPolicy must be mapped-layout-v1');
+  if (plan.nodeCoverage !== undefined && !Array.isArray(plan.nodeCoverage)) errors.push('verification.nodeCoverage must be an array');
   const arrays = ['fonts', 'assets', 'stylesheets', 'inputs', 'cases', 'unestablished'];
   for (const key of arrays) if (!Array.isArray(plan[key])) errors.push(`verification.${key} must be an array`);
   if (errors.length) return { errors, warnings, requirements };
@@ -138,6 +140,11 @@ export function verifyRenderPlan(root, metadata, capture, { delegations = [] } =
     else { covered.add(record.figmaRef); for (const id of subtree(capture, record.figmaRef)) unestablishedNodes.add(id); warnings.push(`${record.figmaRef}: correspondence and behavior NOT VERIFIED: ${record.reason}`); }
   }
   for (const ref of refs) if (!covered.has(ref)) errors.push(`Missing fidelity case or explicit unestablished correspondence: ${ref}`);
+  for (const c of cases.values()) if (c.kind === 'fidelity') {
+    const coverage = nodeCoverage(metadata, capture, c, { delegations });
+    errors.push(...coverage.errors.map(e => `${c.id}: ${e}`));
+    warnings.push(...coverage.pending.map(e => `${c.id}: node coverage NOT VERIFIED ${e.node}: ${e.reason}`));
+  }
   const exercised = new Set();
   for (const c of cases.values()) {
     if (c.kind !== 'behavior') continue;

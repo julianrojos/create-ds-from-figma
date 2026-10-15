@@ -183,7 +183,25 @@ Tras persistir la captura y antes de escribir la ficha o el TSX, ejecuta `node .
 
 ## Recursos Y Casos
 
-apply es el paso de publicación de la ficha: tras planificar desde requirements, prepara código/CSS, tokens, relaciones y usage para esa propuesta; apply la valida en memoria contra el DS antes de reemplazar metadata.json. Un error deja el archivo intacto. Esto no confirma renderizado. confirmed exige informe v2 con huella semántica del caso, medida original del navegador y captura PNG Figma tipadas y retenidas, no cualquier archivo del proyecto.
+Contabiliza cada nodo del subárbol fidelity: parte mapeada, agrupación con regla comprobable, delegación validada de internos de instancia o pendiente explícito en verification.nodeCoverage. Los contenedores también cuentan; ni nombre de capa ni visible=false autorizan exclusión automática. Aplica las condiciones de `references/component-metadata.md`. Una limitación no permite confirmar.
+
+Tras generar App.tsx ejecuta también `verification-plan.mjs diagnose .` y abre diagnosticsUrl de la vista para comprobar sus literales mediante CSS.supports. Separa esos fallos de app de los del componente; no entregues una demo inválida aunque el componente esté medido. El cierre y los informes recalculan la identidad de las declaraciones literales del componente y exigen los resultados originales del navegador. Propiedades custom/var()/env() y expresiones dinámicas no se declaran validadas por ese diagnóstico.
+
+Opcionalmente usa `verification-browser.mjs ROOT METADATA ABSOLUTE_PLAYWRIGHT_MODULE BROWSER_EXECUTABLE` con herramientas ya instaladas/revisadas. El adaptador de importación no instala dependencias y es independiente del perfil de pruebas real obligatorio del kit. No inventa activaciones ni genera confirmed; publica evidencia solo dentro del alcance autorizado. El modo calibrate permite explorar fuentes WOFF2 explícitas con hashes, sin cambiar tolerancias por conveniencia ni afirmar igualdad binaria con Figma.
+
+El margen TEXT de 1 px es provisional, no una calibración universal. Cada geometry:PARTE de texto en PASS necesita además checkReviews específico con revisión renderizada y artefactos del mismo caso para permitir measured/confirmed. El juicio general no basta y ninguna revisión rescata FAIL/NOT RUN. La repetibilidad de fuentes en un navegador no prueba fidelidad contra Figma.
+
+En diagnóstico CSS usa los estados contextualizados, no solo supported: @supports inactivo no implica error y una extensión ajena no soportada queda NOT COMPARABLE hasta revisar fallback/motor. Los números inline constantes usan unidades React; las expresiones dinámicas siguen pendientes de revisión. El cierre conserva mediciones ausentes ante fallo estático, pero no ejecuta comparaciones inseguras ni declara vigentes las ya aportadas.
+
+El adaptador rechaza una salida ocupada antes de arrancar y conserva el cierre estructurado si falla el preflight (salida 1, sin navegador). Distingue ese fallo de un bloqueo de infraestructura (salida 2, execution con fase/motivo). No interpretes execution COMPLETED como confirmed; consulta siempre closure y el diagnóstico de app.
+
+Una reserva abandonada no se elimina automáticamente: usa inspect-lock DIRECTORY para diagnosticar sin escribir y reintenta en una salida nueva. No deduzcas identidad del propietario ni permiso para borrar a partir del PID. Conserva la carpeta anterior y sus evidencias; también los resultados sin lock impiden reutilizar una salida no vacía.
+
+apply es el paso de publicación de la ficha: tras planificar desde requirements, prepara código/CSS, tokens, relaciones y usage para esa propuesta; apply la valida en memoria contra el DS antes de reemplazar metadata.json. Un error deja el archivo intacto. Esto no confirma renderizado. confirmed exige informe v4 con huella semántica del caso, medida original del navegador y captura PNG Figma tipadas y retenidas, no cualquier archivo del proyecto.
+
+Antes de declarar terminada la importación, ejecuta `node .agents/skills/create-ds-from-figma/scripts/verification-plan.mjs close . METADATA MANIFEST` según `references/component-metadata.md`: evidencias publicadas de todos los casos fidelity/behavior y confirmaciones vigentes. Solo confirmed/complete=true permite terminar; measured, pending o failed requieren informar qué falta o corregir lo demostrado. No hay excepción libre ni promoción automática. Sin navegador o recursos conserva la importación pendiente, sin inventar evidencia. Las tolerancias actuales no quedan calibradas por ejecutar el comando.
+
+La vista muestra viewport esperado/obtenido y acota cada intento. Para esperar desde fuera, inicia `node .agents/skills/create-ds-from-figma/scripts/verification-plan.mjs wait DIRECTORY CASE 20000` antes de abrir el caso o pedir otra recogida: solo observa recibos nuevos y su timeout no depende de la página. Diagnostica visibilidad, montaje, fuentes o viewport al agotarse; un diagnóstico con viewport incorrecto no es evidencia publicable.
 
 Tras una recogida real y con escritura autorizada, publica cuerpo y recibo con `node .agents/skills/create-ds-from-figma/scripts/verification-plan.mjs publish . METADATA CASE RECEIPT`; usa el artefacto devuelto en REVIEW sin transcribir valores. El PNG requiere export node-bounds y escala explícita y decodificación íntegra; sus dimensiones reales se derivan y deben quedar a ≤1 px del tamaño capturado del nodo por la escala declarada (tolerancia, no una regla de redondeo de Figma); sin tamaño legible, la comparación queda NOT VERIFIED. publish y report exigen el CSS mapeado también fuera de src/. La caducidad incluye conservadoramente fuentes locales, tokens, relaciones y archivos de dependencias/configuración. Estas comprobaciones no autentican la captura ni generan el juicio visual PASS.
 
@@ -268,12 +286,12 @@ Si la petición principal es implementar una pantalla desde un frame, sigue `.ag
 ## Prohibido
 
 - Rellenar plantillas o el DS generado con un DS de ejemplo
-- Copiar al DS generado recursos de `.agents/` distintos de las plantillas indicadas (`checks/`, `rules/`, `skills/`, `workflows/`, `references/` o `prop-vocabulary.json`), generar `.ai/` o mantener runtimes AI duplicados
+- Copiar al DS generado recursos de `.agents/` distintos de las plantillas indicadas (incluidos `checks/`, `rules/`, `skills/`, `workflows/`, `references/`, `scripts/`, `browser-tests/` o `prop-vocabulary.json`), generar `.ai/` o mantener runtimes AI duplicados
 - Generar todos los componentes del file de golpe
 - Citar en reglas o inventario componentes que aún no están en el DS generado
 - Una pantalla en la primera vez (si la URL es una pantalla: `DS_GAP`, sin escribir)
 - Hex/spacing inventados
 - Resumir variables a `colors.json` / `spacing.json` / `typography.json`
 - Inventario de tokens solo con las variables del componente
-- Tailwind, Storybook, CI, `docs/`, `.github/`
+- Añadir Tailwind, Storybook, CI, `docs/` o `.github/` al scaffold generado por la importación. El workflow `.github/workflows/verification.yml` pertenece al mantenimiento del kit: no se elimina ni se copia como pipeline de la app generada
 - Más de dos archivos por carpeta en `design-system/components/<Nombre>/`
