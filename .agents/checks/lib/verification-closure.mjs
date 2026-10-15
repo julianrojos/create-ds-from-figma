@@ -12,6 +12,8 @@ import { verifyIntrinsicCss } from './intrinsic-css.mjs';
 import { verifyTokenStyles } from './token-styles.mjs';
 import { verifyCorrespondences } from './correspondences.mjs';
 import { markdownProse } from '../verify-ds.mjs';
+import { collectCssDiagnostics } from './css-diagnostics.mjs';
+import { renderDiagnostics } from './render-diagnostics.mjs';
 
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 
@@ -55,7 +57,8 @@ export function closeVerification(root, metadataPath, manifest) {
     const entry = entries[0][1], dependencySession = createDependencySession(root), options = { dependencySession };
     const evidence = verifyEvidence(metadata, snapshot.capture, { mappedComponents: mappedComponentsOf(root, Object.entries(map).filter(([key]) => !key.startsWith('_'))) });
     const validations = [evidence, verifyRenderPlan(root, metadata, snapshot.capture, { delegations: evidence.review.delegations }),
-      verifyIntrinsicCss(root, metadata, entry.code.style), verifyTokenStyles(root, metadata, options)];
+      verifyIntrinsicCss(root, metadata, entry.code.style), verifyTokenStyles(root, metadata, options),
+      collectCssDiagnostics(root, [metadata.code.path, entry.code.style, ...(metadata.verification.stylesheets || [])])];
     for (const validation of validations) {
       validation.errors.forEach(reason => issue('failures', null, reason));
       result.warnings.push(...validation.warnings);
@@ -76,7 +79,9 @@ export function closeVerification(root, metadataPath, manifest) {
       if (!measured) continue;
       const record = manifest.cases.find(r => r.caseId === configuration.id);
       const checks = renderedChecks(root, metadata, configuration, measured.artifacts, { baselineMeasurement: measurements.get(configuration.baseline)?.body });
-      result.cases.push({ caseId: configuration.id, checks });
+      const diagnostics = renderDiagnostics(checks);
+      result.cases.push({ caseId: configuration.id, checks, diagnostics });
+      result.warnings.push(...diagnostics.map(d => `${configuration.id} ${d.checkId}: ${d.reason} Delta width=${d.delta.width}px, height=${d.delta.height}px`));
       for (const check of checks.checks) if (check.status === 'FAIL') issue('failures', configuration.id, `${check.id}: ${check.reason}`);
       try {
         if (configuration.kind === 'behavior') {

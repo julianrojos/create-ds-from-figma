@@ -4,6 +4,7 @@ import { componentCapture } from './fixtures/component-capture.mjs';
 import { compareRendered, assertConfirmationChecks, caseFonts } from '../lib/render-comparison.mjs';
 import { captureFigma } from '../../skills/create-ds-from-figma/scripts/lib/capture-figma.mjs';
 import { captureProblems } from '../lib/figma-evidence.mjs';
+import { AABB_SIZE_DIAGNOSTIC_THRESHOLD, renderDiagnostics } from '../lib/render-diagnostics.mjs';
 
 function fixture() {
   const node = (id, parentId, type, box, children = []) => ({ id, parentId, type, name: id, children, properties: {
@@ -68,6 +69,21 @@ test('a rotated vector has an independent center-position check that no shape re
   f.measurement.parts.label.elements[0].geometry.affine2d = true;
   f.capture.nodes[1].properties.strokes = { unavailable: true };
   assert.equal(compare(f).checks.find(c => c.id === 'position:label').status, 'NOT COMPARABLE');
+});
+
+test('noncomparable vector size deltas are explicit diagnostics, never an invented objective size failure', () => {
+  const f = fixture(); f.capture.nodes[1].type = 'VECTOR';
+  const actual = f.measurement.parts.label.elements[0].rect;
+  actual.x -= 3; actual.width += 6;
+  const checks = compare(f), diagnostics = renderDiagnostics(checks);
+  assert.equal(checks.checks.find(c => c.id === 'position:label').status, 'PASS', 'center is unchanged');
+  assert.equal(checks.checks.find(c => c.id === 'geometry:label').status, 'NOT COMPARABLE');
+  assert.equal(diagnostics.length, 1); assert.equal(diagnostics[0].delta.width, 6);
+  assert.equal(diagnostics[0].kind, 'noncomparable-size-difference');
+  assert.equal(diagnostics[0].diagnosticThreshold, AABB_SIZE_DIAGNOSTIC_THRESHOLD);
+  checks.checks.find(c => c.id === 'position:label').tolerance = 100;
+  assert.equal(renderDiagnostics(checks).length, 1, 'position tolerance does not control size-difference diagnostics');
+  assert.equal(checks.summary.FAIL, 0);
 });
 
 test('hidden ancestors allow absent or hidden DOM, not visible descendants', () => {

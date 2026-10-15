@@ -75,6 +75,15 @@ test('static failures retain missing measurements and do not pretend existing re
   assert.equal(f.close().pending.filter(p => p.reason === 'Published measurement missing').length, f.metadata.verification.cases.length);
 });
 
+test('closure retains static partial-border diagnostics without treating implicit CSS as an objective visual failure', t => {
+  const f = fixture(t), file = path.join(f.root, 'src/PreviewGlyph.module.css');
+  writeFileSync(file, readFileSync(file, 'utf8') + '\n.beak { border-style: solid; border-top-width: 1px; border-right-width: 1px; }');
+  const result = f.close();
+  assert.ok(result.warnings.some(warning => warning.includes('border widths may retain initial values')));
+  assert.ok(result.warnings.some(warning => warning.includes('border color may be implicit')));
+  assert.ok(!result.failures.some(failure => failure.reason.includes('border widths may retain')));
+});
+
 test('only current confirmed reports make closure complete; close CLI exits nonzero for measured candidates', t => {
   const f = fixture(t), configuration = f.metadata.verification.cases[0];
   const input = path.join(f.root, 'closure.json');
