@@ -63,6 +63,8 @@ Cada componente mapeado exige una captura estructurada e inmutable de Figma, sep
 
 ## Verificación Reproducible
 
+FLOAT pendiente sin usar sigue siendo aviso; consumirlo sin serialización es error. Los grafos estáticos se reutilizan dentro de cada ejecución, nunca entre recogidas o verificaciones; sus hashes se recalculan. Para medir el trabajo repetido, `node .agents/skills/create-ds-from-figma/scripts/benchmark-static-analysis.mjs . METADATA 30` compara resultados y tiempos sin/con reutilización. Es una microprueba con proceso caliente, no un benchmark del arranque o de toda la validación; ejecuta sin cargas concurrentes y no interpretes tiempos aislados como garantía.
+
 La resolución TypeScript no busca configuración en directorios padre y registra los extends locales consultados; herencia externa queda NOT VERIFIED. La vista exige definiciones CSS alcanzables para los tokens usados: tokens.css debe importarse realmente o figurar en verification.stylesheets, no solo en inputs. Esta disponibilidad estática no demuestra el modo activo ni sustituye la comprobación renderizada.
 
 La caducidad de una confirmación íntegra produce NOT VERIFIED, sin bloquear el DS ni reescribir usage.md. Registros corruptos o mal formados siguen fallando. Se examinan las dependencias locales reales del componente, no todo src/public ni el mapa completo: importar otro componente no invalida por sí solo los casos anteriores. verification.inputs declara archivos adicionales; imports dinámicos/globs o aliases no resueltos quedan pendientes, sin fingir una clausura completa. Archivos de sistema se excluyen explícitamente; symlinks locales y ciclos se resuelven, y destinos externos requieren revisión.
