@@ -3,10 +3,14 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'node
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { test } from 'node:test';
+import { createServer } from 'node:net';
 import { browserRuntime, repoRoot } from '../scripts/test-kit.mjs';
 import { createPreviewProject } from '../checks/tests/fixtures/preview-project.mjs';
 import { runBrowserVerification, browserVerificationExitCode } from '../skills/create-ds-from-figma/scripts/verification-browser.mjs';
 import { sha256 } from '../checks/lib/render-plan.mjs';
+import { verifyImports } from '../checks/verify-imports.mjs';
+import { diagnoseApplication } from '../checks/lib/application-diagnostics.mjs';
+import { finalizeImport } from '../skills/create-ds-from-figma/scripts/finalize-import.mjs';
 
 const runtime = browserRuntime();
 const playwright = await import(pathToFileURL(path.join(runtime, 'node_modules/playwright/index.mjs')).href);
@@ -18,17 +22,39 @@ mkdirSync(output, { recursive: true });
 test('real headless regression: geometry, transfer, publication and application syntax are checked separately', async t => {
   const { root, metadataPath } = createPreviewProject({ runtimeModules: path.join(runtime, 'node_modules') });
   t.after(() => rmSync(root, { recursive: true, force: true }));
-  const options = { playwright, executablePath, port: 5187 };
+  const options = { playwright, executablePath };
   writeFileSync(path.join(root, 'src/App.tsx'), 'export const App=()=> <main style={{display:"\'flex\'"}}/>;');
-  const broken = await runBrowserVerification(root, metadataPath, options);
+  const occupied = createServer();
+  await new Promise((resolve, reject) => { occupied.once('error', reject); occupied.listen(0, '127.0.0.1', resolve); });
+  t.after(() => new Promise(resolve => occupied.close(resolve)));
+  const occupiedPort = occupied.address().port;
+  const collision = await runBrowserVerification(root, metadataPath, { ...options, port: occupiedPort });
+  t.after(() => rmSync(collision.directory, { recursive: true, force: true }));
+  assert.equal(collision.execution.status, 'NOT RUN');
+  assert.equal(collision.execution.phase, 'preview');
+  assert.match(collision.execution.reason, /already in use/);
+  assert.ok(occupied.listening, 'an explicitly occupied port is not reclaimed');
+  const finalized = await finalizeImport(root, metadataPath, { collect: true });
+  const broken = finalized.collection;
+  assert.equal(finalized.status, 'FAIL', JSON.stringify(finalized));
+  assert.deepEqual(finalized.errors, []);
+  assert.equal(broken.preview.requestedPort, 0);
+  assert.ok(broken.preview.port > 0); assert.notEqual(broken.preview.port, occupiedPort);
+  assert.ok(broken.preview.cases.every(c => Number(new URL(c.url).port) === broken.preview.port));
+  assert.equal(JSON.parse(readFileSync(path.join(broken.directory, 'result.json'))).preview.port, broken.preview.port);
   t.after(() => rmSync(broken.directory, { recursive: true, force: true }));
   assert.equal(broken.blocked.length, 0, JSON.stringify(broken.blocked));
   assert.equal(broken.manifest.cases.length, 3);
   assert.equal(broken.closure.state, 'failed', JSON.stringify(broken.closure));
+  const delivery = finalized.delivery;
+  assert.equal(delivery.status, 'FAIL');
+  assert.equal(delivery.components[0].status, 'FAIL', 'a statically valid but unconfirmed broken import cannot pass delivery');
+  assert.equal(delivery.application.status, 'FAIL');
   assert.ok(broken.application.results.some(r => r.file === 'src/App.tsx' && !r.supported));
   const file = path.join(root, 'src/PreviewGlyph.module.css');
   writeFileSync(file, readFileSync(file, 'utf8').replace('border: 1px solid black;', 'border: none;'));
   const fixed = await runBrowserVerification(root, metadataPath, options);
+  assert.equal(fixed.preview.requestedPort, 0); assert.ok(fixed.preview.port > 0);
   t.after(() => rmSync(fixed.directory, { recursive: true, force: true }));
   assert.equal(fixed.blocked.length, 0, JSON.stringify(fixed.blocked));
   assert.equal(fixed.closure.state, 'pending', JSON.stringify(fixed.closure));
@@ -45,12 +71,34 @@ test('real headless regression: geometry, transfer, publication and application 
     applicationFailures: fixed.application.results.filter(r => !r.supported), scope: 'Real synthetic regression, not Figma fidelity confirmation.' }, null, 2));
 });
 
+test('delivery diagnoses application literals independently of invalid component evidence without executing project code', async t => {
+  const { root, metadataPath } = createPreviewProject();
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const metadata = JSON.parse(readFileSync(path.join(root, metadataPath)));
+  delete metadata.evidence;
+  writeFileSync(path.join(root, metadataPath), JSON.stringify(metadata));
+  const app = path.join(root, 'src/Showcase.tsx');
+  writeFileSync(path.join(root, 'index.html'), '<script type="module" src="/src/Showcase.tsx"></script>');
+  writeFileSync(app, 'throw new Error("Application modules must not run"); export const App=()=> <main style={{display:"\'flex\'",padding:48}}/>;');
+  const failed = await verifyImports(root);
+  assert.equal(failed.status, 'FAIL'); assert.ok(failed.errors.length);
+  assert.equal(failed.application.status, 'FAIL');
+  assert.ok(failed.application.signals.includes('index.html'));
+  assert.ok(failed.application.checks.some(c => c.status === 'FAIL' && c.declaration?.file === 'src/Showcase.tsx'));
+  writeFileSync(app, 'throw new Error("Must not execute"); export const App=()=> <main style={{display:"flex",padding:48}}/>;');
+  const passed = await diagnoseApplication(root);
+  assert.equal(passed.status, 'PASS', JSON.stringify(passed));
+  assert.ok(passed.checks.some(c => c.declaration?.value === '48px'));
+  assert.ok(passed.browser);
+});
+
 test('real CSS diagnostics serialize React numbers and distinguish inactive feature queries from vendor support', async t => {
   const { root, metadataPath } = createPreviewProject({ runtimeModules: path.join(runtime, 'node_modules') });
   t.after(() => rmSync(root, { recursive: true, force: true }));
   writeFileSync(path.join(root, 'src/App.tsx'), 'export const App=()=> <main style={{padding:48,marginTop:-2,opacity:0.5,lineHeight:1.2,width:0,WebkitLineClamp:3}}/>;');
   writeFileSync(path.join(root, 'src/vendor.css'), '@supports (-moz-appearance: none) {.x{display:"flex"}} .x{-moz-appearance:none;display:flex}');
-  const result = await runBrowserVerification(root, metadataPath, { playwright, executablePath, port: 5187 });
+  const result = await runBrowserVerification(root, metadataPath, { playwright, executablePath });
+  assert.equal(result.preview.requestedPort, 0); assert.ok(result.preview.port > 0);
   t.after(() => rmSync(result.directory, { recursive: true, force: true }));
   assert.deepEqual(result.application.errors, []);
   const inline = result.application.checks.filter(c => c.declaration?.file === 'src/App.tsx');
@@ -67,7 +115,8 @@ test('real CSS diagnostics serialize React numbers and distinguish inactive feat
   assert.equal(result.application.status, 'NOT VERIFIED');
   assert.ok(result.application.reason);
   rmSync(path.join(root, 'src/vendor.css'));
-  const passed = await runBrowserVerification(root, metadataPath, { playwright, executablePath, port: 5187 });
+  const passed = await runBrowserVerification(root, metadataPath, { playwright, executablePath });
+  assert.equal(passed.preview.requestedPort, 0); assert.ok(passed.preview.port > 0);
   t.after(() => rmSync(passed.directory, { recursive: true, force: true }));
   assert.equal(passed.application.status, 'PASS');
   assert.ok(passed.application.reason);
@@ -78,7 +127,7 @@ test('browser launch failure preserves a structured pending closure and releases
   const { root, metadataPath } = createPreviewProject({ runtimeModules: path.join(runtime, 'node_modules') });
   t.after(() => rmSync(root, { recursive: true, force: true }));
   for (let attempt = 0; attempt < 2; attempt++) {
-    const result = await runBrowserVerification(root, metadataPath, { playwright, executablePath: path.join(root, 'missing-browser'), port: 5187 });
+    const result = await runBrowserVerification(root, metadataPath, { playwright, executablePath: path.join(root, 'missing-browser') });
     t.after(() => rmSync(result.directory, { recursive: true, force: true }));
     assert.equal(result.execution.status, 'NOT RUN');
     assert.equal(result.execution.phase, 'browser-launch', JSON.stringify(result.execution));
@@ -89,6 +138,12 @@ test('browser launch failure preserves a structured pending closure and releases
     assert.ok(result.application.reason);
     assert.equal(browserVerificationExitCode(result), 2);
     assert.equal(JSON.parse(readFileSync(path.join(result.directory, 'result.json'))).execution.phase, 'browser-launch');
+    assert.equal(result.preview.requestedPort, 0); assert.ok(result.preview.port > 0);
+    await new Promise((resolve, reject) => {
+      const probe = createServer();
+      probe.once('error', reject);
+      probe.listen(result.preview.port, '127.0.0.1', () => probe.close(error => error ? reject(error) : resolve()));
+    });
   }
 });
 

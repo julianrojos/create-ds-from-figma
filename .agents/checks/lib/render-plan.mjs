@@ -59,7 +59,7 @@ function subtree(capture, ref) {
   return ids;
 }
 
-export function verifyRenderPlan(root, metadata, capture, { delegations = [] } = {}) {
+export function verifyRenderPlan(root, metadata, capture, { delegations = [], reserved = [] } = {}) {
   const errors = [], warnings = [], requirements = renderRequirements(capture), plan = metadata.verification;
   if (!object(plan) || plan.schemaVersion !== 1) return { errors: ['verification schemaVersion 1 is required'], warnings, requirements };
   if (plan.geometryPolicy !== 'mapped-layout-v1') errors.push('verification.geometryPolicy must be mapped-layout-v1');
@@ -102,7 +102,15 @@ export function verifyRenderPlan(root, metadata, capture, { delegations = [] } =
     catch (error) { errors.push(`stylesheets: ${error.message}`); }
   }
   if (new Set(plan.inputs).size !== plan.inputs.length) errors.push('inputs must not contain duplicates');
-  for (const file of plan.inputs) { try { projectFile(root, file); } catch (error) { errors.push(`inputs: ${error.message}`); } }
+  // Finalization writes the component usage.md and the content-addressed reports; hashing either as an input would expire its own confirmation.
+  const written = reserved.flatMap(file => { try { return [projectFile(root, file)]; } catch { return []; } });
+  const reports = path.join(realpathSync(root), 'design-system', 'verification') + path.sep;
+  for (const file of plan.inputs) {
+    try {
+      const resolved = projectFile(root, file);
+      if (written.includes(resolved) || resolved.startsWith(reports)) errors.push(`inputs: ${file} is written by finalization; a confirmation cannot depend on itself`);
+    } catch (error) { errors.push(`inputs: ${error.message}`); }
+  }
   const delegatedNodes = new Set(delegations.flatMap(d => [...subtree(capture, d.instance)]));
   for (const o of requirements.typography) {
     const fields = o.observations.map(id => capture.observations.find(r => r.id === id)?.field);

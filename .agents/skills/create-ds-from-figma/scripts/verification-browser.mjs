@@ -9,7 +9,7 @@ import { projectFile } from '../../../checks/lib/render-plan.mjs';
 import { loadSnapshot } from '../../../checks/lib/figma-evidence.mjs';
 import { sha256 } from '../../../checks/lib/render-plan.mjs';
 import { caseInputs } from '../../../checks/lib/comparison-evidence.mjs';
-import { compareCssDiagnostics } from '../../../checks/lib/css-diagnostics.mjs';
+import { applicationResult } from '../../../checks/lib/application-diagnostics.mjs';
 
 export function inspectRunReservation(directory) {
   directory = path.resolve(directory);
@@ -31,7 +31,7 @@ export function inspectRunReservation(directory) {
   return result;
 }
 
-export async function calibrateTypography(root, metadataPath, fonts, { playwright, executablePath, port = 5174 } = {}) {
+export async function calibrateTypography(root, metadataPath, fonts, { playwright, executablePath, port = 0 } = {}) {
   if (!Array.isArray(fonts) || !fonts.length || fonts.some(f => !f || !['family', 'weight', 'style', 'path'].every(k => typeof f[k] === 'string' && f[k].trim()) || !path.isAbsolute(f.path) || !['normal', 'italic', 'oblique'].includes(f.style))) throw new Error('Calibration needs explicit font descriptors and absolute font file paths');
   const metadata = JSON.parse(readFileSync(projectFile(root, metadataPath), 'utf8'));
   const { capture } = loadSnapshot(root, metadata.evidence.snapshot);
@@ -107,7 +107,7 @@ export function browserVerificationExitCode(result) {
 }
 
 // Optional adapter: neither Playwright nor a browser binary is installed or downloaded by this script.
-export async function runBrowserVerification(root, metadataPath, { playwright, executablePath, port = 5174, directory, timeoutMs = 20000 } = {}) {
+export async function runBrowserVerification(root, metadataPath, { playwright, executablePath, port = 0, directory, timeoutMs = 20000 } = {}) {
   if (!playwright?.chromium || !Number.isInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 300000) throw new Error('An explicitly supplied Playwright module and bounded timeout are required');
   const reservation = reserveRunDirectory(directory);
   directory = reservation.directory;
@@ -148,9 +148,7 @@ export async function runBrowserVerification(root, metadataPath, { playwright, e
           await page.goto(preview.diagnosticsUrl, { timeout: timeoutMs });
           application = await page.evaluate(() => window.__dsCssDiagnostics);
           if (!application || !Array.isArray(application.results)) throw new Error('Application CSS diagnostics were not produced');
-          application.checks = compareCssDiagnostics(application, { cssDiagnostics: { schemaVersion: 1, results: application.results } });
-          application.status = application.errors.length || application.checks.some(c => c.status === 'FAIL') ? 'FAIL' : application.checks.some(c => c.status !== 'PASS') ? 'NOT VERIFIED' : 'PASS';
-          application.reason = application.status === 'PASS' ? 'Applicable literal syntax checks passed in this browser; not proof of cascade or visual fidelity.' : application.status === 'FAIL' ? 'Application parsing or literal syntax checks failed; see errors and checks.' : 'Application diagnostics ran, but some checks need execution or target-engine review.';
+          application = applicationResult(application, application.results);
         } catch (error) { application = { errors: [error.message], results: [], checks: [], status: 'NOT RUN', reason: error.message }; }
         finally { await diagnosticContext.close(); }
         closure = closeVerification(root, metadataPath, manifest);
@@ -161,6 +159,7 @@ export async function runBrowserVerification(root, metadataPath, { playwright, e
       closure = closeVerification(root, metadataPath, manifest);
     } finally { try { await browser?.close(); } finally { await preview?.server.close(); } }
     const result = { directory, manifest, blocked, application, closure, execution,
+      ...(preview ? { preview: { requestedPort: port, port: Number(new URL(preview.diagnosticsUrl).port), cases: preview.urls, diagnosticsUrl: preview.diagnosticsUrl } } : {}),
       scope: 'Browser measurements and literal syntax diagnostics, not automatic visual judgment or glyph-font proof.' };
     writeFileSync(path.join(directory, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n', { flag: 'wx' });
     writeFileSync(path.join(directory, 'result.json'), JSON.stringify(result, null, 2) + '\n', { flag: 'wx' });

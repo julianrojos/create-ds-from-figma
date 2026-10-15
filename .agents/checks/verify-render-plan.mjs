@@ -20,7 +20,7 @@ export function verifyRenderPlans(root, { contexts, dependencySession } = {}) {
       const name = entry?.name || key;
       if (evidence.errors.length) continue;
       try {
-        const result = verifyRenderPlan(root, metadata, capture, { delegations: evidence.review.delegations });
+        const result = verifyRenderPlan(root, metadata, capture, { delegations: evidence.review.delegations, reserved: [entry.designSystem?.usage] });
         const tokens = verifyTokenStyles(root, metadata, { dependencySession });
         result.errors.push(...tokens.errors); result.warnings.push(...tokens.warnings);
         const css = verifyIntrinsicCss(root, metadata, entry.code?.style);

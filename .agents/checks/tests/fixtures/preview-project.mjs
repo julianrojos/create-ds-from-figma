@@ -9,20 +9,21 @@ import { startPreview } from '../../../skills/create-ds-from-figma/scripts/verif
 import { generateTokensCss } from '../../lib/tokens-css.mjs';
 
 // Synthetic browser fixture, never a real DS import or a Figma fidelity baseline.
-export function createPreviewProject({ configured = false, runtimeModules } = {}) {
+export function createPreviewProject({ configured = false, runtimeModules, image } = {}) {
   const root = mkdtempSync(path.join(os.tmpdir(), 'ds-preview-fixture-'));
   const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
   symlinkSync(runtimeModules || path.join(repo, 'node_modules'), path.join(root, 'node_modules'));
   const write = (relative, value) => { const file = path.join(root, relative); mkdirSync(path.dirname(file), { recursive: true }); writeFileSync(file, typeof value === 'string' ? value : JSON.stringify(value, null, 2)); };
   const capture = componentCapture({ seeds: [
     { id: '1:2', parentId: null, type: 'COMPONENT', name: 'PreviewGlyph', children: ['1:3'], properties: { width: 48, height: 48,
-      absoluteBoundingBox: { x: 100, y: 100, width: 48, height: 48 }, absoluteTransform: [[1, 0, 100], [0, 1, 100]] } },
+      absoluteBoundingBox: { x: 100, y: 100, width: 48, height: 48 }, absoluteTransform: [[1, 0, 100], [0, 1, 100]], ...(image ? { fills: [{ type: 'IMAGE', imageHash: 'image-1' }] } : {}) } },
     { id: '1:3', parentId: '1:2', type: 'TEXT', name: 'Initial', children: [], properties: { characters: 'F', segments: [], width: 12, height: 24,
       textAutoResize: 'WIDTH_AND_HEIGHT', fontSize: 20, lineHeight: { unit: 'PIXELS', value: 24 }, letterSpacing: { unit: 'PIXELS', value: 0 },
       absoluteBoundingBox: { x: 118, y: 112, width: 12, height: 24 }, absoluteTransform: [[1, 0, 118], [0, 1, 112]] } },
   ] });
   const requirements = renderRequirements(capture), verification = fixtureRenderPlan(capture);
   verification.stylesheets = ['src/base.css'];
+  if (image) verification.assets = requirements.assets.map(r => ({ ...r, source: image }));
   const baseline = verification.cases[0]; baseline.props = { initial: 'F' }; baseline.content = { 'FILE:1:3': 'F' };
   for (const letter of ['W', 'M']) verification.cases.push({ ...structuredClone(baseline), id: `wide-${letter}`, kind: 'behavior', baseline: baseline.id,
     props: { initial: letter }, content: { 'FILE:1:3': letter }, expectations: requirements.dimensions.map(d => ({ kind: 'intrinsic-size', observation: d.observation, axis: d.field, part: 'initial', relation: d.field === 'width' ? 'grow' : 'equal', reason: 'Synthetic schema case requires wider text with unchanged line height.' })) });

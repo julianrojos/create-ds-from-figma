@@ -200,8 +200,8 @@ export function receiptHandler({ session, directory, manifest, cases, currentFil
   };
 }
 
-export async function startPreview(root, metadataPath, { port = 5173, directory, viteConfig, approveConfig = false } = {}) {
-  if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('Invalid port');
+export async function startPreview(root, metadataPath, { port = 0, directory, viteConfig, approveConfig = false } = {}) {
+  if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error('Invalid port');
   root = path.resolve(root);
   if (viteConfig && !approveConfig) throw new Error('Explicit configuration review and --approve-config are required');
   const configFile = viteConfig ? projectFile(root, viteConfig) : false;
@@ -213,7 +213,7 @@ export async function startPreview(root, metadataPath, { port = 5173, directory,
   if (!entry || entry.code?.path !== metadata.code.path || entry.code?.component !== metadata.code.component) throw new Error('Preview metadata must belong to the component map');
   const mappedComponents = mappedComponentsOf(root, Object.entries(map).filter(([k]) => !k.startsWith('_')));
   const evidence = verifyEvidence(metadata, snapshot.capture, { mappedComponents });
-  const plan = verifyRenderPlan(root, metadata, snapshot.capture, { delegations: evidence.review.delegations });
+  const plan = verifyRenderPlan(root, metadata, snapshot.capture, { delegations: evidence.review.delegations, reserved: [entry.designSystem?.usage] });
   const dependencySession = createDependencySession(root);
   const intrinsic = verifyIntrinsicCss(root, metadata, entry.code?.style);
   const tokenStyles = verifyTokenStyles(root, metadata, { dependencySession });
@@ -273,8 +273,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   try {
     const [, , root, metadata, requestedPort, ...flags] = process.argv;
     if (!root || !metadata) throw new Error('Usage: node verification-preview.mjs ROOT METADATA_PATH [PORT]');
-    const port = requestedPort === undefined ? 5173 : Number(requestedPort);
-    if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('Invalid port');
+    const port = requestedPort === undefined ? 0 : Number(requestedPort);
+    if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error('Invalid port');
     let viteConfig, approveConfig = false;
     for (let i = 0; i < flags.length; i++) {
       if (flags[i] === '--config' && flags[i + 1] && !viteConfig) viteConfig = flags[++i];

@@ -44,8 +44,8 @@ export function caseNodes(capture, configuration) {
 
 const nonScalar = value => value !== null && typeof value === 'object' && !Array.isArray(value) && (value.mixed === true || value.unavailable === true);
 // Property references that could reveal or fill a node. `undefined` means unreadable, which fails closed: it may reveal anything.
-const referencesOf = (scope, id) => { const refs = scope.nodes.get(id)?.properties.componentPropertyReferences; return refs === undefined || nonScalar(refs) ? undefined : refs; };
-const controlledBy = (refs, key) => refs === undefined || (refs !== null && typeof refs === 'object' && typeof refs[key] === 'string');
+export const referencesOf = (scope, id) => { const refs = scope.nodes.get(id)?.properties.componentPropertyReferences; return refs === undefined || nonScalar(refs) ? undefined : refs; };
+export const controlledBy = (refs, key) => refs === undefined || (refs !== null && typeof refs === 'object' && typeof refs[key] === 'string');
 
 // The mode a node renders a collection in. A readable resolvedVariableModes that omits the collection means its default mode. An
 // unreadable one (failed read, mixed, unavailable, malformed) is not a default: only the node's own explicit mode is still known,

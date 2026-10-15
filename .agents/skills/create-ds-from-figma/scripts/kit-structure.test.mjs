@@ -14,6 +14,15 @@ const nestedReadmePath = path.join(repoRoot, ".agents/skills/create-ds-from-figm
 const referenceDir = path.join(repoRoot, ".agents/skills/create-ds-from-figma/references");
 const expectedReferences = ["component-metadata.md", "figma-evidence.md", "relationships.md", "tokens.md"];
 
+test("verification stays local without an automatic pipeline or local-only import prerequisites", () => {
+  assert.equal(existsSync(path.join(repoRoot, '.github/workflows/verification.yml')), false);
+  const scripts = JSON.parse(readFileSync(packagePath, 'utf8')).scripts;
+  for (const command of ['verify:imports', 'finalize:import', 'test:browser:setup']) assert.ok(scripts[command]);
+  const readme = readFileSync(readmePath, 'utf8');
+  assert.ok(!readme.includes('test/15_octubre_3'));
+  assert.ok(!readme.includes('1f9a089e25f7c815a6bd96d457f9dfcb536be448'));
+});
+
 test("skill catalog has scoped discovery metadata", (t) => {
   const skillDir = path.join(repoRoot, ".agents/skills");
   for (const entry of readdirSync(skillDir, { withFileTypes: true })) {

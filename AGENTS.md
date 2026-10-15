@@ -15,6 +15,7 @@ Instrucciones operativas para agentes de IA en este repositorio.
 - Si se pide validar UI existente o cerrar una implementación, sigue `.agents/skills/validate-ds/SKILL.md`; una validación independiente no autoriza editar documentación ni código.
 - Si lees, editas o generas archivos en `src/` o `design-system/`, aplica `.agents/rules/design-system.md`.
 - Antes de dar por terminada una implementación o modificación de UI, completa la verificación definida en `.agents/rules/design-system.md`, incluidos los checks manuales y la validación renderizada; informa de lo no ejecutado y del motivo.
+- Antes de entregar una importación, ejecuta `npm run verify:imports`: exige confirmaciones persistidas vigentes y el diagnóstico independiente de literales de la demo. No presentes candidatos, mediciones pendientes ni un navegador no ejecutado como entrega terminada. El gate no escribe ni confirma automáticamente.
 - Si dos skills solapan, usa la más específica; si hacen falta ambas por fases distintas, aplícalas explícitamente.
 
 ## Prioridad
@@ -37,5 +38,6 @@ Instrucciones operativas para agentes de IA en este repositorio.
 - Tras modificar checks, scripts o sus contratos (plantillas y referencias de formato), ejecuta `npm test`.
 - `npm test` incluye pruebas unitarias y Chromium real obligatorio. Instala las dependencias y prepara su runtime aislado con `npm run test:browser:setup` si falta o cambió el lock; requiere los permisos de instalación/red del entorno. No omitas el navegador ni presentes `npm run test:unit` como sustituto: es cobertura parcial. `npm run test:browser` ejecuta solo el perfil real. Si no puedes preparar o ejecutar algún perfil, informa del bloqueo y de la validación incompleta.
 - Tras cambiar documentación, rutas o comandos del kit, ejecuta `npm run verify:docs`.
+- Si cambia el flujo de entrega, mantener sincronizados `verify:imports`, `finalize:import`, las skills consumidoras, la documentación y sus regresiones. El gate es de solo lectura; los modos de recogida o registro de la finalización escriben y no deben ejecutarse como un check rutinario sin la autorización correspondiente.
 - Si cambia `metadata.verification`, sincronizar la plantilla de ficha, la referencia de metadata, las skills consumidoras, `verify-render-plan.mjs`, la vista de verificación, sus tests y casos de evaluación. No implica cambiar el colector ni las relaciones si sus formatos no cambian.
 - Si cambia el contrato de correspondencias de usage.md, sincronizar plantilla, referencia de metadata, skills consumidoras, verificadores y tests. La confirmación auditable no sustituye una comparación renderizada real.

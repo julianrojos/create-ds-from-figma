@@ -90,6 +90,20 @@ export function comparisonReport(root, metadata, caseId, review, style, metadata
     renderChecks, checkReviews: review.checkReviews || [], behaviors };
 }
 
+export function persistComparisonReport(root, report) {
+  if (!/^[a-zA-Z0-9_-]+$/.test(report.caseId)) throw new Error('Unsafe case ID');
+  const base = realpathSync(root), parent = realpathSync(path.join(root, 'design-system'));
+  if (!parent.startsWith(base + path.sep)) throw new Error('Report directory escapes project');
+  const directory = path.join(parent, 'verification');
+  if (existsSync(directory) && !realpathSync(directory).startsWith(base + path.sep)) throw new Error('Report directory escapes project');
+  if (!existsSync(directory)) mkdirSync(directory);
+  const bytes = Buffer.from(JSON.stringify(report, null, 2) + '\n'), hash = sha256(bytes);
+  const relative = `design-system/verification/${report.caseId}-${hash}.json`, output = path.join(base, relative);
+  if (existsSync(output)) { if (sha256(readFileSync(projectFile(root, relative))) !== hash) throw new Error('Existing report differs'); }
+  else writeFileSync(output, bytes, { flag: 'wx' });
+  return { path: relative, sha256: hash };
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
     const [, , command, ...args] = process.argv;
@@ -161,17 +175,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       const entry = Object.entries(map).find(([key, entry]) => !key.startsWith('_') && entry?.designSystem?.metadata === metadataPath)?.[1];
       if (!entry || entry.code.path !== metadata.code.path) throw new Error('Report metadata must belong to the component map');
       const report = comparisonReport(root, metadata, caseId, JSON.parse(readFileSync(reviewPath, 'utf8')), entry.code.style, metadataPath);
-      const base = realpathSync(root), parent = realpathSync(path.join(root, 'design-system'));
-      if (!parent.startsWith(base + path.sep)) throw new Error('Report directory escapes project');
-      const directory = path.join(parent, 'verification');
-      if (existsSync(directory) && !realpathSync(directory).startsWith(base + path.sep)) throw new Error('Report directory escapes project');
-      if (!existsSync(directory)) mkdirSync(directory);
-      const bytes = Buffer.from(JSON.stringify(report, null, 2) + '\n'), hash = sha256(bytes);
-      const relative = `design-system/verification/${caseId}-${hash}.json`, output = path.join(base, relative);
-      if (!/^[a-zA-Z0-9_-]+$/.test(caseId)) throw new Error('Unsafe case ID');
-      if (existsSync(output)) { if (sha256(readFileSync(projectFile(root, relative))) !== hash) throw new Error('Existing report differs'); }
-      else writeFileSync(output, bytes, { flag: 'wx' });
-      console.log(JSON.stringify({ path: relative, sha256: hash, limitation: 'Judgment supplied by reviewer; hashes and configuration generated, not authenticity or visual proof.' }));
+      console.log(JSON.stringify({ ...persistComparisonReport(root, report), limitation: 'Judgment supplied by reviewer; hashes and configuration generated, not authenticity or visual proof.' }));
     } else throw new Error('Usage: verification-plan.mjs diagnose ROOT | requirements SNAPSHOT | wait DIRECTORY CASE [TIMEOUT_MS] | close ROOT METADATA MANIFEST | compare ROOT METADATA CASE BODY [BASELINE_BODY] | apply ROOT METADATA DECISIONS | publish ROOT METADATA CASE RECEIPT | report ROOT METADATA CASE REVIEW');
   } catch (error) { console.error(error.message); process.exitCode = 1; }
 }

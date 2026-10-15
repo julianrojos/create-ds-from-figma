@@ -56,7 +56,7 @@ export function closeVerification(root, metadataPath, manifest) {
     if (entries.length !== 1 || canonicalJson(entries[0][1].code?.path) !== canonicalJson(metadata.code?.path) || entries[0][1].code?.component !== metadata.code?.component) throw new Error('Closure metadata must resolve uniquely in the component map');
     const entry = entries[0][1], dependencySession = createDependencySession(root), options = { dependencySession };
     const evidence = verifyEvidence(metadata, snapshot.capture, { mappedComponents: mappedComponentsOf(root, Object.entries(map).filter(([key]) => !key.startsWith('_'))) });
-    const validations = [evidence, verifyRenderPlan(root, metadata, snapshot.capture, { delegations: evidence.review.delegations }),
+    const validations = [evidence, verifyRenderPlan(root, metadata, snapshot.capture, { delegations: evidence.review.delegations, reserved: [entry.designSystem?.usage] }),
       verifyIntrinsicCss(root, metadata, entry.code.style), verifyTokenStyles(root, metadata, options),
       collectCssDiagnostics(root, [metadata.code.path, entry.code.style, ...(metadata.verification.stylesheets || [])])];
     for (const validation of validations) {

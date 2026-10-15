@@ -153,3 +153,14 @@ test('a missing image hash cannot be turned into a fabricated durable asset mapp
   verification.assets = [{ ...renderRequirements(capture).assets[0], source: { kind: 'file', path: 'font.woff2', sha256: sha256(readFileSync(path.join(f.root, 'font.woff2'))) } }];
   assert.ok(verifyRenderPlan(f.root, { verification }, capture).errors.some(e => e.includes('missing captured image hash')));
 });
+
+test('inputs cannot name files that finalization itself writes', t => {
+  const f = fixture(t);
+  writeFileSync(path.join(f.root, 'usage.md'), 'usage'); mkdirSync(path.join(f.root, 'design-system/verification'), { recursive: true });
+  writeFileSync(path.join(f.root, 'design-system/verification/report.json'), '{}');
+  const check = (inputs, reserved) => { const metadata = { ...f.metadata, verification: { ...f.metadata.verification, inputs } }; return verifyRenderPlan(f.root, metadata, f.capture, { reserved }).errors; };
+  assert.deepEqual(check(['usage.md'], []), [], 'without a reserved file the input is an ordinary dependency');
+  assert.ok(check(['usage.md'], ['usage.md']).some(e => /cannot depend on itself/.test(e)));
+  assert.ok(check(['design-system/verification/report.json'], []).some(e => /cannot depend on itself/.test(e)), 'content-addressed reports are always reserved');
+  assert.deepEqual(check(['font.woff2'], ['usage.md']), []);
+});
