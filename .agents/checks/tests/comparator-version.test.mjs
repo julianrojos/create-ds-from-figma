@@ -21,6 +21,9 @@ const versions = {
     'render-comparator-v11': '7bdcf67976318c8fe0bcf6f5a77ed412284a1d7154527c12222b9900c34ff705',
     'render-comparator-v12': 'cd6f0b2d07128af54d3c44dae8c4b189cc7637d73f9eea820c0d39e791a9e44c',
     'render-comparator-v13': '6cf8fddf3dcb98689a562975e5b5ea21bf98d430512db62005f9baa1b6906320',
+    'render-comparator-v14': 'ff34abf5e0d5d822cb37bf1254f58c00327d3acbca44c719db0c5fd39e339369',
+    'render-comparator-v15': 'b9abb88fa8be5834bb17969f724d076c713d836a7272141e43537502684373a0',
+    'render-comparator-v16': 'b37715259fd0ce14e9c4c7d3fd2f13d457aa1d42f77fe18638462a9398d462cf',
   },
   measurement: {
     'measurement-rules-v1': 'c5fc3f91d47851f0db30839789f3dbbf18c3eae6aee8c936342c6a2e93462a99',

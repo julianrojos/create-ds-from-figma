@@ -4,6 +4,7 @@ import ts from 'typescript';
 import postcss from 'postcss';
 import valueParser from 'postcss-value-parser';
 import { projectFile } from './render-plan.mjs';
+import { cssImportProblem, resolveCssPackage } from './css-import-resolution.mjs';
 
 const systemFile = file => ['.DS_Store', 'Thumbs.db', 'desktop.ini'].includes(path.basename(file)) || path.basename(file).startsWith('._');
 
@@ -11,15 +12,16 @@ export function createDependencySession(root) {
   const base = realpathSync(root), results = new Map(), stats = { analyses: 0, cacheHits: 0 };
   return { stats, resolve(seeds, options = {}) {
     const normalized = [...new Set(seeds.filter(Boolean))].sort();
-    const key = JSON.stringify([Boolean(options.runtimeOnly), normalized]);
+    const key = JSON.stringify([Boolean(options.runtimeOnly), Boolean(options.stylesheetDiscovery), normalized]);
     if (!results.has(key)) { results.set(key, localDependencies(base, normalized, options)); stats.analyses++; }
     else stats.cacheHits++;
     return structuredClone(results.get(key));
   } };
 }
 
-export function localDependencies(root, seeds, { runtimeOnly = false } = {}) {
+export function localDependencies(root, seeds, { runtimeOnly = false, stylesheetDiscovery = false } = {}) {
   const base = realpathSync(root), files = new Set(), visited = new Set(), warnings = new Set();
+  const stylesheets = new Set();
   let options = { moduleResolution: ts.ModuleResolutionKind.Bundler, allowJs: true, resolveJsonModule: true };
   const config = path.join(base, 'tsconfig.json');
   const configFile = file => {
@@ -53,6 +55,8 @@ export function localDependencies(root, seeds, { runtimeOnly = false } = {}) {
     files.add(relative);
     if (visited.has(file)) return;
     visited.add(file);
+    // Font diagnostics handle CSS conditions themselves; generic dependency reachability is not proof of CSS loading.
+    if (stylesheetDiscovery && /\.css$/.test(file)) { stylesheets.add(relative); return; }
     const exts = ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.json'];
     const exact = candidate => existsSync(candidate) && statSync(candidate).isFile() ? candidate : undefined;
     const probe = candidate => exact(candidate) || exts.map(ext => exact(candidate + ext)).find(Boolean)
@@ -61,10 +65,21 @@ export function localDependencies(root, seeds, { runtimeOnly = false } = {}) {
     // 'file-url' (css url() and new URL(..., import.meta.url): relative to the containing file) or 'css-import' (@import).
     // The kinds resolve differently: a module is resolved by the bundler, a URL by the browser, a bare CSS import file-relative first.
     const local = (specifier, kind = 'module') => {
-      if (/^(?:data:|https?:|node:|\/\/)/i.test(specifier)) return;
+      if (/^(?:data:|https?:|node:|\/\/)/i.test(specifier)) {
+        if (stylesheetDiscovery && !specifier.startsWith('node:') && ['module', 'css-import', 'dynamic'].includes(kind)) {
+          const description = kind === 'dynamic' ? 'dynamic import/require' : 'import';
+          warnings.add(`${relative}: external ${description} ${specifier} needs independent CSS review (NOT VERIFIED)`);
+        }
+        return;
+      }
       if (kind === 'dynamic' && runtimeOnly) {
         // A call inside code that may never run is a dependency, not proof that its styles load.
         warnings.add(`${relative}: dynamic import/require ${specifier} is not credited as loaded; list its CSS in verification.stylesheets (NOT VERIFIED)`);
+        return;
+      }
+      if (stylesheetDiscovery && !['module', 'css-import'].includes(kind)) return;
+      if (stylesheetDiscovery && cssImportProblem(specifier)) {
+        warnings.add(`${relative}: ${specifier}: ${cssImportProblem(specifier)}`);
         return;
       }
       // `#name` is a package.json "imports" alias for modules, and only a fragment reference for URLs.
@@ -89,15 +104,22 @@ export function localDependencies(root, seeds, { runtimeOnly = false } = {}) {
         target = probe(path.resolve(path.dirname(file), clean));
         target ||= ts.resolveModuleName(clean, file, options, ts.sys).resolvedModule?.resolvedFileName;
       } else target = ts.resolveModuleName(clean, file, options, ts.sys).resolvedModule?.resolvedFileName;
+      if (stylesheetDiscovery && /\.css$/.test(clean) && !clean.startsWith('.') && !clean.startsWith('/')) {
+        try { target = resolveCssPackage(base, relative, clean); }
+        catch (error) { warnings.add(`${relative}: ${specifier}: ${error.message} (NOT VERIFIED)`); return; }
+      }
       if (!target) {
         // Bare packages are covered by manifests, but aliases must not silently disappear.
         const pkg = clean.startsWith('@') ? clean.split('/').slice(0, 2).join('/') : clean.split('/')[0];
         const manifest = JSON.parse(readFileSync(path.join(base, 'package.json'), 'utf8'));
-        if ((kind === 'module' || kind === 'css-import') && !clean.startsWith('.') && !clean.startsWith('/') && !alias && [manifest.dependencies, manifest.devDependencies, manifest.peerDependencies].some(m => m?.[pkg])) return;
+        if (!stylesheetDiscovery && (kind === 'module' || kind === 'css-import') && !clean.startsWith('.') && !clean.startsWith('/') && !alias && [manifest.dependencies, manifest.devDependencies, manifest.peerDependencies].some(m => m?.[pkg])) return;
         warnings.add(`${relative}: dependency ${specifier} could not be resolved; review harness resolution or configure TypeScript paths`);
         return;
       }
-      if (target.includes(`${path.sep}node_modules${path.sep}`)) return;
+      if (target.includes(`${path.sep}node_modules${path.sep}`) && !(stylesheetDiscovery && /\.css$/.test(target))) {
+        if (stylesheetDiscovery) warnings.add(`${relative}: package JavaScript ${specifier} is not inspected for CSS side effects (NOT VERIFIED)`);
+        return;
+      }
       const resolved = realpathSync(target);
       if (!resolved.startsWith(base + path.sep)) { warnings.add(`${relative}: dependency ${specifier} resolves outside the project`); return; }
       visit(path.relative(base, target).split(path.sep).join('/'));
@@ -136,5 +158,5 @@ export function localDependencies(root, seeds, { runtimeOnly = false } = {}) {
   };
   for (const seed of seeds.filter(Boolean)) visit(seed);
   for (const file of ['package.json', 'package-lock.json', 'pnpm-lock.yaml', 'yarn.lock']) if (existsSync(path.join(base, file))) files.add(file);
-  return { files: [...files].sort(), warnings: [...warnings].sort() };
+  return { files: [...files].sort(), warnings: [...warnings].sort(), ...(stylesheetDiscovery ? { stylesheets: [...stylesheets].sort() } : {}) };
 }
