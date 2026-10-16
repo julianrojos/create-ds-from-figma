@@ -1,5 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { createRequire } from 'node:module';
+import { createServer as createPortReservation } from 'node:net';
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -242,8 +243,16 @@ export async function startPreview(root, metadataPath, { port = 0, directory, vi
     limitations: ['Declared input hashes do not cover all transitive dependencies, fonts or browser changes.', 'The collector preserves bytes; it does not certify fidelity, authenticity or state activation.'] };
   const syntax = { byCase: Object.fromEntries(scopedCases.map(([c, scoped]) => [c.id, collectCssDiagnostics(root, scoped.files)])) };
   const module = previewModule(metadata, snapshot.capture, session, { cssDiagnostics: syntax });
-  const server = await createServer({ root, configFile, appType: 'custom', esbuild: { jsx: 'automatic' },
-    server: { host: '127.0.0.1', port, strictPort: true },
+  let selectedPort = port;
+  if (selectedPort === 0) {
+    // Vite 5 treats zero as its default port rather than asking the OS for a free one.
+    const reservation = createPortReservation();
+    await new Promise((resolve, reject) => { reservation.once('error', reject); reservation.listen(0, '127.0.0.1', resolve); });
+    selectedPort = reservation.address().port;
+    await new Promise((resolve, reject) => reservation.close(error => error ? reject(error) : resolve()));
+  }
+  const server = await createServer({ root, configFile, appType: 'custom', cacheDir: path.join(directory, 'vite-cache'), esbuild: { jsx: 'automatic' },
+    server: { host: '127.0.0.1', port: selectedPort, strictPort: true },
     plugins: [{ name: 'ds-verification-preview', resolveId(id) { if (id === '/__ds_verification.tsx') return '\0ds-verification.tsx'; },
       load(id) { if (id === '\0ds-verification.tsx') return module; } }],
   });
