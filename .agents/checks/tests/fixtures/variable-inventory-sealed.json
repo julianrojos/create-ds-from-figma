@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2020-01-01T00:00:00.000Z",
+  "hash": "abd49b7d7eb28ede64e553f9072590a78220a8dfc1aa25eb75f3a55a95da98e6",
+  "inventory": {
+    "schemaVersion": 1,
+    "source": {
+      "fileKey": "FILE",
+      "collector": "variable-inventory-v1",
+      "api": "PLUGIN",
+      "tool": "use_figma",
+      "revision": null
+    },
+    "collections": [
+      {
+        "id": "C",
+        "name": "Color",
+        "remote": false,
+        "defaultModeId": "light",
+        "modes": [
+          {
+            "modeId": "light",
+            "name": "Light"
+          },
+          {
+            "modeId": "dark",
+            "name": "Dark"
+          }
+        ],
+        "variableIds": [
+          "alias",
+          "base",
+          "external-alias",
+          "size"
+        ]
+      },
+      {
+        "id": "R",
+        "name": "Remote",
+        "remote": true,
+        "defaultModeId": "r",
+        "modes": [
+          {
+            "modeId": "r",
+            "name": "Base"
+          }
+        ],
+        "variableIds": [
+          "remote"
+        ]
+      }
+    ],
+    "variables": [
+      {
+        "id": "alias",
+        "name": "alias",
+        "remote": false,
+        "collectionId": "C",
+        "type": "COLOR",
+        "valuesByMode": {
+          "light": {
+            "type": "VARIABLE_ALIAS",
+            "id": "base"
+          },
+          "dark": {
+            "type": "VARIABLE_ALIAS",
+            "id": "base"
+          }
+        },
+        "scopes": [
+          "ALL_SCOPES"
+        ]
+      },
+      {
+        "id": "base",
+        "name": "base",
+        "remote": false,
+        "collectionId": "C",
+        "type": "COLOR",
+        "valuesByMode": {
+          "light": {
+            "r": 1,
+            "g": 0,
+            "b": 0,
+            "a": 0.5
+          },
+          "dark": {
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 1
+          }
+        },
+        "scopes": [
+          "ALL_SCOPES"
+        ]
+      },
+      {
+        "id": "external-alias",
+        "name": "external-alias",
+        "remote": false,
+        "collectionId": "C",
+        "type": "STRING",
+        "valuesByMode": {
+          "light": {
+            "type": "VARIABLE_ALIAS",
+            "id": "remote"
+          },
+          "dark": {
+            "type": "VARIABLE_ALIAS",
+            "id": "remote"
+          }
+        },
+        "scopes": [
+          "ALL_SCOPES"
+        ]
+      },
+      {
+        "id": "remote",
+        "name": "Inter",
+        "remote": true,
+        "collectionId": "R",
+        "type": "STRING",
+        "valuesByMode": {
+          "r": "Inter"
+        },
+        "scopes": [
+          "FONT_FAMILY"
+        ]
+      },
+      {
+        "id": "size",
+        "name": "size",
+        "remote": false,
+        "collectionId": "C",
+        "type": "FLOAT",
+        "valuesByMode": {
+          "light": 12,
+          "dark": 14
+        },
+        "scopes": [
+          "ALL_SCOPES"
+        ]
+      }
+    ]
+  }
+}

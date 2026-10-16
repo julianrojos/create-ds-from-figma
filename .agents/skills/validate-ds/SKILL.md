@@ -10,6 +10,8 @@ description: >-
 
 # Validate Design System Compliance
 
+If an explicitly supplied sealed file-level inventory is available, `node .agents/skills/create-ds-from-figma/scripts/generate-token-json.mjs check . --inventory INVENTORY` compares observed token facts without writing. Retained records are separate from matches; hash and origin do not authenticate Figma or prove current presence. Do not discover an inventory automatically or claim this check ran when no path was supplied. This does not replace existing token, binding or rendered checks.
+
 ## Goal
 
 Validate generated UI against Design System rules.

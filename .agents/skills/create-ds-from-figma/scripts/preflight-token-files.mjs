@@ -4,8 +4,10 @@ import postcss from "postcss";
 import { planCssNames, DEFAULT_TOKEN_PREFIX, isValidCssName, isValidTokenPrefix } from "../../../checks/lib/css-name.mjs";
 import { assessTokenPrefix, customPropertyDeclarations } from "../../../checks/lib/design-system-state.mjs";
 import { planTokenFiles, tokenFileKey } from "../../../checks/lib/token-file-name.mjs";
+import { readInventory, inventoryCollections } from "../../../checks/lib/variable-inventory.mjs";
 
-const root = path.resolve(process.argv[2] || ".");
+const args = process.argv.slice(2);
+const root = path.resolve(args[0] || ".");
 const statePath = path.join(root, "design-system/relationships/figma-state.json");
 const mapPath = path.join(root, "design-system/relationships/figma-code-map.json");
 const tokensDir = path.join(root, "design-system/tokens");
@@ -22,10 +24,17 @@ const readJson = (file) => {
 const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 
 try {
-  if (process.stdin.isTTY) throw new Error('pass collections JSON through stdin, for example with "< collections.json"');
-  const input = JSON.parse(readFileSync(0, "utf8"));
+  const inventoryIndex = args.indexOf('--inventory');
+  const prefixIndex = args.indexOf('--token-prefix');
+  const flags = args.slice(1);
+  for (let i = 0; i < flags.length; i += 2) if (!['--inventory', '--token-prefix'].includes(flags[i]) || !flags[i + 1] || flags[i + 1].startsWith('--') || flags.indexOf(flags[i]) !== i) throw new Error('Use ROOT [--inventory PATH] [--token-prefix PREFIX]');
+  if (prefixIndex >= 0 && inventoryIndex < 0) throw new Error('--token-prefix requires --inventory; stdin accepts tokenPrefix');
+  const inventory = inventoryIndex < 0 ? null : readInventory(args[inventoryIndex + 1]);
+  if (!inventory && process.stdin.isTTY) throw new Error('pass collections JSON through stdin, for example with "< collections.json"');
+  const input = inventory ? { collections: inventoryCollections(inventory.inventory), ...(prefixIndex < 0 ? {} : { tokenPrefix: args[prefixIndex + 1] }) } : JSON.parse(readFileSync(0, "utf8"));
   if (!isObject(input) || !Array.isArray(input.collections)) throw new Error("input must be an object with a collections list");
   const state = existsSync(statePath) ? readJson(statePath) : {};
+  if (inventory && state.fileKey && state.fileKey !== inventory.inventory.source.fileKey) throw new Error('Inventory file origin differs from project');
   const stateCollections = state.collections ?? {};
   if (!isObject(stateCollections)) throw new Error("figma-state.json: collections must be an ID-keyed object");
   const map = existsSync(mapPath) ? readJson(mapPath) : {};
@@ -139,7 +148,7 @@ try {
   for (const { id } of diagnostics.registeredIdsNotInInput) {
     console.error(`Token file preflight warning: collection ${id} is registered but not in this preflight input; its file is kept`);
   }
-  console.log(JSON.stringify({ tokenPrefix, files: plannedFiles, variables, diagnostics }, null, 2));
+  console.log(JSON.stringify({ tokenPrefix, files: plannedFiles, variables, diagnostics, ...(inventory ? { inventory: { hash: inventory.hash, fileKey: inventory.inventory.source.fileKey, scope: 'Complete observed local inventory; retained project records are not evidence of continued presence in Figma.' } } : {}) }, null, 2));
 } catch (error) {
   console.error(`Token file preflight: ${error.message}`);
   process.exitCode = 1;

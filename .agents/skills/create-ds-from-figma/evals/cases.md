@@ -42,6 +42,16 @@ Las URL siguientes son entradas de ejemplo: al ejecutar el caso, usa nodos reale
 
 ## Primera importación
 
+### Inventario Completo Y Transporte
+
+- Captura el inventario completo con un transporte autorizado y guarda el sobre sellado sin transcripción; prueba variables no usadas, todos los modos y alias remotos. IDs duplicados, modos ausentes, destino local omitido o tipo incompatible deben bloquear antes de escribir tokens.
+- El sobre exige los cuatro campos exactos. Elimina capturedAt, usa un número, fecha no canónica o imposible, añade un campo o sustituye el sobre por null: debe fallar con diagnóstico Variable inventory, sin crear una fecha de respaldo. Un sobre válido conserva el mismo hash si solo cambia su fecha canónica.
+- Ejecuta generate-token-json plan y comprueba que no crea DS. save conserva nombres/serializaciones/ámbitos previos y variables antiguas ausentes de la captura; las enumera por separado en check, sin afirmar presencia actual. Un inventario de otro file, hash corrupto, colisión conservada o alias dependiente de un modo no registrado bloquea sin modificar archivos.
+- figma-preanalysis combina tokens/anidados/recursos sin escribir. Un anidado sin identidad queda unresolved; missing exige identidad local demostrada. No aplicar mapped por nombre.
+- Usa mapas canónicos con refs en figma.refs y figma.variants[*].refs, nunca entry.refs: el principal de una instancia local/remota que corresponde a una variante ya mapeada debe quedar mapped tanto en el diagnóstico como en preanalysis. Refs repetidas dentro de una entrada no son ambiguas; coincidencias en dos entradas sí. Un nombre coincidente o un nodeId remoto aislado no autorizan mapped.
+- Exporta PNG mediante figma-reference: payload truncado, CRC corrupto, escala no válida y cambios entre bloques deben fallar. Solo save publica bytes y devuelve el artefacto tipado; no genera PASS visual ni revisiones.
+- Regenera y reproduce el inventario sintético de `.agents/checks/tests/fixtures/variable-inventory-sealed.json` offline, con el mismo mock y fecha fija. Ningún dato ni PNG real forma parte de esa prueba; no confundirla con validación de un transporte vivo. Ejecuta `npm run test:inventory:mutations` y exige base correcta, cero supervivientes y ningún error de infraestructura.
+
 La ficha exige también verification con recursos autorizados/hashes, tipografía esencial cubierta y casos concretos fidelity/behavior. Ejecuta verify-render-plan y la vista aislada sin editar App.tsx; un recibo de medidas no confirma fidelidad. Registra activaciones reales, viewport, fuentes y limitaciones.
 
 - Entrada: repo sin `figma-code-map.json` ni `tokens.css`; URL de un componente local con variables del file resueltas y sin anidados locales `missing`.

@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { canonicalJson, sealCapture, classificationProposals } from '../../../checks/lib/figma-evidence.mjs';
 import { textDimensionRequirements } from '../../../checks/lib/figma-dimensions.mjs';
 import { bridgeCode } from './lib/capture-bridge.mjs';
+import { nestedInventory } from '../../../checks/lib/nested-inventory.mjs';
 
 import { captureCode, assembleChunks } from './lib/capture-code.mjs';
 export { captureCode, assembleChunks };
@@ -61,6 +62,8 @@ async function main() {
     const directory = args[1] === '--chunks-dir' ? args[2] : null;
     const input = directory ? { chunks: readdirSync(directory).filter(f => /^\d+\.json$/.test(f)).map(f => JSON.parse(readFileSync(path.join(directory, f), 'utf8'))) } : JSON.parse(readFileSync(0, 'utf8'));
     console.log(JSON.stringify(persistCapture(args[0] || '.', assembleChunks(input.chunks)), null, 2));
+  } else if (command === 'nested' && args.length === 2) {
+    console.log(JSON.stringify(nestedInventory(JSON.parse(readFileSync(args[0], 'utf8')), JSON.parse(readFileSync(args[1], 'utf8'))), null, 2));
   } else if (command === 'propose' || command === 'dimensions') {
     const snapshot = JSON.parse(readFileSync(args[0], 'utf8'));
     const sealed = sealCapture(snapshot.capture);

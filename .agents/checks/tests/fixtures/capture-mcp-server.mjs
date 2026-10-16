@@ -1,6 +1,8 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import { inventoryMock } from './variable-inventory.mjs';
+import { PNG } from 'pngjs';
 
 export function captureServer(mode = 'normal') {
   const codeOnly = ['code-only', 'wrong-file', 'unknown-file'].includes(mode);
@@ -17,6 +19,12 @@ export function captureServer(mode = 'normal') {
     root.children.push(text);
     const figma = { skipInvisibleInstanceChildren: true, fileKey: mode === 'wrong-file' ? 'OTHER' : mode === 'unknown-file' ? undefined : 'FILE', getNodeByIdAsync: async id => id === root.id ? root : text,
       variables: { getLocalVariableCollectionsAsync: async () => [] } };
+    if (mode === 'inventory') Object.assign(figma, inventoryMock());
+    if (mode === 'reference') {
+      const png = new PNG({ width: 2, height: 3 }); png.data.fill(255);
+      figma.getNodeByIdAsync = async () => ({ width: 2, height: 3, exportAsync: async () => PNG.sync.write(png) });
+      figma.base64Encode = bytes => Buffer.from(bytes).toString('base64');
+    }
     const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
     const result = await new AsyncFunction('figma', request.params.arguments.javascript)(figma);
     if (mode === 'changing' && calls++) result.checksum = 'changed';
