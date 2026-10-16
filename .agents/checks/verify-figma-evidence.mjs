@@ -2,15 +2,10 @@ import { existsSync, readFileSync, realpathSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadSnapshot, verifyEvidence } from './lib/figma-evidence.mjs';
+import { entryRefs } from './lib/figma-map.mjs';
+export { entryRefs } from './lib/figma-map.mjs';
 
 const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
-const refList = value => Array.isArray(value) ? value.filter(ref => typeof ref === 'string') : [];
-
-// An entry is resolved by its key, figma.refs or any figma.variants[*].refs: an instance's main component is usually a variant.
-export function entryRefs(key, entry) {
-  const variants = isObject(entry?.figma?.variants) ? Object.values(entry.figma.variants) : [];
-  return [...new Set([key, ...refList(entry?.figma?.refs), ...variants.flatMap(variant => refList(variant?.refs))])];
-}
 
 // Components with code on disk, with every ref that can identify them. Malformed entries are reported by the caller, never resolved.
 export function mappedComponentsOf(root, entries) {

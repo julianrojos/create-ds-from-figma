@@ -38,9 +38,15 @@ export function mcpConfiguration(config, env = process.env) {
 
 // No editor globals: the official SDK owns MCP framing, lifecycle and authentication errors.
 export async function captureFromMcp(config, fileKey, nodeId, { approvedConnection = false, keepFailed = false } = {}) {
+  return capturePayloadFromMcp(config, fileKey, nodeId, { approvedConnection, keepFailed,
+    codeFor: (offset, chunkSize) => captureCode(fileKey, nodeId, offset, chunkSize),
+    validate: capture => ({ hash: sealCapture(capture).hash, nodes: capture.nodes.length, issues: capture.coverage.issues.length }) });
+}
+
+export async function capturePayloadFromMcp(config, fileKey, nodeId, { approvedConnection = false, keepFailed = false, codeFor, validate } = {}) {
   if (approvedConnection !== true) throw new Error('MCP connection requires explicit approval before executing a command or contacting a server');
   const options = mcpConfiguration(config);
-  captureCode(fileKey, nodeId, 0, options.chunkSize);
+  codeFor(0, options.chunkSize);
   const client = new Client({ name: 'figma-evidence-capture', version: '1.0.0' });
   const transport = config.transport.type === 'stdio'
     ? new StdioClientTransport({ command: config.transport.command, args: config.transport.args || [], env: options.environment, stderr: 'pipe' })
@@ -60,14 +66,13 @@ export async function captureFromMcp(config, fileKey, nodeId, { approvedConnecti
     directory = mkdtempSync(path.join(os.tmpdir(), 'figma-capture-mcp-'));
     const result = await captureViaBridge({ fileKey, nodeId,
       getCode: async offset => (options.fileKeyArgument === null
-        ? `if (figma.fileKey !== ${JSON.stringify(fileKey)}) throw new Error('Active Figma file cannot be verified or differs from the requested file');\n` : '') + captureCode(fileKey, nodeId, offset, options.chunkSize),
+        ? `if (figma.fileKey !== ${JSON.stringify(fileKey)}) throw new Error('Active Figma file cannot be verified or differs from the requested file');\n` : '') + codeFor(offset, options.chunkSize),
       runFigma: code => client.callTool({ name: config.tool.name, arguments: { ...config.tool.arguments,
         [options.codeArgument]: code, ...(options.fileKeyArgument === null ? {} : { [options.fileKeyArgument]: fileKey }) } }, undefined, { timeout: options.timeout }),
       stage: async chunk => writeFileSync(path.join(directory, `${chunk.offset}.json`), JSON.stringify(chunk) + '\n', { flag: 'wx' }),
     });
-    const snapshot = sealCapture(assembleChunks(result.chunks));
-    return { directory, chunks: result.chunks.length, total: result.total, hash: snapshot.hash,
-      nodes: snapshot.capture.nodes.length, issues: snapshot.capture.coverage.issues.length, persistedInProject: false };
+    const facts = validate(assembleChunks(result.chunks));
+    return { directory, chunks: result.chunks.length, total: result.total, ...facts, persistedInProject: false };
   } catch (error) {
     if (directory && !keepFailed) rmSync(directory, { recursive: true, force: true });
     const failure = new Error(`MCP capture failed${directory && keepFailed ? `; failed session: ${directory}` : ''}. Check connection, credentials and configured tool. ${error.message}`);

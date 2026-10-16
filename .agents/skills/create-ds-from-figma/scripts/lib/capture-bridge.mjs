@@ -25,7 +25,7 @@ export function shellQuote(value) {
   return "'" + String(value).replaceAll("'", "'\\''") + "'";
 }
 
-export function bridgeCode(script, fileKey, nodeId) {
+export function bridgeCode(script, fileKey, nodeId, { codeArguments = [] } = {}) {
   return `const quote = ${shellQuote.toString()};
 const captureViaBridge = ${captureViaBridge.toString()};
 const script = ${JSON.stringify(script)};
@@ -38,7 +38,7 @@ const directory = await run('node ' + quote(script) + ' session');
 try {
 const result = await captureViaBridge({
   fileKey: ${JSON.stringify(fileKey)}, nodeId: ${JSON.stringify(nodeId)},
-  getCode: offset => run('node ' + quote(script) + ' code ' + quote(${JSON.stringify(fileKey)}) + ' ' + quote(${JSON.stringify(nodeId)}) + ' ' + offset),
+  getCode: offset => run('node ' + quote(script) + ' code ' + quote(${JSON.stringify(fileKey)}) + ${JSON.stringify((nodeId === null ? '' : ' ' + shellQuote(nodeId)) + codeArguments.map(arg => ' ' + shellQuote(arg)).join(''))} + ' ' + offset),
   runFigma: code => tools.mcp__codex_apps__figma_use_figma({fileKey: ${JSON.stringify(fileKey)}, code, description: 'Read-only auditable component capture', skillNames: 'figma-use'}),
   stage: chunk => run("printf '%s' " + quote(JSON.stringify(chunk)) + ' | node ' + quote(script) + ' stage ' + quote(directory))
 });
