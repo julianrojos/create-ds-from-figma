@@ -3,6 +3,7 @@ import { readFileSync, realpathSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { textDimensionRequirements } from './figma-dimensions.mjs';
 import { nodeCoverage } from './node-coverage.mjs';
+import { concreteFontWeight } from './font-weight.mjs';
 
 const object = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const text = v => typeof v === 'string' && v.trim().length > 0;
@@ -88,6 +89,7 @@ export function verifyRenderPlan(root, metadata, capture, { delegations = [], re
       else if (record.source?.kind === 'unresolved' && text(record.source.reason)) warnings.push(`${label}[${i}]: resource loading NOT VERIFIED: ${record.source.reason}`);
       else errors.push(`${label}[${i}]: source must be a hashed project file or explicitly unresolved`);
       if (label === 'fonts' && (!object(record.css) || !text(record.css.family) || !text(record.css.weight) || !['normal', 'italic', 'oblique'].includes(record.css.style))) errors.push(`${label}[${i}]: explicit CSS family, weight and style descriptors are required`);
+      else if (label === 'fonts' && concreteFontWeight(record.css.weight) === null) errors.push(`${label}[${i}]: CSS weight must be one concrete number from 1 to 1000, normal or bold; ranges belong to @font-face`);
     }
     for (const r of expected) {
       const key = label === 'assets' ? `${r.observation}:${r.index}` : r.id;

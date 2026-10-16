@@ -7,7 +7,9 @@ import { createServer } from 'node:net';
 import { browserRuntime, repoRoot } from '../scripts/test-kit.mjs';
 import { createPreviewProject } from '../checks/tests/fixtures/preview-project.mjs';
 import { runBrowserVerification, browserVerificationExitCode } from '../skills/create-ds-from-figma/scripts/verification-browser.mjs';
-import { sha256 } from '../checks/lib/render-plan.mjs';
+import { renderRequirements, sha256 } from '../checks/lib/render-plan.mjs';
+import { componentCapture } from '../checks/tests/fixtures/component-capture.mjs';
+import { persistCapture } from '../skills/create-ds-from-figma/scripts/figma-capture.mjs';
 import { verifyImports } from '../checks/verify-imports.mjs';
 import { diagnoseApplication } from '../checks/lib/application-diagnostics.mjs';
 import { finalizeImport } from '../skills/create-ds-from-figma/scripts/finalize-import.mjs';
@@ -145,6 +147,53 @@ test('browser launch failure preserves a structured pending closure and releases
       probe.listen(result.preview.port, '127.0.0.1', () => probe.close(error => error ? reject(error) : resolve()));
     });
   }
+});
+
+test('missing stylesheets, broken CSS imports and failed font decoding never complete real browser verification', async t => {
+  const options = { playwright, executablePath, timeoutMs: 2500 };
+  const make = () => {
+    const f = createPreviewProject({ runtimeModules: path.join(runtime, 'node_modules') });
+    t.after(() => rmSync(f.root, { recursive: true, force: true }));
+    return { ...f, file: path.join(f.root, f.metadataPath), metadata: JSON.parse(readFileSync(path.join(f.root, f.metadataPath))) };
+  };
+  const run = async f => {
+    const result = await runBrowserVerification(f.root, f.metadataPath, options);
+    t.after(() => rmSync(result.directory, { recursive: true, force: true }));
+    assert.equal(result.closure.complete, false);
+    assert.notEqual(browserVerificationExitCode(result), 0);
+    assert.equal((await verifyImports(f.root)).status, 'FAIL');
+    return result;
+  };
+  const absent = make();
+  absent.metadata.verification.stylesheets.push('src/missing.css');
+  writeFileSync(absent.file, JSON.stringify(absent.metadata));
+  const staticFailure = await run(absent);
+  assert.equal(staticFailure.execution.phase, 'static-validation');
+  assert.equal(staticFailure.closure.state, 'failed');
+  const broken = make();
+  writeFileSync(path.join(broken.root, 'src/PreviewGlyph.tsx'), 'import "./missing-import.css";\n' + readFileSync(path.join(broken.root, 'src/PreviewGlyph.tsx'), 'utf8'));
+  const importFailure = await run(broken);
+  assert.ok(importFailure.blocked.length > 0 || importFailure.closure.state === 'failed', JSON.stringify(importFailure));
+  assert.equal(importFailure.manifest.cases.length, 0, 'a failed component import cannot publish a measurement');
+  const font = make();
+  const seeds = JSON.parse(readFileSync(path.join(font.root, font.metadata.evidence.snapshot))).capture.nodes;
+  seeds[1].properties.fontName = { family: 'BrokenFont', style: 'Regular' };
+  const capture = componentCapture({ seeds });
+  font.metadata.evidence = { ...font.metadata.evidence, ...persistCapture(font.root, capture) };
+  const bytes = Buffer.from('This is not a decodable font');
+  writeFileSync(path.join(font.root, 'src/broken.woff2'), bytes);
+  const id = renderRequirements(capture).fonts[0].id;
+  font.metadata.verification.fonts = [{ id, css: { family: 'BrokenFont', style: 'normal', weight: '400' }, source: { kind: 'file', path: 'src/broken.woff2', sha256: sha256(bytes) } }];
+  writeFileSync(font.file, JSON.stringify(font.metadata));
+  writeFileSync(path.join(font.root, 'src/base.css'), '@font-face {font-family:BrokenFont;src:url("./broken.woff2")}');
+  const style = path.join(font.root, 'src/PreviewGlyph.module.css');
+  writeFileSync(style, readFileSync(style, 'utf8').replace('font-family: Arial, sans-serif', 'font-family: BrokenFont'));
+  const fontFailure = await run(font);
+  assert.equal(fontFailure.closure.state, 'failed');
+  assert.ok(fontFailure.closure.failures.some(f => JSON.stringify(f).includes(`font:${id}`)), JSON.stringify(fontFailure.closure));
+  assert.ok(fontFailure.manifest.cases.length > 0, 'failed font loading may retain diagnostic measurements, never confirmation');
+  const measured = JSON.parse(readFileSync(path.join(font.root, fontFailure.manifest.cases[0].artifacts[0].path)));
+  assert.ok(measured.fonts.find(f => f.id === id).faces.some(face => face.status === 'error'), 'the browser actually attempted and failed font decoding');
 });
 
 test('controlled font corpus records loading and repeatability, never a universal Figma tolerance', async () => {

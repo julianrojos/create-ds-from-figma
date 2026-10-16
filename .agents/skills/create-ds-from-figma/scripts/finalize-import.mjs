@@ -10,6 +10,7 @@ import { runBrowserVerification } from './verification-browser.mjs';
 import { browserRuntime } from '../../../scripts/test-kit.mjs';
 import { loadSnapshot } from '../../../checks/lib/figma-evidence.mjs';
 import { essentialAssetGaps, essentialFontGaps } from '../../../checks/lib/resource-gaps.mjs';
+import { deduplicateNextActions, resourceNextActions } from '../../../checks/lib/resource-diagnostics.mjs';
 
 function updatedUsage(original, record) {
   const prose = markdownProse(original);
@@ -70,6 +71,7 @@ export function recordImportReviews(root, metadataPath, reviews) {
 export async function finalizeImport(root, metadataPath, { reviews, collect = false, browserOptions, applicationOptions } = {}) {
   let collection, correspondences;
   const errors = [];
+  let resourceActions = [];
   try {
     const map = JSON.parse(readFileSync(projectFile(root, 'design-system/relationships/figma-code-map.json')));
     if (Object.entries(map).filter(([key, entry]) => !key.startsWith('_') && entry?.designSystem?.metadata === metadataPath).length !== 1) throw new Error('Finalization requires one mapped component metadata path');
@@ -78,6 +80,7 @@ export async function finalizeImport(root, metadataPath, { reviews, collect = fa
     if (collect) {
       const metadata = JSON.parse(readFileSync(projectFile(root, metadataPath)));
       const { capture } = loadSnapshot(root, metadata.evidence.snapshot), gaps = essentialFontGaps(capture, metadata), images = essentialAssetGaps(capture, metadata);
+      resourceActions = resourceNextActions(root, metadataPath, { fonts: gaps, assets: images });
       if (gaps.length || images.length) throw new Error(`DS_GAP: request authorized sources for essential resources: ${[...gaps.map(gap => `font ${gap.font.family} ${gap.font.style} (${gap.css?.weight || 'weight unresolved'})`), ...images.map(gap => `image ${gap.observation}[${gap.index}]`)].join(', ')}. Diagnostic collection remains available through verification-browser.mjs; do not invent a font package or substitute an image.`);
       const runtime = browserRuntime();
       const playwright = await import(pathToFileURL(path.join(runtime, 'node_modules/playwright/index.mjs')).href);
@@ -87,7 +90,8 @@ export async function finalizeImport(root, metadataPath, { reviews, collect = fa
   } catch (error) { errors.push(error.message); }
   const delivery = await verifyImports(root, { applicationOptions });
   const status = !errors.length && delivery.status === 'PASS' && (!collection || collection.closure.complete && !collection.blocked.length) ? 'PASS' : 'FAIL';
-  return { status, errors, collection, correspondences, delivery,
+  const nextActions = deduplicateNextActions([...resourceActions, ...delivery.nextActions]);
+  return { status, errors, collection, correspondences, delivery, nextActions,
     scope: 'Explicit review recording and current delivery checks, not automatic visual judgment. A collection without confirmation is not a completed import.' };
 }
 

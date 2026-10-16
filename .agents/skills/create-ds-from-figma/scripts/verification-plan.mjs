@@ -13,6 +13,7 @@ import { closeVerification } from '../../../checks/lib/verification-closure.mjs'
 import { waitForMeasurement } from '../../../checks/lib/wait-measurement.mjs';
 import { collectCssDiagnostics } from '../../../checks/lib/css-diagnostics.mjs';
 import { renderDiagnostics } from '../../../checks/lib/render-diagnostics.mjs';
+import { snapshotResources } from '../../../checks/lib/resource-diagnostics.mjs';
 
 const forbidden = (record, keys) => {
   if (!record || typeof record !== 'object' || Array.isArray(record) || Object.keys(record).some(k => !keys.includes(k))) throw new Error(`Decision accepts only ${keys.join(', ')}`);
@@ -122,7 +123,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     } else if (command === 'requirements' && args.length === 1) {
       const snapshot = JSON.parse(readFileSync(args[0], 'utf8')), sealed = sealCapture(snapshot.capture);
       if (sealed.hash !== snapshot.hash) throw new Error('Snapshot hash mismatch');
-      console.log(JSON.stringify({ snapshotHash: snapshot.hash, ...renderRequirements(snapshot.capture) }, null, 2));
+      const diagnostic = snapshotResources(snapshot.capture);
+      console.log(JSON.stringify({ snapshotHash: snapshot.hash, ...renderRequirements(snapshot.capture), resources: diagnostic.resources, nextActions: diagnostic.nextActions, resourceScope: diagnostic.scope }, null, 2));
     } else if (command === 'compare' && [4, 5].includes(args.length)) {
       const [root, metadataPath, caseId, bodyPath, baselinePath] = args;
       const metadata = JSON.parse(readFileSync(projectFile(root, metadataPath), 'utf8'));

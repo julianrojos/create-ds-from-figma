@@ -4,6 +4,7 @@
   "scripts": {
     "test": "node .agents/scripts/test-kit.mjs all",
     "test:unit": "node .agents/scripts/test-kit.mjs unit",
+    "test:resources:mutations": "node .agents/scripts/mutate-resources.mjs",
     "test:browser": "node .agents/scripts/test-kit.mjs browser",
     "test:browser:setup": "node .agents/scripts/setup-browser-tests.mjs",
     "verify:docs": "node .agents/checks/verify-docs.mjs",

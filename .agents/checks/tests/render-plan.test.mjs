@@ -35,6 +35,18 @@ test('render plan covers fonts, exact source text, typography and alternate-cont
   assert.equal(result.requirements.typography.length, 3);
 });
 
+test('recorded font weights are concrete CSS requests, not face ranges or relative values', t => {
+  const f = fixture(t);
+  for (const weight of ['1', '400', '450.5', '1000', 'normal', 'bold']) {
+    f.metadata.verification.fonts[0].css.weight = weight;
+    assert.deepEqual(verifyRenderPlan(f.root, f.metadata, f.capture).errors, [], weight);
+  }
+  for (const weight of ['400 700', '400 400', 'bolder', 'var(--weight)', '0', '1001', 'Infinity', '0x190', '4e2', ' normal ']) {
+    f.metadata.verification.fonts[0].css.weight = weight;
+    assert.ok(verifyRenderPlan(f.root, f.metadata, f.capture).errors.some(e => e.includes('one concrete')), weight);
+  }
+});
+
 test('omitting line-height is an essential coverage error', t => {
   const f = fixture(t); f.metadata.measuredLiterals = f.metadata.measuredLiterals.filter(l => !l.observation.includes('#lineHeight#'));
   assert.ok(verifyRenderPlan(f.root, f.metadata, f.capture).errors.some(e => e.includes('lineHeight')));

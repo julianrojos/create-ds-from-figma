@@ -6,6 +6,8 @@ import { applicationSignals, diagnoseApplication } from './lib/application-diagn
 import { projectFile } from './lib/render-plan.mjs';
 import { loadSnapshot } from './lib/figma-evidence.mjs';
 import { essentialAssetGaps, essentialFontGaps } from './lib/resource-gaps.mjs';
+import { deduplicateNextActions, deliveryNextActions, fontConfigurationActions } from './lib/resource-diagnostics.mjs';
+import { fontConfigurations } from './lib/font-configuration.mjs';
 
 const core = ['design-system/inventory.json', 'design-system/relationships/figma-code-map.json', 'design-system/relationships/figma-state.json'];
 const notApplicable = reason => ({ status: 'NOT APPLICABLE', reason });
@@ -53,6 +55,10 @@ export async function verifyImports(root, { applicationOptions } = {}) {
           const capture = loadSnapshot(root, metadata.evidence.snapshot).capture;
           component.resourceGaps = essentialFontGaps(capture, metadata);
           component.assetGaps = essentialAssetGaps(capture, metadata);
+          component.fontConfiguration = fontConfigurations(root, metadata);
+          warnings.push(...component.fontConfiguration.warnings.map(warning => `${component.name}: font configuration: ${warning}`));
+          component.nextActions = deliveryNextActions(root, entry.designSystem.metadata, { fonts: component.resourceGaps, assets: component.assetGaps, summary: component.summary,
+            configurationActions: fontConfigurationActions(root, entry.designSystem.metadata, component.fontConfiguration.configurations, metadata) });
           if (component.resourceGaps.length) component.errors.push('DS_GAP: essential font sources are unresolved; request an authorized source before completing the import');
           if (component.assetGaps.length) component.errors.push('DS_GAP: essential image sources are unresolved; request an authorized file before completing the import');
           if (component.errors.length) component.status = 'FAIL';
@@ -68,7 +74,12 @@ export async function verifyImports(root, { applicationOptions } = {}) {
       : notApplicable('No index.html or conventional App/app/main/index source entry; literal diagnostics do not infer arbitrary library files as applications');
   } catch (error) { application = { status: 'NOT RUN', reason: error.message, errors: [error.message] }; }
   const status = errors.length || components.some(c => c.status !== 'PASS') || !['PASS', 'NOT APPLICABLE'].includes(application.status) ? 'FAIL' : 'PASS';
-  return { schemaVersion: 1, status, structure, components, application, errors, warnings,
+  const nextActions = components.flatMap(component => component.nextActions || []);
+  if (errors.length) nextActions.unshift({ code: 'REPAIR_STATIC_CONFORMANCE', resources: [], prerequisites: ['Resolve the reported structural and conformance errors before collecting or registering confirmations.'], permissions: ['project-read'], command: null, requiredArguments: [] });
+  if (!['PASS', 'NOT APPLICABLE'].includes(application.status)) nextActions.push({ code: 'RUN_APPLICATION_DIAGNOSTICS', resources: [],
+    prerequisites: ['An available permitted browser runtime is required; if missing, npm run test:browser:setup needs installation/network permission.'],
+    permissions: ['browser-execution'], command: { executable: 'node', args: ['.agents/checks/verify-imports.mjs', root] }, requiredArguments: [] });
+  return { schemaVersion: 1, status, structure, components, application, errors, warnings, nextActions: deduplicateNextActions(nextActions),
     scope: 'Delivery accounting from revalidated persisted confirmations, not automatic overall visual fidelity. Demo checks only applicable literals in the kit Chromium.' };
 }
 
