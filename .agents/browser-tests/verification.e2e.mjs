@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync, rmSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { test } from 'node:test';
@@ -20,6 +20,80 @@ const executablePath = playwright.chromium.executablePath();
 if (!existsSync(executablePath)) throw new Error('Locked Chromium binary missing. Run npm run test:browser:setup. The real-browser regression is required, not skipped.');
 const output = path.join(repoRoot, 'test-results/browser');
 mkdirSync(output, { recursive: true });
+
+test('diagnostic import loop detects shared size classes and inverted partial-border pointers without authorizing resources or publishing', async t => {
+  const { root, metadataPath } = createPreviewProject({ runtimeModules: path.join(runtime, 'node_modules'), image: { kind: 'unresolved', reason: 'Synthetic resource intentionally unavailable' } });
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const metadata = JSON.parse(readFileSync(path.join(root, metadataPath)));
+  const { capture: original } = JSON.parse(readFileSync(path.join(root, metadata.evidence.snapshot)));
+  const seeds = original.nodes.map(({ id, parentId, type, name, children, properties }) => structuredClone({ id, parentId, type, name, children, properties }));
+  seeds[0].children.push('1:4');
+  seeds[1].properties.fontName = { family: 'Synthetic Pending', style: 'Regular' };
+  seeds.push({ id: '1:4', parentId: '1:2', type: 'VECTOR', name: 'Pointer', children: [], properties: {
+    width: 8, height: 8, absoluteBoundingBox: { x: 118.34314575, y: 142.34314575, width: 11.3137085, height: 11.3137085 },
+    absoluteTransform: [[0.70710678, -0.70710678, 124], [0.70710678, 0.70710678, 142.34314575]], strokes: [] } });
+  const capture = componentCapture({ seeds });
+  Object.assign(metadata.evidence, persistCapture(root, capture));
+  metadata.parts.pointer = { selector: '.pointer', nodes: { default: 'FILE:1:4' } };
+  metadata.verification.fonts = renderRequirements(capture).fonts.map(font => ({ id: font.id,
+    css: { family: font.font.family, weight: '400', style: 'normal' }, source: { kind: 'unresolved', reason: 'No authorized font in this synthetic fixture' } }));
+  writeFileSync(path.join(root, metadataPath), JSON.stringify(metadata));
+  writeFileSync(path.join(root, 'src/PreviewGlyph.tsx'), 'import styles from "./PreviewGlyph.module.css"; export function PreviewGlyph({initial}:{initial:string}){return <span data-ds-part="root" className={styles.root}><span data-ds-part="initial" className={[styles.initial,styles.size].join(" ")}>{initial}</span><span data-ds-part="pointer" className={styles.pointer}/></span>}');
+  const css = '.root{position:relative;display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;--extent:48px}.initial{font:20px/24px Arial;letter-spacing:0}.size{width:var(--extent);height:var(--extent)}.pointer{position:absolute;left:50%;margin-left:-4px;top:-4px;width:8px;height:8px;transform:rotate(45deg);border-style:solid;border-bottom-width:1px;border-right-width:1px}';
+  const style = path.join(root, 'src/PreviewGlyph.module.css'); writeFileSync(style, css);
+  const tree = () => {
+    const visit = directory => readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
+      const file = path.join(directory, entry.name);
+      return entry.isDirectory() ? visit(file) : entry.isFile() ? [[path.relative(root, file), sha256(readFileSync(file))]] : [];
+    });
+    return Object.fromEntries(visit(root));
+  };
+  const before = tree();
+  const publication = await finalizeImport(root, metadataPath, { collect: true });
+  assert.equal(publication.collection, undefined); assert.match(publication.errors.join('\n'), /DS_GAP/);
+  const broken = await finalizeImport(root, metadataPath, { diagnose: true });
+  assert.equal(broken.status, 'FAIL', JSON.stringify(broken)); assert.equal(broken.complete, false);
+  assert.equal(broken.diagnosis.execution.status, 'COMPLETED', JSON.stringify(broken.diagnosis));
+  t.after(() => rmSync(broken.diagnosis.directory, { recursive: true, force: true }));
+  assert.deepEqual(broken.diagnosis.manifest.cases, []);
+  const cases = broken.diagnosis.diagnostics.cases;
+  assert.equal(cases.length, metadata.verification.cases.length);
+  const source = cases.find(c => c.caseId === 'source-0');
+  assert.ok(source.checks.some(c => c.id === 'geometry:initial' && c.status === 'FAIL'));
+  assert.ok(source.checks.some(c => c.id === 'position:pointer' && c.status === 'FAIL'));
+  assert.ok(source.diagnostics.some(c => c.checkId === 'position:pointer' && c.delta.width > 5));
+  assert.ok(broken.diagnosis.diagnostics.resources.fonts.length); assert.ok(broken.diagnosis.diagnostics.resources.assets.length);
+  assert.ok(broken.diagnosis.diagnostics.warnings.some(w => /border widths may retain initial values/.test(w)));
+  assert.ok(broken.nextActions.some(a => a.code === 'AUTHORIZE_FONT_SOURCE'));
+  assert.ok(broken.nextActions.some(a => a.code === 'REVIEW_RENDERED_DIFFERENCES' && a.cases.some(c => c.checks.includes('position:pointer'))));
+  assert.deepEqual(tree(), before, 'Diagnosis cannot write to the project, its sources, usage, snapshots or verification artifacts');
+  writeFileSync(style, css + '.initial{width:auto;height:auto}.pointer{top:auto;bottom:-4px;box-sizing:border-box;border-top-width:0;border-left-width:0}');
+  const fixedBytes = tree();
+  const fixed = await finalizeImport(root, metadataPath, { diagnose: true });
+  t.after(() => rmSync(fixed.diagnosis.directory, { recursive: true, force: true }));
+  const corrected = fixed.diagnosis.diagnostics.cases.find(c => c.caseId === 'source-0');
+  assert.ok(corrected.checks.some(c => c.id === 'geometry:initial' && c.status === 'PASS'), JSON.stringify(corrected));
+  assert.ok(corrected.checks.some(c => c.id === 'position:pointer' && c.status === 'PASS'), JSON.stringify(corrected));
+  assert.ok(corrected.checks.some(c => c.id.startsWith('font:') && c.status === 'FAIL'));
+  assert.equal(fixed.status, 'FAIL'); assert.equal(fixed.complete, false);
+  assert.deepEqual(fixed.diagnosis.manifest.cases, []); assert.deepEqual(tree(), fixedBytes);
+});
+
+test('a clean temporary diagnosis never confirms or publishes a candidate', async t => {
+  const { root, metadataPath } = createPreviewProject({ runtimeModules: path.join(runtime, 'node_modules') });
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const style = path.join(root, 'src/PreviewGlyph.module.css');
+  writeFileSync(style, readFileSync(style, 'utf8').replace('border: 1px solid black;', 'border: none;'));
+  const usage = readFileSync(path.join(root, 'design-system/components/PreviewGlyph/usage.md'));
+  const result = await finalizeImport(root, metadataPath, { diagnose: true });
+  t.after(() => rmSync(result.diagnosis.directory, { recursive: true, force: true }));
+  assert.equal(result.status, 'NOT VERIFIED', JSON.stringify(result)); assert.equal(result.complete, false);
+  assert.equal(result.diagnosis.execution.status, 'COMPLETED');
+  assert.equal(result.diagnosis.diagnostics.summary.FAIL, 0); assert.equal(result.diagnosis.diagnostics.summary['NOT RUN'], 0);
+  assert.deepEqual(result.diagnosis.manifest.cases, []); assert.equal(result.correspondences, undefined);
+  assert.equal(existsSync(path.join(root, 'design-system/verification')), false);
+  assert.deepEqual(readFileSync(path.join(root, 'design-system/components/PreviewGlyph/usage.md')), usage);
+});
 
 test('real headless regression: geometry, transfer, publication and application syntax are checked separately', async t => {
   const { root, metadataPath } = createPreviewProject({ runtimeModules: path.join(runtime, 'node_modules') });

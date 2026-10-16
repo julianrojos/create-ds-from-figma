@@ -8,8 +8,11 @@ import { closeVerification } from '../../../checks/lib/verification-closure.mjs'
 import { projectFile } from '../../../checks/lib/render-plan.mjs';
 import { loadSnapshot } from '../../../checks/lib/figma-evidence.mjs';
 import { sha256 } from '../../../checks/lib/render-plan.mjs';
-import { caseInputs } from '../../../checks/lib/comparison-evidence.mjs';
+import { caseInputs, validateBrowserMeasurement, validateMeasurementInputs } from '../../../checks/lib/comparison-evidence.mjs';
 import { applicationResult } from '../../../checks/lib/application-diagnostics.mjs';
+import { compareRendered, checkSummary } from '../../../checks/lib/render-comparison.mjs';
+import { renderDiagnostics } from '../../../checks/lib/render-diagnostics.mjs';
+import { essentialFontGaps, essentialAssetGaps } from '../../../checks/lib/resource-gaps.mjs';
 
 export function inspectRunReservation(directory) {
   directory = path.resolve(directory);
@@ -107,13 +110,16 @@ export function browserVerificationExitCode(result) {
 }
 
 // Optional adapter: neither Playwright nor a browser binary is installed or downloaded by this script.
-export async function runBrowserVerification(root, metadataPath, { playwright, executablePath, port = 0, directory, timeoutMs = 20000 } = {}) {
+export async function runBrowserVerification(root, metadataPath, { playwright, executablePath, port = 0, directory, timeoutMs = 20000, diagnostic = false } = {}) {
   if (!playwright?.chromium || !Number.isInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 300000) throw new Error('An explicitly supplied Playwright module and bounded timeout are required');
+  if (diagnostic && directory !== undefined) throw new Error('Diagnostic collection requires a fresh system temporary directory; do not supply directory');
   const reservation = reserveRunDirectory(directory);
   directory = reservation.directory;
   let preview, browser;
   const manifest = { schemaVersion: 1, cases: [] }, blocked = [];
   let closure, execution = { status: 'NOT RUN', phase: 'static-validation' };
+  const measurements = new Map();
+  let diagnostics;
   let application = { errors: [], results: [], checks: [], status: 'NOT RUN', reason: 'Application diagnostics were not executed.' };
   try {
     try {
@@ -122,8 +128,13 @@ export async function runBrowserVerification(root, metadataPath, { playwright, e
         execution.reason = 'Static preflight failed; browser collection was not started. See closure failures and pending measurements.';
       } else {
         const metadata = JSON.parse(readFileSync(projectFile(root, metadataPath), 'utf8'));
+        const { capture } = loadSnapshot(root, metadata.evidence.snapshot);
+        if (diagnostic) diagnostics = { complete: false, cases: [], summary: checkSummary([]),
+          resources: { fonts: essentialFontGaps(capture, metadata), assets: essentialAssetGaps(capture, metadata) },
+          scope: 'Temporary observations, never publication or confirmation. Missing resources can affect geometry; numeric deltas do not identify their cause.' };
         execution.phase = 'preview';
-        preview = await startPreview(root, metadataPath, { port });
+        preview = await startPreview(root, metadataPath, { port, ...(diagnostic ? { directory } : {}) });
+        if (diagnostic) diagnostics.warnings = preview.warnings;
         execution.phase = 'browser-launch';
         browser = await playwright.chromium.launch({ headless: true, ...(executablePath ? { executablePath } : {}), timeout: timeoutMs });
         execution.phase = 'collection';
@@ -137,10 +148,30 @@ export async function runBrowserVerification(root, metadataPath, { playwright, e
             const state = await page.evaluate(() => ({ status: window.__dsVerification.status, receipt: window.__dsVerification.receipt, error: window.__dsVerification.error }));
             if (state.status !== 'recorded') throw new Error(state.error || 'Collection did not produce an exact viewport measurement');
             const receipt = state.receipt.file.replace(/\.json$/, '.receipt.json');
-            const artifact = publishMeasurement(root, metadata, c.id, receipt);
-            manifest.cases.push({ caseId: c.id, artifacts: [artifact] });
+            if (diagnostic) {
+              const original = JSON.parse(readFileSync(receipt, 'utf8'));
+              const bytes = readFileSync(state.receipt.file);
+              if (original.body.sha256 !== sha256(bytes) || original.body.bytes !== bytes.length || original.inputsUnchangedSinceStart !== true || original.viewportMatches !== true) throw new Error('Diagnostic receipt bytes, inputs or viewport differ');
+              const body = JSON.parse(bytes);
+              validateBrowserMeasurement(body, metadata, c);
+              validateMeasurementInputs(root, original, metadata, c);
+              measurements.set(c.id, { body, receipt, file: state.receipt.file });
+              if (c.kind === 'fidelity') await page.screenshot({ path: path.join(directory, `${c.id}.png`), fullPage: true });
+            } else {
+              const artifact = publishMeasurement(root, metadata, c.id, receipt);
+              manifest.cases.push({ caseId: c.id, artifacts: [artifact] });
+            }
           } catch (error) { blocked.push({ caseId: c.id, status: 'NOT RUN', reason: error.message }); }
           finally { await context.close(); }
+        }
+        if (diagnostic) {
+          for (const c of metadata.verification.cases) {
+            const measured = measurements.get(c.id);
+            if (measured) validateMeasurementInputs(root, JSON.parse(readFileSync(measured.receipt, 'utf8')), metadata, c);
+            const comparison = compareRendered(capture, metadata, c, measured?.body, { baselineMeasurement: measurements.get(c.baseline)?.body });
+            diagnostics.cases.push({ caseId: c.id, kind: c.kind, ...(measured ? { file: measured.file, receipt: measured.receipt } : {}), ...comparison, diagnostics: renderDiagnostics(comparison) });
+          }
+          diagnostics.summary = checkSummary(diagnostics.cases.flatMap(c => c.checks));
         }
         const diagnosticContext = await browser.newContext();
         try {
@@ -158,7 +189,8 @@ export async function runBrowserVerification(root, metadataPath, { playwright, e
       execution = { status: 'NOT RUN', phase: execution.phase, reason: error.message };
       closure = closeVerification(root, metadataPath, manifest);
     } finally { try { await browser?.close(); } finally { await preview?.server.close(); } }
-    const result = { directory, manifest, blocked, application, closure, execution,
+    const result = { directory, mode: diagnostic ? 'diagnostic' : 'publication', manifest, blocked, application, closure, execution,
+      ...(diagnostic ? { complete: false, diagnostics } : {}),
       ...(preview ? { preview: { requestedPort: port, port: Number(new URL(preview.diagnosticsUrl).port), cases: preview.urls, diagnosticsUrl: preview.diagnosticsUrl } } : {}),
       scope: 'Browser measurements and literal syntax diagnostics, not automatic visual judgment or glyph-font proof.' };
     writeFileSync(path.join(directory, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n', { flag: 'wx' });

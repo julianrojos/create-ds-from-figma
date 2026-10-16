@@ -68,7 +68,7 @@ export function recordImportReviews(root, metadataPath, reviews) {
   return record.correspondences;
 }
 
-export async function finalizeImport(root, metadataPath, { reviews, collect = false, browserOptions, applicationOptions } = {}) {
+export async function finalizeImport(root, metadataPath, { reviews, collect = false, diagnose = false, browserOptions, applicationOptions } = {}) {
   let collection, correspondences;
   const errors = [];
   let resourceActions = [];
@@ -77,17 +77,29 @@ export async function finalizeImport(root, metadataPath, { reviews, collect = fa
     if (Object.entries(map).filter(([key, entry]) => !key.startsWith('_') && entry?.designSystem?.metadata === metadataPath).length !== 1) throw new Error('Finalization requires one mapped component metadata path');
     projectFile(root, metadataPath);
     if (reviews !== undefined && collect) throw new Error('Collect first, then review its retained artifacts; do not apply reviews to freshly replaced measurements');
-    if (collect) {
+    if (diagnose && (collect || reviews !== undefined)) throw new Error('Diagnostic collection cannot publish measurements or record reviews');
+    if (collect || diagnose) {
       const metadata = JSON.parse(readFileSync(projectFile(root, metadataPath)));
       const { capture } = loadSnapshot(root, metadata.evidence.snapshot), gaps = essentialFontGaps(capture, metadata), images = essentialAssetGaps(capture, metadata);
       resourceActions = resourceNextActions(root, metadataPath, { fonts: gaps, assets: images });
-      if (gaps.length || images.length) throw new Error(`DS_GAP: request authorized sources for essential resources: ${[...gaps.map(gap => `font ${gap.font.family} ${gap.font.style} (${gap.css?.weight || 'weight unresolved'})`), ...images.map(gap => `image ${gap.observation}[${gap.index}]`)].join(', ')}. Diagnostic collection remains available through verification-browser.mjs; do not invent a font package or substitute an image.`);
+      if (!diagnose && (gaps.length || images.length)) throw new Error(`DS_GAP: request authorized sources for essential resources: ${[...gaps.map(gap => `font ${gap.font.family} ${gap.font.style} (${gap.css?.weight || 'weight unresolved'})`), ...images.map(gap => `image ${gap.observation}[${gap.index}]`)].join(', ')}. Use --diagnose only for temporary feedback on an existing implementation; do not invent a font package or substitute an image.`);
       const runtime = browserRuntime();
       const playwright = await import(pathToFileURL(path.join(runtime, 'node_modules/playwright/index.mjs')).href);
-      collection = await runBrowserVerification(root, metadataPath, { ...browserOptions, playwright });
+      collection = await runBrowserVerification(root, metadataPath, { ...browserOptions, playwright, diagnostic: diagnose });
     }
     if (reviews !== undefined) correspondences = recordImportReviews(root, metadataPath, reviews);
   } catch (error) { errors.push(error.message); }
+  if (diagnose) {
+    const failed = errors.length || collection?.execution.status !== 'COMPLETED' || collection?.diagnostics?.summary.FAIL || collection?.diagnostics?.summary['NOT RUN'] || collection?.application.status === 'FAIL' || collection?.application.status === 'NOT RUN';
+    const differences = (collection?.diagnostics?.cases || []).map(c => ({ caseId: c.caseId,
+      checks: c.checks.filter(check => check.status === 'FAIL' && !check.id.startsWith('font:')).map(check => check.id) })).filter(c => c.checks.length);
+    return { status: failed ? 'FAIL' : 'NOT VERIFIED', complete: false, errors, diagnosis: collection,
+      nextActions: deduplicateNextActions([...resourceActions, ...(differences.length ? [{ code: 'REVIEW_RENDERED_DIFFERENCES',
+        targets: [metadataPath], cases: differences, permissions: ['project-read', 'browser-execution', 'temporary-write'],
+        reason: 'Inspect observed deltas and resource limitations before attributing a cause. Correct demonstrated implementation defects and repeat the diagnosis.',
+        command: { executable: 'npm', args: ['run', 'finalize:import', '--', root, metadataPath, '--diagnose'] } }] : [])]),
+      scope: 'Diagnostic feedback on existing code only. No project evidence is published, no reviews are recorded and delivery is not confirmed. Fix observed defects, resolve resources and collect again before delivery.' };
+  }
   const delivery = await verifyImports(root, { applicationOptions });
   const status = !errors.length && delivery.status === 'PASS' && (!collection || collection.closure.complete && !collection.blocked.length) ? 'PASS' : 'FAIL';
   const nextActions = deduplicateNextActions([...resourceActions, ...delivery.nextActions]);
@@ -97,12 +109,12 @@ export async function finalizeImport(root, metadataPath, { reviews, collect = fa
 
 export function parseFinalizationArgs(args) {
   const [root, metadataPath, ...flags] = args;
-  const usage = 'Usage: finalize-import.mjs ROOT METADATA --collect [--port PORT] | --reviews REVIEW_FILE | --check';
+  const usage = 'Usage: finalize-import.mjs ROOT METADATA --diagnose [--port PORT] | --collect [--port PORT] | --reviews REVIEW_FILE | --check';
   if (!root || !metadataPath || root.startsWith('--') || metadataPath.startsWith('--')) throw new Error(usage);
   let mode, reviewFile, port;
   for (let i = 0; i < flags.length; i++) {
     const flag = flags[i];
-    if (['--collect', '--reviews', '--check'].includes(flag) && !mode) {
+    if (['--diagnose', '--collect', '--reviews', '--check'].includes(flag) && !mode) {
       mode = flag;
       if (flag === '--reviews') {
         reviewFile = flags[++i];
@@ -114,14 +126,14 @@ export function parseFinalizationArgs(args) {
       port = Number(value);
     } else throw new Error(usage);
   }
-  if (!mode || port !== undefined && mode !== '--collect') throw new Error(usage);
+  if (!mode || port !== undefined && !['--collect', '--diagnose'].includes(mode)) throw new Error(usage);
   return { root, metadataPath, mode, reviewFile, port };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
     const { root, metadataPath, mode, reviewFile, port } = parseFinalizationArgs(process.argv.slice(2));
-    const result = await finalizeImport(root, metadataPath, { collect: mode === '--collect', ...(port !== undefined ? { browserOptions: { port } } : {}), ...(mode === '--reviews' ? { reviews: JSON.parse(readFileSync(reviewFile, 'utf8')) } : {}) });
+    const result = await finalizeImport(root, metadataPath, { collect: mode === '--collect', diagnose: mode === '--diagnose', ...(port !== undefined ? { browserOptions: { port } } : {}), ...(mode === '--reviews' ? { reviews: JSON.parse(readFileSync(reviewFile, 'utf8')) } : {}) });
     console.log(JSON.stringify(result, null, 2));
     process.exitCode = result.status === 'PASS' ? 0 : 1;
   } catch (error) { console.error(error.message); process.exitCode = 1; }

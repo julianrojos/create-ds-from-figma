@@ -158,6 +158,20 @@ Con React, React DOM y Vite del DS instalados, `node .agents/skills/create-ds-fr
 
 ### Cierre De La Importación
 
+El flujo se detiene antes de implementar si faltan fuentes o imágenes esenciales autorizadas. Pregunta por ellas juntas; si el agente no puede interactuar, debe devolver BLOCKED sin escribir código ni registrar el componente. No se eligen paquetes por el nombre de una fuente ni se sustituyen imágenes por placeholders.
+
+Para obtener feedback sobre código existente antes de publicar evidencia:
+
+```sh
+npm run finalize:import -- . design-system/components/Nombre/metadata.json --diagnose
+```
+
+Este paso forma parte del bucle de implementación: medir, revisar diferencias, corregir defectos demostrados y volver a medir antes de presentar el resultado. Usa el Chromium fijado y los casos actuales, aunque queden recursos pendientes. Los datos originales, recibos, capturas, comparaciones y caché se guardan únicamente en un temporal nuevo; no altera metadata/usage ni crea artefactos de verificación en el proyecto. No autoriza iniciar una importación bloqueada. Requiere el runtime de navegador preparado y permiso para ejecutar el componente/abrir servidores locales; no instala dependencias.
+
+Lee diagnosis.execution, diagnosis.diagnostics.cases, resources, warnings y nextActions. REVIEW_RENDERED_DIFFERENCES identifica casos/checks con diferencias observadas; no atribuye su causa al CSS. Fuentes ausentes pueden afectar la geometría del texto y del contenedor. Los recursos siguen pendientes y los FAIL no se ocultan. --diagnose nunca alcanza PASS de entrega: devuelve FAIL o NOT VERIFIED, complete=false y código de salida 1 incluso si los checks numéricos pasan. No combina publicación, revisión ni --check. Admite --port para un puerto explícito; el automático también funciona con Vite 5 y no toma la demo de otro proceso. La vista se cierra al terminar.
+
+La regresión genérica de Chromium cubre dimensiones de raíz aplicadas al texto, punta invertida y bordes parciales. Comprueba que hay feedback sin recursos resueltos, que las correcciones eliminan los defectos medidos y que ningún diagnóstico confirma candidatos ni modifica el proyecto. No demuestra por sí sola que cualquier LLM seguirá el flujo: los scripts detectan diferencias; el agente debe ejecutar el bucle y resolverlas.
+
 El cierre conserva también la lista de mediciones pendientes cuando falla la conformidad estática, si los casos son interpretables. No ejecuta comparaciones dependientes de datos inválidos: indica que las medidas aportadas aún no se han evaluado. Los números inline constantes usan la serialización React (px, cero y propiedades sin unidad). Los diagnósticos CSS consideran @supports: una rama inactiva no es un fallo de sintaxis; una extensión de otro motor no soportada queda pendiente de revisión, no declarada inválida universalmente. El diagnóstico de aplicación comparte este criterio.
 
 La exploración histórica de Inter identifica ahora el commit exacto y las 14 entradas verificadas; el procedimiento de reconstrucción y sus límites están en [las notas del experimento](.agents/skills/create-ds-from-figma/evals/results/README.md). Reconstruir su fuente no significa que el Tooltip haya superado el cierre actual.

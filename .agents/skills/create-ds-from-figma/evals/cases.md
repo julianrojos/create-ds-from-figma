@@ -2,6 +2,14 @@
 
 Estos casos describen decisiones observables, no sustituyen una ejecución real con Figma. Para cada prueba, registra la URL, refs consultados, diagnóstico, archivos modificados y resultados de los checks. Ejecútalos en una rama que el usuario haya seleccionado; no cambies de rama por cuenta del kit.
 
+## Prevención Antes De Entregar
+
+- Fuente o imagen esencial sin origen autorizado en el preanálisis: DS_GAP/BLOCKED antes del scaffold y del TSX. Pregunta única por los recursos; si no hay interacción, detente sin escribir. requirements lista candidatos, no declara esenciales todos los recursos ocultos. Una petición de importación no autoriza placeholders ni paquetes deducidos del nombre.
+- Implementación existente con recursos pendientes: finalize:import --diagnose recoge en temporal y compara sin publicar. Conserva FAIL de recursos y diferencias geométricas por caso; no atribuye toda diferencia al CSS ni declara fidelidad por falta de FAIL. --collect sigue bloqueado por recursos esenciales y --reviews no se puede combinar con diagnóstico.
+- Fixture genérico con clase de tamaño compartida por raíz/texto, punta en borde contrario y anchos de borde parciales: el diagnóstico detecta geometry:initial FAIL, position:pointer FAIL y aviso de anchuras. Corregir el fixture elimina esos fallos, pero la fuente pendiente conserva FAIL y complete=false. Regresión real de Chromium, no solo DOM simulado.
+- Compara todos los archivos del proyecto antes/después: ni fichas, usage, snapshots ni design-system/verification cambian; cuerpos, recibos, capturas, caché y resultados viven en un temporal nuevo. Incluso un diagnóstico numéricamente limpio conserva NOT VERIFIED, complete=false y no confirma candidatos.
+- Tras escribir código permitido, repite diagnóstico/corrección antes del informe final. Sin navegador: NOT RUN/BLOCKED. Nunca uses el diagnóstico como permiso para crear una importación bloqueada, modificar tolerancias o reconstruir snapshots.
+
 ## Enrutado de skills
 
 ### Publicación Y Vigencia De Artefactos

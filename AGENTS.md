@@ -16,6 +16,7 @@ Instrucciones operativas para agentes de IA en este repositorio.
 - Si lees, editas o generas archivos en `src/` o `design-system/`, aplica `.agents/rules/design-system.md`.
 - Antes de dar por terminada una implementación o modificación de UI, completa la verificación definida en `.agents/rules/design-system.md`, incluidos los checks manuales y la validación renderizada; informa de lo no ejecutado y del motivo.
 - Antes de entregar una importación, ejecuta `npm run verify:imports`: exige confirmaciones persistidas vigentes y el diagnóstico independiente de literales de la demo. No presentes candidatos, mediciones pendientes ni un navegador no ejecutado como entrega terminada. El gate no escribe ni confirma automáticamente.
+- Los recursos esenciales sin resolver detienen una importación antes del código; sin interacción, devuelve el bloqueo sin escribir. Tras una implementación permitida o corrección visual, ejecuta `npm run finalize:import -- ROOT METADATA --diagnose`, revisa las diferencias y repite tras corregirlas. Este diagnóstico ejecuta el componente pero solo conserva resultados temporales: no publica, confirma ni sustituye el gate de entrega. No permite crear una importación bloqueada para poder medirla.
 - Si dos skills solapan, usa la más específica; si hacen falta ambas por fases distintas, aplícalas explícitamente.
 
 ## Prioridad

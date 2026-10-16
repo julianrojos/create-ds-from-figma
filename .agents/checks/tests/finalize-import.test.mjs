@@ -6,6 +6,7 @@ import { test } from 'node:test';
 import { createPreviewProject } from './fixtures/preview-project.mjs';
 import { renderedArtifacts, renderedBehaviors, syntheticTypographyReviews } from './fixtures/rendered-artifacts.mjs';
 import { finalizeImport, parseFinalizationArgs } from '../../skills/create-ds-from-figma/scripts/finalize-import.mjs';
+import { runBrowserVerification } from '../../skills/create-ds-from-figma/scripts/verification-browser.mjs';
 
 test('finalizer CLI accepts an explicit collection port and rejects invalid, duplicate or irrelevant options before work', () => {
   const base = ['ROOT', 'METADATA'];
@@ -14,10 +15,27 @@ test('finalizer CLI accepts an explicit collection port and rejects invalid, dup
   assert.equal(parseFinalizationArgs([...base, '--port', '0', '--collect']).port, 0);
   assert.equal(parseFinalizationArgs([...base, '--reviews', 'review.json']).reviewFile, 'review.json');
   assert.equal(parseFinalizationArgs([...base, '--check']).mode, '--check');
+  assert.equal(parseFinalizationArgs([...base, '--diagnose']).mode, '--diagnose');
+  assert.equal(parseFinalizationArgs([...base, '--diagnose', '--port', '5189']).port, 5189);
   for (const flags of [[], ['--collect', '--port'], ['--collect', '--port', '-1'], ['--collect', '--port', '65536'],
     ['--collect', '--port', 'NaN'], ['--collect', '--port', '1.5'], ['--collect', '--port', '1e3'],
     ['--collect', '--port', '0', '--port', '5189'], ['--check', '--port', '5189'], ['--collect', '--check'],
-    ['--reviews', '--port', '5189'], ['--reviews', 'review.json', '--port', '5189']]) assert.throws(() => parseFinalizationArgs([...base, ...flags]), /Usage|Port must/);
+    ['--reviews', '--port', '5189'], ['--reviews', 'review.json', '--port', '5189'],
+    ['--diagnose', '--collect'], ['--diagnose', '--check'], ['--diagnose', '--reviews', 'review.json'],
+    ['--diagnose', '--port', '0', '--port', '1']]) assert.throws(() => parseFinalizationArgs([...base, ...flags]), /Usage|Port must/);
+});
+
+test('diagnosis cannot publish, record reviews or write a caller-chosen output directory', async t => {
+  const f = createPreviewProject(); t.after(() => rmSync(f.root, { recursive: true, force: true }));
+  const usage = readFileSync(path.join(f.root, 'design-system/components/PreviewGlyph/usage.md'));
+  for (const options of [{ diagnose: true, collect: true }, { diagnose: true, reviews: {} }]) {
+    const result = await finalizeImport(f.root, f.metadataPath, options);
+    assert.equal(result.status, 'FAIL'); assert.equal(result.complete, false);
+    assert.equal(result.diagnosis, undefined); assert.equal(result.delivery, undefined);
+    assert.ok(result.errors.some(e => /cannot publish/.test(e)));
+  }
+  await assert.rejects(runBrowserVerification(f.root, f.metadataPath, { diagnostic: true, directory: f.root, playwright: { chromium: {} } }), /fresh system temporary directory/);
+  assert.deepEqual(readFileSync(path.join(f.root, 'design-system/components/PreviewGlyph/usage.md')), usage);
 });
 
 function fixture(t) {
