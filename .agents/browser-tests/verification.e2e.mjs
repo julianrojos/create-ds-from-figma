@@ -3,6 +3,8 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync, rmSync, readdirSync
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { test } from 'node:test';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import { createServer } from 'node:net';
 import { browserRuntime, repoRoot } from '../scripts/test-kit.mjs';
 import { createPreviewProject } from '../checks/tests/fixtures/preview-project.mjs';
@@ -20,6 +22,23 @@ const executablePath = playwright.chromium.executablePath();
 if (!existsSync(executablePath)) throw new Error('Locked Chromium binary missing. Run npm run test:browser:setup. The real-browser regression is required, not skipped.');
 const output = path.join(repoRoot, 'test-results/browser');
 mkdirSync(output, { recursive: true });
+
+test('Vite logger messages cannot corrupt preview JSON', async t => {
+  const { root, metadataPath } = createPreviewProject({ runtimeModules: path.join(runtime, 'node_modules') });
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  writeFileSync(path.join(root, 'vite.config.mjs'), `export default { plugins: [{ name: 'forced-log', configResolved(c) {
+    c.logger.info('forced optimizer reload'); c.logger.warn('forced warning'); c.logger.error('forced transform diagnostic');
+  } }] };`);
+  const script = `import {startPreview} from ${JSON.stringify(pathToFileURL(path.join(repoRoot, '.agents/skills/create-ds-from-figma/scripts/verification-preview.mjs')).href)};
+    import {rmSync} from 'node:fs';
+    const p = await startPreview(${JSON.stringify(root)}, ${JSON.stringify(metadataPath)}, {viteConfig:'vite.config.mjs',approveConfig:true});
+    try { console.log(JSON.stringify({status:'ready',include:p.server.config.optimizeDeps.include})); } finally { try { await p.server.close(); } finally { rmSync(p.directory,{recursive:true,force:true}); } }`;
+  const child = await promisify(execFile)(process.execPath, ['--input-type=module', '-e', script], { timeout: 30000 });
+  const output = JSON.parse(child.stdout);
+  assert.equal(output.status, 'ready');
+  for (const dependency of ['react', 'react-dom', 'react-dom/client', 'react/jsx-runtime', 'react/jsx-dev-runtime']) assert.ok(output.include.includes(dependency));
+  for (const message of ['forced optimizer reload', 'forced warning', 'forced transform diagnostic']) assert.ok(child.stderr.includes(message), child.stderr);
+});
 
 test('diagnostic import loop detects shared size classes and inverted partial-border pointers without authorizing resources or publishing', async t => {
   const { root, metadataPath } = createPreviewProject({ runtimeModules: path.join(runtime, 'node_modules'), image: { kind: 'unresolved', reason: 'Synthetic resource intentionally unavailable' } });

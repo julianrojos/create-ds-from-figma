@@ -15,6 +15,7 @@ import { verifyTokenStyles } from '../../../checks/lib/token-styles.mjs';
 import { createDependencySession } from '../../../checks/lib/local-dependencies.mjs';
 import { MEASUREMENT_VERSION } from '../../../checks/lib/measurement-version.mjs';
 import { collectCssDiagnostics } from '../../../checks/lib/css-diagnostics.mjs';
+import { previewLogger } from './lib/preview-logger.mjs';
 
 const json = value => JSON.stringify(value).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
 const urlPath = relative => '/' + relative.split('/').map(encodeURIComponent).join('/');
@@ -252,6 +253,8 @@ export async function startPreview(root, metadataPath, { port = 0, directory, vi
     await new Promise((resolve, reject) => reservation.close(error => error ? reject(error) : resolve()));
   }
   const server = await createServer({ root, configFile, appType: 'custom', cacheDir: path.join(directory, 'vite-cache'), esbuild: { jsx: 'automatic' },
+    customLogger: previewLogger(), clearScreen: false,
+    optimizeDeps: { include: ['react', 'react-dom', 'react-dom/client', 'react/jsx-runtime', 'react/jsx-dev-runtime'] },
     server: { host: '127.0.0.1', port: selectedPort, strictPort: true },
     plugins: [{ name: 'ds-verification-preview', resolveId(id) { if (id === '/__ds_verification.tsx') return '\0ds-verification.tsx'; },
       load(id) { if (id === '\0ds-verification.tsx') return module; } }],
