@@ -19,6 +19,7 @@
     "postcss-selector-parser": "7.1.6",
     "postcss-value-parser": "4.2.0",
     "resolve.exports": "2.0.3",
+    "saxes": "6.0.0",
     "typescript": "5.9.3",
     "yaml": "2.9.1"
   }

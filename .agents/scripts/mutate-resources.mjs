@@ -19,7 +19,7 @@ const mutants = [
   [register, 'unrelated-metadata-write', 'const diagnostic = describeResourceMetadata', "next.description = 'Unauthorized mutation'; const diagnostic = describeResourceMetadata"],
   [diagnostic, 'ignore-snapshot-hash', 'if (metadata.evidence.hash !== snapshot.hash)', 'if (false)'],
   [diagnostic, 'ignore-registered-bytes', 'if (sha256(readFileSync(projectFile(root, record.source.path))) !== record.source.sha256)', 'if (false)'],
-  [diagnostic, 'invent-essentiality', "essentiality: 'UNCLASSIFIED'", "essentiality: 'ESSENTIAL'"],
+  [diagnostic, 'invent-essentiality', "essentiality: 'UNCLASSIFIED', cases: { status: 'PENDING', ids: [] }", "essentiality: 'ESSENTIAL', cases: { status: 'PENDING', ids: [] }"],
   [diagnostic, 'invent-image-identity', "const needsCapture = resource.kind === 'image' && !hasImageIdentity(resource);", 'const needsCapture = false;'],
   [diagnostic, 'omit-font-action', '...fonts.map(font =>', '...[].map(font =>'],
   [fonts, 'ignore-font-file', 'face.sources.includes(source) && ', ''],

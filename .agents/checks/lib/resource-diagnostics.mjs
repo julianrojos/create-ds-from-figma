@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { canonicalJson, loadSnapshot } from './figma-evidence.mjs';
 import { projectFile, renderRequirements, sha256 } from './render-plan.mjs';
@@ -8,6 +9,8 @@ import { concreteFontWeight } from './font-weight.mjs';
 
 export const RESOURCE_SCRIPT = '.agents/skills/create-ds-from-figma/scripts/verification-resources.mjs';
 const FINALIZER = '.agents/skills/create-ds-from-figma/scripts/finalize-import.mjs';
+const VECTOR_SCRIPT = '.agents/skills/create-ds-from-figma/scripts/figma-vectors.mjs';
+const VECTOR_TYPES = new Set(['VECTOR', 'BOOLEAN_OPERATION', 'STAR', 'POLYGON', 'LINE']);
 const unique = values => [...new Set(values)].sort();
 const hasImageIdentity = resource => typeof resource.imageHash === 'string' && resource.imageHash.trim().length > 0;
 const identity = resource => resource.kind === 'font' ? resource.id : resource.imageHash;
@@ -45,11 +48,25 @@ export function snapshotResources(capture) {
   }
   const resources = [...requirements.fonts.map(font => describe({ kind: 'font', ...font })),
     ...[...images.values()].map(image => describe({ ...image, observations: unique(image.observations) }))];
-  return { schemaVersion: 1, phase: 'snapshot', resources,
-    nextActions: resources.length ? [{ code: 'REVIEW_OBSERVED_RESOURCES', resources: resources.map(r => r.key),
+  // Vector-like nodes are not resources to authorize but shapes geometry cannot certify: observed here so their original export is not forgotten.
+  const vectors = capture.nodes.filter(node => VECTOR_TYPES.has(node.type)).map(node => ({ kind: 'vector', key: `vector:${capture.source.fileKey}:${node.id}`,
+    node: `${capture.source.fileKey}:${node.id}`, name: node.name, type: node.type, visible: node.properties.visible !== false,
+    variants: variants.filter(variant => variant.nodes.has(node.id)).map(variant => variant.figmaRef), essentiality: 'UNCLASSIFIED',
+    representation: { status: 'UNDETERMINED', reason: 'Geometry checks cannot establish a vector shape; reproduce it from its original Figma SVG export or record an explicit approximation decision.' } }))
+    .sort((a, b) => a.key < b.key ? -1 : a.key > b.key ? 1 : 0);
+  const nextActions = [
+    ...(resources.length ? [{ code: 'REVIEW_OBSERVED_RESOURCES', resources: resources.map(r => r.key),
       prerequisites: ['Decide which observed resources the intended implementation and cases will render; ask together for unresolved authorized sources.'],
       permissions: [], command: null, requiredArguments: [],
-      scope: 'Candidates only; no missing-source or essentiality judgment before a plan exists.' }] : [],
+      scope: 'Candidates only; no missing-source or essentiality judgment before a plan exists.' }] : []),
+    ...(vectors.length ? [{ code: 'EXPORT_VECTOR_SOURCES', resources: vectors.map(v => v.key),
+      prerequisites: ['Export the original SVG of the vectors the intended implementation renders instead of rebuilding them with CSS shapes; an approximation needs an explicit, reviewed decision.',
+        'A connection configuration the user authorized; --approve-connection is never added on the user\'s behalf.'],
+      permissions: ['figma-read', 'temporary-write'],
+      command: { executable: 'node', args: [VECTOR_SCRIPT, 'capture', capture.source.fileKey, capture.source.rootNodeId] },
+      requiredArguments: [{ name: 'connectionConfig', type: 'authorized-connection-config', append: true }],
+      scope: 'Observed vector-like nodes of the snapshot; the export is read-only, immutable once saved and not an authorization or a rendered check.' }] : [])];
+  return { schemaVersion: 1, phase: 'snapshot', resources, vectors, nextActions,
     scope: 'Observed resource candidates, not essential-resource gaps, CSS decisions, file authorization or rendered fidelity.' };
 }
 
@@ -125,6 +142,18 @@ function registration(root, records) {
   } catch (error) { return { status: 'INVALID', reason: error.message }; }
 }
 
+// In the one fill observed so far, Figma's imageHash equals the SHA-1 of the original bytes (it is not documented here as a rule). When
+// they match, the file is that original; when they differ it is not byte-identical (re-encoded, rendered or another image), which says
+// nothing about whether it is acceptable. A hash that is not a SHA-1 digest establishes nothing.
+export function imageProvenance(root, imageHash, sources) {
+  if (typeof imageHash !== 'string' || !/^[0-9a-f]{40}$/.test(imageHash)) return { status: 'UNKNOWN', reason: 'The captured imageHash is not a SHA-1 digest, so file identity cannot be established.' };
+  try {
+    const digests = sources.map(source => createHash('sha1').update(readFileSync(projectFile(root, source.path))).digest('hex'));
+    return digests.every(digest => digest === imageHash) ? { status: 'MATCHES_FIGMA_IMAGE_HASH', sha1: imageHash }
+      : { status: 'DIFFERS_FROM_FIGMA_IMAGE_HASH', sha1: [...new Set(digests)], reason: 'The registered file is not byte-identical to the original fill; it may be a re-encoded or different image. This neither proves nor disproves fidelity.' };
+  } catch (error) { return { status: 'UNKNOWN', reason: error.message }; }
+}
+
 export function inspectResourceMetadata(root, metadataPath) {
   return describeResourceMetadata(root, metadataPath, loadResourceMetadata(root, metadataPath));
 }
@@ -143,6 +172,10 @@ export function describeResourceMetadata(root, metadataPath, { capture, hash, me
       css: resource.kind === 'font' && records[0]?.css ? { status: 'DECLARED', ...records[0].css } : { status: resource.kind === 'font' ? 'PENDING' : 'NOT APPLICABLE' },
       registration: covered ? registration(root, records) : { status: 'PENDING', reason: 'Resource entries are missing or duplicated; complete their observed identities before registration.' },
       ...(resource.kind === 'font' ? { configuration: configuration.configurations.find(c => c.id === resource.id) || resource.configuration } : {}) };
+  }).map(resource => {
+    if (resource.kind !== 'image') return resource;
+    return { ...resource, provenance: resource.registration.status === 'REGISTERED' ? imageProvenance(root, resource.imageHash, resource.registration.sources)
+      : { status: 'NOT APPLICABLE', reason: 'No registered source file to compare.' } };
   });
   const nextActions = resourceNextActions(root, metadataPath, { fonts, assets });
   nextActions.push(...fontConfigurationActions(root, metadataPath, configuration.configurations, metadata));

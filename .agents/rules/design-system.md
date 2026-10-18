@@ -24,6 +24,8 @@ For imported components, run `node .agents/checks/verify-figma-evidence.mjs .` a
 - Read and follow `.agents/rules/design-system-composition.md` and `.agents/rules/design-system-accessibility.md`.
 - Consult `.agents/prop-vocabulary.json` when naming props. Name boolean props as a bare adjective or state (`disabled`, `loading`), never `is*`, `has*` or `show*`, and write props in camelCase.
 - Do not invent a substitute for an unmapped element. Report `DS_GAP` and explain what is missing.
+- Do not rebuild a Figma vector (VECTOR, BOOLEAN_OPERATION, STAR, POLYGON, LINE) with CSS shapes. Reproduce it from its original export (`figma-vectors.mjs`, listed by `requirements` as `vectors`); a CSS approximation is a decision that needs the user's approval and a rendered visual review, because geometry checks cannot see its color, stroke or shape.
+  This is an agent obligation, not an automated check: the current gates do not link an exported SVG to the implementation or verify that it is used.
 - Record only implemented components and screens in `design-system/inventory.json`.
 - Never edit `src/styles/tokens.css` by hand; regenerate it with `node .agents/skills/create-ds-from-figma/scripts/generate-tokens-css.mjs .` after changing token JSON, `figma-state.json` or `externalVariables`.
 - Install the dependencies in `package.json` before running Node checks if they are missing: `verify-ds.mjs` and `verify-bindings.mjs` require PostCSS and postcss-selector-parser; `verify-ds.mjs` and `verify-props.mjs` require TypeScript.

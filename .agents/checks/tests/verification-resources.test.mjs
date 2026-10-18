@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
 import { componentCapture } from './fixtures/component-capture.mjs';
@@ -9,17 +10,17 @@ import { persistCapture } from '../../skills/create-ds-from-figma/scripts/figma-
 import { canonicalJson } from '../lib/figma-evidence.mjs';
 import { renderRequirements, sha256, verifyRenderPlan } from '../lib/render-plan.mjs';
 import { assertConfirmationChecks, compareRendered } from '../lib/render-comparison.mjs';
-import { deduplicateNextActions, inspectResourceMetadata, resourceNextActions, snapshotResources } from '../lib/resource-diagnostics.mjs';
+import { deduplicateNextActions, imageProvenance, inspectResourceMetadata, resourceNextActions, snapshotResources } from '../lib/resource-diagnostics.mjs';
 import { registerResource } from '../../skills/create-ds-from-figma/scripts/verification-resources.mjs';
 import { finalizeImport } from '../../skills/create-ds-from-figma/scripts/finalize-import.mjs';
 import { verifyImports } from '../verify-imports.mjs';
 
-function fixture(t) {
+function fixture(t, imageHash = 'shared-image') {
   const f = createPreviewProject();
   t.after(() => rmSync(f.root, { recursive: true, force: true }));
   const file = path.join(f.root, f.metadataPath), metadata = JSON.parse(readFileSync(file));
   const previous = JSON.parse(readFileSync(path.join(f.root, metadata.evidence.snapshot))).capture;
-  previous.nodes[0].properties.fills = Array.from({ length: 6 }, () => ({ type: 'IMAGE', imageHash: 'shared-image' }));
+  previous.nodes[0].properties.fills = Array.from({ length: 6 }, () => ({ type: 'IMAGE', imageHash }));
   previous.nodes[1].properties.fontName = { family: 'Example', style: 'Regular' };
   const capture = componentCapture({ seeds: previous.nodes });
   const requirements = renderRequirements(capture);
@@ -276,4 +277,45 @@ test('resource registration rejects ranges and invalid requested weights before 
     assert.throws(() => registerResource(f.root, f.metadataPath, 'font', f.fontId, 'src/assets/example font.woff2'), /concrete CSS weight/);
     assert.deepEqual(readFileSync(f.file), before);
   }
+});
+
+test('an image file is identified as the original fill only when its SHA-1 equals the captured imageHash', t => {
+  const bytes = Buffer.from('Synthetic resource bytes, not an actual image'), original = createHash('sha1').update(bytes).digest('hex');
+  const f = fixture(t, original), root = f.root;
+  const provenance = result => result.diagnostic.resources.find(resource => resource.kind === 'image').provenance;
+  assert.equal(inspectResourceMetadata(root, f.metadataPath).resources.find(r => r.kind === 'image').provenance.status, 'NOT APPLICABLE', 'nothing is claimed before a file is registered');
+  const same = registerResource(root, f.metadataPath, 'image', original, 'src/assets/shared.png');
+  assert.deepEqual(provenance(same), { status: 'MATCHES_FIGMA_IMAGE_HASH', sha1: original });
+  writeFileSync(path.join(root, 'src/assets/reexport.png'), 'Re-encoded bytes of the same picture');
+  const other = registerResource(root, f.metadataPath, 'image', original, 'src/assets/reexport.png', { replace: true });
+  assert.equal(provenance(other).status, 'DIFFERS_FROM_FIGMA_IMAGE_HASH');
+  assert.match(provenance(other).reason, /neither proves nor disproves/);
+  assert.equal(other.diagnostic.resources.find(r => r.kind === 'image').registration.status, 'REGISTERED', 'a different file is still registrable: provenance informs, it does not gate');
+  assert.equal(JSON.parse(readFileSync(f.file)).verification.assets[0].source.sha256, sha256(readFileSync(path.join(root, 'src/assets/reexport.png'))), 'nothing about provenance is written to metadata');
+  assert.ok(!JSON.stringify(JSON.parse(readFileSync(f.file))).includes('MATCHES_FIGMA'));
+});
+
+test('identity is unknown unless the captured hash is a SHA-1 digest and every source is readable', t => {
+  const f = fixture(t);
+  assert.equal(imageProvenance(f.root, 'shared-image', [{ path: 'src/assets/shared.png' }]).status, 'UNKNOWN');
+  assert.equal(imageProvenance(f.root, null, []).status, 'UNKNOWN');
+  assert.equal(imageProvenance(f.root, 'a'.repeat(40), [{ path: 'src/assets/missing.png' }]).status, 'UNKNOWN', 'an unreadable file is unknown, never a mismatch');
+  assert.equal(imageProvenance(f.root, 'A'.repeat(40), [{ path: 'src/assets/shared.png' }]).status, 'UNKNOWN', 'only the lowercase digest form is accepted');
+  assert.equal(imageProvenance(f.root, 'a'.repeat(40), [{ path: 'src/assets/shared.png' }, { path: 'src/assets/example font.woff2' }]).status, 'DIFFERS_FROM_FIGMA_IMAGE_HASH');
+});
+
+test('observed vector-like nodes are candidates with an export action, never essential resources or approximations', t => {
+  const f = fixture(t), nodes = structuredClone(f.capture.nodes);
+  const vector = (id, name, type = 'VECTOR', visible = true) => ({ id, parentId: '1:2', type, name, children: [], properties: { visible, width: 8, height: 8 } });
+  nodes[0].children.push('1:5', '1:6', '1:7');
+  const capture = componentCapture({ seeds: [...nodes, vector('1:6', 'Stroke'), vector('1:5', 'Beak', 'BOOLEAN_OPERATION'), vector('1:7', 'Hidden', 'STAR', false)] });
+  const result = snapshotResources(capture);
+  assert.deepEqual(result.vectors.map(v => [v.node, v.type, v.visible]), [['FILE:1:5', 'BOOLEAN_OPERATION', true], ['FILE:1:6', 'VECTOR', true], ['FILE:1:7', 'STAR', false]], 'sorted and including hidden ones');
+  for (const v of result.vectors) { assert.equal(v.essentiality, 'UNCLASSIFIED'); assert.equal(v.representation.status, 'UNDETERMINED'); assert.deepEqual(v.variants, ['FILE:1:2']); }
+  const action = result.nextActions.find(a => a.code === 'EXPORT_VECTOR_SOURCES');
+  assert.deepEqual(action.command.args.slice(1), ['capture', 'FILE', '1:2']); assert.deepEqual(action.requiredArguments.map(a => a.name), ['connectionConfig']);
+  assert.ok(!action.command.args.includes('--approve-connection'), 'approval is never generated for the user');
+  assert.deepEqual(action.permissions, ['figma-read', 'temporary-write']);
+  assert.ok(!result.resources.some(r => r.kind === 'vector'), 'vectors are not resources to authorize');
+  assert.deepEqual(snapshotResources(f.capture).vectors, []); assert.ok(!snapshotResources(f.capture).nextActions.some(a => a.code === 'EXPORT_VECTOR_SOURCES'));
 });
