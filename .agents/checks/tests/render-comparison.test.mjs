@@ -321,3 +321,41 @@ test('an unreadable resolved mode is never replaced by the default; a known expl
   local.capture.nodes[1].properties.explicitVariableModes = { COL: 'dark' };
   assert.equal(compare(local).checks.some(c => c.localModes), false);
 });
+
+test('a part mapped only for other variants is checked for absence when every node of this variant is accounted for', () => {
+  const f = fixture();
+  f.metadata.parts.root.nodes.other = 'FILE:1:9';
+  f.metadata.parts.badge = { nodes: { other: 'FILE:1:9' } };
+  const badge = () => compare(f).checks.filter(c => c.id.endsWith(':badge'));
+  f.measurement.parts.badge = { count: 0, elements: [] };
+  assert.deepEqual(badge().map(c => [c.id, c.status]), [['absence:badge', 'PASS']], 'no element is the demanded absence, not an unknown');
+  const visible = { rect: { x: 0, y: 0, width: 8, height: 8 }, geometry: { visible: true, laidOut: true, axisAligned: true, affine2d: true }, computed: {} };
+  f.measurement.parts.badge = { count: 1, elements: [visible] };
+  const rendered = badge()[0];
+  assert.equal(rendered.status, 'FAIL'); assert.equal(rendered.visible, 1);
+  assert.match(rendered.reason, /case props and content/, 'the message points at the likely cause');
+  f.measurement.parts.badge = { count: 1, elements: [{ ...visible, geometry: { ...visible.geometry, visible: false } }] };
+  assert.equal(badge()[0].status, 'PASS', 'a hidden element is not visibly rendered');
+  f.measurement.parts.badge = { count: 2, elements: [visible] };
+  assert.equal(badge()[0].status, 'NOT RUN', 'malformed measurements are not read as absence');
+  delete f.measurement.parts.badge;
+  assert.equal(badge()[0].status, 'NOT RUN');
+  assert.equal(compareRendered(f.capture, f.metadata, f.configuration, undefined).checks.find(c => c.id === 'absence:badge').status, 'NOT RUN');
+  assert.ok(!compare(f).checks.some(c => c.id === 'geometry:badge'), 'the unknown check is replaced, not duplicated');
+});
+
+test('absence is never concluded without proof: unmapped nodes, open coverage and unresolved variants stay unknown', () => {
+  const unproven = mutate => {
+    const f = fixture();
+    f.metadata.parts.root.nodes.other = 'FILE:1:9'; f.metadata.parts.badge = { nodes: { other: 'FILE:1:9' } };
+    f.measurement.parts.badge = { count: 0, elements: [] };
+    mutate(f);
+    return compare(f).checks.filter(c => c.id.endsWith(':badge'));
+  };
+  const extra = f => { f.capture.nodes.push({ ...structuredClone(f.capture.nodes[1]), id: '1:4', parentId: '1:2', name: 'Unmapped' }); f.capture.nodes[0].children.push('1:4'); };
+  const open = unproven(extra);
+  assert.deepEqual(open.map(c => [c.id, c.status]), [['geometry:badge', 'NOT COMPARABLE']], 'an unmapped node could be the part');
+  assert.deepEqual(unproven(f => { delete f.metadata.parts.root.nodes.default; }).map(c => c.id), ['geometry:badge'], 'a case whose variant is not mapped establishes nothing');
+  assert.deepEqual(unproven(f => { f.metadata.parts.badge = { nodes: {} }; }).map(c => c.id), ['geometry:badge'], 'a part mapped nowhere is a mapping gap');
+  assert.deepEqual(unproven(f => { f.configuration.kind = 'behavior'; }), [], 'behavior cases do not inherit source parts');
+});

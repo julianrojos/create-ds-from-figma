@@ -13,7 +13,7 @@ export function requirePassed(result) {
   renderResultFacts(result);
   for (const check of result.checks) if (check.status !== 'PASS') {
     const pending = ['NOT RUN', 'NOT COMPARABLE'].includes(check.status);
-    throw new Error(`Required behavior blocked: ${check.id} ${check.status}${pending ? '; confirmation pending (NOT VERIFIED), not a demonstrated visual defect' : '; required check failed; inspect its scope before claiming a visual defect'}`);
+    throw new Error(`Required behavior blocked: ${check.id} ${check.status}${pending ? '; confirmation pending (NOT VERIFIED), not a demonstrated visual defect; no review rescues it, so declare the missing expectation or measure again' : '; required check failed; inspect its scope before claiming a visual defect'}`);
   }
 }
 

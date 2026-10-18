@@ -11,6 +11,7 @@ import { browserRuntime } from '../../../scripts/test-kit.mjs';
 import { loadSnapshot } from '../../../checks/lib/figma-evidence.mjs';
 import { essentialAssetGaps, essentialFontGaps } from '../../../checks/lib/resource-gaps.mjs';
 import { deduplicateNextActions, resourceNextActions } from '../../../checks/lib/resource-diagnostics.mjs';
+import { diagnosisActions } from '../../../checks/lib/diagnosis-actions.mjs';
 
 function updatedUsage(original, record) {
   const prose = markdownProse(original);
@@ -91,13 +92,8 @@ export async function finalizeImport(root, metadataPath, { reviews, collect = fa
   } catch (error) { errors.push(error.message); }
   if (diagnose) {
     const failed = errors.length || collection?.execution.status !== 'COMPLETED' || collection?.diagnostics?.summary.FAIL || collection?.diagnostics?.summary['NOT RUN'] || collection?.application.status === 'FAIL' || collection?.application.status === 'NOT RUN';
-    const differences = (collection?.diagnostics?.cases || []).map(c => ({ caseId: c.caseId,
-      checks: c.checks.filter(check => check.status === 'FAIL' && !check.id.startsWith('font:')).map(check => check.id) })).filter(c => c.checks.length);
     return { status: failed ? 'FAIL' : 'NOT VERIFIED', complete: false, errors, diagnosis: collection,
-      nextActions: deduplicateNextActions([...resourceActions, ...(differences.length ? [{ code: 'REVIEW_RENDERED_DIFFERENCES',
-        targets: [metadataPath], cases: differences, permissions: ['project-read', 'browser-execution', 'temporary-write'],
-        reason: 'Inspect observed deltas and resource limitations before attributing a cause. Correct demonstrated implementation defects and repeat the diagnosis.',
-        command: { executable: 'npm', args: ['run', 'finalize:import', '--', root, metadataPath, '--diagnose'] } }] : [])]),
+      nextActions: deduplicateNextActions([...resourceActions, ...diagnosisActions(root, metadataPath, collection?.diagnostics?.cases)]),
       scope: 'Diagnostic feedback on existing code only. No project evidence is published, no reviews are recorded and delivery is not confirmed. Fix observed defects, resolve resources and collect again before delivery.' };
   }
   const delivery = await verifyImports(root, { applicationOptions });

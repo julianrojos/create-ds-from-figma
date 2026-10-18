@@ -6,7 +6,7 @@ import { nodeCoverage } from './node-coverage.mjs';
 export const GEOMETRY_TOLERANCE = 1;
 export const TEXT_METRIC_TOLERANCE = 1;
 export const VECTOR_POSITION_TOLERANCE = 1;
-export const COMPARATOR_VERSION = 'render-comparator-v16';
+export const COMPARATOR_VERSION = 'render-comparator-v17';
 const matrix = m => Array.isArray(m) && m.length === 2 && m.every(row => Array.isArray(row) && row.length === 3 && row.every(Number.isFinite));
 const translationOnly = m => matrix(m) && Math.abs(m[0][0] - 1) < 1e-8 && Math.abs(m[1][1] - 1) < 1e-8 && Math.abs(m[0][1]) < 1e-8 && Math.abs(m[1][0]) < 1e-8;
 const invertible = m => matrix(m) && Math.abs(m[0][0] * m[1][1] - m[0][1] * m[1][0]) > 1e-8;
@@ -112,8 +112,9 @@ export function compareRendered(capture, metadata, configuration, measurement, {
   const checks = [], scope = caseNodes(capture, configuration), sourceRoot = scope.nodes.get(scope.rootId);
   const browserRoot = measurement?.parts?.root?.elements?.[0];
   const add = (id, status, reason, detail = {}) => checks.push({ id, status, reason, ...detail });
+  let coverage;
   if (configuration.kind === 'fidelity') {
-    const coverage = nodeCoverage(metadata, capture, configuration);
+    coverage = nodeCoverage(metadata, capture, configuration);
     for (const [index, reason] of coverage.errors.entries()) add(`coverage:invalid:${index}`, 'FAIL', reason);
     for (const obligation of coverage.pending) add(`coverage:${obligation.node}`, 'NOT RUN', obligation.reason);
   }
@@ -149,6 +150,17 @@ export function compareRendered(capture, metadata, configuration, measurement, {
     if (configuration.kind === 'behavior') continue;
     const id = `geometry:${part}`;
     const refs = [...new Set(variantKeys.map(key => mapping.nodes?.[key]).filter(Boolean))];
+    // A part mapped only for other variants has no source node here when every node of this variant is accounted for: the source
+    // then demands its absence, which is a checkable fact. Without that proof (no variant key, no mapping, open coverage) it stays unknown.
+    if (refs.length === 0 && variantKeys.length && Object.keys(mapping.nodes || {}).length && coverage && !coverage.errors.length && !coverage.pending.length) {
+      const absent = `absence:${part}`;
+      if (!measurement) { add(absent, 'NOT RUN', 'No browser measurement.'); continue; }
+      const seen = measurement.parts?.[part];
+      if (!seen || !Array.isArray(seen.elements) || seen.count !== seen.elements.length) { add(absent, 'NOT RUN', 'Part measurement is missing or malformed.'); continue; }
+      const shown = seen.elements.filter(e => e.geometry?.visible !== false);
+      add(absent, shown.length ? 'FAIL' : 'PASS', 'This variant has no source node for the part, so it must not be visibly rendered; check that the case props and content do not produce it.', { rendered: seen.count, visible: shown.length });
+      continue;
+    }
     if (refs.length !== 1) { add(id, 'NOT COMPARABLE', 'No unique source node for this part and configuration.'); continue; }
     const nodeId = refs[0].slice(capture.source.fileKey.length + 1), node = scope.nodes.get(nodeId);
     if (!refs[0].startsWith(capture.source.fileKey + ':') || !scope.selected.has(nodeId)) { add(id, 'NOT COMPARABLE', 'Part is not inside the examined variant.'); continue; }
@@ -161,7 +173,7 @@ export function compareRendered(capture, metadata, configuration, measurement, {
       add(id, hidden ? 'PASS' : 'FAIL', 'Captured hidden content must not be visibly rendered; DOM absence is not required.');
       continue;
     }
-    if (observed.count !== 1) { add(id, observed.count === 0 ? 'FAIL' : 'NOT COMPARABLE', 'A visible source part requires one unambiguous rendered element.'); continue; }
+    if (observed.count !== 1) { add(id, observed.count === 0 ? 'FAIL' : 'NOT COMPARABLE', observed.count === 0 ? 'A visible source part rendered no element; check that the case props and content produce it and that it carries its data-ds-part.' : 'A visible source part requires one unambiguous rendered element.'); continue; }
     const actual = observed.elements[0];
     if (!['visible', 'laidOut', 'axisAligned'].every(k => typeof actual.geometry?.[k] === 'boolean')) { add(id, 'NOT RUN', 'Rendered visibility and transformation measurements are missing.'); continue; }
     if (actual.geometry?.visible === false || actual.geometry?.laidOut === false) { add(id, 'FAIL', 'Captured visible part is hidden or removed from layout.'); continue; }
