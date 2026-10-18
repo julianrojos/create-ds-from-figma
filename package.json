@@ -6,6 +6,7 @@
     "test:unit": "node .agents/scripts/test-kit.mjs unit",
     "test:resources:mutations": "node .agents/scripts/mutate-resources.mjs",
     "test:inventory:mutations": "node .agents/scripts/mutate-inventory.mjs",
+    "test:diagnosis:mutations": "node .agents/scripts/mutate-diagnosis.mjs",
     "test:browser": "node .agents/scripts/test-kit.mjs browser",
     "test:browser:setup": "node .agents/scripts/setup-browser-tests.mjs",
     "verify:docs": "node .agents/checks/verify-docs.mjs",
