@@ -13,6 +13,8 @@ import { applicationResult } from '../../../checks/lib/application-diagnostics.m
 import { compareRendered, checkSummary } from '../../../checks/lib/render-comparison.mjs';
 import { renderDiagnostics } from '../../../checks/lib/render-diagnostics.mjs';
 import { essentialFontGaps, essentialAssetGaps } from '../../../checks/lib/resource-gaps.mjs';
+import { diagnoseComposition, prepareComposition } from './lib/composition-browser.mjs';
+import { COMPOSITION_SCALE } from '../../../checks/lib/composition-diagnostics.mjs';
 
 export function inspectRunReservation(directory) {
   directory = path.resolve(directory);
@@ -119,6 +121,7 @@ export async function runBrowserVerification(root, metadataPath, { playwright, e
   const manifest = { schemaVersion: 1, cases: [] }, blocked = [];
   let closure, execution = { status: 'NOT RUN', phase: 'static-validation' };
   const measurements = new Map();
+  const compositions = new Map();
   let diagnostics;
   let application = { errors: [], results: [], checks: [], status: 'NOT RUN', reason: 'Application diagnostics were not executed.' };
   try {
@@ -156,7 +159,24 @@ export async function runBrowserVerification(root, metadataPath, { playwright, e
               validateBrowserMeasurement(body, metadata, c);
               validateMeasurementInputs(root, original, metadata, c);
               measurements.set(c.id, { body, receipt, file: state.receipt.file });
-              if (c.kind === 'fidelity') await page.screenshot({ path: path.join(directory, `${c.id}.png`), fullPage: true });
+              if (c.kind === 'fidelity') {
+                await page.screenshot({ path: path.join(directory, `${c.id}.png`), fullPage: true });
+                const prepared = prepareComposition(capture, metadata, c);
+                if (!prepared.plan.groups.length) {
+                  compositions.set(c.id, prepared.result);
+                  continue;
+                }
+                const compositionContext = await browser.newContext({ viewport: c.viewport, deviceScaleFactor: COMPOSITION_SCALE });
+                try {
+                  compositionContext.setDefaultTimeout(timeoutMs);
+                  const sample = await compositionContext.newPage();
+                  await sample.goto(preview.urls.find(u => u.id === c.id).url, { timeout: timeoutMs });
+                  await sample.waitForFunction(() => window.__dsVerification?.status === 'recorded', undefined, { timeout: timeoutMs });
+                  compositions.set(c.id, await diagnoseComposition(sample, capture, metadata, c, { directory }));
+                } catch (error) {
+                  compositions.set(c.id, { status: 'NOT VERIFIED', checks: [{ id: 'composition:collection', status: 'NOT RUN', reason: error.message }] });
+                } finally { await compositionContext.close(); }
+              }
             } else {
               const artifact = publishMeasurement(root, metadata, c.id, receipt);
               manifest.cases.push({ caseId: c.id, artifacts: [artifact] });
@@ -169,9 +189,11 @@ export async function runBrowserVerification(root, metadataPath, { playwright, e
             const measured = measurements.get(c.id);
             if (measured) validateMeasurementInputs(root, JSON.parse(readFileSync(measured.receipt, 'utf8')), metadata, c);
             const comparison = compareRendered(capture, metadata, c, measured?.body, { baselineMeasurement: measurements.get(c.baseline)?.body });
-            diagnostics.cases.push({ caseId: c.id, kind: c.kind, ...(measured ? { file: measured.file, receipt: measured.receipt } : {}), ...comparison, diagnostics: renderDiagnostics(comparison) });
+            diagnostics.cases.push({ caseId: c.id, kind: c.kind, ...(measured ? { file: measured.file, receipt: measured.receipt } : {}), ...comparison, diagnostics: renderDiagnostics(comparison),
+              ...(compositions.has(c.id) ? { composition: compositions.get(c.id) } : {}) });
           }
           diagnostics.summary = checkSummary(diagnostics.cases.flatMap(c => c.checks));
+          diagnostics.compositionSummary = checkSummary([...compositions.values()].flatMap(c => c.checks));
         }
         const diagnosticContext = await browser.newContext();
         try {

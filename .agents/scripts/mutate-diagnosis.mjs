@@ -12,10 +12,23 @@ const svgSafety = '.agents/checks/lib/svg-safety.mjs';
 const pixels = '.agents/checks/lib/pixel-residual.mjs';
 const pixelCli = '.agents/skills/create-ds-from-figma/scripts/pixel-diagnose.mjs';
 const vectorCli = '.agents/skills/create-ds-from-figma/scripts/figma-vectors.mjs';
+const composition = '.agents/checks/lib/composition-diagnostics.mjs';
 runMutations({ root, name: 'diagnosis',
-  tests: ['.agents/checks/tests/render-comparison.test.mjs', '.agents/checks/tests/diagnosis-actions.test.mjs', '.agents/checks/tests/verification-resources.test.mjs', '.agents/checks/tests/vector-export.test.mjs', '.agents/checks/tests/pixel-residual.test.mjs', '.agents/checks/tests/svg-safety.test.mjs'],
-  scope: 'Targeted absence, next-action, image-provenance, vector-export, SVG-safety and pixel-residual regressions, not exhaustive mutation coverage or real Figma fidelity.',
+  tests: ['.agents/checks/tests/render-comparison.test.mjs', '.agents/checks/tests/diagnosis-actions.test.mjs', '.agents/checks/tests/verification-resources.test.mjs', '.agents/checks/tests/vector-export.test.mjs', '.agents/checks/tests/pixel-residual.test.mjs', '.agents/checks/tests/svg-safety.test.mjs', '.agents/checks/tests/composition-diagnostics.test.mjs'],
+  scope: 'Targeted absence, next-action, image-provenance, vector-export, SVG-safety, pixel-residual and experimental composition regressions, not exhaustive mutation coverage or real Figma fidelity.',
   mutants: [
+    [composition, 'composition-reintroduces-excluded-counter', 'indeterminate: 0, nonOpaque: 0', 'indeterminate: 0, excluded: 0'],
+    [actions, 'composition-drops-unrun-retry', ".filter(check => check.status === 'NOT RUN')", '.filter(() => false)'],
+    [composition, 'composition-ignores-reversed-order', '(reverse ? -1 : 1)', '1'],
+    [composition, 'composition-one-background-is-opaque', 'equal(colors[j], color(b, i))', 'true'],
+    [composition, 'composition-same-colors-conclusive', 'opaque.some((v, k) => k !== j && v && equal(colors[j], colors[k]))', 'false'],
+    [composition, 'composition-ignores-legitimate-cover', 'if (above.length)', 'if (false)'],
+    [composition, 'composition-suppresses-occlusion', "status = c.occludedByLower ? 'FAIL'", "status = false ? 'FAIL'"],
+    [composition, 'composition-ignores-excluded-regions', 'blocked = excluded.some', 'blocked = [].some'],
+    [composition, 'composition-ignores-source-opacity', 'p.opacity !== undefined && p.opacity !== 1', 'false'],
+    [composition, 'composition-loses-visible-ink-over-lower-antialiasing', '!above.length && !translucentAbove && equal(composed, colors[j])', 'false'],
+    [composition, 'composition-visible-through-opaque-upper-paint', '!above.length && !translucentAbove', '!translucentAbove'],
+    [composition, 'composition-visible-through-translucent-upper-paint', '!above.length && !translucentAbove', '!above.length'],
     [comparison, 'absence-without-coverage', '&& coverage && !coverage.errors.length && !coverage.pending.length', '&& true'],
     [comparison, 'absence-for-unmapped-part', "&& Object.keys(mapping.nodes || {}).length && coverage", '&& coverage'],
     [comparison, 'visible-part-passes-absence', "shown.length ? 'FAIL' : 'PASS'", "'PASS'"],

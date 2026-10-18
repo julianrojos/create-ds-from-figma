@@ -91,7 +91,7 @@ export async function finalizeImport(root, metadataPath, { reviews, collect = fa
     if (reviews !== undefined) correspondences = recordImportReviews(root, metadataPath, reviews);
   } catch (error) { errors.push(error.message); }
   if (diagnose) {
-    const failed = errors.length || collection?.execution.status !== 'COMPLETED' || collection?.diagnostics?.summary.FAIL || collection?.diagnostics?.summary['NOT RUN'] || collection?.application.status === 'FAIL' || collection?.application.status === 'NOT RUN';
+    const failed = errors.length || collection?.execution.status !== 'COMPLETED' || collection?.diagnostics?.summary.FAIL || collection?.diagnostics?.summary['NOT RUN'] || collection?.diagnostics?.compositionSummary?.FAIL || collection?.diagnostics?.compositionSummary?.['NOT RUN'] || collection?.application.status === 'FAIL' || collection?.application.status === 'NOT RUN';
     return { status: failed ? 'FAIL' : 'NOT VERIFIED', complete: false, errors, diagnosis: collection,
       nextActions: deduplicateNextActions([...resourceActions, ...diagnosisActions(root, metadataPath, collection?.diagnostics?.cases)]),
       scope: 'Diagnostic feedback on existing code only. No project evidence is published, no reviews are recorded and delivery is not confirmed. Fix observed defects, resolve resources and collect again before delivery.' };

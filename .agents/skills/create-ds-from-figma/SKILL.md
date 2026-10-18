@@ -304,6 +304,14 @@ Tras importar un componente, añade su nombre a `design-system/inventory.json` s
 
 Si la petición principal es implementar una pantalla desde un frame, sigue `.agents/workflows/build-from-figma.md`, no este procedimiento de importación. Si el usuario pide «crea un DS» con una URL que resulta ser un frame o pantalla, aplica la tabla del preanálisis: `DS_GAP` sin escribir; no cambies automáticamente al workflow.
 
+## Diagnóstico Experimental De Composición
+
+Un timeout de captura o fallo técnico de guardado/restauración también produce NOT RUN y reintento. No lo confundas con una abstención conocida del modelo: conserva los motivos y artefactos parciales; si falla la restauración, los checks de ese grupo no acreditan PASS.
+
+Si compositionSummary contiene NOT RUN, --diagnose falla y RETRY_COMPOSITION_DIAGNOSTICS conserva caso/check/motivo técnico: resuelve el error y repite con los permisos necesarios, sin tratarlo como diferencia visual. NOT COMPARABLE es abstención, no reintento obligatorio. nonOpaque cuenta píxeles sin tinta opaca; las regiones excluidas con tinta opaca cuentan como indeterminate. temporary-read permite leer los artefactos existentes, sin escribir ni lanzar navegador; las acciones solo declaran requisitos, no conceden autorización.
+
+Revisa diagnostics.compositionSummary y cases[].composition en --diagnose: la tinta aislada/compuesta puede detectar un trazo tapado aunque la geometría pase. REVIEW_COMPOSITION_DIAGNOSTICS requiere examinar las capturas temporales y el balance de píxeles antes de corregir. Solo compara formas hoja hermanas inequívocas, con orden fuente legible, aislamiento estable y tinta opaca distinguible; texto, ambigüedad, filtros y translucidez no se fuerzan a PASS. Un PASS no acredita máscaras/mezclas de origen no capturadas ni fidelidad general. Esta salida no se publica ni sustituye checkReviews o la revisión visual real; no afirmes haber visto un borde por pasar geometría o composición.
+
 ## Prohibido
 
 - Rellenar plantillas o el DS generado con un DS de ejemplo

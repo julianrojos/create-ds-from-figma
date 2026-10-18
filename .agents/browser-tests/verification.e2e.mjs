@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, readFileSync, writeFileSync, rmSync, readdirSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync, rmSync, readdirSync } from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { test } from 'node:test';
@@ -15,6 +16,9 @@ import { persistCapture } from '../skills/create-ds-from-figma/scripts/figma-cap
 import { verifyImports } from '../checks/verify-imports.mjs';
 import { diagnoseApplication } from '../checks/lib/application-diagnostics.mjs';
 import { finalizeImport } from '../skills/create-ds-from-figma/scripts/finalize-import.mjs';
+import { diagnoseComposition } from '../skills/create-ds-from-figma/scripts/lib/composition-browser.mjs';
+import { compositionFixture } from '../checks/tests/fixtures/composition-fixture.mjs';
+import { diagnosisActions } from '../checks/lib/diagnosis-actions.mjs';
 
 const runtime = browserRuntime();
 const playwright = await import(pathToFileURL(path.join(runtime, 'node_modules/playwright/index.mjs')).href);
@@ -23,7 +27,7 @@ if (!existsSync(executablePath)) throw new Error('Locked Chromium binary missing
 const output = path.join(repoRoot, 'test-results/browser');
 mkdirSync(output, { recursive: true });
 
-test('Vite logger messages cannot corrupt preview JSON', async t => {
+test('Vite logger messages cannot corrupt preview JSON and ineligible composition never opens a 4x context', async t => {
   const { root, metadataPath } = createPreviewProject({ runtimeModules: path.join(runtime, 'node_modules') });
   t.after(() => rmSync(root, { recursive: true, force: true }));
   writeFileSync(path.join(root, 'vite.config.mjs'), `export default { plugins: [{ name: 'forced-log', configResolved(c) {
@@ -38,6 +42,85 @@ test('Vite logger messages cannot corrupt preview JSON', async t => {
   assert.equal(output.status, 'ready');
   for (const dependency of ['react', 'react-dom', 'react-dom/client', 'react/jsx-runtime', 'react/jsx-dev-runtime']) assert.ok(output.include.includes(dependency));
   for (const message of ['forced optimizer reload', 'forced warning', 'forced transform diagnostic']) assert.ok(child.stderr.includes(message), child.stderr);
+  const contexts = [];
+  const instrumented = { chromium: { launch: async options => {
+    const browser = await playwright.chromium.launch(options);
+    return { newContext: options => { contexts.push(options); return browser.newContext(options); }, close: () => browser.close() };
+  } } };
+  const result = await runBrowserVerification(root, metadataPath, { playwright: instrumented, executablePath, diagnostic: true });
+  t.after(() => rmSync(result.directory, { recursive: true, force: true }));
+  assert.equal(result.execution.status, 'COMPLETED', JSON.stringify(result));
+  assert.ok(!contexts.some(c => c?.deviceScaleFactor === 4));
+  const composition = result.diagnostics.cases.find(c => c.kind === 'fidelity').composition;
+  assert.deepEqual(composition.artifacts, []); assert.deepEqual(composition.groups, []);
+  assert.ok(composition.checks.some(c => c.status === 'NOT COMPARABLE'));
+});
+
+test('real composition diagnostic finds occluded rotated ink and abstains on ambiguity without changing the page', async t => {
+  const browser = await playwright.chromium.launch({ headless: true, executablePath });
+  t.after(() => browser.close());
+  const directory = mkdtempSync(path.join(os.tmpdir(), 'composition-browser-test-'));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  const run = async (id, { css = '', markup = '', strokeContent = '', screenshotFailure = false, mutate = () => {} } = {}) => {
+    const context = await browser.newContext({ viewport: { width: 320, height: 240 }, deviceScaleFactor: 4 });
+    try {
+      const page = await context.newPage(), f = compositionFixture(); mutate(f);
+      await page.setContent(`<style>body{margin:0;background:#fff}.root{position:relative;margin:32px;width:100px;height:100px;background:white}.fill,.stroke,.cover{position:absolute;left:30px;top:30px;width:24px;height:24px;transform:rotate(45deg);box-sizing:border-box}.fill{background:#fff;z-index:2}.stroke{border:solid #d9d9d9;border-width:0 2px 2px 0;z-index:1}${css}</style><div id="component"><div class="root" data-ds-part="root"><span class="fill" data-ds-part="fill"></span><span class="stroke" data-ds-part="stroke">${strokeContent}</span>${markup}</div></div>`);
+      const bodyMarkup = () => page.evaluate(() => { const e = document.body.cloneNode(true); if (!e.getAttribute('style')) e.removeAttribute('style'); return e.outerHTML; });
+      const before = await bodyMarkup();
+      const bounds = () => page.locator('[data-ds-part]').evaluateAll(elements => elements.map(e => { const r = e.getBoundingClientRect(); return [r.x, r.y, r.width, r.height]; }));
+      const beforeBounds = await bounds();
+      let shots = 0;
+      const sampledPage = screenshotFailure ? { evaluate: page.evaluate.bind(page), screenshot: async options => {
+        if (++shots === 2) throw new Error('Synthetic screenshot timeout during isolation');
+        return page.screenshot(options);
+      } } : page;
+      const result = await diagnoseComposition(sampledPage, f.capture, f.metadata, { ...f.configuration, id }, { directory });
+      assert.equal(await bodyMarkup(), before, 'isolation restores original inline properties and elements (Chromium may retain an empty style attribute)');
+      if (screenshotFailure) assert.deepEqual(await bounds(), beforeBounds, 'a screenshot error cannot leave the page layout modified');
+      for (const artifact of result.artifacts) assert.equal(sha256(readFileSync(artifact.path)), artifact.sha256);
+      return result;
+    } finally { await context.close(); }
+  };
+  const broken = await run('inverted');
+  const stroke = broken.checks.find(c => c.part === 'stroke');
+  assert.equal(stroke.status, 'FAIL', JSON.stringify(broken));
+  assert.ok(stroke.counts.occludedByLower > 0); assert.equal(stroke.counts.visible, 0);
+  assert.ok(broken.artifacts.length >= 6); assert.ok(broken.groups[0].geometryAndStylesUnchanged);
+  const fixed = await run('correct', { css: '.stroke{z-index:3}' });
+  const corrected = fixed.checks.find(c => c.part === 'stroke');
+  assert.equal(corrected.status, 'PASS', JSON.stringify(fixed));
+  assert.equal(corrected.counts.occludedByLower, 0); assert.equal(corrected.counts.visible, corrected.counts.opaque);
+  const antialiased = await run('opaque-over-antialiased-lower', { css: '.fill{transform:none;border-radius:50%}.stroke{transform:none;background:#d9d9d9;border:0;z-index:3}' });
+  const upper = antialiased.checks.find(c => c.part === 'stroke');
+  assert.equal(upper.status, 'PASS', JSON.stringify(antialiased));
+  assert.equal(upper.counts.visible, upper.counts.opaque); assert.equal(upper.counts.indeterminate, 0);
+  for (const [id, options] of [
+    ['opacity', { css: '.stroke{opacity:.5}' }],
+    ['ancestor-filter', { css: '.root{filter:blur(1px)}' }],
+    ['same-color', { css: '.stroke{border-color:white}' }],
+    ['duplicate', { markup: '<span data-ds-part="stroke"></span>' }],
+    ['shared-source', { mutate: f => { f.metadata.parts.stroke.nodes.default = 'FILE:1:3'; } }],
+    ['descendant', { strokeContent: '<span></span>' }],
+    ['visibility-override', { css: '#component .root .fill{visibility:visible!important}' }],
+    ['leaf-shadow', { css: '.stroke{box-shadow:0 0 1px black}' }],
+    ['pseudo', { css: '.stroke::before{content:"";position:absolute;background:red;width:2px;height:2px}' }],
+    ['drift', { css: 'body[style] .stroke{left:31px}' }],
+  ]) {
+    const result = await run(id, options);
+    assert.ok(!result.checks.some(c => c.status === 'FAIL'), JSON.stringify(result));
+    assert.equal(result.checks.find(c => c.part === 'stroke').status, 'NOT COMPARABLE', id);
+  }
+  const covered = await run('legitimate-cover', { css: '.cover{background:#00f;z-index:4}', markup: '<span class="cover" data-ds-part="cover"></span>', mutate: f => {
+    const shape = structuredClone(f.capture.nodes[2]); shape.id = '1:5';
+    f.capture.nodes.push(shape); f.capture.nodes[0].children.push('1:5');
+    f.metadata.parts.cover = { nodes: { default: 'FILE:1:5' } };
+  } });
+  assert.ok(!covered.checks.some(c => c.status === 'FAIL'), JSON.stringify(covered));
+  assert.ok(covered.checks.find(c => c.part === 'stroke').counts.legitimatelyCovered > 0);
+  const unrun = await run('screenshot-error', { screenshotFailure: true });
+  assert.ok(unrun.checks.every(c => c.status === 'NOT RUN' && /screenshot timeout during isolation/.test(c.reason)), JSON.stringify(unrun));
+  assert.equal(unrun.artifacts.length, 1); assert.deepEqual(unrun.groups, []);
 });
 
 test('diagnostic import loop detects shared size classes and inverted partial-border pointers without authorizing resources or publishing', async t => {
@@ -96,6 +179,89 @@ test('diagnostic import loop detects shared size classes and inverted partial-bo
   assert.ok(corrected.checks.some(c => c.id.startsWith('font:') && c.status === 'FAIL'));
   assert.equal(fixed.status, 'FAIL'); assert.equal(fixed.complete, false);
   assert.deepEqual(fixed.diagnosis.manifest.cases, []); assert.deepEqual(tree(), fixedBytes);
+});
+
+test('finalize diagnosis exposes composition failures without publishing or changing the project', async t => {
+  const { root, metadataPath } = createPreviewProject({ runtimeModules: path.join(runtime, 'node_modules') });
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const metadata = JSON.parse(readFileSync(path.join(root, metadataPath)));
+  const { capture: original } = JSON.parse(readFileSync(path.join(root, metadata.evidence.snapshot)));
+  const seeds = original.nodes.map(({ id, parentId, type, name, children, properties }) => structuredClone({ id, parentId, type, name, children, properties }));
+  Object.assign(seeds[0].properties, { layoutMode: 'NONE', opacity: 1, effects: [] });
+  for (const [id, part] of [['1:4', 'fill'], ['1:5', 'stroke']]) {
+    seeds[0].children.push(id);
+    seeds.push({ id, name: part, parentId: '1:2', type: 'VECTOR', children: [], properties: { visible: true, opacity: 1, effects: [], fills: [], strokes: [], width: 8, height: 8,
+      absoluteBoundingBox: { x: 118, y: 142, width: 12, height: 12 }, absoluteTransform: [[1, 0, 118], [0, 1, 142]] } });
+    metadata.parts[part] = { selector: `.${part}`, nodes: { default: `FILE:${id}` } };
+  }
+  Object.assign(metadata.evidence, persistCapture(root, componentCapture({ seeds })));
+  writeFileSync(path.join(root, metadataPath), JSON.stringify(metadata));
+  writeFileSync(path.join(root, 'src/PreviewGlyph.tsx'), 'import s from "./PreviewGlyph.module.css"; export function PreviewGlyph({initial}:{initial:string}){return <span data-ds-part="root" className={s.root}><span data-ds-part="initial" className={s.initial}>{initial}</span><span data-ds-part="fill" className={s.fill}/><span data-ds-part="stroke" className={s.stroke}/></span>}');
+  const style = path.join(root, 'src/PreviewGlyph.module.css');
+  writeFileSync(style, readFileSync(style, 'utf8').replace('border: 1px solid black;', 'border: none;') + '.root{position:relative}.fill,.stroke{position:absolute;left:18px;top:42px;width:8px;height:8px;transform:rotate(45deg);box-sizing:border-box}.fill{background:white;z-index:2}.stroke{border:solid #d9d9d9;border-width:0 1px 1px 0;z-index:1}');
+  const before = [metadataPath, 'src/PreviewGlyph.tsx', 'src/PreviewGlyph.module.css', 'design-system/components/PreviewGlyph/usage.md'].map(f => [f, sha256(readFileSync(path.join(root, f)))]);
+  const result = await finalizeImport(root, metadataPath, { diagnose: true });
+  t.after(() => rmSync(result.diagnosis.directory, { recursive: true, force: true }));
+  assert.equal(result.status, 'FAIL', JSON.stringify(result)); assert.equal(result.complete, false);
+  assert.ok(result.diagnosis.diagnostics.compositionSummary.FAIL > 0, JSON.stringify(result.diagnosis));
+  assert.ok(result.nextActions.some(a => a.code === 'REVIEW_COMPOSITION_DIAGNOSTICS'));
+  assert.deepEqual(result.diagnosis.manifest.cases, []);
+  assert.equal(existsSync(path.join(root, 'design-system/verification')), false);
+  for (const [file, hash] of before) assert.equal(sha256(readFileSync(path.join(root, file))), hash);
+  writeFileSync(style, readFileSync(style, 'utf8') + '.fill,.stroke{left:20px;top:44px}.stroke{z-index:3}');
+  const component = path.join(root, 'src/PreviewGlyph.tsx');
+  writeFileSync(component, readFileSync(component, 'utf8').replace('{return <span', '{if(window.devicePixelRatio===4)throw new Error("Synthetic composition page unavailable");return <span'));
+  const unrun = await finalizeImport(root, metadataPath, { diagnose: true, browserOptions: { timeoutMs: 5000 } });
+  t.after(() => rmSync(unrun.diagnosis.directory, { recursive: true, force: true }));
+  assert.equal(unrun.diagnosis.execution.status, 'COMPLETED', JSON.stringify(unrun));
+  assert.equal(unrun.diagnosis.diagnostics.summary.FAIL, 0, JSON.stringify(unrun.diagnosis.diagnostics));
+  assert.equal(unrun.diagnosis.diagnostics.summary['NOT RUN'], 0);
+  assert.equal(unrun.diagnosis.diagnostics.compositionSummary['NOT RUN'], 1);
+  assert.equal(unrun.status, 'FAIL'); assert.equal(unrun.complete, false);
+  const retry = unrun.nextActions.find(a => a.code === 'RETRY_COMPOSITION_DIAGNOSTICS');
+  assert.equal(retry.cases[0].caseId, 'source-0');
+  assert.equal(retry.cases[0].checks[0].id, 'composition:collection');
+  assert.equal(retry.cases[0].checks[0].status, 'NOT RUN');
+  assert.ok(retry.cases[0].checks[0].reason);
+  assert.ok(!unrun.nextActions.some(a => a.code === 'REVIEW_COMPOSITION_DIAGNOSTICS'));
+  assert.deepEqual(unrun.diagnosis.manifest.cases, []);
+  assert.equal(existsSync(path.join(root, 'design-system/verification')), false);
+  writeFileSync(component, readFileSync(component, 'utf8').replace('if(window.devicePixelRatio===4)throw new Error("Synthetic composition page unavailable");', ''));
+  const files = [metadataPath, 'src/PreviewGlyph.tsx', 'src/PreviewGlyph.module.css', 'design-system/components/PreviewGlyph/usage.md'];
+  const initialHashes = files.map(file => sha256(readFileSync(path.join(root, file))));
+  let initialReads = 0, compositionCaptures = 0, compositionClosed = false;
+  // Fail the first diagnostic evaluate only; normal measurement and 4x mounting still use Chromium.
+  const failingInitialRead = { chromium: { launch: async options => {
+    const browser = await playwright.chromium.launch(options);
+    return { close: () => browser.close(), newContext: async options => {
+      const context = await browser.newContext(options);
+      if (options?.deviceScaleFactor !== 4) return context;
+      return { setDefaultTimeout: context.setDefaultTimeout.bind(context), close: async () => { await context.close(); compositionClosed = true; }, newPage: async () => {
+        const page = await context.newPage();
+        return { goto: page.goto.bind(page), waitForFunction: page.waitForFunction.bind(page), evaluate: async operation => {
+          initialReads++;
+          assert.match(operation.toString(), /document\.body\.getAttribute\('style'\)/);
+          throw new Error('Synthetic initial body read failed');
+        }, screenshot: async () => { compositionCaptures++; throw new Error('Unexpected composition capture'); } };
+      } };
+    } };
+  } } };
+  const initialFailure = await runBrowserVerification(root, metadataPath, { playwright: failingInitialRead, executablePath, diagnostic: true });
+  t.after(() => rmSync(initialFailure.directory, { recursive: true, force: true }));
+  assert.equal(initialFailure.execution.status, 'COMPLETED', JSON.stringify(initialFailure));
+  assert.equal(initialFailure.diagnostics.summary.FAIL, 0); assert.equal(initialFailure.diagnostics.summary['NOT RUN'], 0);
+  assert.equal(initialFailure.diagnostics.compositionSummary['NOT RUN'], 1);
+  const failedCase = initialFailure.diagnostics.cases.find(c => c.caseId === 'source-0');
+  assert.deepEqual(failedCase.composition.checks, [{ id: 'composition:collection', status: 'NOT RUN', reason: 'Synthetic initial body read failed' }]);
+  const actions = diagnosisActions(root, metadataPath, initialFailure.diagnostics.cases);
+  assert.deepEqual(actions.map(a => a.code), ['RETRY_COMPOSITION_DIAGNOSTICS']);
+  assert.equal(actions[0].cases[0].caseId, 'source-0');
+  assert.equal(actions[0].cases[0].checks[0].reason, 'Synthetic initial body read failed');
+  assert.equal(initialReads, 1); assert.equal(compositionCaptures, 0); assert.equal(compositionClosed, true);
+  assert.ok(!readdirSync(initialFailure.directory).some(name => name.startsWith('composition-')));
+  assert.deepEqual(files.map(file => sha256(readFileSync(path.join(root, file)))), initialHashes);
+  assert.deepEqual(initialFailure.manifest.cases, []);
+  assert.equal(existsSync(path.join(root, 'design-system/verification')), false);
 });
 
 test('a clean temporary diagnosis never confirms or publishes a candidate', async t => {
