@@ -19,6 +19,7 @@ export function captureHash(capture) {
 
 export function captureProblems(capture) {
   const errors = [];
+  if (Array.isArray(capture?.nodes) && !capture.nodes.length) return ['Empty capture: no nodes; no component evidence can be verified. Run an authorized capture, never create a placeholder snapshot.'];
   if (capture?.schemaVersion !== 2 || capture.source?.collector !== 'capture-figma-v2' || capture.source?.api !== 'PLUGIN' ||
       !capture.source?.fileKey || !capture.source?.rootNodeId || !Array.isArray(capture.nodes) ||
       !Array.isArray(capture.observations) || !Array.isArray(capture.variants) || !Array.isArray(capture.collections) ||
@@ -84,24 +85,45 @@ export function sealCapture(capture, capturedAt = new Date().toISOString()) {
   return { schemaVersion: 1, capturedAt, hash: captureHash(capture), capture };
 }
 
+function snapshotFailure(kind, message) {
+  return Object.assign(new Error(message), { captureDiagnostic: { kind, reason: message } });
+}
+
 function validateSnapshot(snapshot) {
-  if (snapshot.schemaVersion !== 1 || !/^\d{4}-\d{2}-\d{2}T/.test(snapshot.capturedAt || '') || snapshot.hash !== captureHash(snapshot.capture)) throw new Error('Snapshot envelope or SHA-256 mismatch');
-  const errors = captureProblems(snapshot.capture);
-  if (errors.length) throw new Error(errors.join('; '));
+  if (snapshot && typeof snapshot.schemaVersion === 'number' && snapshot.schemaVersion !== 1) throw snapshotFailure('INCOMPATIBLE', 'Incompatible snapshot envelope version; use the current authorized collector, without rewriting historical evidence.');
+  if (!snapshot || snapshot.schemaVersion !== 1 || !/^\d{4}-\d{2}-\d{2}T/.test(snapshot.capturedAt || '') || !snapshot.capture || snapshot.hash !== captureHash(snapshot.capture)) throw snapshotFailure('CORRUPT', 'Snapshot envelope or SHA-256 mismatch; restore the retained original before considering a new capture.');
+  let errors;
+  try { errors = captureProblems(snapshot.capture); }
+  catch (error) { throw snapshotFailure('CORRUPT', `Malformed captured data: ${error.message}`); }
+  if (errors.length) {
+    const empty = Array.isArray(snapshot.capture.nodes) && !snapshot.capture.nodes.length;
+    const incompatible = errors.some(e => e === 'Invalid capture schema' || e === 'Capture profile differs from collector version');
+    throw snapshotFailure(empty ? 'EMPTY' : incompatible ? 'INCOMPATIBLE' : 'CORRUPT', `${empty ? '' : incompatible ? 'Incompatible capture: ' : 'Corrupt capture: '}${errors.join('; ')}`);
+  }
   return snapshot;
 }
 
 export function loadSnapshot(root, relative, { evidenceSession } = {}) {
   if (typeof relative !== 'string' || !relative.startsWith('design-system/figma/snapshots/') || path.isAbsolute(relative) || relative.split(/[\\/]/).includes('..')) throw new Error('Invalid snapshot path');
-  const base = realpathSync(root);
-  const full = realpathSync(path.resolve(base, relative));
-  if (!full.startsWith(base + path.sep)) throw new Error('Snapshot escapes project root');
-  if (evidenceSession) {
-    const session = evidenceSessionFor(root, { evidenceSession }), record = session.read(relative, { allowOverrides: false });
-    return session.memo(`snapshot:${relative}`, record.hash, () => validateSnapshot(record.value));
+  try {
+    const base = realpathSync(root);
+    const full = realpathSync(path.resolve(base, relative));
+    if (!full.startsWith(base + path.sep)) throw new Error('Snapshot escapes project root');
+    if (evidenceSession) {
+      const session = evidenceSessionFor(root, { evidenceSession }), record = session.read(relative, { allowOverrides: false });
+      return session.memo(`snapshot:${relative}`, record.hash, () => validateSnapshot(record.value));
+    }
+    const snapshot = JSON.parse(readFileSync(full, 'utf8'));
+    return validateSnapshot(snapshot);
+  } catch (error) {
+    if (error.captureDiagnostic) throw error;
+    if (error instanceof SyntaxError) throw snapshotFailure('CORRUPT', `Snapshot JSON is corrupt: ${error.message}`);
+    if (['ENOENT', 'ENOTDIR', 'EACCES', 'EPERM', 'EISDIR'].includes(error.code)) {
+      error.captureDiagnostic = { kind: 'UNREADABLE', reason: `Snapshot cannot be read (${error.code}): ${relative}. Inspect existence, permissions and the retained original; absence is not an empty capture.` };
+      error.message = `${error.captureDiagnostic.reason} ${error.message}`;
+    }
+    throw error;
   }
-  const snapshot = JSON.parse(readFileSync(full, 'utf8'));
-  return validateSnapshot(snapshot);
 }
 
 export const CLASSIFICATION_RULES = [

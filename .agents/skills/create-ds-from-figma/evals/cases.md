@@ -2,6 +2,14 @@
 
 Estos casos describen decisiones observables, no sustituyen una ejecución real con Figma. Para cada prueba, registra la URL, refs consultados, diagnóstico, archivos modificados y resultados de los checks. Ejecútalos en una rama que el usuario haya seleccionado; no cambies de rama por cuenta del kit.
 
+## Recuperación De Capturas Y Serializaciones
+
+- Captura vacía, perfil incompatible, JSON/sello corrupto y archivo ilegible producen motivos y acciones distintos, también con la sesión de evidencia reutilizada. Nunca se completa evidencia a mano ni se sobrescribe historia; restaurar bytes originales y realizar una captura autorizada nueva son recuperaciones distintas.
+- Una captura inválida bloquea la recogida, no oculta el diagnóstico independiente de la demo ni las acciones de serialización. El diagnóstico temporal no publica, restaura ni modifica archivos.
+- FLOAT pendiente referenciado por bindings, CSS, objetos inline literales o alias: acción con variable, ficha y referencias, sin inventar unidad. Una mera declaración de alias no demuestra consumo. Pendientes sin referencias identificadas conservan su nivel de aviso; lectura fallida o análisis dinámico no equivale a sin uso.
+- Estos fixtures y mutaciones prueban orientación y bloqueo, no autenticidad del transporte ni fidelidad frente a Figma.
+- Un alias inline no usado no origina accion FLOAT; uno consumido sigue su cadena local y conserva la ubicacion consumidora. Nombres iguales en objetos distintos no contaminan una cadena local resuelta. Un consumidor externo identificado mantiene el diagnostico con aviso de correspondencia/herencia no verificada.
+
 ## Delegación Con Diferencias Visuales
 
 - Padre sintético con instancia mapped de un hijo cuyo icono cambia de variable de trazo, sin cambiar geometría. Fills puede ser same y binding/stroke difference: no se clasifica todo el nodo por una propiedad.

@@ -238,6 +238,8 @@ Antes del TSX, completa también `metadata.verification` según `references/comp
 
 ## Tokens (inventario file-level)
 
+Si el gate o finalize:import devuelven RESOLVE_FLOAT_SERIALIZATION, revisa sus variables, fichas y referencias y registra solo decisiones respaldadas por evidencia o criterio expreso del usuario. No asignes px por defecto ni uses generate-token-json save como si decidiera unidades. Consumo PARTIAL/UNKNOWN exige revisar los avisos: ausencia de referencias identificadas no significa sin uso. Ante OBTAIN_VALID_CAPTURE o RESTORE_OR_INSPECT_CAPTURE, sigue el motivo: restaura el original histórico si existe o pide transporte autorizado para una nueva captura y persistencia explícita; nunca inventes snapshots, observaciones ni hashes. El diagnóstico de la aplicación es independiente del bloqueo.
+
 El inventario de tokens es siempre a **nivel de file**, no del nodo del componente. En el preanálisis se lee sin escribir; tras superar el diagnóstico se persiste.
 
 1. El colector de inventario lista **todas** las colecciones locales mediante `figma.variables.getLocalVariableCollectionsAsync()`; no transcribas la respuesta.

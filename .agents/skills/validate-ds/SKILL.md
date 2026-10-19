@@ -10,6 +10,8 @@ description: >-
 
 # Validate Design System Compliance
 
+Read importDiagnostics/nextActions even when snapshot validation fails. RESOLVE_FLOAT_SERIALIZATION lists local pending FLOAT variables and identified references, not inferred units. Dynamic or unreadable analysis remains partial/unknown, never proof of non-use. Capture recovery distinguishes empty/incompatible captures from damaged or unreadable historical originals: inspect/restore the original or request an authorized new capture, never patch hashes or invent evidence. These actions do not authorize writes during standalone validation and do not disable independent application diagnostics.
+
 If an explicitly supplied sealed file-level inventory is available, `node .agents/skills/create-ds-from-figma/scripts/generate-token-json.mjs check . --inventory INVENTORY` compares observed token facts without writing. Retained records are separate from matches; hash and origin do not authenticate Figma or prove current presence. Do not discover an inventory automatically or claim this check ran when no path was supplied. This does not replace existing token, binding or rendered checks.
 
 ## Goal

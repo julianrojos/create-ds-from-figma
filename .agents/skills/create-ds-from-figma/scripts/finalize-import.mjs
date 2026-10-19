@@ -15,6 +15,7 @@ import { diagnosisActions } from '../../../checks/lib/diagnosis-actions.mjs';
 import { delegationDifferences, delegationNextActions } from '../../../checks/lib/delegation-differences.mjs';
 import { mappedDelegations } from '../../../checks/verify-figma-evidence.mjs';
 import { createEvidenceSession } from '../../../checks/lib/evidence-session.mjs';
+import { importDiagnostics } from '../../../checks/lib/import-diagnostics.mjs';
 
 function updatedUsage(original, record) {
   const prose = markdownProse(original);
@@ -76,7 +77,8 @@ export function recordImportReviews(root, metadataPath, reviews) {
 export async function finalizeImport(root, metadataPath, { reviews, collect = false, diagnose = false, browserOptions, applicationOptions } = {}) {
   let collection, correspondences;
   const errors = [];
-  let resourceActions = [];
+  const inputDiagnostics = importDiagnostics(root, { metadataPath });
+  let resourceActions = [...inputDiagnostics.nextActions];
   try {
     const map = JSON.parse(readFileSync(projectFile(root, 'design-system/relationships/figma-code-map.json')));
     if (Object.entries(map).filter(([key, entry]) => !key.startsWith('_') && entry?.designSystem?.metadata === metadataPath).length !== 1) throw new Error('Finalization requires one mapped component metadata path');
@@ -86,7 +88,7 @@ export async function finalizeImport(root, metadataPath, { reviews, collect = fa
     if (collect || diagnose) {
       const metadata = JSON.parse(readFileSync(projectFile(root, metadataPath)));
       const { capture } = loadSnapshot(root, metadata.evidence.snapshot), gaps = essentialFontGaps(capture, metadata), images = essentialAssetGaps(capture, metadata);
-      resourceActions = resourceNextActions(root, metadataPath, { fonts: gaps, assets: images });
+      resourceActions.push(...resourceNextActions(root, metadataPath, { fonts: gaps, assets: images }));
       resourceActions.push(...delegationNextActions(metadataPath, delegationDifferences(capture, metadata, mappedDelegations(root, metadata)).records));
       if (!diagnose && (gaps.length || images.length)) throw new Error(`DS_GAP: request authorized sources for essential resources: ${[...gaps.map(gap => `font ${gap.font.family} ${gap.font.style} (${gap.css?.weight || 'weight unresolved'})`), ...images.map(gap => `image ${gap.observation}[${gap.index}]`)].join(', ')}. Use --diagnose only for temporary feedback on an existing implementation; do not invent a font package or substitute an image.`);
       const runtime = browserRuntime();
@@ -97,7 +99,7 @@ export async function finalizeImport(root, metadataPath, { reviews, collect = fa
   } catch (error) { errors.push(error.message); }
   if (diagnose) {
     const failed = errors.length || collection?.execution.status !== 'COMPLETED' || collection?.diagnostics?.summary.FAIL || collection?.diagnostics?.summary['NOT RUN'] || collection?.diagnostics?.compositionSummary?.FAIL || collection?.diagnostics?.compositionSummary?.['NOT RUN'] || collection?.application.status === 'FAIL' || collection?.application.status === 'NOT RUN';
-    return { status: failed ? 'FAIL' : 'NOT VERIFIED', complete: false, errors, diagnosis: collection,
+    return { status: failed ? 'FAIL' : 'NOT VERIFIED', complete: false, errors, diagnosis: collection, importDiagnostics: inputDiagnostics,
       nextActions: deduplicateNextActions([...resourceActions, ...diagnosisActions(root, metadataPath, collection?.diagnostics?.cases)]),
       scope: 'Diagnostic feedback on existing code only. No project evidence is published, no reviews are recorded and delivery is not confirmed. Fix observed defects, resolve resources and collect again before delivery.' };
   }
