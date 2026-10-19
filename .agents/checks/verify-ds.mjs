@@ -14,7 +14,9 @@ import { isPortableTokenFileName, tokenFileKey } from "./lib/token-file-name.mjs
 import { verifyFigmaEvidence } from './verify-figma-evidence.mjs';
 import { verifyRenderPlans } from './verify-render-plan.mjs';
 import { verifyCorrespondences, correspondenceSummary } from './lib/correspondences.mjs';
+import { evidenceSessionFor } from './lib/evidence-session.mjs';
 import { createDependencySession } from './lib/local-dependencies.mjs';
+import { caseNodes } from './lib/render-comparison.mjs';
 
 const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 const isText = (value) => typeof value === "string" && value.trim().length > 0;
@@ -115,7 +117,9 @@ function staticJsxParts(source, fileName) {
   return { parts, hasSyntaxErrors: tree.parseDiagnostics.length > 0 };
 }
 
-export function verify(root, { metadataOverrides = new Map(), visualSummaries = new Map() } = {}) {
+export function verify(root, { metadataOverrides, visualSummaries = new Map(), delegationSummaries = new Map(), evidenceSession: providedSession } = {}) {
+  metadataOverrides ??= providedSession?.metadataOverrides ?? new Map();
+  const correspondenceResults = new Map();
   const errors = [];
   const warnings = [];
   const fail = (message) => errors.push(message);
@@ -146,6 +150,7 @@ export function verify(root, { metadataOverrides = new Map(), visualSummaries = 
   const state = readJson("design-system/relationships/figma-state.json");
   if (!isObject(map) || !isObject(state)) return { errors, warnings };
   const dependencySession = createDependencySession(root);
+  const evidenceSession = evidenceSessionFor(root, { evidenceSession: providedSession, metadataOverrides });
   if (!isObject(state.components)) fail("figma-state.json: components must be an object");
 
   const entries = Object.entries(map).filter(([key]) => !key.startsWith("_"));
@@ -200,7 +205,8 @@ export function verify(root, { metadataOverrides = new Map(), visualSummaries = 
       for (const { line, kind } of usagePlaceholders(usage)) {
         fail(`${name}: ${entry.designSystem.usage}:${line} still holds a ${kind}; fill it in or remove it`);
       }
-      const correspondences = verifyCorrespondences(root, metadata, usage, markdownProse(usage), { style: entry.code.style, metadataPath: entry.designSystem.metadata, dependencySession });
+      const correspondences = verifyCorrespondences(root, metadata, usage, markdownProse(usage), { style: entry.code.style, metadataPath: entry.designSystem.metadata, dependencySession, evidenceSession, metadataOverrides });
+      correspondenceResults.set(entry.designSystem.metadata, correspondences.current);
       visualSummaries.set(name, correspondenceSummary(metadata, correspondences));
       for (const error of correspondences.errors) fail(`${name}: ${entry.designSystem.usage}: ${error}`);
       for (const warning of correspondences.warnings) warn(`${name}: ${entry.designSystem.usage}: ${warning}`);
@@ -916,12 +922,25 @@ export function verify(root, { metadataOverrides = new Map(), visualSummaries = 
     }
   }
   const contexts = new Map();
-  const evidence = verifyFigmaEvidence(root, { contexts, metadataOverrides });
+  const evidence = verifyFigmaEvidence(root, { contexts, metadataOverrides, evidenceSession });
+  for (const [key, context] of contexts) {
+    const metadataPath = context.entry.designSystem.metadata, records = context.result.review.delegationDifferences;
+    const confirmed = new Set((correspondenceResults.get(metadataPath) || []).filter(c => c.status === 'confirmed').map(c => c.caseId));
+    const scopes = (Array.isArray(context.metadata.verification?.cases) ? context.metadata.verification.cases : [])
+      .filter(c => c?.kind === 'fidelity').map(c => ({ id: c.id, nodes: typeof c.figmaRef === 'string' ? caseNodes(context.capture, c).selected : new Set() }));
+    const pendingRecords = records.filter(record => {
+      if (record.status !== 'difference' || record.treatment?.treatment !== 'implemented') return true;
+      const node = record.instance.slice(context.capture.source.fileKey.length + 1);
+      const applicable = scopes.filter(scope => scope.nodes.has(node));
+      return !applicable.length || applicable.some(scope => !confirmed.has(scope.id));
+    });
+    delegationSummaries.set(key, { metadataPath, records, pendingRecords });
+  }
   for (const error of evidence.errors) {
     if (!errors.includes(error)) errors.push(error);
   }
   warnings.push(...evidence.warnings);
-  const renderPlans = verifyRenderPlans(root, { contexts, dependencySession });
+  const renderPlans = verifyRenderPlans(root, { contexts, dependencySession, evidenceSession, metadataOverrides });
   for (const error of renderPlans.errors) if (!errors.includes(error)) errors.push(error);
   warnings.push(...renderPlans.warnings);
   return { errors, warnings };

@@ -16,6 +16,7 @@ import { createDependencySession } from '../../../checks/lib/local-dependencies.
 import { MEASUREMENT_VERSION } from '../../../checks/lib/measurement-version.mjs';
 import { collectCssDiagnostics } from '../../../checks/lib/css-diagnostics.mjs';
 import { previewLogger } from './lib/preview-logger.mjs';
+import { evidenceSessionFor } from '../../../checks/lib/evidence-session.mjs';
 
 const json = value => JSON.stringify(value).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
 const urlPath = relative => '/' + relative.split('/').map(encodeURIComponent).join('/');
@@ -202,18 +203,20 @@ export function receiptHandler({ session, directory, manifest, cases, currentFil
   };
 }
 
-export async function startPreview(root, metadataPath, { port = 0, directory, viteConfig, approveConfig = false } = {}) {
+export async function startPreview(root, metadataPath, { port = 0, directory, viteConfig, approveConfig = false, evidenceSession: providedSession } = {}) {
   if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error('Invalid port');
   root = path.resolve(root);
   if (viteConfig && !approveConfig) throw new Error('Explicit configuration review and --approve-config are required');
   const configFile = viteConfig ? projectFile(root, viteConfig) : false;
-  const metadata = JSON.parse(readFileSync(projectFile(root, metadataPath), 'utf8'));
-  const snapshot = loadSnapshot(root, metadata.evidence.snapshot);
+  const evidenceSession = evidenceSessionFor(root, { evidenceSession: providedSession });
+  const metadata = evidenceSession.json(metadataPath);
+  const snapshot = loadSnapshot(root, metadata.evidence.snapshot, { evidenceSession });
   if (snapshot.hash !== metadata.evidence.hash) throw new Error('Metadata snapshot hash mismatch');
-  const map = JSON.parse(readFileSync(projectFile(root, 'design-system/relationships/figma-code-map.json'), 'utf8'));
+  const map = evidenceSession.json('design-system/relationships/figma-code-map.json');
   const entry = Object.entries(map).find(([key, value]) => !key.startsWith('_') && value?.designSystem?.metadata === metadataPath)?.[1];
   if (!entry || entry.code?.path !== metadata.code.path || entry.code?.component !== metadata.code.component) throw new Error('Preview metadata must belong to the component map');
-  const mappedComponents = mappedComponentsOf(root, Object.entries(map).filter(([k]) => !k.startsWith('_')));
+  const names = new Set((metadata.evidence?.dispositions || []).filter(d => d.kind === 'delegated').map(d => d.resolvedComponent));
+  const mappedComponents = names.size ? mappedComponentsOf(root, Object.entries(map).filter(([k]) => !k.startsWith('_')), { evidenceSession, names }) : [];
   const evidence = verifyEvidence(metadata, snapshot.capture, { mappedComponents });
   const plan = verifyRenderPlan(root, metadata, snapshot.capture, { delegations: evidence.review.delegations, reserved: [entry.designSystem?.usage] });
   const dependencySession = createDependencySession(root);
@@ -233,7 +236,7 @@ export async function startPreview(root, metadataPath, { port = 0, directory, vi
   const session = randomBytes(32).toString('hex');
   directory ||= mkdtempSync(path.join(os.tmpdir(), 'ds-verification-'));
   mkdirSync(directory, { recursive: true });
-  const scopedCases = metadata.verification.cases.map(c => [c, caseInputs(root, metadata, c, entry.code.style, { dependencySession })]);
+  const scopedCases = metadata.verification.cases.map(c => [c, caseInputs(root, metadata, c, entry.code.style, { dependencySession, evidenceSession })]);
   const casePaths = new Map(scopedCases.map(([c, scoped]) => [c.id, [...new Set([metadataPath, ...(viteConfig ? [viteConfig] : []), ...scoped.files])].sort()]));
   const inputs = [...new Set([...casePaths.values()].flat())].sort();
   const initialHashes = new Map(inputs.map(file => [file, sha256(readFileSync(projectFile(root, file)))]));

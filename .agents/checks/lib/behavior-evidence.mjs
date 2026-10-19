@@ -26,7 +26,7 @@ export function deriveBehaviorEvidence(root, metadata, baseline, artifacts, deci
     if (Object.keys(decision).some(k => !['caseId', 'artifact'].includes(k)) || decision.artifact?.kind !== 'browser-measurement') throw new Error('Behavior evidence accepts only caseId and a browser-measurement artifact');
     const artifact = readArtifact(root, decision.artifact, metadata, configuration, { ...options, derive: true });
     const inputs = caseInputs(root, metadata, configuration, undefined, options);
-    const renderChecks = renderedChecks(root, metadata, configuration, [artifact], { baselineMeasurement: body });
+    const renderChecks = renderedChecks(root, metadata, configuration, [artifact], { ...options, baselineMeasurement: body });
     requirePassed(renderChecks);
     return { caseId: configuration.id, configuration: structuredClone(configuration), metadataHash: inputs.metadataHash,
       files: inputs.files.map(file => ({ path: file, sha256: sha256(readFileSync(projectFile(root, file))) })), artifact, renderChecks };
@@ -44,7 +44,7 @@ export function verifyBehaviorEvidence(root, metadata, historical, report, optio
     seen.add(record.caseId);
     requirePassed(record.renderChecks);
     if (record.artifact?.kind !== 'browser-measurement' || !/^[a-f0-9]{64}$/.test(record.artifact.sha256 || '')) throw new Error('Behavior needs a hashed published browser measurement');
-    readArtifact(root, record.artifact, historical, configuration, { checkCurrentInputs: false });
+    readArtifact(root, record.artifact, historical, configuration, { ...options, checkCurrentInputs: false });
     const files = new Set(), localStale = [];
     for (const file of record.files) {
       if (!file || typeof file.path !== 'string' || files.has(file.path) || !/^[a-f0-9]{64}$/.test(file.sha256 || '')) throw new Error('Unique behavior input paths and hashes required');
@@ -64,7 +64,7 @@ export function verifyBehaviorEvidence(root, metadata, historical, report, optio
       catch (error) { if (error instanceof StaleEvidenceError || error instanceof UnverifiedEvidenceError) localStale.push(error.message); else throw error; }
     }
     if (!localStale.length) {
-      const result = renderedChecks(root, metadata, current, [record.artifact], { baselineMeasurement: base });
+      const result = renderedChecks(root, metadata, current, [record.artifact], { ...options, baselineMeasurement: base });
       if (canonicalJson(renderResultFacts(result)) !== canonicalJson(renderResultFacts(record.renderChecks))) throw new Error('Recorded behavior checks differ from recomputed measurements');
       requirePassed(result);
     }

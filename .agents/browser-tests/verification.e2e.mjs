@@ -19,6 +19,7 @@ import { finalizeImport } from '../skills/create-ds-from-figma/scripts/finalize-
 import { diagnoseComposition } from '../skills/create-ds-from-figma/scripts/lib/composition-browser.mjs';
 import { compositionFixture } from '../checks/tests/fixtures/composition-fixture.mjs';
 import { diagnosisActions } from '../checks/lib/diagnosis-actions.mjs';
+import { createDelegationProject } from '../checks/tests/fixtures/delegation-project.mjs';
 
 const runtime = browserRuntime();
 const playwright = await import(pathToFileURL(path.join(runtime, 'node_modules/playwright/index.mjs')).href);
@@ -26,6 +27,32 @@ const executablePath = playwright.chromium.executablePath();
 if (!existsSync(executablePath)) throw new Error('Locked Chromium binary missing. Run npm run test:browser:setup. The real-browser regression is required, not skipped.');
 const output = path.join(repoRoot, 'test-results/browser');
 mkdirSync(output, { recursive: true });
+
+test('real delegated instance diagnostics block undeclared differences and keep implementations pending specific review', async t => {
+  const f = createDelegationProject({ runtimeModules: path.join(runtime, 'node_modules') });
+  t.after(() => rmSync(f.root, { recursive: true, force: true }));
+  f.write('src/PreviewGlyph.tsx', 'import s from "./PreviewGlyph.module.css"; import {Child} from "./Child"; export function PreviewGlyph(){return <span data-ds-part="root" className={s.root}><span data-ds-part="remove" className={s.remove}><Child/></span></span>}');
+  f.write('src/PreviewGlyph.module.css', '.root{display:block;position:relative;width:48px;height:48px}.remove{display:block;position:absolute;left:8px;top:8px;width:16px;height:16px}');
+  f.write('src/Child.tsx', 'export function Child(){return <span style={{display:"block",width:16,height:16}}><span style={{display:"block",margin:4,width:8,height:8,backgroundColor:"#1a1a1a"}}/></span>}');
+  const differences = structuredClone(f.metadata.evidence.dispositions[0].differences);
+  f.metadata.evidence.dispositions[0].differences = []; f.write(f.metadataPath, f.metadata);
+  const blocked = await runBrowserVerification(f.root, f.metadataPath, { playwright, executablePath, diagnostic: true });
+  t.after(() => rmSync(blocked.directory, { recursive: true, force: true }));
+  assert.equal(blocked.execution.phase, 'static-validation');
+  assert.ok(blocked.closure.failures.some(f => /Undeclared delegation difference/.test(f.reason)));
+  f.metadata.evidence.dispositions[0].differences = differences; f.write(f.metadataPath, f.metadata);
+  const files = [f.metadataPath, f.childPath, 'src/PreviewGlyph.tsx', 'src/PreviewGlyph.module.css', 'src/Child.tsx'];
+  const before = files.map(file => sha256(readFileSync(path.join(f.root, file))));
+  const measured = await runBrowserVerification(f.root, f.metadataPath, { playwright, executablePath, diagnostic: true });
+  t.after(() => rmSync(measured.directory, { recursive: true, force: true }));
+  assert.equal(measured.execution.status, 'COMPLETED', JSON.stringify(measured));
+  assert.equal(measured.diagnostics.summary.FAIL, 0); assert.equal(measured.diagnostics.summary['NOT RUN'], 0);
+  const check = measured.diagnostics.cases[0].checks.find(c => c.id === differences[0].id);
+  assert.equal(check.status, 'NOT COMPARABLE');
+  assert.ok(diagnosisActions(f.root, f.metadataPath, measured.diagnostics.cases).some(a => a.code === 'REVIEW_DELEGATION_DIFFERENCE'));
+  assert.deepEqual(measured.manifest.cases, []); assert.equal(existsSync(path.join(f.root, 'design-system/verification')), false);
+  assert.deepEqual(files.map(file => sha256(readFileSync(path.join(f.root, file)))), before);
+});
 
 test('Vite logger messages cannot corrupt preview JSON and ineligible composition never opens a 4x context', async t => {
   const { root, metadataPath } = createPreviewProject({ runtimeModules: path.join(runtime, 'node_modules') });

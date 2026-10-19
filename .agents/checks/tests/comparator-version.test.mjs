@@ -6,7 +6,8 @@ import { MEASUREMENT_VERSION } from '../lib/measurement-version.mjs';
 import { ruleFingerprint } from './fixtures/rule-fingerprint.mjs';
 
 const comparator = [{ file: new URL('../lib/render-comparison.mjs', import.meta.url), names: ['compareRendered', 'renderResultFacts', 'assertConfirmationChecks'] },
-  { file: new URL('../lib/css-diagnostics.mjs', import.meta.url), names: ['collectCssDiagnostics', 'compareCssDiagnostics'] }];
+  { file: new URL('../lib/css-diagnostics.mjs', import.meta.url), names: ['collectCssDiagnostics', 'compareCssDiagnostics'] },
+  { file: new URL('../lib/comparison-evidence.mjs', import.meta.url), names: ['caseInputs'] }];
 const measurement = [{ file: new URL('../../skills/create-ds-from-figma/scripts/verification-preview.mjs', import.meta.url), names: ['previewModule', 'receiptHandler'] }];
 const versions = {
   comparator: {
@@ -25,6 +26,8 @@ const versions = {
     'render-comparator-v15': 'b9abb88fa8be5834bb17969f724d076c713d836a7272141e43537502684373a0',
     'render-comparator-v16': 'b37715259fd0ce14e9c4c7d3fd2f13d457aa1d42f77fe18638462a9398d462cf',
     'render-comparator-v17': '0673c45f540d7409cd59e5447483ab185c43c42167b73b6b58876af953eab8b5',
+    'render-comparator-v18': '387e1be5de325964b46ff83a0e25bba96c4f1ea075ac6a855ffca1962ca04186',
+    'render-comparator-v19': '751d8dbb7d6e66c622344315b09310471632c63d06014ff603a389f4e26595e9',
   },
   measurement: {
     'measurement-rules-v1': 'c5fc3f91d47851f0db30839789f3dbbf18c3eae6aee8c936342c6a2e93462a99',
@@ -57,6 +60,9 @@ test('the comparator guard follows requirements, dimension rules and canonicaliz
   assert.notEqual(altered(comparator, 'figma-dimensions.mjs', "let behavior = 'unknown'", "let behavior = 'fixed'"), result.hash);
   assert.notEqual(altered(comparator, 'render-comparison.mjs', 'GEOMETRY_TOLERANCE = 1', 'GEOMETRY_TOLERANCE = 2'), result.hash);
   assert.notEqual(altered(comparator, 'behavior-comparison.mjs', 'delta > tolerance', 'delta >= tolerance'), result.hash);
+  assert.ok(result.declarations.some(d => d.endsWith('delegation-differences.mjs#delegationChecks')));
+  assert.ok(result.declarations.some(d => d.endsWith('verify-figma-evidence.mjs#mappedComponentsOf')));
+  assert.notEqual(altered(comparator, 'delegation-differences.mjs', "record.treatment?.treatment === 'implemented' ? 'NOT COMPARABLE'", "record.treatment?.treatment === 'implemented' ? 'PASS'"), result.hash);
   assert.equal(altered(comparator, 'render-plan.mjs', 'verification.geometryPolicy must be mapped-layout-v1', 'Unrelated validation wording'), result.hash);
   assert.equal(altered(comparator, 'render-comparison.mjs', "'NOT RUN', 'No browser measurement.'", "'NOT RUN', 'Reworded diagnostic.'"), result.hash);
 });

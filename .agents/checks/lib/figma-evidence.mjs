@@ -3,6 +3,8 @@ import { realpathSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { captureProfile, extractObservations } from '../../skills/create-ds-from-figma/scripts/lib/capture-figma.mjs';
 import { verifyTextDimensions } from './figma-dimensions.mjs';
+import { delegationDifferences } from './delegation-differences.mjs';
+import { evidenceSessionFor } from './evidence-session.mjs';
 
 export function canonicalJson(value) {
   if (Array.isArray(value)) return '[' + value.map(canonicalJson).join(',') + ']';
@@ -82,16 +84,24 @@ export function sealCapture(capture, capturedAt = new Date().toISOString()) {
   return { schemaVersion: 1, capturedAt, hash: captureHash(capture), capture };
 }
 
-export function loadSnapshot(root, relative) {
-  if (typeof relative !== 'string' || !relative.startsWith('design-system/figma/snapshots/') || path.isAbsolute(relative) || relative.split(/[\\/]/).includes('..')) throw new Error('Invalid snapshot path');
-  const base = realpathSync(root);
-  const full = realpathSync(path.resolve(base, relative));
-  if (!full.startsWith(base + path.sep)) throw new Error('Snapshot escapes project root');
-  const snapshot = JSON.parse(readFileSync(full, 'utf8'));
+function validateSnapshot(snapshot) {
   if (snapshot.schemaVersion !== 1 || !/^\d{4}-\d{2}-\d{2}T/.test(snapshot.capturedAt || '') || snapshot.hash !== captureHash(snapshot.capture)) throw new Error('Snapshot envelope or SHA-256 mismatch');
   const errors = captureProblems(snapshot.capture);
   if (errors.length) throw new Error(errors.join('; '));
   return snapshot;
+}
+
+export function loadSnapshot(root, relative, { evidenceSession } = {}) {
+  if (typeof relative !== 'string' || !relative.startsWith('design-system/figma/snapshots/') || path.isAbsolute(relative) || relative.split(/[\\/]/).includes('..')) throw new Error('Invalid snapshot path');
+  const base = realpathSync(root);
+  const full = realpathSync(path.resolve(base, relative));
+  if (!full.startsWith(base + path.sep)) throw new Error('Snapshot escapes project root');
+  if (evidenceSession) {
+    const session = evidenceSessionFor(root, { evidenceSession }), record = session.read(relative, { allowOverrides: false });
+    return session.memo(`snapshot:${relative}`, record.hash, () => validateSnapshot(record.value));
+  }
+  const snapshot = JSON.parse(readFileSync(full, 'utf8'));
+  return validateSnapshot(snapshot);
 }
 
 export const CLASSIFICATION_RULES = [
@@ -176,6 +186,9 @@ export function variantAxes(capture) {
 export function verifyEvidence(metadata, capture, { mappedComponents = [] } = {}) {
   const errors = [], warnings = [];
   const review = { literals: [], translations: [], manualDecisions: [], delegations: [], inheritedModes: [], textDimensions: [] };
+  const delegated = delegationDifferences(capture, metadata, mappedComponents);
+  errors.push(...delegated.errors);
+  review.delegationDifferences = delegated.records;
   const source = capture.source;
   if (metadata.figma?.fileKey !== source.fileKey || metadata.figma?.nodeId !== source.rootNodeId) errors.push('Metadata root differs from snapshot');
   const nodes = new Map(capture.nodes.map(n => [source.fileKey + ':' + n.id, n]));
@@ -272,7 +285,8 @@ export function verifyEvidence(metadata, capture, { mappedComponents = [] } = {}
         dimensionDelegations.set(d.instance, new Set([...descendants].map(id => source.fileKey + ':' + id)));
         for (const o of capture.observations) if (descendants.has(o.node) && ['binding', 'style'].includes(o.kind)) accounted.add(o.id);
         review.delegations.push({ index, instance: d.instance, resolvedComponent: d.resolvedComponent, descendants: descendants.size });
-        warnings.push(`Delegation ${index}: mapped identity and configuration checked; descendant overrides and rendering NOT VERIFIED`);
+        const pending = delegated.records.filter(r => r.instance === d.instance && !['same', 'not applicable'].includes(r.status));
+        if (pending.length) warnings.push(`Delegation ${index}: ${pending.length} property differences or unresolved comparisons; rendering NOT VERIFIED`);
       }
       continue;
     }

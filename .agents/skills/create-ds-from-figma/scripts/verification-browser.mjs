@@ -15,6 +15,8 @@ import { renderDiagnostics } from '../../../checks/lib/render-diagnostics.mjs';
 import { essentialFontGaps, essentialAssetGaps } from '../../../checks/lib/resource-gaps.mjs';
 import { diagnoseComposition, prepareComposition } from './lib/composition-browser.mjs';
 import { COMPOSITION_SCALE } from '../../../checks/lib/composition-diagnostics.mjs';
+import { mappedDelegations } from '../../../checks/verify-figma-evidence.mjs';
+import { createEvidenceSession } from '../../../checks/lib/evidence-session.mjs';
 
 export function inspectRunReservation(directory) {
   directory = path.resolve(directory);
@@ -38,12 +40,13 @@ export function inspectRunReservation(directory) {
 
 export async function calibrateTypography(root, metadataPath, fonts, { playwright, executablePath, port = 0 } = {}) {
   if (!Array.isArray(fonts) || !fonts.length || fonts.some(f => !f || !['family', 'weight', 'style', 'path'].every(k => typeof f[k] === 'string' && f[k].trim()) || !path.isAbsolute(f.path) || !['normal', 'italic', 'oblique'].includes(f.style))) throw new Error('Calibration needs explicit font descriptors and absolute font file paths');
-  const metadata = JSON.parse(readFileSync(projectFile(root, metadataPath), 'utf8'));
-  const { capture } = loadSnapshot(root, metadata.evidence.snapshot);
+  const evidenceSession = createEvidenceSession(root);
+  const metadata = evidenceSession.json(metadataPath);
+  const { capture } = loadSnapshot(root, metadata.evidence.snapshot, { evidenceSession });
   const sources = fonts.map(f => ({ ...f, sha256: sha256(readFileSync(f.path)), bytes: readFileSync(f.path) }));
   let preview, browser;
   try {
-    preview = await startPreview(root, metadataPath, { port });
+    preview = await startPreview(root, metadataPath, { port, evidenceSession });
     browser = await playwright.chromium.launch({ headless: true, ...(executablePath ? { executablePath } : {}), timeout: 20000 });
     const samples = [];
     for (const c of metadata.verification.cases.filter(c => c.kind === 'fidelity')) {
@@ -79,7 +82,7 @@ export async function calibrateTypography(root, metadataPath, fonts, { playwrigh
       } finally { await context.close(); }
     }
     if (!samples.length) throw new Error('No exact comparable text samples were collected');
-    const inputs = [...new Set([metadataPath, ...metadata.verification.cases.filter(c => c.kind === 'fidelity').flatMap(c => caseInputs(root, metadata, c).files)])].sort();
+    const inputs = [...new Set([metadataPath, ...metadata.verification.cases.filter(c => c.kind === 'fidelity').flatMap(c => caseInputs(root, metadata, c, undefined, { evidenceSession }).files)])].sort();
     return { schemaVersion: 1, snapshotHash: metadata.evidence.hash, browser: await browser.version(), devicePixelRatio: 1,
       inputs: inputs.map(file => ({ path: file, sha256: sha256(readFileSync(projectFile(root, file))) })),
       fonts: sources.map(({ family, weight, style, path: file, sha256 }) => ({ family, weight, style, file: path.basename(file), sha256 })), samples,
@@ -122,21 +125,23 @@ export async function runBrowserVerification(root, metadataPath, { playwright, e
   let closure, execution = { status: 'NOT RUN', phase: 'static-validation' };
   const measurements = new Map();
   const compositions = new Map();
+  let evidenceSession;
   let diagnostics;
   let application = { errors: [], results: [], checks: [], status: 'NOT RUN', reason: 'Application diagnostics were not executed.' };
   try {
     try {
-      closure = closeVerification(root, metadataPath, manifest);
+      evidenceSession = createEvidenceSession(root);
+      closure = closeVerification(root, metadataPath, manifest, { evidenceSession });
       if (closure.state === 'failed') {
         execution.reason = 'Static preflight failed; browser collection was not started. See closure failures and pending measurements.';
       } else {
-        const metadata = JSON.parse(readFileSync(projectFile(root, metadataPath), 'utf8'));
-        const { capture } = loadSnapshot(root, metadata.evidence.snapshot);
+        const metadata = evidenceSession.json(metadataPath);
+        const { capture } = loadSnapshot(root, metadata.evidence.snapshot, { evidenceSession });
         if (diagnostic) diagnostics = { complete: false, cases: [], summary: checkSummary([]),
           resources: { fonts: essentialFontGaps(capture, metadata), assets: essentialAssetGaps(capture, metadata) },
           scope: 'Temporary observations, never publication or confirmation. Missing resources can affect geometry; numeric deltas do not identify their cause.' };
         execution.phase = 'preview';
-        preview = await startPreview(root, metadataPath, { port, ...(diagnostic ? { directory } : {}) });
+        preview = await startPreview(root, metadataPath, { port, evidenceSession, ...(diagnostic ? { directory } : {}) });
         if (diagnostic) diagnostics.warnings = preview.warnings;
         execution.phase = 'browser-launch';
         browser = await playwright.chromium.launch({ headless: true, ...(executablePath ? { executablePath } : {}), timeout: timeoutMs });
@@ -157,7 +162,7 @@ export async function runBrowserVerification(root, metadataPath, { playwright, e
               if (original.body.sha256 !== sha256(bytes) || original.body.bytes !== bytes.length || original.inputsUnchangedSinceStart !== true || original.viewportMatches !== true) throw new Error('Diagnostic receipt bytes, inputs or viewport differ');
               const body = JSON.parse(bytes);
               validateBrowserMeasurement(body, metadata, c);
-              validateMeasurementInputs(root, original, metadata, c);
+              validateMeasurementInputs(root, original, metadata, c, { evidenceSession });
               measurements.set(c.id, { body, receipt, file: state.receipt.file });
               if (c.kind === 'fidelity') {
                 await page.screenshot({ path: path.join(directory, `${c.id}.png`), fullPage: true });
@@ -178,7 +183,7 @@ export async function runBrowserVerification(root, metadataPath, { playwright, e
                 } finally { await compositionContext.close(); }
               }
             } else {
-              const artifact = publishMeasurement(root, metadata, c.id, receipt);
+              const artifact = publishMeasurement(root, metadata, c.id, receipt, { evidenceSession });
               manifest.cases.push({ caseId: c.id, artifacts: [artifact] });
             }
           } catch (error) { blocked.push({ caseId: c.id, status: 'NOT RUN', reason: error.message }); }
@@ -187,8 +192,8 @@ export async function runBrowserVerification(root, metadataPath, { playwright, e
         if (diagnostic) {
           for (const c of metadata.verification.cases) {
             const measured = measurements.get(c.id);
-            if (measured) validateMeasurementInputs(root, JSON.parse(readFileSync(measured.receipt, 'utf8')), metadata, c);
-            const comparison = compareRendered(capture, metadata, c, measured?.body, { baselineMeasurement: measurements.get(c.baseline)?.body });
+            if (measured) validateMeasurementInputs(root, JSON.parse(readFileSync(measured.receipt, 'utf8')), metadata, c, { evidenceSession });
+            const comparison = compareRendered(capture, metadata, c, measured?.body, { baselineMeasurement: measurements.get(c.baseline)?.body, mappedComponents: mappedDelegations(root, metadata, { evidenceSession }) });
             diagnostics.cases.push({ caseId: c.id, kind: c.kind, ...(measured ? { file: measured.file, receipt: measured.receipt } : {}), ...comparison, diagnostics: renderDiagnostics(comparison),
               ...(compositions.has(c.id) ? { composition: compositions.get(c.id) } : {}) });
           }
@@ -204,12 +209,12 @@ export async function runBrowserVerification(root, metadataPath, { playwright, e
           application = applicationResult(application, application.results);
         } catch (error) { application = { errors: [error.message], results: [], checks: [], status: 'NOT RUN', reason: error.message }; }
         finally { await diagnosticContext.close(); }
-        closure = closeVerification(root, metadataPath, manifest);
+        closure = closeVerification(root, metadataPath, manifest, { evidenceSession });
         execution = { status: blocked.length || application.status === 'NOT RUN' ? 'PARTIAL' : 'COMPLETED', phase: 'complete' };
       }
     } catch (error) {
       execution = { status: 'NOT RUN', phase: execution.phase, reason: error.message };
-      closure = closeVerification(root, metadataPath, manifest);
+      closure = closeVerification(root, metadataPath, manifest, { evidenceSession });
     } finally { try { await browser?.close(); } finally { await preview?.server.close(); } }
     const result = { directory, mode: diagnostic ? 'diagnostic' : 'publication', manifest, blocked, application, closure, execution,
       ...(diagnostic ? { complete: false, diagnostics } : {}),

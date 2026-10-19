@@ -6,15 +6,17 @@ import { createDependencySession } from '../../../checks/lib/local-dependencies.
 import { caseInputs } from '../../../checks/lib/comparison-evidence.mjs';
 import { verifyTokenStyles } from '../../../checks/lib/token-styles.mjs';
 import { projectFile } from '../../../checks/lib/render-plan.mjs';
+import { createEvidenceSession } from '../../../checks/lib/evidence-session.mjs';
 
 export function benchmarkStaticAnalysis(root, metadata, { iterations = 20 } = {}) {
   if (!Number.isInteger(iterations) || iterations < 3 || iterations > 1000) throw new Error('Iterations must be an integer from 3 to 1000');
   const work = cached => {
     const dependencySession = cached ? createDependencySession(root) : undefined;
-    const options = { dependencySession };
+    const evidenceSession = cached ? createEvidenceSession(root) : undefined;
+    const options = { dependencySession, evidenceSession };
     const result = [verifyTokenStyles(root, metadata, options)];
     for (const c of metadata.verification.cases) for (let repeat = 0; repeat < 2; repeat++) result.push(caseInputs(root, metadata, c, undefined, options));
-    return { result, stats: dependencySession?.stats };
+    return { result, stats: dependencySession?.stats, evidence: evidenceSession?.stats };
   };
   const reference = work(false), cachedReference = work(true);
   if (JSON.stringify(reference.result) !== JSON.stringify(cachedReference.result)) throw new Error('Cached analysis differs from uncached analysis');
@@ -28,7 +30,7 @@ export function benchmarkStaticAnalysis(root, metadata, { iterations = 20 } = {}
   const summarize = values => { values.sort((a, b) => a - b); return { medianMs: values[Math.floor(values.length / 2)], p95Ms: values[Math.ceil(values.length * 0.95) - 1] }; };
   return { scope: 'Warm-process token stylesheet check and two caseInputs calls per case; not total DS validation, cold startup or rendered fidelity.',
     nodeVersion: process.version, cases: metadata.verification.cases.length, iterations,
-    uncached: summarize(times.uncached), cached: { ...summarize(times.cached), ...cachedReference.stats } };
+    uncached: summarize(times.uncached), cached: { ...summarize(times.cached), ...cachedReference.stats, evidence: cachedReference.evidence } };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

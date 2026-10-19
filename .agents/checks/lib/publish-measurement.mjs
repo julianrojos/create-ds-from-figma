@@ -4,9 +4,11 @@ import { canonicalJson } from './figma-evidence.mjs';
 import { projectFile, sha256 } from './render-plan.mjs';
 import { readArtifact, validateBrowserMeasurement, validateMeasurementInputs } from './comparison-evidence.mjs';
 import { createDependencySession } from './local-dependencies.mjs';
+import { evidenceSessionFor } from './evidence-session.mjs';
 
-export function publishMeasurement(root, metadata, caseId, receiptPath) {
+export function publishMeasurement(root, metadata, caseId, receiptPath, options = {}) {
   const dependencySession = createDependencySession(root);
+  const context = { ...options, dependencySession, evidenceSession: evidenceSessionFor(root, options) };
   const configuration = metadata.verification?.cases.find(c => c.id === caseId);
   if (!configuration) throw new Error('Unknown measurement case');
   const receiptBytes = readFileSync(receiptPath), receipt = JSON.parse(receiptBytes);
@@ -21,7 +23,7 @@ export function publishMeasurement(root, metadata, caseId, receiptPath) {
   if (body.measurementVersion !== receipt.measurementVersion) throw new Error('Measurement rules version differs from original receipt');
   if (body.snapshotHash !== metadata.evidence.hash || canonicalJson(body.configuration) !== canonicalJson(configuration) || body.caseId !== caseId || body.kind !== 'browser-measurement') throw new Error('Measurement body differs from receipt case');
   validateBrowserMeasurement(body, metadata, configuration);
-  validateMeasurementInputs(root, receipt, metadata, configuration, { dependencySession });
+  validateMeasurementInputs(root, receipt, metadata, configuration, context);
   const base = realpathSync(root), ds = realpathSync(path.join(base, 'design-system'));
   if (!ds.startsWith(base + path.sep)) throw new Error('Publication directory escapes project');
   let parent = ds;
@@ -40,5 +42,5 @@ export function publishMeasurement(root, metadata, caseId, receiptPath) {
   // Preserve both original body and original receipt; neither is reserialized.
   const publication = save(`${sha256(receiptBytes)}.receipt.json`, receiptBytes);
   const artifact = { kind: 'browser-measurement', ...save(`${hash}.measurement.json`, bytes), publication };
-  return readArtifact(root, artifact, metadata, configuration, { derive: true, dependencySession });
+  return readArtifact(root, artifact, metadata, configuration, { ...context, derive: true });
 }

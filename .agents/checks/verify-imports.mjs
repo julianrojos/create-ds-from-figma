@@ -8,6 +8,7 @@ import { loadSnapshot } from './lib/figma-evidence.mjs';
 import { essentialAssetGaps, essentialFontGaps } from './lib/resource-gaps.mjs';
 import { deduplicateNextActions, deliveryNextActions, fontConfigurationActions } from './lib/resource-diagnostics.mjs';
 import { fontConfigurations } from './lib/font-configuration.mjs';
+import { delegationNextActions } from './lib/delegation-differences.mjs';
 
 const core = ['design-system/inventory.json', 'design-system/relationships/figma-code-map.json', 'design-system/relationships/figma-state.json'];
 const notApplicable = reason => ({ status: 'NOT APPLICABLE', reason });
@@ -26,7 +27,7 @@ export function assessImportSummaries(names, summaries) {
 
 export async function verifyImports(root, { applicationOptions } = {}) {
   root = path.resolve(root);
-  const errors = [], warnings = [], summaries = new Map();
+  const errors = [], warnings = [], summaries = new Map(), delegations = new Map();
   let components = [], structure, application;
   try {
     if (!statSync(root).isDirectory()) throw new Error('Project root must be a directory');
@@ -41,7 +42,7 @@ export async function verifyImports(root, { applicationOptions } = {}) {
     if (!present.length && !applicationSignals(root).length && !populated('design-system') && !populated('src') && !populated('public')) {
       structure = notApplicable('Kit without a generated design system or application');
     } else {
-      const result = verify(root, { visualSummaries: summaries });
+      const result = verify(root, { visualSummaries: summaries, delegationSummaries: delegations });
       errors.push(...result.errors); warnings.push(...result.warnings);
       const inventory = JSON.parse(readFileSync(path.join(root, core[0]), 'utf8'));
       if (!Array.isArray(inventory.components)) throw new Error('inventory.components must be an array');
@@ -74,7 +75,7 @@ export async function verifyImports(root, { applicationOptions } = {}) {
       : notApplicable('No index.html or conventional App/app/main/index source entry; literal diagnostics do not infer arbitrary library files as applications');
   } catch (error) { application = { status: 'NOT RUN', reason: error.message, errors: [error.message] }; }
   const status = errors.length || components.some(c => c.status !== 'PASS') || !['PASS', 'NOT APPLICABLE'].includes(application.status) ? 'FAIL' : 'PASS';
-  const nextActions = components.flatMap(component => component.nextActions || []);
+  const nextActions = [...components.flatMap(component => component.nextActions || []), ...[...delegations.values()].flatMap(d => delegationNextActions(d.metadataPath, d.pendingRecords))];
   if (errors.length) nextActions.unshift({ code: 'REPAIR_STATIC_CONFORMANCE', resources: [], prerequisites: ['Resolve the reported structural and conformance errors before collecting or registering confirmations.'], permissions: ['project-read'], command: null, requiredArguments: [] });
   if (!['PASS', 'NOT APPLICABLE'].includes(application.status)) nextActions.push({ code: 'RUN_APPLICATION_DIAGNOSTICS', resources: [],
     prerequisites: ['An available permitted browser runtime is required; if missing, npm run test:browser:setup needs installation/network permission.'],

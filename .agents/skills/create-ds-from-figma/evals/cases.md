@@ -2,6 +2,14 @@
 
 Estos casos describen decisiones observables, no sustituyen una ejecución real con Figma. Para cada prueba, registra la URL, refs consultados, diagnóstico, archivos modificados y resultados de los checks. Ejecútalos en una rama que el usuario haya seleccionado; no cambies de rama por cuenta del kit.
 
+## Delegación Con Diferencias Visuales
+
+- Padre sintético con instancia mapped de un hijo cuyo icono cambia de variable de trazo, sin cambiar geometría. Fills puede ser same y binding/stroke difference: no se clasifica todo el nodo por una propiedad.
+- Diferencia no declarada: error. Omitted: contabilizada, pero bloquea confirmed. Implemented: exige checkReview específico del mismo caso; una revisión general o de otra diferencia no basta.
+- Cubrir ausencia de ligadura, pinturas múltiples/reordenadas, modos distintos, lecturas fallidas, principal equivocado, estructura distinta, snapshot del hijo ausente y anidados profundos. Incertidumbre nunca produce same.
+- Cambiar snapshot del hijo, correspondencia, tratamiento o reglas caduca confirmaciones afectadas del padre. Cambiar solo el motivo del tratamiento no modifica hechos verificados.
+- Fixtures y mutaciones no acreditan fidelidad frente a Figma real. Recoger valores calculados no equivale a compararlos automáticamente.
+
 ## Prevención Antes De Entregar
 
 - Fuerza el primer page.evaluate de composición después de montar la página 4×, sin impedir la medición principal. El helper propaga el rechazo antes de aislar/capturar/escribir; verification-browser conserva el motivo exacto en composition:collection/NOT RUN y cierra el contexto. La acción compartida RETRY_COMPOSITION_DIAGNOSTICS mantiene caso/check/motivo. No se generan capturas de composición ni publicaciones, y los hashes del proyecto permanecen intactos. El gate diagnóstico de NOT RUN ya debe producir FAIL, no una diferencia visual ni una confirmación.

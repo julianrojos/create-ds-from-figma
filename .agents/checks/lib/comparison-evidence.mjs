@@ -8,6 +8,9 @@ import { StaleEvidenceError, UnverifiedEvidenceError } from './evidence-status.m
 import { caseFonts, compareRendered } from './render-comparison.mjs';
 import { MEASUREMENT_VERSION, isMeasurementVersion } from './measurement-version.mjs';
 import { collectCssDiagnostics, compareCssDiagnostics } from './css-diagnostics.mjs';
+import { delegationDifferences, delegationFacts } from './delegation-differences.mjs';
+import { mappedComponentsOf, mappedDelegations } from '../verify-figma-evidence.mjs';
+import { evidenceSessionFor } from './evidence-session.mjs';
 
 const text = v => typeof v === 'string' && v.trim().length > 0;
 const object = v => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -16,16 +19,17 @@ const list = v => Array.isArray(v) ? v : [];
 export const DIMENSION_TOLERANCE = 1;
 export const configurationHash = configuration => sha256(canonicalJson(configuration));
 
-export function renderedChecks(root, metadata, configuration, artifacts, { baselineMeasurement } = {}) {
-  const { capture } = loadSnapshot(root, metadata.evidence.snapshot);
+export function renderedChecks(root, metadata, configuration, artifacts, { baselineMeasurement, ...options } = {}) {
+  const evidenceSession = evidenceSessionFor(root, options), context = { ...options, evidenceSession };
+  const { capture } = loadSnapshot(root, metadata.evidence.snapshot, context);
   const browser = artifacts.find(a => a.kind === 'browser-measurement');
   const measurement = browser ? JSON.parse(readFileSync(projectFile(root, browser.path), 'utf8')) : undefined;
   for (const font of caseFonts(capture, configuration)) {
     const source = metadata.verification?.fonts?.find(f => f.id === font.id)?.source;
     if (source?.kind === 'file') checkInputHash(root, { path: source.path, sha256: source.sha256 });
   }
-  const result = compareRendered(capture, metadata, configuration, measurement, { baselineMeasurement });
-  const inputs = caseInputs(root, metadata, configuration);
+  const result = compareRendered(capture, metadata, configuration, measurement, { baselineMeasurement, mappedComponents: mappedDelegations(root, metadata, context) });
+  const inputs = caseInputs(root, metadata, configuration, undefined, context);
   const syntax = collectCssDiagnostics(root, inputs.files);
   result.checks.push(...compareCssDiagnostics(syntax, measurement));
   result.summary = Object.fromEntries(['PASS', 'FAIL', 'NOT COMPARABLE', 'NOT RUN'].map(status => [status, result.checks.filter(c => c.status === status).length]));
@@ -42,18 +46,23 @@ export function validateBrowserMeasurement(body, metadata, configuration) {
   }
 }
 
-export function caseInputs(root, metadata, configuration, style, { dependencySession } = {}) {
-  const map = JSON.parse(readFileSync(projectFile(root, 'design-system/relationships/figma-code-map.json'), 'utf8'));
+export function caseInputs(root, metadata, configuration, style, options = {}) {
+  const { dependencySession } = options, evidenceSession = evidenceSessionFor(root, options);
+  const map = evidenceSession.json('design-system/relationships/figma-code-map.json');
   const entries = Object.entries(map).filter(([key, entry]) => !key.startsWith('_') && entry?.code?.path === metadata.code.path && entry.code.component === metadata.code.component);
   if (entries.length !== 1) throw new Error('Examined component must resolve uniquely in the component map');
   const mappedStyle = entries[0][1].code.style;
   if (style !== undefined && style !== mappedStyle) throw new Error('Examined CSS differs from the component map');
-  const { capture } = loadSnapshot(root, metadata.evidence.snapshot);
+  const { capture } = loadSnapshot(root, metadata.evidence.snapshot, { evidenceSession });
   const nodes = new Map(capture.nodes.map(n => [n.id, n])), ids = new Set();
   const visit = id => { if (ids.has(id)) return; ids.add(id); for (const child of nodes.get(id)?.children || []) visit(child); };
   visit(configuration.figmaRef.slice(capture.source.fileKey.length + 1));
   const observations = new Set(capture.observations.filter(o => ids.has(o.node)).map(o => o.id));
   const refs = new Set([...ids].map(id => `${capture.source.fileKey}:${id}`));
+  const names = new Set((metadata.evidence?.dispositions || []).filter(d => d.kind === 'delegated').map(d => d.resolvedComponent));
+  const delegation = delegationDifferences(capture, metadata, names.size ? mappedComponentsOf(root, Object.entries(map).filter(([key]) => !key.startsWith('_')), { evidenceSession, names }) : []);
+  const delegated = delegation.records.filter(r => refs.has(r.instance)).map(delegationFacts);
+  const delegatedInputs = delegation.dependencies.filter(d => refs.has(d.instance));
   const requirements = renderRequirements(capture);
   const fontIds = new Set(requirements.fonts.filter(f => f.observations.some(id => observations.has(id))).map(f => f.id));
   const fonts = list(metadata.verification?.fonts).filter(f => fontIds.has(f.id));
@@ -68,19 +77,20 @@ export function caseInputs(root, metadata, configuration, style, { dependencySes
   const classification = Object.fromEntries(Object.entries(variant?.properties || {}).map(([axis, value]) => [axis, metadata.variantClassification?.[axis]?.[value]]));
   const stateNames = new Set([...list(configuration.states).map(s => s.name), ...Object.values(variant?.properties || {})].filter(text).map(n => n.toLowerCase()));
   const resource = r => ({ ...r, source: object(r.source) ? Object.fromEntries(Object.entries(r.source).filter(([k]) => k !== 'reason')) : r.source });
-  const state = JSON.parse(readFileSync(projectFile(root, 'design-system/relationships/figma-state.json'), 'utf8'));
+  const state = evidenceSession.json('design-system/relationships/figma-state.json');
   const usedIds = new Set(capture.variables.map(v => v.id));
   const collectionState = Object.fromEntries(capture.collections.filter(c => state.collections?.[c.id]).map(c => {
     const record = state.collections[c.id];
     return [c.id, { file: record.file, modeScopes: record.modeScopes,
       serialization: Object.fromEntries(Object.entries(record.serialization || {}).filter(([id]) => usedIds.has(id))) }];
   }));
-  const semantic = { snapshotHash: metadata.evidence.hash, configuration, code: metadata.code, parts, classification,
+  const semantic = { snapshotHash: metadata.evidence.hash, configuration, code: metadata.code, parts, classification, delegated, delegatedInputs,
     bindings: list(metadata.bindings).filter(b => refs.has(b.node)).map(omitProse),
     literals: list(metadata.measuredLiterals).filter(l => refs.has(l.source)).map(omitProse),
     dimensions: list(metadata.evidence?.textDimensions).filter(d => observations.has(d.observation)).map(omitProse),
     translations: list(metadata.evidence?.translations).filter(t => list(t.observations).some(id => observations.has(id))).map(omitProse),
-    dispositions: list(metadata.evidence?.dispositions).filter(d => refs.has(d.instance) || list(d.observations).some(id => observations.has(id))).map(omitProse),
+    dispositions: list(metadata.evidence?.dispositions).filter(d => refs.has(d.instance) || list(d.observations).some(id => observations.has(id))).map(d => ({ ...omitProse(d),
+      ...(Array.isArray(d.differences) ? { differences: d.differences.map(omitProse) } : {}) })),
     states: list(metadata.states).filter(s => stateNames.has(s.name?.toLowerCase())).map(omitProse),
     fonts: fonts.map(resource), assets: assets.map(resource), stylesheets: metadata.verification?.stylesheets, inputs: metadata.verification?.inputs,
     geometryPolicy: metadata.verification?.geometryPolicy,
@@ -91,6 +101,7 @@ export function caseInputs(root, metadata, configuration, style, { dependencySes
     externalVariables: list(metadata.externalVariables).filter(v => usedIds.has(v.id)),
   };
   const seeds = [metadata.code.path, metadata.evidence.snapshot, mappedStyle, ...list(metadata.verification?.stylesheets), ...list(metadata.verification?.inputs),
+    ...delegatedInputs.map(d => d.snapshot),
     ...[...fonts, ...assets].filter(r => r.source?.kind === 'file').map(r => r.source.path),
     ...Object.values(collectionState).map(c => `design-system/tokens/${c.file}`)];
   const dependencies = dependencySession ? dependencySession.resolve(seeds) : localDependencies(root, seeds);
@@ -119,7 +130,7 @@ export function checkInputHash(root, file) {
   catch (error) { if (['ENOENT', 'ENOTDIR'].includes(error.code)) throw new StaleEvidenceError(`Measurement input missing: ${file.path}`); throw error; }
 }
 
-export function readArtifact(root, artifact, metadata, configuration, { derive = false, checkCurrentInputs = true, dependencySession } = {}) {
+export function readArtifact(root, artifact, metadata, configuration, { derive = false, checkCurrentInputs = true, ...options } = {}) {
   if (!object(artifact) || !['browser-measurement', 'figma-screenshot'].includes(artifact.kind) || !text(artifact.path) || !artifact.path.startsWith('design-system/verification/artifacts/')) throw new Error('Typed rendered artifact must live under design-system/verification/artifacts');
   const artifactFile = relative => {
     const file = projectFile(root, relative);
@@ -144,7 +155,7 @@ export function readArtifact(root, artifact, metadata, configuration, { derive =
     try { PNG.sync.read(bytes, { checkCRC: true }); }
     catch (error) { throw new Error(`Figma PNG cannot be fully decoded: ${error.message}`); }
     // Tolerance, not a rounding rule: Figma's fractional export rounding is not assumed, only that the PNG is of the captured node.
-    const { capture } = loadSnapshot(root, metadata.evidence.snapshot);
+    const { capture } = loadSnapshot(root, metadata.evidence.snapshot, options);
     const node = capture.nodes.find(n => `${capture.source.fileKey}:${n.id}` === configuration.figmaRef);
     const expected = ['width', 'height'].map(k => node?.properties[k] * scale);
     let comparison = 'NOT VERIFIED';
@@ -165,7 +176,7 @@ export function readArtifact(root, artifact, metadata, configuration, { derive =
     if (!/^[a-f0-9]{64}$/.test(receipt.metadataHash || '') || !Array.isArray(receipt.files) || !receipt.files.length || receipt.files.some(f => !text(f?.path) || path.isAbsolute(f.path) || f.path.includes('\\') || f.path.split('/').some(p => ['.', '..'].includes(p)) || !/^[a-f0-9]{64}$/.test(f.sha256 || '')) || new Set(receipt.files.map(f => f.path)).size !== receipt.files.length) throw new Error('Receipt semantic fingerprint and unique safe input hashes required');
     validateBrowserMeasurement(body, metadata, configuration);
     if (p.tool !== body.producer || p.capturedAt !== body.capturedAt) throw new Error('Browser provenance differs from original measurement');
-    if (checkCurrentInputs) validateMeasurementInputs(root, receipt, metadata, configuration, { dependencySession });
+    if (checkCurrentInputs) validateMeasurementInputs(root, receipt, metadata, configuration, options);
   }
   return { ...artifact, ...(image ? { image } : {}), provenance: p, sha256: sha256(bytes) };
 }

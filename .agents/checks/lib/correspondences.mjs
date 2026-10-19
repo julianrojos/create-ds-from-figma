@@ -7,6 +7,7 @@ import { assertConfirmationChecks, COMPARATOR_VERSION, renderResultFacts } from 
 import { StaleEvidenceError, UnverifiedEvidenceError } from './evidence-status.mjs';
 import { createDependencySession } from './local-dependencies.mjs';
 import { verifyBehaviorEvidence } from './behavior-evidence.mjs';
+import { evidenceSessionFor } from './evidence-session.mjs';
 
 const object = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const text = v => typeof v === 'string' && v.trim().length > 0;
@@ -34,8 +35,9 @@ export function readCorrespondences(markdown, prose) {
   return record;
 }
 
-export function verifyCorrespondences(root, metadata, markdown, prose, { style, metadataPath, dependencySession } = {}) {
+export function verifyCorrespondences(root, metadata, markdown, prose, { style, metadataPath, dependencySession, ...options } = {}) {
   const errors = [], warnings = [], current = [];
+  let evidenceSession = options.evidenceSession;
   let record;
   try { record = readCorrespondences(markdown, prose); } catch (error) { return { errors: [error.message], warnings, current }; }
   const cases = new Map((Array.isArray(metadata.verification?.cases) ? metadata.verification.cases : []).filter(c => c?.kind === 'fidelity').map(c => [c.id, c]));
@@ -53,6 +55,8 @@ export function verifyCorrespondences(root, metadata, markdown, prose, { style, 
     if (row.status === 'candidate') { if ('evidence' in row) errors.push(`${label}: candidate is not a confirmation; do not attach a confirmation record`); current.push({ caseId: row.caseId, status: 'candidate' }); continue; }
     try {
       dependencySession ||= createDependencySession(root);
+      evidenceSession ||= evidenceSessionFor(root, options);
+      const context = { ...options, dependencySession, evidenceSession };
       if (!row.evidence?.path?.startsWith('design-system/verification/')) throw new Error('Confirmed evidence must be retained in design-system/verification');
       const report = JSON.parse(hashedFile(row.evidence).toString('utf8'));
       if (report.schemaVersion !== 4 || report.kind !== 'rendered-comparison' || report.result !== 'PASS' || report.caseId !== row.caseId || !object(report.configuration) || report.configuration.id !== row.caseId || !/^[a-f0-9]{64}$/.test(report.snapshotHash || '') || !/^[a-f0-9]{64}$/.test(report.metadataHash || '') || !text(report.sourceSnapshot)) throw new Error('Confirmation report has an invalid case, snapshot or rendered PASS contract');
@@ -70,27 +74,27 @@ export function verifyCorrespondences(root, metadata, markdown, prose, { style, 
         try { checkInputHash(root, file); } catch (error) { if (error instanceof StaleEvidenceError) stale.push(error.message); else throw error; }
       }
       // Integrity is checked against the retained historical configuration, even when stale.
-      const source = loadSnapshot(root, report.sourceSnapshot);
+      const source = loadSnapshot(root, report.sourceSnapshot, context);
       if (source.hash !== report.snapshotHash || !files.has(report.sourceSnapshot)) throw new Error('Historical source snapshot hash or examined input is invalid');
       const historical = { ...metadata, evidence: { ...metadata.evidence, snapshot: report.sourceSnapshot, hash: report.snapshotHash } };
-      checkedArtifacts(root, report.artifacts, historical, report.configuration, { checkCurrentInputs: false });
-      stale.push(...verifyBehaviorEvidence(root, metadata, historical, report, { dependencySession }));
+      checkedArtifacts(root, report.artifacts, historical, report.configuration, { ...context, checkCurrentInputs: false });
+      stale.push(...verifyBehaviorEvidence(root, metadata, historical, report, context));
       if (report.snapshotHash !== metadata.evidence?.hash || canonicalJson(report.configuration) !== canonicalJson(configuration)) stale.push('Source snapshot or examined configuration changed');
-      const inputs = caseInputs(root, metadata, configuration, style, { dependencySession });
+      const inputs = caseInputs(root, metadata, configuration, style, context);
       if (report.metadataHash !== inputs.metadataHash) stale.push('Stale verification decisions for this configuration');
       stale.push(...inputs.warnings);
       if (metadataPath && (report.metadataAudit?.path !== metadataPath || !/^[a-f0-9]{64}$/.test(report.metadataAudit?.sha256 || ''))) throw new Error('Historical metadata audit hash required');
       for (const file of inputs.files) if (!files.has(file)) stale.push(`Missing examined input hash: ${file}`);
       for (const artifact of report.artifacts.filter(a => a.kind === 'browser-measurement')) {
         const receipt = JSON.parse(readFileSync(projectFile(root, artifact.publication.path), 'utf8'));
-        try { validateMeasurementInputs(root, receipt, metadata, configuration, { dependencySession }); }
+        try { validateMeasurementInputs(root, receipt, metadata, configuration, context); }
         catch (error) { if (error instanceof StaleEvidenceError || error instanceof UnverifiedEvidenceError) stale.push(error.message); else throw error; }
       }
       if (stale.length) {
         warnings.push(`${label}: confirmed evidence is no longer current; NOT VERIFIED: ${[...new Set(stale)].join('; ')}`);
         current.push({ caseId: row.caseId, registeredStatus: 'confirmed', status: 'candidate', verification: 'NOT VERIFIED' });
       } else {
-        const result = renderedChecks(root, metadata, configuration, report.artifacts);
+        const result = renderedChecks(root, metadata, configuration, report.artifacts, context);
         if (canonicalJson(renderResultFacts(result)) !== canonicalJson(recordedFacts)) throw new Error('Recorded render checks differ from recomputed source/measurement checks');
         assertConfirmationChecks(result, report.checkReviews, report.artifacts.map(a => a.path));
         current.push({ caseId: row.caseId, status: 'confirmed', checks: result.summary,

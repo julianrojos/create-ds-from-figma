@@ -12,6 +12,9 @@ import { loadSnapshot } from '../../../checks/lib/figma-evidence.mjs';
 import { essentialAssetGaps, essentialFontGaps } from '../../../checks/lib/resource-gaps.mjs';
 import { deduplicateNextActions, resourceNextActions } from '../../../checks/lib/resource-diagnostics.mjs';
 import { diagnosisActions } from '../../../checks/lib/diagnosis-actions.mjs';
+import { delegationDifferences, delegationNextActions } from '../../../checks/lib/delegation-differences.mjs';
+import { mappedDelegations } from '../../../checks/verify-figma-evidence.mjs';
+import { createEvidenceSession } from '../../../checks/lib/evidence-session.mjs';
 
 function updatedUsage(original, record) {
   const prose = markdownProse(original);
@@ -38,7 +41,8 @@ function updatedUsage(original, record) {
 // All judgments are supplied explicitly; source facts, hashes and report identities are derived.
 export function recordImportReviews(root, metadataPath, reviews) {
   root = path.resolve(root);
-  const validation = verify(root);
+  const evidenceSession = createEvidenceSession(root), options = { evidenceSession };
+  const validation = verify(root, options);
   if (validation.errors.length) throw new Error(`Static validation failed: ${validation.errors.join('\n')}`);
   const metadataFile = projectFile(root, metadataPath), originalMetadata = readFileSync(metadataFile);
   const metadata = JSON.parse(originalMetadata);
@@ -50,14 +54,14 @@ export function recordImportReviews(root, metadataPath, reviews) {
   const usageFile = projectFile(root, entry.designSystem.usage), originalUsage = readFileSync(usageFile, 'utf8');
   const record = readCorrespondences(originalUsage, markdownProse(originalUsage));
   // Validate every review before persisting any report or modifying the canonical usage block.
-  const reports = cases.map(c => comparisonReport(root, metadata, c.id, reviews.cases.find(r => r.caseId === c.id).review, entry.code.style, metadataPath));
+  const reports = cases.map(c => comparisonReport(root, metadata, c.id, reviews.cases.find(r => r.caseId === c.id).review, entry.code.style, metadataPath, options));
   for (const report of reports) {
     const inputs = [...report.files, ...report.behaviors.flatMap(behavior => behavior.files)];
     if (inputs.some(input => projectFile(root, input.path) === usageFile)) throw new Error('A confirmation cannot depend on itself: usage.md is an examined input and will be rewritten');
   }
   record.correspondences = reports.map(report => ({ caseId: report.caseId, status: 'confirmed', evidence: persistComparisonReport(root, report) }));
   const next = updatedUsage(originalUsage, record);
-  const checked = verifyCorrespondences(root, metadata, next, markdownProse(next), { style: entry.code.style, metadataPath });
+  const checked = verifyCorrespondences(root, metadata, next, markdownProse(next), { ...options, style: entry.code.style, metadataPath });
   if (checked.errors.length || checked.current.length !== cases.length || checked.current.some(c => c.status !== 'confirmed')) throw new Error(`Confirmation proposal is not current: ${[...checked.errors, ...checked.warnings].join('\n')}`);
   const directory = mkdtempSync(path.join(path.dirname(usageFile), '.confirmation-'));
   try {
@@ -83,6 +87,7 @@ export async function finalizeImport(root, metadataPath, { reviews, collect = fa
       const metadata = JSON.parse(readFileSync(projectFile(root, metadataPath)));
       const { capture } = loadSnapshot(root, metadata.evidence.snapshot), gaps = essentialFontGaps(capture, metadata), images = essentialAssetGaps(capture, metadata);
       resourceActions = resourceNextActions(root, metadataPath, { fonts: gaps, assets: images });
+      resourceActions.push(...delegationNextActions(metadataPath, delegationDifferences(capture, metadata, mappedDelegations(root, metadata)).records));
       if (!diagnose && (gaps.length || images.length)) throw new Error(`DS_GAP: request authorized sources for essential resources: ${[...gaps.map(gap => `font ${gap.font.family} ${gap.font.style} (${gap.css?.weight || 'weight unresolved'})`), ...images.map(gap => `image ${gap.observation}[${gap.index}]`)].join(', ')}. Use --diagnose only for temporary feedback on an existing implementation; do not invent a font package or substitute an image.`);
       const runtime = browserRuntime();
       const playwright = await import(pathToFileURL(path.join(runtime, 'node_modules/playwright/index.mjs')).href);

@@ -1,12 +1,13 @@
 import { renderRequirements } from './render-plan.mjs';
 import { compareBehavior } from './behavior-comparison.mjs';
+import { delegationChecks } from './delegation-differences.mjs';
 import { nodeCoverage } from './node-coverage.mjs';
 
 // CSS pixels, independent of the PNG export tolerance. Never supplied by the reviewer.
 export const GEOMETRY_TOLERANCE = 1;
 export const TEXT_METRIC_TOLERANCE = 1;
 export const VECTOR_POSITION_TOLERANCE = 1;
-export const COMPARATOR_VERSION = 'render-comparator-v17';
+export const COMPARATOR_VERSION = 'render-comparator-v19';
 const matrix = m => Array.isArray(m) && m.length === 2 && m.every(row => Array.isArray(row) && row.length === 3 && row.every(Number.isFinite));
 const translationOnly = m => matrix(m) && Math.abs(m[0][0] - 1) < 1e-8 && Math.abs(m[1][1] - 1) < 1e-8 && Math.abs(m[0][1]) < 1e-8 && Math.abs(m[1][0]) < 1e-8;
 const invertible = m => matrix(m) && Math.abs(m[0][0] * m[1][1] - m[0][1] * m[1][0]) > 1e-8;
@@ -107,9 +108,10 @@ export function renderResultFacts(result) {
     checks: result.checks.map(check => Object.fromEntries(Object.entries(check).filter(([key]) => key !== 'reason'))) };
 }
 
-export function compareRendered(capture, metadata, configuration, measurement, { baselineMeasurement } = {}) {
+export function compareRendered(capture, metadata, configuration, measurement, { baselineMeasurement, mappedComponents = [] } = {}) {
   if (metadata.verification?.geometryPolicy !== 'mapped-layout-v1') throw new Error('Expected geometryPolicy mapped-layout-v1');
   const checks = [], scope = caseNodes(capture, configuration), sourceRoot = scope.nodes.get(scope.rootId);
+  checks.push(...delegationChecks(capture, metadata, configuration, mappedComponents));
   const browserRoot = measurement?.parts?.root?.elements?.[0];
   const add = (id, status, reason, detail = {}) => checks.push({ id, status, reason, ...detail });
   let coverage;

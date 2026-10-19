@@ -7,13 +7,15 @@ import { caseInputs } from './lib/comparison-evidence.mjs';
 import { verifyTokenStyles } from './lib/token-styles.mjs';
 import { createDependencySession } from './lib/local-dependencies.mjs';
 import { collectCssDiagnostics } from './lib/css-diagnostics.mjs';
+import { evidenceSessionFor } from './lib/evidence-session.mjs';
 
-export function verifyRenderPlans(root, { contexts, dependencySession } = {}) {
+export function verifyRenderPlans(root, { contexts, dependencySession, ...options } = {}) {
   const errors = [], warnings = [];
   dependencySession ||= createDependencySession(root);
+  const evidenceSession = evidenceSessionFor(root, options), context = { ...options, dependencySession, evidenceSession };
   if (!contexts) {
     contexts = new Map();
-    const evidence = verifyFigmaEvidence(root, { contexts });
+    const evidence = verifyFigmaEvidence(root, { ...context, contexts });
     errors.push(...evidence.errors); warnings.push(...evidence.warnings);
   }
     for (const [key, { metadata, capture, entry, result: evidence }] of contexts) {
@@ -26,7 +28,7 @@ export function verifyRenderPlans(root, { contexts, dependencySession } = {}) {
         const css = verifyIntrinsicCss(root, metadata, entry.code?.style);
         const syntax = collectCssDiagnostics(root, [metadata.code.path, entry.code?.style, ...(Array.isArray(metadata.verification?.stylesheets) ? metadata.verification.stylesheets : [])]);
         result.errors.push(...syntax.errors); result.warnings.push(...syntax.warnings);
-        for (const c of objectRecords(metadata.verification?.cases)) result.warnings.push(...caseInputs(root, metadata, c, entry.code?.style, { dependencySession }).warnings);
+        for (const c of objectRecords(metadata.verification?.cases)) result.warnings.push(...caseInputs(root, metadata, c, entry.code?.style, context).warnings);
         result.errors.push(...css.errors); result.warnings.push(...css.warnings);
         errors.push(...result.errors.map(e => `${name}: ${e}`));
         warnings.push(...result.warnings.map(e => `${name}: ${e}`));

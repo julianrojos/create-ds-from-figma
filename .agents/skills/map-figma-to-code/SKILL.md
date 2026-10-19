@@ -12,6 +12,8 @@ description: >-
 
 ## Goal
 
+Mapped reuse does not establish equality of instance paints or bindings. Read the owning import's per-property delegation comparison. Differences need declared treatments; unresolved mappings/reads remain pending. An implemented treatment still needs its own rendered review before confirmation. Do not infer verified color from reuse or binding accounting.
+
 Distinguish corrupt evidence from stale evidence. A stale but valid confirmed record is candidate/NOT VERIFIED for the current query, not a current confirmation or a DS conformance error. Preserve usage.md and historical reports. The verifier returns errors, warnings and current correspondence status; dependency scope is component-local plus shared/explicit inputs, not the entire repo.
 
 Resolve a Design System component from Figma to its code implementation.

@@ -6,6 +6,7 @@ import { projectFile, renderRequirements, sha256, verifyRenderPlan } from '../..
 import { verify } from '../../../checks/verify-ds.mjs';
 import { caseInputs, checkedArtifacts, renderedChecks, validateBrowserMeasurement } from '../../../checks/lib/comparison-evidence.mjs';
 import { assertConfirmationChecks, compareRendered } from '../../../checks/lib/render-comparison.mjs';
+import { mappedDelegations } from '../../../checks/verify-figma-evidence.mjs';
 import { publishMeasurement } from '../../../checks/lib/publish-measurement.mjs';
 import { createDependencySession } from '../../../checks/lib/local-dependencies.mjs';
 import { deriveBehaviorEvidence } from '../../../checks/lib/behavior-evidence.mjs';
@@ -14,6 +15,7 @@ import { waitForMeasurement } from '../../../checks/lib/wait-measurement.mjs';
 import { collectCssDiagnostics } from '../../../checks/lib/css-diagnostics.mjs';
 import { renderDiagnostics } from '../../../checks/lib/render-diagnostics.mjs';
 import { snapshotResources } from '../../../checks/lib/resource-diagnostics.mjs';
+import { evidenceSessionFor } from '../../../checks/lib/evidence-session.mjs';
 
 const forbidden = (record, keys) => {
   if (!record || typeof record !== 'object' || Array.isArray(record) || Object.keys(record).some(k => !keys.includes(k))) throw new Error(`Decision accepts only ${keys.join(', ')}`);
@@ -70,20 +72,21 @@ export function materializePlan(metadata, capture, decisions) {
   return result;
 }
 
-export function comparisonReport(root, metadata, caseId, review, style, metadataPath) {
+export function comparisonReport(root, metadata, caseId, review, style, metadataPath, options = {}) {
   const dependencySession = createDependencySession(root);
+  const context = { ...options, dependencySession, evidenceSession: evidenceSessionFor(root, options) };
   if (!/^[a-zA-Z0-9_-]+$/.test(caseId)) throw new Error('Unsafe case ID');
   const configuration = metadata.verification?.cases.find(c => c.id === caseId && c.kind === 'fidelity');
   if (!configuration || review.result !== 'PASS' || !['agent-rendered-review', 'tool-rendered-comparison'].includes(review.comparison?.method) || typeof review.comparison.reason !== 'string' || !review.comparison.reason.trim()) throw new Error('A real rendered PASS judgment and an established fidelity case are required');
   for (const key of ['figmaRevision', 'codeRevision']) if (!(typeof review[key]?.id === 'string' && review[key].id.trim() || review[key]?.id === null && typeof review[key].reason === 'string' && review[key].reason.trim())) throw new Error('Revision IDs or explicit unavailability reasons required');
   if (!Array.isArray(review.artifacts) || !review.artifacts.length || !Array.isArray(review.inputs || [])) throw new Error('Retained artifact paths and optional extra input paths required');
   const hashFile = file => ({ path: file, sha256: sha256(readFileSync(projectFile(root, file))) });
-  const scoped = caseInputs(root, metadata, configuration, style, { dependencySession });
+  const scoped = caseInputs(root, metadata, configuration, style, context);
   const inputs = [...new Set([...scoped.files, ...(review.inputs || [])])].sort();
-  const artifacts = checkedArtifacts(root, review.artifacts, metadata, configuration, { derive: true, dependencySession });
-  const renderChecks = renderedChecks(root, metadata, configuration, artifacts);
+  const artifacts = checkedArtifacts(root, review.artifacts, metadata, configuration, { ...context, derive: true });
+  const renderChecks = renderedChecks(root, metadata, configuration, artifacts, context);
   assertConfirmationChecks(renderChecks, review.checkReviews, artifacts.map(a => a.path));
-  const behaviors = deriveBehaviorEvidence(root, metadata, configuration, artifacts, review.behaviors ?? [], { dependencySession });
+  const behaviors = deriveBehaviorEvidence(root, metadata, configuration, artifacts, review.behaviors ?? [], context);
   return { schemaVersion: 4, kind: 'rendered-comparison', result: 'PASS', caseId, snapshotHash: metadata.evidence.hash, sourceSnapshot: metadata.evidence.snapshot,
     configuration: structuredClone(configuration), comparison: { method: review.comparison.method, reason: review.comparison.reason, figmaRef: configuration.figmaRef },
     metadataHash: scoped.metadataHash, ...(metadataPath ? { metadataAudit: hashFile(metadataPath) } : {}),
@@ -143,7 +146,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
         baselineMeasurement = JSON.parse(readFileSync(baselinePath, 'utf8'));
         validateBrowserMeasurement(baselineMeasurement, metadata, baseline);
       }
-      const result = compareRendered(snapshot.capture, metadata, configuration, body, { baselineMeasurement });
+      const result = compareRendered(snapshot.capture, metadata, configuration, body, { baselineMeasurement, mappedComponents: mappedDelegations(root, metadata) });
       console.log(JSON.stringify({ ...result, diagnostics: renderDiagnostics(result) }, null, 2));
       if (result.summary.FAIL) process.exitCode = 1;
     } else if (command === 'apply' && args.length === 3) {

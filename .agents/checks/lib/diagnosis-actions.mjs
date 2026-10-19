@@ -1,3 +1,5 @@
+import { delegationNextActions } from './delegation-differences.mjs';
+
 // Derived from the observed checks only. Behavior checks must all PASS and no rendered review rescues them, so a behavior check that
 // could not be compared needs a metadata decision, not a review: the two kinds of blocker call for different next steps.
 export function diagnosisActions(root, metadataPath, diagnosticCases = []) {
@@ -9,6 +11,7 @@ export function diagnosisActions(root, metadataPath, diagnosticCases = []) {
   const unrunCompositions = diagnosticCases.map(c => ({ caseId: c.caseId,
     checks: (c.composition?.checks || []).filter(check => check.status === 'NOT RUN').map(({ id, status, reason }) => ({ id, status, reason })) })).filter(c => c.checks.length);
   return [
+    ...delegationNextActions(metadataPath, diagnosticCases.flatMap(c => c.checks.filter(check => check.delegation).map(check => ({ ...check.delegation, reason: check.reason })))),
     ...(unrunCompositions.length ? [{ code: 'RETRY_COMPOSITION_DIAGNOSTICS', targets: [metadataPath], cases: unrunCompositions,
       permissions: ['project-read', 'browser-execution', 'temporary-write'],
       command: { executable: 'npm', args: ['run', 'finalize:import', '--', root, metadataPath, '--diagnose'] },
