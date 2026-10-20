@@ -4,6 +4,7 @@ Estos casos describen decisiones observables, no sustituyen una ejecución real 
 
 ## Recuperación De Capturas Y Serializaciones
 
+- Transporte figma_execute seleccionado explícitamente en CONFIG: capturar más de 259236 caracteres por un servidor MCP sintético, en una llamada y por bloques; conservar respuestas MCP y validar los mismos datos sin copiar valores por el modelo. success falso/ausente, error contradictorio, contexto de otro file, JSON truncado, bloques cambiantes y formato no seleccionado fallan. No confundir este fixture con un servidor Figma real ni una ejecución OpenCode. Un fallo de formato no autoriza crear scaffold o snapshots manuales.
 - Captura vacía, perfil incompatible, JSON/sello corrupto y archivo ilegible producen motivos y acciones distintos, también con la sesión de evidencia reutilizada. Nunca se completa evidencia a mano ni se sobrescribe historia; restaurar bytes originales y realizar una captura autorizada nueva son recuperaciones distintas.
 - Una captura inválida bloquea la recogida, no oculta el diagnóstico independiente de la demo ni las acciones de serialización. El diagnóstico temporal no publica, restaura ni modifica archivos.
 - FLOAT pendiente referenciado por bindings, CSS, objetos inline literales o alias: acción con variable, ficha y referencias, sin inventar unidad. Una mera declaración de alias no demuestra consumo. Pendientes sin referencias identificadas conservan su nivel de aviso; lectura fallida o análisis dinámico no equivale a sin uso.

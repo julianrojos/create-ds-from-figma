@@ -53,6 +53,26 @@ La herramienta use_figma del conector de Codex expone code, fileKey y descriptio
 
 El CLI consulta tools/list y comprueba que la herramienta declarada exista y exponga los argumentos configurados. El servidor debe ejecutar JavaScript en el contexto Plugin API de Figma: un MCP que solo entregue contexto de diseño no basta. codeArgument/fileKeyArgument permiten adaptar nombres sin modificar el núcleo. arguments añade parámetros exigidos por ese servidor. Para una herramienta que solo recibe código, configura explícitamente `"fileKeyArgument": null`: no se envía ese argumento y el código exige que figma.fileKey exista y coincida con el archivo solicitado. Si la API no permite comprobarlo, falla; no supone que el archivo activo sea el correcto. La portabilidad del cliente NO prueba que cualquier conexión MCP de Figma soporte el colector.
 
+### Respuesta De figma_execute
+
+CONFIG admite `tool.responseFormat`: `transport-v1` por defecto (bloque directamente en el JSON de texto MCP), o `figma-execute` (sobre con `success: true` y bloque en `result`). La selección es explícita: no se adivinan sobres ni se parsea JSON anidado como cadena. El adaptador rechaza errores MCP, success ausente/falso/no booleano, error no nulo, resultados ambiguos y fileContext de otro file cuando existe. Con figma-execute exige también figma.fileKey coincidente dentro del Plugin API, antes de capturar. No cambia observaciones, payload, checksum ni hash del snapshot.
+
+Ejemplo para revisar y autorizar, no conexión directa acreditada de OpenCode:
+
+```json
+{
+  "transport": { "type": "stdio", "command": "npx", "args": ["-y", "figma-console-mcp@1.40.9", "--stdio"] },
+  "tool": { "name": "figma_execute", "codeArgument": "code", "fileKeyArgument": "fileKey", "responseFormat": "figma-execute", "arguments": { "timeout": 30000 } },
+  "timeoutMs": 60000
+}
+```
+
+La versión del ejemplo se inspeccionó localmente; verifica la versión y el esquema de tu instalación antes de autorizarla. No uses latest para declarar una receta reproducible. Esta ejecución Plugin API depende del Desktop Bridge conectado a la instancia que arranca el CLI; la conexión de OpenCode no se hereda por stdio. Un proceso adicional puede abrir otro puerto y no tener plugin conectado. No cierres procesos ajenos para forzarlo. El ejemplo no necesita token REST para la lectura por plugin. Si tu configuración autorizada requiere variables adicionales, usa transport.envFrom; deben estar disponibles en el entorno del CLI y nunca se copian al JSON ni al chat.
+
+capture conserva `response-OFFSET.json` con la respuesta MCP recibida y `OFFSET.json` con el bloque extraído en su sesión temporal. Es el objeto MCP recibido por el SDK, no los bytes originales del protocolo stdio. No publica esos sobres en el DS. La política de limpieza se mantiene: fallo elimina la sesión salvo --keep-failed; ninguna copia temporal autentica Figma. Este formato se comparte con inventory, reference y vectors porque usan el mismo transporte.
+
+Prueba manual del 2026-10-20 mediante la conexión figma_execute del entorno Codex: colector v2, 259236 caracteres declarados y recibidos en una llamada, checksum 8aff3310, 21 nodos, cuatro variantes y cero issues; SHA-256 da5999950f44915189095e24bdf12321a03db10b54104446b762201a5fa7acb4. El envoltorio sin adaptar era rechazado; extraer result sin transcripción permitió validar. No acredita el CLI stdio contra ese servidor, el entorno OpenCode, una revisión atómica ni fidelidad visual. La respuesta real queda fuera del repositorio; las regresiones reproducibles usan datos sintéticos de más de 259236 caracteres, completos y fragmentados.
+
 Si un servidor limita las respuestas, CONFIG admite chunkSize entre 1 y 12000: captura fragmentada explícita, hasta 128 bloques. Cada bloque relee todo; se comparan offsets, total y checksum, sin mezclar capturas. Ni una llamada completa ni los bloques son una lectura atómica fijada a una revisión de Figma. timeoutMs limita cada petición entre 1000 y 300000 ms. Errores, truncamientos y herramientas inaccesibles fallan sin éxito parcial. Un nuevo intento crea siempre OTRA sesión. capture elimina su propia sesión fallida por defecto; --keep-failed la conserva para diagnóstico y muestra su ruta. Las sesiones exitosas se conservan hasta guardarlas; elimina después únicamente esa sesión temporal, no otros directorios. Nunca copies respuestas manualmente para eludir un fallo.
 
 Las pruebas stdio ejecutan el CLI con un servidor MCP real de prueba y una respuesta superior a 12000 caracteres; las HTTP usan un servidor de prueba en loopback. Verifican transporte y persistencia sin APIs del editor. No equivalen a una prueba de autenticación o de Plugin API contra un servidor Figma concreto: comprueba esa conexión en el entorno de importación antes de prometer soporte.
@@ -61,7 +81,7 @@ Las pruebas stdio ejecutan el CLI con un servidor MCP real de prueba y una respu
 
 `node .agents/skills/create-ds-from-figma/scripts/figma-capture.mjs bridge FILE_KEY NODE_ID` genera un adaptador para functions.exec de Codex. Úsalo solo si ese orquestador y sus herramientas existen, transfiriendo stdout programáticamente. No es requisito del contrato ni una vía disponible automáticamente en Claude Code. Usa el mismo núcleo, captura fragmentada y sesiones exclusivas, sin transcripción del modelo. A diferencia de capture, este adaptador conserva las sesiones fallidas y muestra su ruta para diagnóstico; elimina únicamente esa sesión cuando deje de ser necesaria. scripts/lib/capture-bridge.mjs también acepta adaptadores runFigma/getCode/stage.
 
-No hay en el repo un registro reproducible de validación contra Figma real ni de una conexión de Claude Code. Las pruebas automatizadas usan Figma simulado. Antes de declarar una conexión verificada, comprueba su esquema y realiza una captura real de solo lectura, fuera del proyecto; registra fecha, herramienta, entorno, origen, versión del colector, hash, cobertura y limitaciones, sin secretos. Esa validación solo acredita la conexión probada, no todos los editores o servidores.
+El registro manual anterior solo acredita la vía figma_execute del entorno Codex y no conserva datos de diseño en el repo. No hay una validación reproducible del cliente MCP directo contra Figma real, de OpenCode ni de una conexión de Claude Code. Las pruebas automatizadas usan Figma simulado. Antes de declarar otra conexión verificada, comprueba su esquema y realiza una captura real de solo lectura, fuera del proyecto; registra fecha, herramienta, entorno, origen, versión del colector, hash, cobertura y limitaciones, sin secretos. Esa validación solo acredita la conexión probada, no todos los editores o servidores.
 
 ## Persistencia Y Contrato
 

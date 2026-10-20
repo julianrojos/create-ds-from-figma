@@ -1,13 +1,34 @@
+export function captureResponse(result, { responseFormat = 'transport-v1', fileKey } = {}) {
+  if (!['transport-v1', 'figma-execute'].includes(responseFormat)) throw new Error('Unsupported Figma response format');
+  if (result?.isError) throw new Error('Figma capture tool failed');
+  const texts = Array.isArray(result?.content) ? result.content.filter(c => c?.type === 'text') : [];
+  if (texts.length !== 1) throw new Error('Expected one structured Figma response');
+  let response;
+  try { response = JSON.parse(texts[0].text); }
+  catch { throw new Error('Figma response is not complete JSON; inspect the transport, never transcribe the payload'); }
+  if (!response || typeof response !== 'object' || Array.isArray(response)) throw new Error('Expected a Figma response object');
+  if (responseFormat === 'figma-execute') {
+    if (response.success !== true || response.error != null) {
+      const detail = typeof response.error === 'string' ? `: ${response.error.slice(0, 500)}` : '';
+      throw new Error(`figma_execute did not report success${detail}`);
+    }
+    if (response.fileContext != null && response.fileContext.fileKey !== fileKey) throw new Error('figma_execute file context differs from the requested file');
+    response = response.result;
+    if (!response || typeof response !== 'object' || Array.isArray(response)) throw new Error('figma_execute result must be a transport object, not encoded JSON or a partial result');
+  }
+  if (response.transportVersion !== 1) throw new Error('Expected transport-v1 data; check tool.responseFormat for this server (no automatic envelope detection)');
+  return response;
+}
+
 // Inject tool adapters so the same bridge runs in a tool orchestrator and in tests.
-export async function captureViaBridge({ fileKey, nodeId, runFigma, getCode, stage, maxChunks = 128 }) {
+export async function captureViaBridge({ fileKey, nodeId, runFigma, getCode, stage, responseFormat = 'transport-v1', recordResponse, maxChunks = 128 }) {
+  if (!['transport-v1', 'figma-execute'].includes(responseFormat)) throw new Error('Unsupported Figma response format');
   const chunks = [];
   let offset = 0, total, checksum;
   for (let count = 0; count < maxChunks; count++) {
     const result = await runFigma(await getCode(offset));
-    if (result.isError) throw new Error('Figma capture tool failed');
-    const texts = result.content?.filter(c => c.type === 'text') || [];
-    if (texts.length !== 1) throw new Error('Expected one structured Figma response');
-    const chunk = JSON.parse(texts[0].text);
+    if (recordResponse) await recordResponse(result, offset);
+    const chunk = captureResponse(result, { responseFormat, fileKey });
     if (chunk.transportVersion !== 1 || chunk.offset !== offset || !Number.isSafeInteger(chunk.total) || chunk.total < 1 ||
         typeof chunk.checksum !== 'string' || typeof chunk.payload !== 'string' || !chunk.payload.length ||
         offset + chunk.payload.length > chunk.total) throw new Error('Invalid or truncated Figma response');
@@ -27,6 +48,7 @@ export function shellQuote(value) {
 
 export function bridgeCode(script, fileKey, nodeId, { codeArguments = [] } = {}) {
   return `const quote = ${shellQuote.toString()};
+const captureResponse = ${captureResponse.toString()};
 const captureViaBridge = ${captureViaBridge.toString()};
 const script = ${JSON.stringify(script)};
 const run = async cmd => {

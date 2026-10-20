@@ -14,6 +14,8 @@ export function mcpConfiguration(config, env = process.env) {
   if (!Number.isSafeInteger(timeout) || timeout < 1000 || timeout > 300000) throw new Error('MCP timeoutMs must be between 1000 and 300000');
   const chunkSize = config.chunkSize ?? null;
   if (chunkSize !== null && (!Number.isSafeInteger(chunkSize) || chunkSize < 1 || chunkSize > 12000)) throw new Error('Invalid MCP chunkSize');
+  const responseFormat = config.tool.responseFormat === undefined ? 'transport-v1' : config.tool.responseFormat;
+  if (!['transport-v1', 'figma-execute'].includes(responseFormat)) throw new Error('Invalid MCP tool.responseFormat');
   const environment = { ...getDefaultEnvironment() };
   for (const name of config.transport.envFrom || []) {
     if (typeof name !== 'string' || !env[name]) throw new Error('A configured MCP environment variable is unavailable');
@@ -33,7 +35,7 @@ export function mcpConfiguration(config, env = process.env) {
   const codeArgument = config.tool.codeArgument ?? 'code';
   const fileKeyArgument = config.tool.fileKeyArgument === undefined ? 'fileKey' : config.tool.fileKeyArgument;
   if (codeArgument === fileKeyArgument || [codeArgument, ...(fileKeyArgument === null ? [] : [fileKeyArgument])].some(n => typeof n !== 'string' || !/^[A-Za-z][A-Za-z0-9_]*$/.test(n))) throw new Error('Invalid MCP argument mapping');
-  return { timeout, chunkSize, environment, headers, codeArgument, fileKeyArgument };
+  return { timeout, chunkSize, responseFormat, environment, headers, codeArgument, fileKeyArgument };
 }
 
 // No editor globals: the official SDK owns MCP framing, lifecycle and authentication errors.
@@ -65,7 +67,9 @@ export async function capturePayloadFromMcp(config, fileKey, nodeId, { approvedC
     for (const field of [options.codeArgument, options.fileKeyArgument].filter(n => n !== null)) if (!tool.inputSchema?.properties?.[field]) throw new Error('Configured Figma tool does not expose the required mapped arguments');
     directory = mkdtempSync(path.join(os.tmpdir(), 'figma-capture-mcp-'));
     const result = await captureViaBridge({ fileKey, nodeId,
-      getCode: async offset => (options.fileKeyArgument === null
+      responseFormat: options.responseFormat,
+      recordResponse: async (response, offset) => writeFileSync(path.join(directory, `response-${offset}.json`), JSON.stringify(response) + '\n', { flag: 'wx' }),
+      getCode: async offset => (options.fileKeyArgument === null || options.responseFormat === 'figma-execute'
         ? `if (figma.fileKey !== ${JSON.stringify(fileKey)}) throw new Error('Active Figma file cannot be verified or differs from the requested file');\n` : '') + codeFor(offset, options.chunkSize),
       runFigma: code => client.callTool({ name: config.tool.name, arguments: { ...config.tool.arguments,
         [options.codeArgument]: code, ...(options.fileKeyArgument === null ? {} : { [options.fileKeyArgument]: fileKey }) } }, undefined, { timeout: options.timeout }),

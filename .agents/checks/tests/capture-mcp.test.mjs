@@ -44,6 +44,34 @@ test('portable MCP fails closed on unavailable tools, tool errors, truncation an
   }
 });
 
+test('figma_execute captures are explicitly decoded and preserve full MCP responses in temporary sessions', async () => {
+  for (const chunkSize of [null, 12000]) {
+    const connection = { ...config('wrapped-large'), chunkSize,
+      tool: { name: 'figma_execute', codeArgument: 'code', fileKeyArgument: 'fileKey', responseFormat: 'figma-execute' } };
+    const result = await captureFromMcp(connection, 'FILE', '1:1', { approvedConnection: true });
+    try {
+      assert.ok(result.total > 259236);
+      assert.equal(result.chunks === 1, chunkSize === null);
+      const first = JSON.parse(readFileSync(path.join(result.directory, '0.json'), 'utf8'));
+      const raw = JSON.parse(readFileSync(path.join(result.directory, 'response-0.json'), 'utf8'));
+      const wrapped = JSON.parse(raw.content[0].text);
+      assert.equal(wrapped.success, true); assert.deepEqual(wrapped.result, first);
+      if (chunkSize === null) {
+        assert.equal(first.payload.length, result.total);
+        assert.deepEqual(captureProblems(assembleChunks([first])), []);
+      }
+      assert.equal(result.persistedInProject, false);
+    } finally { rmSync(result.directory, { recursive: true, force: true }); }
+  }
+  for (const mode of ['wrapped-error', 'wrapped-wrong-file']) {
+    await assert.rejects(captureFromMcp({ ...config(mode), tool: { name: 'figma_execute', responseFormat: 'figma-execute' } }, 'FILE', '1:1', { approvedConnection: true }), error => {
+      assert.match(error.message, mode === 'wrapped-error' ? /did not report success/ : /file context differs/);
+      assert.equal(existsSync(error.session.directory), false); return true;
+    });
+  }
+  await assert.rejects(captureFromMcp({ ...config('wrapped'), tool: { name: 'figma_execute' } }, 'FILE', '1:1', { approvedConnection: true }), /tool.responseFormat/);
+});
+
 test('portable HTTP MCP transport captures without editor globals and closes its connections', async () => {
   const transport = new WebStandardStreamableHTTPServerTransport({ sessionIdGenerator: randomUUID, enableJsonResponse: true });
   const mcp = captureServer(); await mcp.connect(transport);
@@ -67,12 +95,48 @@ test('portable HTTP MCP transport captures without editor globals and closes its
   }
 });
 
+test('inventory, PNG and vector CLIs share the explicit figma_execute response adapter', () => {
+  const root = mkdtempSync(path.join(os.tmpdir(), 'mcp-wrapped-cli-'));
+  try {
+    for (const [mode, name, arguments_, field, expected] of [
+      ['wrapped-inventory', 'figma-inventory', ['FILE'], 'variables', 5],
+      ['wrapped-reference', 'figma-reference', ['FILE', '1:1', '1'], 'width', 2],
+      ['wrapped-vectors', 'figma-vectors', ['FILE', '1:1'], 'vectors', 1],
+    ]) {
+      const connection = path.join(root, `${name}.json`);
+      writeFileSync(connection, JSON.stringify({ ...config(mode), tool: { name: 'figma_execute', responseFormat: 'figma-execute' } }));
+      const cli = path.resolve(`.agents/skills/create-ds-from-figma/scripts/${name}.mjs`);
+      const run = spawnSync(process.execPath, [cli, 'capture', ...arguments_, connection, '--approve-connection'], { encoding: 'utf8', timeout: 15000 });
+      assert.equal(run.status, 0, run.stderr);
+      const result = JSON.parse(run.stdout);
+      try { assert.equal(result[field], expected); assert.ok(existsSync(path.join(result.directory, 'response-0.json'))); }
+      finally { rmSync(result.directory, { recursive: true, force: true }); }
+    }
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('failed figma_execute responses remain auditable only when the caller explicitly retains the session', async () => {
+  await assert.rejects(captureFromMcp({ ...config('wrapped-error'), tool: { name: 'figma_execute', responseFormat: 'figma-execute' } }, 'FILE', '1:1', { approvedConnection: true, keepFailed: true }), error => {
+    const dir = error.session.directory;
+    try {
+      assert.equal(error.session.retained, true);
+      const raw = JSON.parse(readFileSync(path.join(dir, 'response-0.json'), 'utf8'));
+      assert.equal(JSON.parse(raw.content[0].text).success, false);
+      assert.equal(existsSync(path.join(dir, '0.json')), false);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+    return true;
+  });
+});
+
 test('MCP config validates secret references and rejects insecure remote URLs and invalid mappings', () => {
   const c = config();
   assert.throws(() => mcpConfiguration({ ...c, transport: { type: 'http', url: 'http://example.com/mcp' } }), /HTTPS/);
   assert.throws(() => mcpConfiguration({ ...c, transport: { type: 'http', url: 'https://token@example.com/mcp' } }), /credentials/);
   assert.throws(() => mcpConfiguration({ ...c, timeoutMs: 1 }), /timeoutMs/);
   assert.throws(() => mcpConfiguration({ ...c, chunkSize: 13000 }), /chunkSize/);
+  for (const responseFormat of [null, '', 'auto', 'result', false]) assert.throws(() => mcpConfiguration({ ...c, tool: { ...c.tool, responseFormat } }), /responseFormat/);
+  assert.equal(mcpConfiguration(c).responseFormat, 'transport-v1');
+  assert.equal(mcpConfiguration({ ...c, tool: { ...c.tool, responseFormat: 'figma-execute' } }).responseFormat, 'figma-execute');
   assert.throws(() => mcpConfiguration({ ...c, transport: { ...c.transport, envFrom: ['MISSING'] } }, {}), /unavailable/);
   const o = mcpConfiguration({ ...c, transport: { type: 'http', url: 'https://example.com/mcp', headersFromEnv: { Authorization: 'AUTH' } } }, { AUTH: 'Bearer test' });
   assert.equal(o.headers.Authorization, 'Bearer test');
