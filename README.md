@@ -274,3 +274,15 @@ La recogida muestra viewport esperado/obtenido antes de enviar y tiene un timeou
 - Si falta información esencial o un componente anidado local, informa `DS_GAP`; no inventes un sustituto
 - `design-system/inventory.json` solo registra componentes implementados y pantallas con su composición declarada
 - No resumir tokens a color/spacing/type
+
+## Cierre y evaluación de instrucciones
+
+`npm run verify:all -- kit` agrupa pruebas completas (incluido Chromium), enlaces estrictos, validación estructural de los casos de routing y comprobación de punteros y cobertura del plan de lectura (`read:guidance --check`). Los perfiles `import` y `screen` agrupan comprobaciones del DS con un alcance explícito; `--dry-run` muestra comandos y efectos sin ejecutarlos. No publican, no registran revisiones y no acreditan por sí solos una entrega visual. Consulta [perfiles, efectos y evaluación de routing](.agents/workflows/verify-and-evaluate.md).
+
+`npm run eval:routing -- --check` solo valida fixtures. `--prompts` prepara la evaluación sin respuestas esperadas y `--results FILE` puntúa una ejecución real conservada, con hashes del catálogo y casos. Las tres skills auxiliares y la principal tienen casos de activación, exclusión y límite; esto no sustituye las regresiones de navegador ni demuestra comportamiento de ejecución.
+
+Las skills seleccionan secciones mediante `npm run read:guidance -- FASE`; no
+requieren cargar todas las referencias completas. --stats permite medir bytes
+y palabras para escenarios explícitos. El [índice de evaluaciones](.agents/evals/README.md)
+separa resultados globales e históricos por skill. Las puntuaciones de routing
+son pruebas de humo con catálogo suministrado, no evidencia de discovery real.

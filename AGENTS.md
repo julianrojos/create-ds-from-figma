@@ -42,3 +42,17 @@ Instrucciones operativas para agentes de IA en este repositorio.
 - Si cambia el flujo de entrega, mantener sincronizados `verify:imports`, `finalize:import`, las skills consumidoras, la documentación y sus regresiones. El gate es de solo lectura; los modos de recogida o registro de la finalización escriben y no deben ejecutarse como un check rutinario sin la autorización correspondiente.
 - Si cambia `metadata.verification`, sincronizar la plantilla de ficha, la referencia de metadata, las skills consumidoras, `verify-render-plan.mjs`, la vista de verificación, sus tests y casos de evaluación. No implica cambiar el colector ni las relaciones si sus formatos no cambian.
 - Si cambia el contrato de correspondencias de usage.md, sincronizar plantilla, referencia de metadata, skills consumidoras, verificadores y tests. La confirmación auditable no sustituye una comparación renderizada real.
+
+## Cierre automatizado por perfil
+
+- Para mantenimiento del kit, `npm run verify:all -- kit` agrupa la suite completa, documentación estricta, estructura de fixtures de routing y comprobación de punteros y cobertura del plan de lectura (`read:guidance --check`). Conserva las obligaciones de `npm test` y `verify:docs` anteriores.
+- Para importaciones, `npm run verify:all -- import --root ROOT --metadata METADATA` agrupa checks estáticos, diagnóstico temporal de cada ficha indicada y `verify:imports`; enumera todas las fichas modificadas repitiendo `--metadata`.
+- Para pantallas, usa `npm run verify:all -- screen --root ROOT`, añadiendo fichas de componentes importados modificados. No ejecuta ni compara la pantalla completa.
+- Estos perfiles ejecutan código/tests/navegador y pueden escribir temporales o resultados; `--dry-run` solo muestra el plan. No publican mediciones ni registran revisiones. No sustituyen checks manuales, revisión renderizada ni permisos del entorno.
+- Procedimiento y límites: `.agents/workflows/verify-and-evaluate.md`. Las evaluaciones de routing son independientes de los tests; validar fixtures no demuestra enrutado real.
+
+## Lectura y evaluación de instrucciones
+
+- Selecciona los apartados de `.agents/reading-plan.json` mediante `npm run read:guidance -- FASE`, añadiendo condiciones observadas con `--with`. No cargues referencias completas por defecto; si no sabes si una condición aplica, resuélvelo antes de omitir el contrato.
+- La guía única de cierre y routing es `.agents/workflows/verify-and-evaluate.md`; las skills contienen solo instrucciones de la tarea. El índice `.agents/evals/README.md` distingue resultados globales y experimentos por skill.
+- Las evaluaciones de selección con catálogo suministrado son pruebas de humo. No las presentes como discovery real ni cumplimiento de ejecución; registra modelos/versiones disponibles y explicita lo no reportado.

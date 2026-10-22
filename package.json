@@ -14,6 +14,7 @@
     "verify:docs": "node .agents/checks/verify-docs.mjs",
     "verify:imports": "node .agents/checks/verify-imports.mjs",
     "finalize:import": "node .agents/skills/create-ds-from-figma/scripts/finalize-import.mjs",
+    "verify:all": "node .agents/scripts/verify-all.mjs",
     "eval:routing": "node .agents/scripts/evaluate-routing.mjs",
     "read:guidance": "node .agents/scripts/read-guidance.mjs"
   },

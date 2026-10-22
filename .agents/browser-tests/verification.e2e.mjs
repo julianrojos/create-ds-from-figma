@@ -8,6 +8,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { createServer } from 'node:net';
 import { browserRuntime, repoRoot } from '../scripts/test-kit.mjs';
+import { classify as classifyClosureCheck } from '../scripts/verify-all.mjs';
 import { createPreviewProject } from '../checks/tests/fixtures/preview-project.mjs';
 import { runBrowserVerification, browserVerificationExitCode } from '../skills/create-ds-from-figma/scripts/verification-browser.mjs';
 import { renderRequirements, sha256 } from '../checks/lib/render-plan.mjs';
@@ -286,6 +287,7 @@ test('diagnostic import loop detects shared size classes and inverted partial-bo
   assert.equal(publication.collection, undefined); assert.match(publication.errors.join('\n'), /DS_GAP/);
   const broken = await finalizeImport(root, metadataPath, { diagnose: true });
   assert.equal(broken.status, 'FAIL', JSON.stringify(broken)); assert.equal(broken.complete, false);
+  assert.equal(classifyClosureCheck({ kind: 'diagnostic' }, { status: 1, stdout: JSON.stringify(broken) }).status, 'FAIL');
   assert.equal(broken.diagnosis.execution.status, 'COMPLETED', JSON.stringify(broken.diagnosis));
   t.after(() => rmSync(broken.diagnosis.directory, { recursive: true, force: true }));
   assert.deepEqual(broken.diagnosis.manifest.cases, []);
@@ -404,6 +406,7 @@ test('a clean temporary diagnosis never confirms or publishes a candidate', asyn
   const result = await finalizeImport(root, metadataPath, { diagnose: true });
   t.after(() => rmSync(result.diagnosis.directory, { recursive: true, force: true }));
   assert.equal(result.status, 'NOT VERIFIED', JSON.stringify(result)); assert.equal(result.complete, false);
+  assert.equal(classifyClosureCheck({ kind: 'diagnostic' }, { status: 1, stdout: JSON.stringify(result) }).status, 'DIAGNOSTIC');
   assert.equal(result.diagnosis.execution.status, 'COMPLETED');
   assert.equal(result.diagnosis.diagnostics.summary.FAIL, 0); assert.equal(result.diagnosis.diagnostics.summary['NOT RUN'], 0);
   assert.deepEqual(result.diagnosis.manifest.cases, []); assert.equal(result.correspondences, undefined);
