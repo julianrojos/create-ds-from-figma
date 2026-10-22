@@ -1,9 +1,11 @@
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import assert from "node:assert/strict";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { report } from "../verify-bindings.mjs";
+import { report, structuredReport } from "../verify-bindings.mjs";
 
 const roots = [];
 const write = (root, relative, data) => {
@@ -417,4 +419,20 @@ test("no advisory appears for semantic collections or for measured literals", ()
   const tokens = JSON.parse(readFileSync(path.join(root, "design-system/tokens/Color.json"), "utf8"));
   write(root, "design-system/tokens/Color.json", { ...tokens, collection: "Color" });
   assert.equal(report(root).some((item) => item.type === "advisory"), false);
+});
+
+test('JSON binding CLI matches the structured API and preserves legacy reporting exit semantics', () => {
+  const root = fixture(), script = fileURLToPath(new URL('../verify-bindings.mjs', import.meta.url));
+  const expected = structuredReport(root);
+  const json = spawnSync(process.execPath, [script, root, '--json'], { encoding: 'utf8' });
+  assert.equal(json.status, 0); // Reporting FAIL records remains distinct from execution failure.
+  assert.deepEqual(JSON.parse(json.stdout), expected);
+  assert.ok(expected.counts.FAIL > 0);
+  const human = spawnSync(process.execPath, [script, root], { encoding: 'utf8' });
+  assert.equal(human.status, 0);
+  assert.match(human.stdout, /REPORT /);
+  const invalid = spawnSync(process.execPath, [script, root, '--json', '--unsupported'], { encoding: 'utf8' });
+  assert.equal(invalid.status, 1);
+  assert.equal(JSON.parse(invalid.stdout).schemaVersion, 1);
+  assert.ok(JSON.parse(invalid.stdout).error);
 });

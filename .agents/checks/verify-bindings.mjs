@@ -229,21 +229,36 @@ export function report(root, componentName) {
   return results;
 }
 
+export function structuredReport(root, componentName) {
+  const results = report(root, componentName);
+  const counts = Object.fromEntries(['PASS', 'FAIL', 'NOT_RUN', 'ADVISORY'].map(status => [status, results.filter(item => item.status === status).length]));
+  return { schemaVersion: 1, results, counts, scope: 'Written binding identity and static analysis only; computed values and visual fidelity require independent review.' };
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const root = path.resolve(process.argv[2] || ".");
-  const componentName = process.argv[3];
+  const args = process.argv.slice(2), json = args.includes('--json');
   try {
-    const results = report(root, componentName);
-    for (const result of results) {
-      const subject = [result.component, result.type, result.variant, result.selector, result.property].filter(Boolean).join(" ");
-      const written = result.writtenStatus ? ` [written ${result.writtenStatus}]` : "";
-      console.log(`${result.status}${written} ${subject}: ${result.reason || `${result.actual} (expected ${result.expected})`}`);
+    if (args.length === 1 && args[0] === '--help') {
+      console.log('Usage: node .agents/checks/verify-bindings.mjs [ROOT [COMPONENT]] [--json]\nJSON schemaVersion 1 emits results and derived counts. Reporting findings preserves legacy exit policy; errors exit 1.');
+    } else {
+      if (args.filter(arg => arg === '--json').length > 1 || args.some(arg => arg.startsWith('--') && arg !== '--json')) throw new Error('Invalid binding report arguments');
+      const positional = args.filter(arg => arg !== '--json');
+      if (positional.length > 2) throw new Error('Too many binding report arguments');
+      const result = structuredReport(path.resolve(positional[0] || '.'), positional[1]);
+      if (json) console.log(JSON.stringify(result, null, 2));
+      else {
+        for (const item of result.results) {
+          const subject = [item.component, item.type, item.variant, item.selector, item.property].filter(Boolean).join(' ');
+          const written = item.writtenStatus ? ` [written ${item.writtenStatus}]` : '';
+          console.log(`${item.status}${written} ${subject}: ${item.reason || `${item.actual} (expected ${item.expected})`}`);
+        }
+        const counts = Object.fromEntries(Object.entries(result.counts).filter(([status, count]) => status !== 'ADVISORY' || count > 0));
+        console.log(`REPORT ${JSON.stringify(counts)}; written identity and effective browser values must both be verified`);
+      }
     }
-    const counts = Object.fromEntries(["PASS", "FAIL", "NOT_RUN", "ADVISORY"].map((status) => [status, results.filter((item) => item.status === status).length])
-      .filter(([status, count]) => status !== "ADVISORY" || count > 0));
-    console.log(`REPORT ${JSON.stringify(counts)}; written identity and effective browser values must both be verified`);
   } catch (error) {
-    console.error(`NOT_RUN binding report: ${error.message}`);
+    if (json) console.log(JSON.stringify({ schemaVersion: 1, error: error.message }));
+    else console.error(`NOT_RUN binding report: ${error.message}`);
     process.exitCode = 1;
   }
 }
