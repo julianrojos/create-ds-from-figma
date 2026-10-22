@@ -1,5 +1,7 @@
 # CREATE DS FROM FIGMA
 
+`verify:imports` y `finalize:import` incluyen `report`, generado por el kit: cobertura por caso y combinación exacta de modos, confirmaciones revalidadas/caducadas, colores comprobados, decisiones declaradas, exclusiones, dudas y acciones pendientes. No acredita aprobación humana de decisiones ni todas las combinaciones disponibles. En --diagnose los resultados son temporales: confirmed/pending son null y las confirmaciones no se revalidan. Un color calculado correcto no prueba que la máscara cargue, que la tinta se vea ni la fidelidad visual; conserva las revisiones y los artefactos exigidos.
+
 Para alias entre colecciones locales con valores distintos por modo, `generate-token-json.mjs plan/save --inventory INVENTORY --alias-modes PATH` admite un JSON de IDs de colección a nombres exactos de modo autorizados. Guarda la elección en `figma-state.json.aliasModes`; no activa un modo CSS. check revalida la decisión persistida. Los colectores ordenan conjuntos de IDs para estabilizar el transporte, sin alterar modos ni capas; los snapshots históricos permanecen inmutables.
 
 Proyecto para arrancar un Design System desde 0 dentro de este repo preparado.

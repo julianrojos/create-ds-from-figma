@@ -10,6 +10,7 @@ import { deduplicateNextActions, deliveryNextActions, fontConfigurationActions }
 import { fontConfigurations } from './lib/font-configuration.mjs';
 import { delegationNextActions } from './lib/delegation-differences.mjs';
 import { importDiagnostics } from './lib/import-diagnostics.mjs';
+import { importReport, reportDocuments } from './lib/import-report.mjs';
 
 const core = ['design-system/inventory.json', 'design-system/relationships/figma-code-map.json', 'design-system/relationships/figma-state.json'];
 const notApplicable = reason => ({ status: 'NOT APPLICABLE', reason });
@@ -83,7 +84,10 @@ export async function verifyImports(root, { applicationOptions } = {}) {
   if (!['PASS', 'NOT APPLICABLE'].includes(application.status)) nextActions.push({ code: 'RUN_APPLICATION_DIAGNOSTICS', resources: [],
     prerequisites: ['An available permitted browser runtime is required; if missing, npm run test:browser:setup needs installation/network permission.'],
     permissions: ['browser-execution'], command: { executable: 'node', args: ['.agents/checks/verify-imports.mjs', root] }, requiredArguments: [] });
-  return { schemaVersion: 1, status, structure, components, application, errors, warnings, importDiagnostics: diagnostics.components, nextActions: deduplicateNextActions(nextActions),
+  const actions = deduplicateNextActions(nextActions);
+  const report = importReport({ status, structure, application, components, errors, warningCount: warnings.length, nextActions: actions,
+    documents: reportDocuments(root, diagnostics.components) });
+  return { schemaVersion: 1, status, structure, components, application, errors, warnings, importDiagnostics: diagnostics.components, nextActions: actions, report,
     scope: 'Delivery accounting from revalidated persisted confirmations, not automatic overall visual fidelity. Demo checks only applicable literals in the kit Chromium.' };
 }
 

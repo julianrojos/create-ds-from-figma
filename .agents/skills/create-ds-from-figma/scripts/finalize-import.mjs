@@ -16,6 +16,7 @@ import { delegationDifferences, delegationNextActions } from '../../../checks/li
 import { mappedDelegations } from '../../../checks/verify-figma-evidence.mjs';
 import { createEvidenceSession } from '../../../checks/lib/evidence-session.mjs';
 import { importDiagnostics } from '../../../checks/lib/import-diagnostics.mjs';
+import { importReport, reportDocuments } from '../../../checks/lib/import-report.mjs';
 
 function updatedUsage(original, record) {
   const prose = markdownProse(original);
@@ -99,14 +100,17 @@ export async function finalizeImport(root, metadataPath, { reviews, collect = fa
   } catch (error) { errors.push(error.message); }
   if (diagnose) {
     const failed = errors.length || collection?.execution.status !== 'COMPLETED' || collection?.diagnostics?.summary.FAIL || collection?.diagnostics?.summary['NOT RUN'] || collection?.diagnostics?.compositionSummary?.FAIL || collection?.diagnostics?.compositionSummary?.['NOT RUN'] || collection?.application.status === 'FAIL' || collection?.application.status === 'NOT RUN';
-    return { status: failed ? 'FAIL' : 'NOT VERIFIED', complete: false, errors, diagnosis: collection, importDiagnostics: inputDiagnostics,
-      nextActions: deduplicateNextActions([...resourceActions, ...diagnosisActions(root, metadataPath, collection?.diagnostics?.cases)]),
+    const status = failed ? 'FAIL' : 'NOT VERIFIED';
+    const nextActions = deduplicateNextActions([...resourceActions, ...diagnosisActions(root, metadataPath, collection?.diagnostics?.cases)]);
+    const report = importReport({ status, diagnostic: true, errors, application: collection?.application,
+      documents: reportDocuments(root, inputDiagnostics.components), diagnosticCases: collection?.diagnostics?.cases, nextActions });
+    return { status, complete: false, errors, diagnosis: collection, importDiagnostics: inputDiagnostics, report, nextActions,
       scope: 'Diagnostic feedback on existing code only. No project evidence is published, no reviews are recorded and delivery is not confirmed. Fix observed defects, resolve resources and collect again before delivery.' };
   }
   const delivery = await verifyImports(root, { applicationOptions });
   const status = !errors.length && delivery.status === 'PASS' && (!collection || collection.closure.complete && !collection.blocked.length) ? 'PASS' : 'FAIL';
   const nextActions = deduplicateNextActions([...resourceActions, ...delivery.nextActions]);
-  return { status, errors, collection, correspondences, delivery, nextActions,
+  return { status, errors, collection, correspondences, delivery, nextActions, report: { ...delivery.report, status, errors: [...errors, ...delivery.errors] },
     scope: 'Explicit review recording and current delivery checks, not automatic visual judgment. A collection without confirmation is not a completed import.' };
 }
 

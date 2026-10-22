@@ -11,6 +11,8 @@ description: >-
 
 # Crear DS desde un componente Figma
 
+Usa report de finalize:import/verify:imports para el resumen final de cobertura exacta, decisiones declaradas y obligaciones; no inventes cifras ni aprobación humana. El report de --diagnose es temporal y no revalida confirmaciones publicadas.
+
 Toda importación usa captura v2 con absoluteBoundingBox/absoluteTransform y verification.geometryPolicy=mapped-layout-v1. No completes hechos geométricos a mano ni migres capturas v1: recaptura. Antes de confirmar, usa verification-plan.mjs compare con la medición v2 del caso y revisa los checks; el informe v4 deriva renderChecks. FAIL/NOT RUN y fuentes esenciales pendientes bloquean confirmed. Cada NOT COMPARABLE de fidelidad necesita checkReviews específico con evidencia del mismo caso, sin cambiar su resultado numérico. El informe final debe separar conformidad estática de cobertura visual: casos confirmados, pendientes, registros fallidos y no establecidos, más motivos de no comparabilidad. No presentes una importación visual como terminada solo porque verify-ds devuelve PASS.
 
 El usuario trabaja en **este repo**, dice **crea un DS** y pega **un componente** de Figma (con variables locales o bindings externos con ID y valor resuelto).

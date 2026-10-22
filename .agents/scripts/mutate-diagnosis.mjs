@@ -13,10 +13,15 @@ const pixels = '.agents/checks/lib/pixel-residual.mjs';
 const pixelCli = '.agents/skills/create-ds-from-figma/scripts/pixel-diagnose.mjs';
 const vectorCli = '.agents/skills/create-ds-from-figma/scripts/figma-vectors.mjs';
 const composition = '.agents/checks/lib/composition-diagnostics.mjs';
+const report = '.agents/checks/lib/import-report.mjs';
 runMutations({ root, name: 'diagnosis',
-  tests: ['.agents/checks/tests/render-comparison.test.mjs', '.agents/checks/tests/diagnosis-actions.test.mjs', '.agents/checks/tests/verification-resources.test.mjs', '.agents/checks/tests/vector-export.test.mjs', '.agents/checks/tests/pixel-residual.test.mjs', '.agents/checks/tests/svg-safety.test.mjs', '.agents/checks/tests/composition-diagnostics.test.mjs'],
+  tests: ['.agents/checks/tests/import-report.test.mjs', '.agents/checks/tests/render-comparison.test.mjs', '.agents/checks/tests/diagnosis-actions.test.mjs', '.agents/checks/tests/verification-resources.test.mjs', '.agents/checks/tests/vector-export.test.mjs', '.agents/checks/tests/pixel-residual.test.mjs', '.agents/checks/tests/svg-safety.test.mjs', '.agents/checks/tests/composition-diagnostics.test.mjs'],
   scope: 'Targeted absence, next-action, image-provenance, vector-export, SVG-safety, pixel-residual and experimental composition regressions, not exhaustive mutation coverage or real Figma fidelity.',
   mutants: [
+    [report, 'report-hides-invalid-records', 'if (!object(entry)) invalidInputs.push', 'if (false) invalidInputs.push'],
+    [report, 'report-failed-text-needs-review', "check.status === 'PASS' && check.typographyTolerance?.requiresRenderedReview === true", 'check.typographyTolerance?.requiresRenderedReview === true'],
+    [report, 'report-promotes-stale-case', "current?.status || (diagnostic ? 'not-revalidated' : 'pending')", "c.kind === 'fidelity' ? 'confirmed' : 'verified-behavior'"],
+    [report, 'report-diagnosis-claims-confirmation', 'confirmed: diagnostic ? null :', 'confirmed: false ? null :'],
     [composition, 'composition-reintroduces-excluded-counter', 'indeterminate: 0, nonOpaque: 0', 'indeterminate: 0, excluded: 0'],
     [actions, 'composition-drops-unrun-retry', ".filter(check => check.status === 'NOT RUN')", '.filter(() => false)'],
     [composition, 'composition-ignores-reversed-order', '(reverse ? -1 : 1)', '1'],

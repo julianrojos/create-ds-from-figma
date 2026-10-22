@@ -97,7 +97,9 @@ export function verifyCorrespondences(root, metadata, markdown, prose, { style, 
         const result = renderedChecks(root, metadata, configuration, report.artifacts, context);
         if (canonicalJson(renderResultFacts(result)) !== canonicalJson(recordedFacts)) throw new Error('Recorded render checks differ from recomputed source/measurement checks');
         assertConfirmationChecks(result, report.checkReviews, report.artifacts.map(a => a.path));
-        current.push({ caseId: row.caseId, status: 'confirmed', checks: result.summary,
+        current.push({ caseId: row.caseId, status: 'confirmed', checks: result.summary, behaviorCaseIds: report.behaviors.map(b => b.caseId),
+          computedColors: result.checks.filter(check => check.id.startsWith('color:')).map(({ id, status }) => ({ id, status })),
+          behaviorColors: report.behaviors.map(b => ({ caseId: b.caseId, checks: b.renderChecks.checks.filter(check => check.id.startsWith('color:')).map(({ id, status }) => ({ id, status })) })),
           behaviorChecks: Object.fromEntries(['PASS', 'FAIL', 'NOT COMPARABLE', 'NOT RUN'].map(status => [status, report.behaviors.reduce((sum, b) => sum + b.renderChecks.summary[status], 0)])) });
       }
     } catch (error) { errors.push(`${label}: ${error.message}`); current.push({ caseId: row.caseId, status: 'failed-record' }); }
@@ -110,6 +112,12 @@ export function correspondenceSummary(metadata, result) {
   const cases = objectRecords(metadata.verification?.cases).filter(c => c.kind === 'fidelity');
   const current = new Map(result.current.map(c => [c.caseId, c]));
   return { confirmed: cases.filter(c => current.get(c.id)?.status === 'confirmed').length,
+    cases: objectRecords(metadata.verification?.cases).map(c => ({ caseId: c.id, kind: c.kind, modes: c.modes,
+      computedColors: c.kind === 'fidelity' ? current.get(c.id)?.computedColors || []
+        : result.current.filter(row => row.status === 'confirmed').flatMap(row => row.behaviorColors || []).find(b => b.caseId === c.id)?.checks || [],
+      status: c.kind === 'fidelity' ? current.get(c.id)?.status || 'missing'
+        : result.current.some(row => row.status === 'confirmed' && row.behaviorCaseIds?.includes(c.id)) ? 'verified-behavior' : 'pending',
+      ...(current.get(c.id)?.registeredStatus === 'confirmed' ? { stale: true } : {}) })),
     pending: cases.filter(c => !['confirmed', 'failed-record'].includes(current.get(c.id)?.status)).length,
     failedRecords: cases.filter(c => current.get(c.id)?.status === 'failed-record').length,
     unestablished: Array.isArray(metadata.verification?.unestablished) ? metadata.verification.unestablished.length : 0, totalCases: cases.length,

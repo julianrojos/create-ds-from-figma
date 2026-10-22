@@ -1,5 +1,11 @@
 # Formato de la ficha del componente
 
+## Informe De Importación
+
+La salida report de verify:imports/finalize:import es derivada, no un nuevo registro persistente de terminado. Lista confirmaciones revalidadas/caducadas, checks de color, cobertura de modos por combinación exacta de IDs/casos, decisiones declaradas, exclusiones, dudas, autorizaciones pendientes y otras acciones. No confunde declaraciones con aprobación del usuario ni con evidencia. En --diagnose no revalida confirmaciones: confirmed/pending son null y cases.status es not-revalidated; las mediciones y revisiones requeridas son temporales. NOT COMPARABLE de behavior es ejecución/resolución pendiente, no petición de revisión para aprobarlo. Los cambios de reglas caducan confirmaciones por COMPARATOR_VERSION; no repares informes históricos.
+
+En el report, FAIL figura en requiredCorrections, NOT RUN en requiredExecution y solo NOT COMPARABLE o PASS con requiresRenderedReview=true puede pedir requiredReviews de fidelidad. Los registros nulos/inválidos se señalan en invalidInputs y mantienen FAIL estructurado, sin descartarlos como si la ficha estuviera completa.
+
 diagnoseComposition puede rechazar su promesa si falla la lectura inicial del estilo de body, antes de aislar, capturar o escribir. No es una API que prometa devolver siempre un registro estructurado: verification-browser captura ese fallo como composition:collection/NOT RUN con el motivo original y cierra el contexto. La derivación compartida de acciones conserva el caso y solicita RETRY_COMPOSITION_DIAGNOSTICS; no hay estado de aislamiento que restaurar en ese punto.
 
 Los fallos técnicos dentro del muestreo de composición (evaluación inesperada, screenshot, persistencia, decodificación o restauración) son NOT RUN, no abstenciones. Solo las condiciones explícitas de comparabilidad/presupuesto producen NOT COMPARABLE, comunicadas estructuralmente y sin clasificar errores por su texto. Se conserva el error original y, si procede, el de restauración, con los artefactos parciales ya escritos. Se intentan todos los pasos de limpieza y no se conservan checks aprobados de un grupo cuya restauración falla. La finalización convierte NOT RUN en FAIL diagnóstico/RETRY_COMPOSITION_DIAGNOSTICS sin afirmar un defecto visual ni afectar confirmaciones publicadas.
