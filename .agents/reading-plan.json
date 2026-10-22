@@ -1,0 +1,739 @@
+{
+  "schemaVersion": 2,
+  "conditionPolicy": "Select flags from observed facts. Resolve unknown applicability before omitting a required contract. first/next identify scaffold mode; direct-mcp/bridge identify the authorized transport. Flags are not permissions.",
+  "featureConditions": {
+    "update": "Existing component explicitly updated or dependency substitution authorized",
+    "direct-mcp": "Authorized direct MCP connection used",
+    "bridge": "Optional Codex bridge actually available and authorized",
+    "figma-execute": "Selected tool response envelope is figma_execute",
+    "nested": "Source subtree contains instances",
+    "delegation": "An instance is reused through a mapped DS component",
+    "modes": "Multiple/forced collection modes or mode-dependent aliases",
+    "float": "Observed FLOAT serialization is needed/undecided",
+    "first": "First import or incomplete initial scaffold",
+    "next": "Existing scaffold, next component",
+    "text": "Captured TEXT nodes, including hidden text",
+    "native-states": "A case declares checked/disabled native assertions",
+    "resources": "Observed fonts/images require authorized sourcing, registration, configuration or loading review",
+    "color": "Explicit solid-paint color mappings are compared",
+    "composition": "Composition diagnostics are present or need interpretation",
+    "recovery": "Capture/serialization/infrastructure recovery is being investigated",
+    "styles": "Applied-style provenance is inspected",
+    "evidence": "Validation of an imported Figma component and its persisted evidence",
+    "approximate": "At least one measured literal has an approximate translation"
+  },
+  "phases": {
+    "import-intake": {
+      "sections": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+          "section": "Dos modos"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+          "section": "Preanálisis antes de escribir"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+          "section": "Inspección del nodo"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+          "section": "Clasificación de anidados"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+          "section": "Recursos esenciales"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+          "section": "Decisión antes de escribir"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+          "section": "Actualización solicitada",
+          "when": [
+            "update"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+          "section": "Parada por recursos"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+          "section": "Resolución de anidados",
+          "when": [
+            "nested"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+          "section": "Comparación de capturas",
+          "when": [
+            "update"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+          "section": "Preanálisis y decisiones de importación"
+        }
+      ]
+    },
+    "import-capture": {
+      "sections": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+          "section": "Inventario file-level"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+          "section": "Responsabilidades"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+          "section": "Persistencia Y Contrato"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+          "section": "Captura v2"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+          "section": "CLI Portable",
+          "when": [
+            "direct-mcp"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+          "section": "Comprobar La Conexión",
+          "when": [
+            "direct-mcp"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+          "section": "Límites Del Transporte",
+          "when": [
+            "direct-mcp"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+          "section": "Respuesta De figma_execute",
+          "when": [
+            "figma-execute"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+          "section": "Adaptador Opcional",
+          "when": [
+            "bridge"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+          "section": "Transporte y snapshot"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+          "section": "Captura auditable de Figma"
+        }
+      ]
+    },
+    "import-api": {
+      "sections": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+          "section": "API y estilos"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Resto De La Ficha"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Estilos y segmentos"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Props nativas y vocabulario"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/relationships.md",
+          "section": "Formato de relaciones Figma"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/relationships.md",
+          "section": "Forma de un componente con anidados",
+          "when": [
+            "nested"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Delegación de instancias",
+          "when": [
+            "delegation"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+          "section": "Verificación Y Comparación"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+          "section": "Propuesta de clasificación"
+        }
+      ]
+    },
+    "import-tokens": {
+      "sections": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/tokens.md",
+          "section": "Forma de cada JSON de `design-system/tokens/`"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/tokens.md",
+          "section": "Nombres de las custom properties (`cssName`)"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-implementation.md",
+          "section": "Tokens (inventario file-level)"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/tokens.md",
+          "section": "Modos y ámbitos CSS",
+          "when": [
+            "modes"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/tokens.md",
+          "section": "Serialización de variables `FLOAT`",
+          "when": [
+            "float"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/tokens.md",
+          "section": "Formato de tokens"
+        }
+      ]
+    },
+    "import-code": {
+      "sections": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-implementation.md",
+          "section": "Recursos y plantillas"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-implementation.md",
+          "section": "Inventario (obligatorio al incluir)"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-implementation.md",
+          "section": "Prohibido"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Evidencia de la ficha"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Partes"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Bindings y literales"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Recursos Y Casos Renderizados"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Cobertura De Nodos"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Materializar decisiones"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-implementation.md",
+          "section": "Kit vacío",
+          "when": [
+            "first"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-implementation.md",
+          "section": "Árbol generado",
+          "when": [
+            "first"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-implementation.md",
+          "section": "Primera vez (orden)",
+          "when": [
+            "first"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-implementation.md",
+          "section": "Siguiente componente",
+          "when": [
+            "next"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Dimensiones De Texto",
+          "when": [
+            "text"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Estados Nativos Configurados",
+          "when": [
+            "native-states"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Diagnóstico Y Registro De Recursos",
+          "when": [
+            "resources"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Delegación de instancias",
+          "when": [
+            "delegation"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+          "section": "Persistencia de captura"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+          "section": "Cobertura original"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+          "section": "Diferencias delegadas",
+          "when": [
+            "delegation"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-implementation.md",
+          "section": "Dimensiones De Texto",
+          "when": [
+            "text"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+          "section": "Decisiones Y Cobertura"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Fuentes requeridas",
+          "when": [
+            "text",
+            "resources"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-implementation.md",
+          "section": "Implementación según el alcance permitido"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+          "section": "Decisiones de API y traducciones"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+          "section": "Dimensiones en la evidencia",
+          "when": [
+            "text"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+          "section": "Tratamientos delegados",
+          "when": [
+            "delegation"
+          ]
+        }
+      ]
+    },
+    "import-diagnose": {
+      "sections": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Diagnóstico temporal"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Comparación Renderizada General"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Posición Parcial Y Comportamiento"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "CSS Y Navegador Opcional"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Auditoría De Color E Informe",
+          "when": [
+            "color"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Estados Nativos Configurados",
+          "when": [
+            "native-states"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+          "section": "Diagnóstico Experimental De Composición",
+          "when": [
+            "composition"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Fallos técnicos de composición",
+          "when": [
+            "composition"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Diagnóstico experimental de composición",
+          "when": [
+            "composition"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Diagnóstico Y Registro De Recursos",
+          "when": [
+            "resources"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Recuperación de serializaciones",
+          "when": [
+            "recovery"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+          "section": "Componentes anidados"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+          "section": "Diagnóstico y cierre de la importación"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+          "section": "Recursos Y Casos"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Puertos de recogida"
+        }
+      ]
+    },
+    "import-close": {
+      "sections": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Finalización integrada"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Dependencias de confirmación"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Recogida Acotada Y Cierre"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Dependencias y vigencia"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Mediciones originales"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Publicación y revisión"
+        }
+      ]
+    },
+    "validate-static": {
+      "sections": [
+        {
+          "file": ".agents/skills/validate-ds/references/rendered-checks.md",
+          "section": "Part mapping"
+        },
+        {
+          "file": ".agents/skills/validate-ds/references/rendered-checks.md",
+          "section": "Composition"
+        },
+        {
+          "file": ".agents/skills/validate-ds/references/rendered-checks.md",
+          "section": "Binding report"
+        },
+        {
+          "file": ".agents/skills/validate-ds/references/rendered-checks.md",
+          "section": "Figma style provenance",
+          "when": [
+            "styles"
+          ]
+        },
+        {
+          "file": ".agents/skills/validate-ds/references/resources-and-evidence.md",
+          "section": "Resource Diagnostics",
+          "when": [
+            "resources",
+            "composition",
+            "recovery"
+          ]
+        },
+        {
+          "file": ".agents/skills/validate-ds/references/resources-and-evidence.md",
+          "section": "Captured evidence",
+          "when": [
+            "evidence"
+          ]
+        },
+        {
+          "file": ".agents/skills/validate-ds/references/resources-and-evidence.md",
+          "section": "Recursos y evidencia"
+        },
+        {
+          "file": ".agents/skills/validate-ds/references/rendered-checks.md",
+          "section": "Comprobaciones renderizadas"
+        }
+      ]
+    },
+    "validate-render": {
+      "sections": [
+        {
+          "file": ".agents/skills/validate-ds/references/rendered-checks.md",
+          "section": "API state control"
+        },
+        {
+          "file": ".agents/skills/validate-ds/references/rendered-checks.md",
+          "section": "Computed binding values"
+        },
+        {
+          "file": ".agents/skills/validate-ds/references/rendered-checks.md",
+          "section": "Approximate measured literals",
+          "when": [
+            "approximate"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/tokens.md",
+          "section": "Modos y ámbitos CSS",
+          "when": [
+            "modes"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/tokens.md",
+          "section": "Serialización de variables `FLOAT`",
+          "when": [
+            "float"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Auditoría De Color E Informe",
+          "when": [
+            "color"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Estados Nativos Configurados",
+          "when": [
+            "native-states"
+          ]
+        }
+      ]
+    },
+    "validate-visual": {
+      "sections": [
+        {
+          "file": ".agents/skills/validate-ds/references/visual-evidence.md",
+          "section": "Visual comparison"
+        },
+        {
+          "file": ".agents/skills/validate-ds/references/visual-evidence.md",
+          "section": "Comparación visual y evidencia vigente"
+        }
+      ]
+    },
+    "import-preview": {
+      "sections": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Vista manual y activación"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Ejecución de la vista"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Puertos de recogida"
+        }
+      ]
+    },
+    "kit-performance": {
+      "sections": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Rendimiento del análisis"
+        }
+      ]
+    }
+  },
+  "scenarios": {
+    "blocked-local": {
+      "phases": [
+        "import-intake"
+      ],
+      "features": [
+        "nested"
+      ]
+    },
+    "simple-first-import": {
+      "phases": [
+        "import-intake",
+        "import-capture",
+        "import-api",
+        "import-tokens",
+        "import-code",
+        "import-diagnose",
+        "import-close"
+      ],
+      "features": [
+        "first",
+        "direct-mcp"
+      ],
+      "description": "Minimum without text, resources, nesting or modes; not a typical import."
+    },
+    "validation-only": {
+      "phases": [
+        "validate-static",
+        "validate-render",
+        "validate-visual"
+      ],
+      "features": []
+    },
+    "text-first-import": {
+      "description": "Illustrative first import with text, sourced resources, colors and numeric variables; not an empirical average.",
+      "phases": [
+        "import-intake",
+        "import-capture",
+        "import-api",
+        "import-tokens",
+        "import-code",
+        "import-diagnose",
+        "import-close"
+      ],
+      "features": [
+        "first",
+        "direct-mcp",
+        "text",
+        "resources",
+        "color",
+        "float"
+      ]
+    },
+    "delegated-multimode-import": {
+      "description": "Illustrative subsequent import with mapped instances, text/resources, modes, native states and composition diagnostics.",
+      "phases": [
+        "import-intake",
+        "import-capture",
+        "import-api",
+        "import-tokens",
+        "import-code",
+        "import-diagnose",
+        "import-close"
+      ],
+      "features": [
+        "next",
+        "direct-mcp",
+        "text",
+        "resources",
+        "color",
+        "float",
+        "modes",
+        "nested",
+        "delegation",
+        "native-states",
+        "composition"
+      ]
+    },
+    "imported-validation": {
+      "description": "Illustrative validation of imported evidence with resources, styles, modes and approximate literals.",
+      "phases": [
+        "validate-static",
+        "validate-render",
+        "validate-visual"
+      ],
+      "features": [
+        "evidence",
+        "resources",
+        "styles",
+        "modes",
+        "float",
+        "approximate",
+        "color",
+        "native-states"
+      ]
+    }
+  },
+  "exclusions": [
+    {
+      "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+      "section": "Formato de la ficha del componente",
+      "kind": "navigation",
+      "reason": "Encabezado sin contenido propio; sus apartados tienen selección independiente."
+    },
+    {
+      "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+      "section": "Vista Y Transporte",
+      "kind": "navigation",
+      "reason": "Encabezado sin contenido propio; sus apartados tienen selección independiente."
+    },
+    {
+      "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+      "section": "Evidencia y delegación",
+      "kind": "navigation",
+      "reason": "Encabezado sin contenido propio; sus apartados tienen selección independiente."
+    }
+  ]
+}

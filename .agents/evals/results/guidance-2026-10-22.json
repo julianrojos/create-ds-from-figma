@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "measurement": "Documentation byte/word selection, not model tokens or observed agent consumption",
+  "scenarios": [
+    {
+      "name": "blocked-local",
+      "phases": [
+        "import-intake"
+      ],
+      "features": [
+        "nested"
+      ],
+      "stats": {
+        "selectedBytes": 17181,
+        "selectedWords": 2022,
+        "wholeReferencedFilesBytes": 28691
+      },
+      "sourceHash": "9360d6c8fa5436ebf66daeb399e8ae68a61714dc9c7eea2db6a3fbe143768e36"
+    },
+    {
+      "name": "simple-first-import",
+      "phases": [
+        "import-intake",
+        "import-capture",
+        "import-api",
+        "import-tokens",
+        "import-code",
+        "import-diagnose",
+        "import-close"
+      ],
+      "features": [
+        "first",
+        "direct-mcp"
+      ],
+      "stats": {
+        "selectedBytes": 137214,
+        "selectedWords": 18806,
+        "wholeReferencedFilesBytes": 225381
+      },
+      "sourceHash": "2230826409a562b0fb211953155f00f0931363781d312e67c4304712bdb82ae2"
+    },
+    {
+      "name": "validation-only",
+      "phases": [
+        "validate-static",
+        "validate-render",
+        "validate-visual"
+      ],
+      "features": [],
+      "stats": {
+        "selectedBytes": 20250,
+        "selectedWords": 2728,
+        "wholeReferencedFilesBytes": 160746
+      },
+      "sourceHash": "5c506e830c896a3f03a32f91d3331e7ddfb617635aab64e20350086f08f34203"
+    }
+  ]
+}

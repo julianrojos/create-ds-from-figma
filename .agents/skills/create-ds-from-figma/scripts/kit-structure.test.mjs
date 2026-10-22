@@ -12,7 +12,10 @@ const packagePath = path.join(repoRoot, "package.json");
 const readmePath = path.join(repoRoot, "README.md");
 const nestedReadmePath = path.join(repoRoot, ".agents/skills/create-ds-from-figma/README.md");
 const referenceDir = path.join(repoRoot, ".agents/skills/create-ds-from-figma/references");
-const expectedReferences = ["component-metadata.md", "figma-evidence.md", "relationships.md", "tokens.md"];
+const formatReferences = ["component-metadata.md", "figma-evidence.md", "relationships.md", "tokens.md"];
+const phaseReferences = ["import-preanalysis.md", "import-implementation.md", "import-verification.md"];
+const expectedReferences = [...formatReferences, ...phaseReferences].sort();
+const readReference = (name) => readFileSync(path.join(referenceDir, name), "utf8");
 
 test("verification stays local without an automatic pipeline or local-only import prerequisites", () => {
   assert.equal(existsSync(path.join(repoRoot, '.github/workflows/verification.yml')), false);
@@ -117,7 +120,7 @@ test("skill helpers use current inventory, state and validation rules", () => {
 
 test("first import preserves repo tooling and screens use their workflow", () => {
   const skill = readFileSync(skillPath, "utf8");
-  const scaffold = skill.split("## Árbol generado\n")[1]?.split("## Preanálisis antes de escribir")[0];
+  const scaffold = readReference("import-implementation.md").split("## Árbol generado\n")[1]?.split("## Dimensiones De Texto")[0];
   assert.ok(scaffold, "generated tree section must exist");
   for (const file of ["index.html", "tsconfig.json", "package.json", "package-lock.json"]) {
     assert.ok(scaffold.includes(file), `scaffold must account for ${file}`);
@@ -125,17 +128,17 @@ test("first import preserves repo tooling and screens use their workflow", () =>
   for (const existing of ["scripts.test", "yaml", ".gitignore"]) {
     assert.ok(scaffold.includes(existing), `first import must preserve ${existing}`);
   }
-  assert.match(skill, /Si falta `design-system\/inventory\.json` y la decisión permite reparar el scaffold/);
-  assert.match(skill, /reconstruye `components`/);
-  assert.match(skill, /reconstruye `screens`/);
+  assert.match(readReference("import-preanalysis.md"), /Si falta `design-system\/inventory\.json` y la decisión permite reparar el scaffold/);
+  assert.match(readReference("import-preanalysis.md"), /reconstruye `components`/);
+  assert.match(readReference("import-preanalysis.md"), /reconstruye `screens`/);
   const screens = skill.split("## Pantallas\n")[1]?.split("## Prohibido")[0];
   assert.ok(screens?.includes(".agents/workflows/build-from-figma.md"));
   assert.ok(screens.includes("`DS_GAP` sin escribir"));
 });
 
-test("skill loads formats where they are needed without reference chains", (t) => {
+test("skill links phase detail and formats directly without chains between formats", (t) => {
   const skill = readFileSync(skillPath, "utf8");
-  const preanalysis = skill.split("## Preanálisis antes de escribir\n")[1]?.split("Evalúa esta tabla")[0];
+  const preanalysis = skill.split("## Preanálisis antes de escribir\n")[1]?.split("## Implementación permitida")[0];
 
   assert.ok(preanalysis, "preanalysis section must exist");
   assert.match(preanalysis, /2\.[^\n]*references\/tokens\.md/);
@@ -152,13 +155,17 @@ test("skill loads formats where they are needed without reference chains", (t) =
   assert.ok(preanalysis.includes("tokenPrefix") && preanalysis.includes("`variables`"), "the preanalysis must use the prefix and variable names from the preflight");
   assert.ok(preanalysis.includes('"collections": []'), "the preanalysis must run the preflight even with no local collections to obtain the prefix");
   assert.deepEqual(readdirSync(referenceDir).sort(), expectedReferences);
+  for (const name of phaseReferences) {
+    assert.ok(skill.includes(`(references/${name})`), `skill must directly link phase detail ${name}`);
+    assert.ok(readReference(name).trim(), `${name} must contain phase detail`);
+  }
 
-  for (const name of expectedReferences) {
+  for (const name of formatReferences) {
     const reference = `references/${name}`;
     assert.ok(skill.includes(reference), `skill must link ${reference}`);
     const body = readFileSync(path.join(referenceDir, name), "utf8");
     assert.doesNotMatch(body, /references\/[\w-]+\.md/, `${name} must not chain to another reference`);
-    for (const sibling of expectedReferences.filter((candidate) => candidate !== name)) {
+    for (const sibling of formatReferences.filter((candidate) => candidate !== name)) {
       const escaped = sibling.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       const mention = new RegExp(`(?<![\\w-])${escaped}(?![\\w-]|\\.[\\w])`);
       assert.ok(mention.test(`Consulta \`${sibling}\`.`), "detect a bare reference filename");

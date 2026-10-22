@@ -119,7 +119,11 @@ Antes de buscar el nodo, el colector comprueba `figma.skipInvisibleInstanceChild
 
 evidence guarda snapshot, hash, decisions, textDimensions, translations y dispositions. Cada binding/literal enlaza observation; nodo y figmaProperty coinciden. approximate conserva `figmaValue: { source: "PLUGIN", field, value }` con field y value idénticos a la observación, incluidos objetos con unidad; `figmaValue.unit` no está permitido. El nombre de la herramienta se registra en la procedencia del snapshot, no en ese source. Comprobar el dato bruto no demuestra equivalencia CSS ni sustituye la comparación renderizada. Campos fuera del perfil requieren ampliar y versionar el colector con pruebas.
 
-`node .agents/skills/create-ds-from-figma/scripts/figma-capture.mjs dimensions SNAPSHOT` verifica el hash y devuelve requisitos deterministas para cada `width`/`height` observado de nodos TEXT, sin escribir ni cambiar el perfil de captura. `textDimensions` debe contener un registro por requisito, con `{ observation, behavior, rule, observations, treatment }`. No hay compatibilidad para fichas que omitan este array; en un componente sin dimensiones de texto sigue siendo obligatorio como `[]`.
+No hay compatibilidad para fichas que omitan este array; en un componente sin dimensiones de texto sigue siendo obligatorio como `[]`.
+
+### Dimensiones en la evidencia
+
+`node .agents/skills/create-ds-from-figma/scripts/figma-capture.mjs dimensions SNAPSHOT` verifica el hash y devuelve requisitos deterministas para cada `width`/`height` observado de nodos TEXT, sin escribir ni cambiar el perfil de captura. `textDimensions` debe contener un registro por requisito, con `{ observation, behavior, rule, observations, treatment }`.
 
 `text-auto-resize-v1` clasifica WIDTH_AND_HEIGHT como content en ambas dimensiones; HEIGHT como fixed en ancho y content en alto; NONE/TRUNCATE como fixed en ambas. La presencia de FILL o un sizing distinto de FIXED/HUG en esa dimensión, un valor dimensional no numérico, un auto-resize ausente/no admitido o un binding que interfiera con sizing intrínseco deja el comportamiento unknown. El array observations conserva exactamente las refs de auto-resize, sizing y bindings dimensionales presentes que devuelve el comando. No adivina alineación del nodo, constraints ni una traducción CSS por el nombre de una capa.
 
@@ -127,9 +131,13 @@ Un tratamiento declaration requiere fixed y un binding/literal de esa dimensión
 
 El resultado aparece en review.textDimensions y conserva NOT VERIFIED para comportamiento CSS y renderizado. Estos requisitos solo cubren dimensiones de texto, no todas las propiedades visuales. Una traducción enlazada sigue siendo una decisión pendiente de comprobar, no evidencia de implementación correcta. El contrato dimensional se conserva; el perfil geométrico v2 exige recapturar las importaciones anteriores.
 
+### Decisiones de API y traducciones
+
 decisions contiene `{ target, rule, reason, observations }`. target es `variantClassification.Eje.Valor` o `notBuilt[indice]`, único y existente. Cada clasificación y notBuilt necesita decisión. Se validan referencias y condiciones de reglas conocidas, no calidad del argumento. Las decisiones manuales generan un aviso agrupado de justificación NOT VERIFIED, con detalle en review.manualDecisions. reason no demuestra una decisión correcta.
 
 translations contiene `{ observations, cssSelector, cssProperty, reason }` para traducciones compuestas. dispositions contiene `{ observations, kind, reason }`, kind excluded/deferred/delegated. Agrupa IDs cuando corresponda. Ambas necesitan revisión, no prueban fidelidad CSS y no rescatan omisiones esenciales.
+
+### Tratamientos delegados
 
 Para un componente mapped admite una disposition `{ kind: "delegated", instance, resolvedComponent, configuration, reason, differences: [] }`. instance es la ref Figma; configuration copia exactamente componentProperties capturado. El check exige principal identificado en el mapa (clave de entrada, figma.refs o figma.variants), configuración idéntica y una captura sellada del componente reutilizado para comparar. Layout y tamaño de la instancia siguen a cargo del padre. No delegues external o identidades dudosas.
 
@@ -167,6 +175,10 @@ Reglas concretas de ese check:
 - Un binding cubre a sus descendientes por `.` y por `[`: un literal sobre `fills` no puede sustituir a `fills[0].color`.
 - Si el propio nodo fuerza un modo para la colección de la variable (`explicitVariableModes`), el binding debe declarar `modeOverride` con el mismo modo. Un modo no declarado por el nodo, pero no predeterminado, no es error, porque el contrato solo pide `modeOverride` al nodo que lo fuerza: genera un aviso agrupado. Cubre un ancestro capturado que lo fuerza y también un modo heredado de fuera del subárbol capturado, visible solo en `resolvedVariableModes` frente al modo predeterminado de la colección. El aviso muestra nodo, variable, colección y modos resuelto y predeterminado, con nombres e IDs. review.inheritedModes conserva ese detalle y el ancestro capturado más próximo que fuerza el modo, cuando existe. Un modo resuelto no disponible se representa como null, sin deducirlo del ancestro. La fidelidad queda NOT VERIFIED hasta comprobar que se reproduce el modo requerido por Figma; el aviso no se convierte en error.
 
+### Propuesta de clasificación
+
 `node .agents/skills/create-ds-from-figma/scripts/figma-capture.mjs propose SNAPSHOT` propone por valor. browser-interaction-v1 exige State=Hover/Pressed y propone interacción interna, pendiente de confirmar semántica. No adivina booleanos, Disabled ni API. Otros casos quedan ambiguous. Ambigüedad que cambia la API exige criterio; duda no bloqueante se registra y queda NOT VERIFIED.
+
+### Comparación de capturas
 
 `node .agents/skills/create-ds-from-figma/scripts/figma-capture.mjs compare ANTES DESPUES` compara capturas del mismo origen y raíz, después del check de importación, sin modificar nada. Una diferencia no demuestra revisión nueva ni error histórico; una lectura no autoriza actualizar componentes.

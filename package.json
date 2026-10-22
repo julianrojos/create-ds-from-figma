@@ -13,7 +13,8 @@
     "test:browser:setup": "node .agents/scripts/setup-browser-tests.mjs",
     "verify:docs": "node .agents/checks/verify-docs.mjs",
     "verify:imports": "node .agents/checks/verify-imports.mjs",
-    "finalize:import": "node .agents/skills/create-ds-from-figma/scripts/finalize-import.mjs"
+    "finalize:import": "node .agents/skills/create-ds-from-figma/scripts/finalize-import.mjs",
+    "read:guidance": "node .agents/scripts/read-guidance.mjs"
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "1.32.1",

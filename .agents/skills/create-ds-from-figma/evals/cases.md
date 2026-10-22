@@ -1,5 +1,9 @@
 # Casos de evaluación de create-ds-from-figma
 
+La [referencia de reorganización](reorganization-baseline.md) relaciona estos escenarios
+con las obligaciones que deben conservarse al recortar la skill. No acredita una
+ejecución del agente ni una importación real.
+
 ## Configuración Nativa Verificada
 
 Con un fixture sintético de checkbox, declara checked/disabled mediante props y verificaciones nativas. Diagnose debe medir sin publicar, y collect debe conservar lecturas originales. Ignorar cualquiera de las props debe dar state:NAME FAIL, no confirmar por la geometría. Un selector ambiguo o inválido queda NOT RUN; un control delegado no resuelve el selector del padre. Comprueba disabled heredado de fieldset, contenido alternativo y estados no soportados que siguen bloqueados. Cambiar selector/valor o las versiones debe caducar la evidencia; una revisión general no rescata un FAIL ni una lectura ausente. No se usa ningún componente importado real.
@@ -138,8 +142,9 @@ La ficha exige también verification con recursos autorizados/hashes, tipografí
 
 ## JSON registrado ausente
 
-- Entrada reparable: `state.collections` registra un JSON que falta, pero el mismo ID aparece en la entrada del preflight y el agente ha observado sus variables y modos en Figma.
-- Decisión esperada: el preflight conserva el nombre en `files` y declara `{ id, file }` en `diagnostics.missingRegistered`. Solo después de una decisión de la tabla que permita reparar el scaffold, el agente reconstruye ese JSON con los datos observados y ejecuta los checks.
+- Entrada reparable: `state.collections` registra un JSON ausente que no tenía variables publicadas; el mismo ID aparece en el inventario observado y sus modos son verificables.
+- Decisión esperada: el preflight conserva el nombre en `files` y declara `{ id, file }` en `diagnostics.missingRegistered`. Solo después de una decisión de la tabla que permita reparar el scaffold, el agente reconstruye esa colección antes vacía y ejecuta los checks.
+- Entrada con variables publicadas: falta el JSON aunque su ID siga presente en Figma. El preflight bloquea; restaura el original para conservar los `cssName` asignados. No reconstruyas nombres desde la lectura actual de Figma.
 - Entrada no reparable con la entrada actual: falta el JSON registrado y su ID tampoco aparece en la entrada del preflight.
 - Decisión esperada: el preflight falla antes de escribir y el agente pide restauración o una reparación explícita con la fuente necesaria.
 - No debe: sobrescribir otro JSON, inventar variables ni reparar durante `DS_GAP`, una decisión de no escribir o una sustitución autorizada solo para una dependencia.

@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-22T18:30:39.539Z",
+  "coverage": {
+    "status": "PASS",
+    "phases": 12,
+    "files": 10,
+    "selectedSections": 98,
+    "excludedSections": 3,
+    "scope": "Every reference heading/preamble selected or explicitly excluded; pointers and scenarios resolve. Does not prove semantic completeness or agent compliance."
+  },
+  "scope": "Illustrative scenario unions of selected documentation bytes/words, not measured model tokens, actual agent consumption, typical workloads or general savings. Excludes shared context, tool output and rereading. Each baseline is the complete files referenced by that scenario. Historical measurements are preserved.",
+  "scenarios": [
+    {
+      "name": "blocked-local",
+      "description": "Explicit minimal scenario, not a representative average.",
+      "phases": [
+        "import-intake"
+      ],
+      "features": [
+        "nested"
+      ],
+      "stats": {
+        "selectedBytes": 17791,
+        "selectedWords": 2111,
+        "wholeReferencedFilesBytes": 28691
+      },
+      "sourceHash": "08d914a070de130f46eb467f8ce488eede572da49c7e9e83ed9891507e2c2994"
+    },
+    {
+      "name": "simple-first-import",
+      "description": "Minimum without text, resources, nesting or modes; not a typical import.",
+      "phases": [
+        "import-intake",
+        "import-capture",
+        "import-api",
+        "import-tokens",
+        "import-code",
+        "import-diagnose",
+        "import-close"
+      ],
+      "features": [
+        "first",
+        "direct-mcp"
+      ],
+      "stats": {
+        "selectedBytes": 166302,
+        "selectedWords": 22778,
+        "wholeReferencedFilesBytes": 225544
+      },
+      "sourceHash": "7836547d3ab6aa6a0a9b7c8c8839e4cf4c2acdfe136a20a3214ed1b627121e2f"
+    },
+    {
+      "name": "validation-only",
+      "description": "Explicit minimal scenario, not a representative average.",
+      "phases": [
+        "validate-static",
+        "validate-render",
+        "validate-visual"
+      ],
+      "features": [],
+      "stats": {
+        "selectedBytes": 23207,
+        "selectedWords": 3105,
+        "wholeReferencedFilesBytes": 40599
+      },
+      "sourceHash": "580c46b191e00a7de7ce6ce121f10d5dc0d45fc87cddc079cd945bc84b61c1ca"
+    },
+    {
+      "name": "text-first-import",
+      "description": "Illustrative first import with text, sourced resources, colors and numeric variables; not an empirical average.",
+      "phases": [
+        "import-intake",
+        "import-capture",
+        "import-api",
+        "import-tokens",
+        "import-code",
+        "import-diagnose",
+        "import-close"
+      ],
+      "features": [
+        "first",
+        "direct-mcp",
+        "text",
+        "resources",
+        "color",
+        "float"
+      ],
+      "stats": {
+        "selectedBytes": 186115,
+        "selectedWords": 25512,
+        "wholeReferencedFilesBytes": 225544
+      },
+      "sourceHash": "7836547d3ab6aa6a0a9b7c8c8839e4cf4c2acdfe136a20a3214ed1b627121e2f"
+    },
+    {
+      "name": "delegated-multimode-import",
+      "description": "Illustrative subsequent import with mapped instances, text/resources, modes, native states and composition diagnostics.",
+      "phases": [
+        "import-intake",
+        "import-capture",
+        "import-api",
+        "import-tokens",
+        "import-code",
+        "import-diagnose",
+        "import-close"
+      ],
+      "features": [
+        "next",
+        "direct-mcp",
+        "text",
+        "resources",
+        "color",
+        "float",
+        "modes",
+        "nested",
+        "delegation",
+        "native-states",
+        "composition"
+      ],
+      "stats": {
+        "selectedBytes": 202809,
+        "selectedWords": 27849,
+        "wholeReferencedFilesBytes": 225544
+      },
+      "sourceHash": "7836547d3ab6aa6a0a9b7c8c8839e4cf4c2acdfe136a20a3214ed1b627121e2f"
+    },
+    {
+      "name": "imported-validation",
+      "description": "Illustrative validation of imported evidence with resources, styles, modes and approximate literals.",
+      "phases": [
+        "validate-static",
+        "validate-render",
+        "validate-visual"
+      ],
+      "features": [
+        "evidence",
+        "resources",
+        "styles",
+        "modes",
+        "float",
+        "approximate",
+        "color",
+        "native-states"
+      ],
+      "stats": {
+        "selectedBytes": 51416,
+        "selectedWords": 6977,
+        "wholeReferencedFilesBytes": 160746
+      },
+      "sourceHash": "580c46b191e00a7de7ce6ce121f10d5dc0d45fc87cddc079cd945bc84b61c1ca"
+    }
+  ]
+}
