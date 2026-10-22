@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "catalogHashVersion": 2,
+  "catalogHash": "35ab9bc208d759d8d14ce2faa80511ff36c7fdedfbfc6de0f3a39d188640931f",
+  "suiteHash": "f0c3733d493677dc2415a871df6e9e8989080876951c925832473c56bf4d71ec",
+  "status": "PASS",
+  "executor": "independent subagent /root/routing_protocol2; fresh context (fork_turns=none)",
+  "model": "unreported",
+  "createdAt": "2026-10-22T18:54:40.511Z",
+  "passed": 24,
+  "total": 24,
+  "results": [
+    {
+      "id": "c01",
+      "expected": "create-ds-from-figma",
+      "actual": "create-ds-from-figma",
+      "status": "PASS",
+      "reason": "Solicitud expresa de crear un DS importando un componente nuevo."
+    },
+    {
+      "id": "c02",
+      "expected": "build-from-figma",
+      "actual": "build-from-figma",
+      "status": "PASS",
+      "reason": "La tarea principal es construir una pantalla desde un frame con el DS."
+    },
+    {
+      "id": "c03",
+      "expected": "create-ds-from-figma",
+      "actual": "create-ds-from-figma",
+      "status": "PASS",
+      "reason": "El catálogo incluye URLs repetidas de componentes en el flujo de importación; no implica autorizar una actualización."
+    },
+    {
+      "id": "c13",
+      "expected": "find-component",
+      "actual": "find-component",
+      "status": "PASS",
+      "reason": "Se solicita resolver la identidad del nodo sin importar y no existe coincidencia fiable."
+    },
+    {
+      "id": "c14",
+      "expected": "create-ds-from-figma",
+      "actual": "create-ds-from-figma",
+      "status": "PASS",
+      "reason": "La actualización del componente existente está solicitada expresamente."
+    },
+    {
+      "id": "c15",
+      "expected": "create-ds-from-figma",
+      "actual": "create-ds-from-figma",
+      "status": "PASS",
+      "reason": "La petición de crear un DS conserva este flujo aunque el nodo sea un frame; corresponde informar DS_GAP."
+    },
+    {
+      "id": "c04",
+      "expected": "find-component",
+      "actual": "find-component",
+      "status": "PASS",
+      "reason": "Se busca un componente equivalente sin coincidencia fiable previa."
+    },
+    {
+      "id": "c05",
+      "expected": "map-figma-to-code",
+      "actual": "map-figma-to-code",
+      "status": "PASS",
+      "reason": "La identidad está confirmada y se consultan ruta de código y props."
+    },
+    {
+      "id": "c06",
+      "expected": "find-component",
+      "actual": "find-component",
+      "status": "PASS",
+      "reason": "Una coincidencia de nombre con referencias contradictorias requiere resolver primero la identidad."
+    },
+    {
+      "id": "c16",
+      "expected": "find-component",
+      "actual": "find-component",
+      "status": "PASS",
+      "reason": "La petición actual limita el alcance a comprobar si la instancia hija corresponde al DS."
+    },
+    {
+      "id": "c17",
+      "expected": "none",
+      "actual": "none",
+      "status": "PASS",
+      "reason": "Es una edición de UI existente sin petición de importar, identificar, mapear o validar; los controles de cierre posteriores no son la tarea primaria."
+    },
+    {
+      "id": "c18",
+      "expected": "find-component",
+      "actual": "find-component",
+      "status": "PASS",
+      "reason": "Antes de consultar props hay que encontrar una coincidencia estable."
+    },
+    {
+      "id": "c07",
+      "expected": "map-figma-to-code",
+      "actual": "map-figma-to-code",
+      "status": "PASS",
+      "reason": "La variante tiene identidad confirmada y se pide su archivo y props."
+    },
+    {
+      "id": "c08",
+      "expected": "find-component",
+      "actual": "find-component",
+      "status": "PASS",
+      "reason": "El nodo es desconocido y requiere buscar una correspondencia fiable."
+    },
+    {
+      "id": "c09",
+      "expected": "map-figma-to-code",
+      "actual": "map-figma-to-code",
+      "status": "PASS",
+      "reason": "Se consulta la API de un componente fiable; las correspondencias candidatas y evidencia caducada deben señalarse como pendientes."
+    },
+    {
+      "id": "c19",
+      "expected": "map-figma-to-code",
+      "actual": "map-figma-to-code",
+      "status": "PASS",
+      "reason": "La identidad Figma-código ya está establecida y se pide ubicación y uso."
+    },
+    {
+      "id": "c20",
+      "expected": "build-from-figma",
+      "actual": "build-from-figma",
+      "status": "PASS",
+      "reason": "La construcción de la pantalla es la tarea principal aunque mencione props de Button."
+    },
+    {
+      "id": "c21",
+      "expected": "map-figma-to-code",
+      "actual": "map-figma-to-code",
+      "status": "PASS",
+      "reason": "Se consulta una correspondencia de props de un componente fiable; admitir lg en el tipo no confirma la variante."
+    },
+    {
+      "id": "c10",
+      "expected": "validate-ds",
+      "actual": "validate-ds",
+      "status": "PASS",
+      "reason": "Se solicita revisar un componente ya implementado contra el DS."
+    },
+    {
+      "id": "c11",
+      "expected": "none",
+      "actual": "none",
+      "status": "PASS",
+      "reason": "Solo se planifican criterios de una UI futura y no existe implementación que validar."
+    },
+    {
+      "id": "c12",
+      "expected": "validate-ds",
+      "actual": "validate-ds",
+      "status": "PASS",
+      "reason": "La solicitud es validar UI implementada; la falta de navegador limita las comprobaciones que deben reportarse."
+    },
+    {
+      "id": "c22",
+      "expected": "map-figma-to-code",
+      "actual": "map-figma-to-code",
+      "status": "PASS",
+      "reason": "Se consulta la API disabled de un componente ya mapeado con identidad fiable."
+    },
+    {
+      "id": "c23",
+      "expected": "validate-ds",
+      "actual": "validate-ds",
+      "status": "PASS",
+      "reason": "Hay UI implementada y se solicita una revisión explicitando las comprobaciones pendientes."
+    },
+    {
+      "id": "c24",
+      "expected": "none",
+      "actual": "none",
+      "status": "PASS",
+      "reason": "Se pide planificar una API futura sin implementación, nodo ni búsqueda de componentes."
+    }
+  ],
+  "evidenceLevel": "smoke-selection",
+  "modelRecorded": false,
+  "runtimeDiscovery": "NOT RUN",
+  "limitations": [
+    "Evaluator is given the local catalog; actual runtime discovery is not exercised.",
+    "No task execution or permission compliance is observed.",
+    "One run does not establish cross-model reliability."
+  ],
+  "scope": "Primary-route selection in this catalog/context only. Does not prove execution behavior, permissions, browser/Figma fidelity or performance across models/runtimes. Provenance is declared, not authenticated."
+}

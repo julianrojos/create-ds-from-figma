@@ -1,5 +1,4 @@
 ---
-
 name: find-component
 description: >-
   Resolve whether a UI element or Figma node matches an existing Design System component.

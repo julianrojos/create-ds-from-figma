@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "executor": "Independent fresh subagent /root/routing_contrast_after; only blind bundle read; expected labels and earlier run withheld; no task execution",
+  "model": "unreported",
+  "createdAt": "2026-10-22T18:03:08.295506Z",
+  "catalogHash": "6cc64faeb55f85a54b7490592a49761feff3e6836ab640934aa6a9c4023a8e71",
+  "suiteHash": "f0c3733d493677dc2415a871df6e9e8989080876951c925832473c56bf4d71ec",
+  "observations": [
+    {
+      "id": "c01",
+      "primary": "create-ds-from-figma",
+      "reason": "Petición explícita de crear un DS con un componente nuevo."
+    },
+    {
+      "id": "c02",
+      "primary": "build-from-figma",
+      "reason": "La tarea principal es implementar una pantalla desde un frame."
+    },
+    {
+      "id": "c03",
+      "primary": "create-ds-from-figma",
+      "reason": "El catálogo incluye expresamente las URLs repetidas de componentes."
+    },
+    {
+      "id": "c13",
+      "primary": "find-component",
+      "reason": "Se pide resolver la correspondencia del nodo sin importar nada."
+    },
+    {
+      "id": "c14",
+      "primary": "create-ds-from-figma",
+      "reason": "Se solicita explícitamente actualizar un componente existente desde Figma."
+    },
+    {
+      "id": "c15",
+      "primary": "create-ds-from-figma",
+      "reason": "La petición de crear un DS permanece en este flujo aunque el nodo sea un frame; corresponde reportar DS_GAP."
+    },
+    {
+      "id": "c04",
+      "primary": "find-component",
+      "reason": "Se busca un componente equivalente sin coincidencia fiable previa."
+    },
+    {
+      "id": "c05",
+      "primary": "map-figma-to-code",
+      "reason": "La identidad está confirmada y se consultan ruta de código y props."
+    },
+    {
+      "id": "c06",
+      "primary": "find-component",
+      "reason": "La coincidencia por nombre no establece identidad fiable; hay que comprobarla."
+    },
+    {
+      "id": "c16",
+      "primary": "find-component",
+      "reason": "La petición actual limita el trabajo a resolver si la instancia hija existe en el DS."
+    },
+    {
+      "id": "c17",
+      "primary": "none",
+      "reason": "Es una edición de UI existente sin solicitud de importación, búsqueda, mapeo o validación."
+    },
+    {
+      "id": "c18",
+      "primary": "find-component",
+      "reason": "Primero debe resolverse la identidad del componente antes de consultar props."
+    },
+    {
+      "id": "c07",
+      "primary": "map-figma-to-code",
+      "reason": "La variante pertenece a un componente confirmado y se consultan archivo y props."
+    },
+    {
+      "id": "c08",
+      "primary": "find-component",
+      "reason": "Se pide identificar un nodo desconocido sin coincidencia fiable."
+    },
+    {
+      "id": "c09",
+      "primary": "map-figma-to-code",
+      "reason": "Se consultan las props y sus pendientes para un componente con identidad fiable; la evidencia caducada limita las conclusiones."
+    },
+    {
+      "id": "c19",
+      "primary": "map-figma-to-code",
+      "reason": "Se consulta la ubicación y el uso de un componente cuyo mapeo ya está establecido."
+    },
+    {
+      "id": "c20",
+      "primary": "build-from-figma",
+      "reason": "Construir la pantalla es la tarea principal, aunque incluya una prop concreta de Button."
+    },
+    {
+      "id": "c21",
+      "primary": "map-figma-to-code",
+      "reason": "Se consulta una correspondencia entre variante y prop para un componente identificado; no debe inventarse la confirmación pendiente."
+    },
+    {
+      "id": "c10",
+      "primary": "validate-ds",
+      "reason": "Se solicita revisar un componente ya implementado contra el DS."
+    },
+    {
+      "id": "c11",
+      "primary": "none",
+      "reason": "Solo se planifican criterios futuros y todavía no existe implementación ni nodo que resolver."
+    },
+    {
+      "id": "c12",
+      "primary": "validate-ds",
+      "reason": "Se solicita validar UI existente; la falta de navegador debe quedar como limitación."
+    },
+    {
+      "id": "c22",
+      "primary": "map-figma-to-code",
+      "reason": "Se consulta la API de disabled de un componente fiable ya mapeado."
+    },
+    {
+      "id": "c23",
+      "primary": "validate-ds",
+      "reason": "Se revisa una implementación existente distinguiendo comprobaciones y pendientes por falta del diseño original."
+    },
+    {
+      "id": "c24",
+      "primary": "none",
+      "reason": "La petición se limita a planificar una API futura y excluye implementar o validar."
+    }
+  ]
+}

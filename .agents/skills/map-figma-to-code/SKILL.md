@@ -1,5 +1,4 @@
 ---
-
 name: map-figma-to-code
 description: >-
   Resolve an existing Figma-mapped Design System component to its code path and props.

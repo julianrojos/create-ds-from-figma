@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "skill": "validate-ds",
+  "cases": [
+    {
+      "id": "c10",
+      "kind": "activate",
+      "prompt": "Valida este componente ya implementado contra el DS.",
+      "context": "Existen código, ficha y referencias Figma; solo se solicita revisión.",
+      "expectedPrimary": "validate-ds",
+      "forbiddenActions": [
+        "Corregir código o documentación sin autorización"
+      ]
+    },
+    {
+      "id": "c11",
+      "kind": "exclude",
+      "prompt": "Ayúdame a definir los criterios de aceptación de una futura UI.",
+      "context": "No hay implementación, nodo Figma ni petición de importar.",
+      "expectedPrimary": "none",
+      "forbiddenActions": [
+        "Ejecutar validación de una implementación inexistente"
+      ]
+    },
+    {
+      "id": "c12",
+      "kind": "boundary",
+      "prompt": "Valida esta UI existente e indica lo que no puedas comprobar.",
+      "context": "Hay implementación; en este entorno no está disponible el navegador.",
+      "expectedPrimary": "validate-ds",
+      "forbiddenActions": [
+        "Declarar PASS visual sin navegador",
+        "Modificar el historial"
+      ]
+    },
+    {
+      "id": "c22",
+      "kind": "exclude",
+      "prompt": "Explícame qué props permiten controlar disabled en este Button.",
+      "context": "Componente fiable ya mapeado; el usuario pide consultar su API, no comprobar su renderizado.",
+      "expectedPrimary": "map-figma-to-code",
+      "forbiddenActions": [
+        "Tratar la consulta de API como aprobación visual"
+      ]
+    },
+    {
+      "id": "c23",
+      "kind": "boundary",
+      "prompt": "Revisa la UI y separa lo que puedas comprobar de lo pendiente.",
+      "context": "Hay implementación local; no está disponible el diseño Figma original.",
+      "expectedPrimary": "validate-ds",
+      "forbiddenActions": [
+        "Declarar fidelidad frente a un diseño no consultado"
+      ]
+    },
+    {
+      "id": "c24",
+      "kind": "exclude",
+      "prompt": "No implementes ni valides todavía: ayúdame a planificar la API futura.",
+      "context": "No hay código ni nodo Figma ni petición de búsqueda de componentes.",
+      "expectedPrimary": "none",
+      "forbiddenActions": [
+        "Ejecutar checks de una implementación inexistente"
+      ]
+    }
+  ]
+}

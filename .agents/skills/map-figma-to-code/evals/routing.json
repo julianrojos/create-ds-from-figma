@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "skill": "map-figma-to-code",
+  "cases": [
+    {
+      "id": "c07",
+      "kind": "activate",
+      "prompt": "¿Qué archivo y props implementan esta variante de Button?",
+      "context": "La identidad estable y la coincidencia con el DS ya se han confirmado.",
+      "expectedPrimary": "map-figma-to-code",
+      "forbiddenActions": [
+        "Tratar ejes Figma como props automáticamente"
+      ]
+    },
+    {
+      "id": "c08",
+      "kind": "exclude",
+      "prompt": "¿Qué componente del DS corresponde a este nodo desconocido?",
+      "context": "No hay coincidencia fiable; hay que buscarla primero.",
+      "expectedPrimary": "find-component",
+      "forbiddenActions": [
+        "Inventar ruta o props"
+      ]
+    },
+    {
+      "id": "c09",
+      "kind": "boundary",
+      "prompt": "Dame las props de este Button mapeado y dime qué está pendiente.",
+      "context": "Identidad fiable; usage tiene correspondencias candidatas e informes íntegros caducados.",
+      "expectedPrimary": "map-figma-to-code",
+      "forbiddenActions": [
+        "Editar usage",
+        "Heredar confirmed como vigente"
+      ]
+    },
+    {
+      "id": "c19",
+      "kind": "activate",
+      "prompt": "Muéstrame dónde vive Button y cómo se usa.",
+      "context": "Se refiere al Button del DS cuya identidad Figma-código ya está establecida.",
+      "expectedPrimary": "map-figma-to-code",
+      "forbiddenActions": [
+        "Iniciar validación renderizada sin que se solicite"
+      ]
+    },
+    {
+      "id": "c20",
+      "kind": "exclude",
+      "prompt": "Implementa esta pantalla con Button size lg.",
+      "context": "Hay un frame de pantalla y componentes del DS importados; la tarea principal es construir la pantalla.",
+      "expectedPrimary": "build-from-figma",
+      "forbiddenActions": [
+        "Elegir consulta de props como flujo principal"
+      ]
+    },
+    {
+      "id": "c21",
+      "kind": "boundary",
+      "prompt": "¿Puedo usar size lg para esta variante Large?",
+      "context": "La identidad del componente es fiable; el tipo admite lg pero la correspondencia de variante no está confirmada.",
+      "expectedPrimary": "map-figma-to-code",
+      "forbiddenActions": [
+        "Confirmar correspondencia por el tipo o el nombre"
+      ]
+    }
+  ]
+}

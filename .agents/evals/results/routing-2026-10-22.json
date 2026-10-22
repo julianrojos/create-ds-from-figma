@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "executor": "Independent subagent /root/routing_evaluator; no tools; expected labels withheld; catalog descriptions and case context supplied",
+  "model": "unreported",
+  "createdAt": "2026-10-22T17:34:27.329183Z",
+  "catalogHash": "92b3803b03d700c62a788a53d82a44f59dfe4151893ce22e756895da6ac259f5",
+  "suiteHash": "1bec3dc4f2e06b4d60bcc31ac1301eaae26dea7a3f0ed39c642357fd1866ae91",
+  "observations": [
+    {
+      "id": "c01",
+      "primary": "create-ds-from-figma",
+      "reason": "La petición explícita es importar un componente para crear el DS."
+    },
+    {
+      "id": "c02",
+      "primary": "build-from-figma",
+      "reason": "La tarea principal es implementar una pantalla desde un frame usando componentes existentes."
+    },
+    {
+      "id": "c03",
+      "primary": "create-ds-from-figma",
+      "reason": "La URL repetida de un componente activa el flujo de importación o actualización, que debe inspeccionar primero el nodo y su estado."
+    },
+    {
+      "id": "c04",
+      "primary": "find-component",
+      "reason": "Se pregunta si existe un componente equivalente sin una coincidencia fiable previa."
+    },
+    {
+      "id": "c05",
+      "primary": "map-figma-to-code",
+      "reason": "La identidad fiable ya está establecida y se consultan la ruta y las props."
+    },
+    {
+      "id": "c06",
+      "primary": "find-component",
+      "reason": "La coincidencia por nombre y las referencias contradictorias requieren comprobar la identidad antes de mapear."
+    },
+    {
+      "id": "c07",
+      "primary": "map-figma-to-code",
+      "reason": "La variante tiene una coincidencia confirmada y se consulta su implementación y sus props."
+    },
+    {
+      "id": "c08",
+      "primary": "find-component",
+      "reason": "Hay que identificar el componente correspondiente a un nodo desconocido."
+    },
+    {
+      "id": "c09",
+      "primary": "map-figma-to-code",
+      "reason": "Se consultan props y pendientes de un componente con identidad fiable; las evidencias caducadas deben comunicarse sin convertir la consulta en validación."
+    },
+    {
+      "id": "c10",
+      "primary": "validate-ds",
+      "reason": "Se solicita revisar una implementación existente contra el DS."
+    },
+    {
+      "id": "c11",
+      "primary": "none",
+      "reason": "Definir criterios para una UI futura no implica importar, identificar, mapear ni validar una implementación existente."
+    },
+    {
+      "id": "c12",
+      "primary": "validate-ds",
+      "reason": "Se solicita validar una UI existente; la ausencia de navegador limita las comprobaciones y debe informarse."
+    }
+  ]
+}

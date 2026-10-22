@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "status": "FAIL",
+  "executor": "Independent subagent /root/routing_contrast_smoke; only blind bundle read; no task execution",
+  "model": "unreported",
+  "createdAt": "2026-10-22T18:01:10.528157Z",
+  "passed": 23,
+  "total": 24,
+  "results": [
+    {
+      "id": "c01",
+      "expected": "create-ds-from-figma",
+      "actual": "create-ds-from-figma",
+      "status": "PASS",
+      "reason": "Solicita crear un DS importando un componente Figma."
+    },
+    {
+      "id": "c02",
+      "expected": "build-from-figma",
+      "actual": "build-from-figma",
+      "status": "PASS",
+      "reason": "La tarea principal es implementar una pantalla desde un frame."
+    },
+    {
+      "id": "c03",
+      "expected": "create-ds-from-figma",
+      "actual": "create-ds-from-figma",
+      "status": "PASS",
+      "reason": "El catálogo incluye expresamente las URLs repetidas de componentes."
+    },
+    {
+      "id": "c13",
+      "expected": "find-component",
+      "actual": "find-component",
+      "status": "PASS",
+      "reason": "Solicita resolver la correspondencia del nodo y excluye importar."
+    },
+    {
+      "id": "c14",
+      "expected": "create-ds-from-figma",
+      "actual": "create-ds-from-figma",
+      "status": "PASS",
+      "reason": "Solicita actualizar expresamente un componente existente desde Figma."
+    },
+    {
+      "id": "c15",
+      "expected": "create-ds-from-figma",
+      "actual": "build-from-figma",
+      "status": "FAIL",
+      "reason": "La inspección identifica un frame de pantalla, que corresponde al workflow de pantallas."
+    },
+    {
+      "id": "c04",
+      "expected": "find-component",
+      "actual": "find-component",
+      "status": "PASS",
+      "reason": "Busca un componente equivalente sin una coincidencia fiable previa."
+    },
+    {
+      "id": "c05",
+      "expected": "map-figma-to-code",
+      "actual": "map-figma-to-code",
+      "status": "PASS",
+      "reason": "Solicita ruta y props de un componente con identidad confirmada."
+    },
+    {
+      "id": "c06",
+      "expected": "find-component",
+      "actual": "find-component",
+      "status": "PASS",
+      "reason": "La coincidencia de nombre no establece identidad fiable; pide comprobarla."
+    },
+    {
+      "id": "c16",
+      "expected": "find-component",
+      "actual": "find-component",
+      "status": "PASS",
+      "reason": "La petición actual limita el trabajo a resolver la identidad de una instancia hija."
+    },
+    {
+      "id": "c17",
+      "expected": "none",
+      "actual": "none",
+      "status": "PASS",
+      "reason": "Es una edición de código existente sin petición de importar, identificar, mapear o validar."
+    },
+    {
+      "id": "c18",
+      "expected": "find-component",
+      "actual": "find-component",
+      "status": "PASS",
+      "reason": "Debe resolver primero la identidad antes de consultar props."
+    },
+    {
+      "id": "c07",
+      "expected": "map-figma-to-code",
+      "actual": "map-figma-to-code",
+      "status": "PASS",
+      "reason": "La variante tiene identidad confirmada y se solicitan archivo y props."
+    },
+    {
+      "id": "c08",
+      "expected": "find-component",
+      "actual": "find-component",
+      "status": "PASS",
+      "reason": "Busca la correspondencia de un nodo desconocido."
+    },
+    {
+      "id": "c09",
+      "expected": "map-figma-to-code",
+      "actual": "map-figma-to-code",
+      "status": "PASS",
+      "reason": "Solicita props y pendientes de un componente fiable; las correspondencias candidatas requieren explicitar sus límites."
+    },
+    {
+      "id": "c19",
+      "expected": "map-figma-to-code",
+      "actual": "map-figma-to-code",
+      "status": "PASS",
+      "reason": "Solicita ubicación y uso de un componente cuya correspondencia ya está establecida."
+    },
+    {
+      "id": "c20",
+      "expected": "build-from-figma",
+      "actual": "build-from-figma",
+      "status": "PASS",
+      "reason": "La tarea principal es construir una pantalla, aunque incluya una consulta implícita de props."
+    },
+    {
+      "id": "c21",
+      "expected": "map-figma-to-code",
+      "actual": "map-figma-to-code",
+      "status": "PASS",
+      "reason": "Consulta una correspondencia de variante y prop sobre un componente fiable, sin autorizar asumir su confirmación."
+    },
+    {
+      "id": "c10",
+      "expected": "validate-ds",
+      "actual": "validate-ds",
+      "status": "PASS",
+      "reason": "Solicita revisar un componente ya implementado contra el DS."
+    },
+    {
+      "id": "c11",
+      "expected": "none",
+      "actual": "none",
+      "status": "PASS",
+      "reason": "Solo plantea criterios futuros y todavía no existe implementación que validar."
+    },
+    {
+      "id": "c12",
+      "expected": "validate-ds",
+      "actual": "validate-ds",
+      "status": "PASS",
+      "reason": "Solicita validar UI implementada; la ausencia de navegador limita la evidencia disponible."
+    },
+    {
+      "id": "c22",
+      "expected": "map-figma-to-code",
+      "actual": "map-figma-to-code",
+      "status": "PASS",
+      "reason": "Solicita consultar la API de disabled de un componente ya mapeado."
+    },
+    {
+      "id": "c23",
+      "expected": "validate-ds",
+      "actual": "validate-ds",
+      "status": "PASS",
+      "reason": "Solicita revisar UI existente y declarar comprobaciones pendientes ante la falta de Figma."
+    },
+    {
+      "id": "c24",
+      "expected": "none",
+      "actual": "none",
+      "status": "PASS",
+      "reason": "Solicita planificación futura y excluye implementar o validar."
+    }
+  ],
+  "evidenceLevel": "smoke-selection",
+  "modelRecorded": false,
+  "runtimeDiscovery": "NOT RUN",
+  "limitations": [
+    "Evaluator is given the local catalog; actual runtime discovery is not exercised.",
+    "No task execution or permission compliance is observed.",
+    "One run does not establish cross-model reliability."
+  ],
+  "scope": "Primary-route selection in this catalog/context only. Does not prove execution behavior, permissions, browser/Figma fidelity or performance across models/runtimes. Provenance is declared, not authenticated."
+}

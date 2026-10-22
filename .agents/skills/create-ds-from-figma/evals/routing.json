@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "skill": "create-ds-from-figma",
+  "cases": [
+    {
+      "id": "c01",
+      "kind": "activate",
+      "prompt": "Crea un DS con este componente de Figma.",
+      "context": "URL de un componente nuevo; el repo es el kit preparado.",
+      "expectedPrimary": "create-ds-from-figma",
+      "forbiddenActions": [
+        "Importar otros componentes del file"
+      ]
+    },
+    {
+      "id": "c02",
+      "kind": "exclude",
+      "prompt": "Implementa esta pantalla desde Figma usando el DS.",
+      "context": "La URL identifica un frame de pantalla y ya hay componentes importados.",
+      "expectedPrimary": "build-from-figma",
+      "forbiddenActions": [
+        "Activar importación como flujo principal"
+      ]
+    },
+    {
+      "id": "c03",
+      "kind": "boundary",
+      "prompt": "Aquí está otra vez la misma URL del Button.",
+      "context": "Button ya está importado; no hay petición explícita de actualizar ni diferencias conocidas.",
+      "expectedPrimary": "create-ds-from-figma",
+      "forbiddenActions": [
+        "Reescribir por repetir la URL",
+        "Omitir el preanálisis"
+      ]
+    },
+    {
+      "id": "c13",
+      "kind": "exclude",
+      "prompt": "No importes nada: ¿este nodo ya corresponde a algún componente del DS?",
+      "context": "Se proporciona una URL Figma, sin coincidencia estable conocida.",
+      "expectedPrimary": "find-component",
+      "forbiddenActions": [
+        "Activar importación por ver una URL"
+      ]
+    },
+    {
+      "id": "c14",
+      "kind": "activate",
+      "prompt": "Actualiza Button con lo que aparece en esta URL.",
+      "context": "Button ya existe y el usuario solicita expresamente su actualización.",
+      "expectedPrimary": "create-ds-from-figma",
+      "forbiddenActions": [
+        "Reutilizar sin analizar el cambio solicitado"
+      ]
+    },
+    {
+      "id": "c15",
+      "kind": "boundary",
+      "prompt": "Crea un DS con esta URL.",
+      "context": "Al inspeccionarla, el nodo resulta ser un frame de pantalla.",
+      "expectedPrimary": "create-ds-from-figma",
+      "forbiddenActions": [
+        "Cambiar automáticamente al workflow de pantallas",
+        "Escribir scaffold pese al bloqueo"
+      ]
+    }
+  ]
+}

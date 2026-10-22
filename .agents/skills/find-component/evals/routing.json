@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "skill": "find-component",
+  "cases": [
+    {
+      "id": "c04",
+      "kind": "activate",
+      "prompt": "¿Ya existe en el DS algo equivalente a este botón?",
+      "context": "Hay una descripción visual; todavía no hay coincidencia fiable.",
+      "expectedPrimary": "find-component",
+      "forbiddenActions": [
+        "Importar o escribir código"
+      ]
+    },
+    {
+      "id": "c05",
+      "kind": "exclude",
+      "prompt": "Dame la ruta de código y las props de este Button ya mapeado.",
+      "context": "La coincidencia estable y fiable con Button está establecida.",
+      "expectedPrimary": "map-figma-to-code",
+      "forbiddenActions": [
+        "Iniciar importación"
+      ]
+    },
+    {
+      "id": "c06",
+      "kind": "boundary",
+      "prompt": "Creo que esta capa llamada Button es nuestro botón, ¿puedes comprobarlo?",
+      "context": "Solo coincide el nombre; refs contradictorios y ninguna identidad fiable.",
+      "expectedPrimary": "find-component",
+      "forbiddenActions": [
+        "Dar mapped por el nombre",
+        "Crear un mapeo"
+      ]
+    },
+    {
+      "id": "c16",
+      "kind": "boundary",
+      "prompt": "Antes de seguir con Tabs, comprueba únicamente si esta instancia hija está en el DS.",
+      "context": "El padre forma parte de una importación abierta; esta petición limita el trabajo a resolver la instancia.",
+      "expectedPrimary": "find-component",
+      "forbiddenActions": [
+        "Importar o modificar el padre"
+      ]
+    },
+    {
+      "id": "c17",
+      "kind": "exclude",
+      "prompt": "Ajusta el padding de este botón existente.",
+      "context": "No hay URL Figma ni petición de importar, mapear o revisar. Hay código implementado.",
+      "expectedPrimary": "none",
+      "forbiddenActions": [
+        "Activar una importación por mencionar Button"
+      ]
+    },
+    {
+      "id": "c18",
+      "kind": "activate",
+      "prompt": "¿Qué componente corresponde a este nodo y qué props tendría que usar?",
+      "context": "No hay una coincidencia estable: primero hay que resolver la identidad.",
+      "expectedPrimary": "find-component",
+      "forbiddenActions": [
+        "Inventar props antes de establecer la identidad"
+      ]
+    }
+  ]
+}

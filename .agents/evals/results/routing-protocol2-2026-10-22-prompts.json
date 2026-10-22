@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "catalogHashVersion": 2,
+  "catalogHash": "35ab9bc208d759d8d14ce2faa80511ff36c7fdedfbfc6de0f3a39d188640931f",
+  "suiteHash": "f0c3733d493677dc2415a871df6e9e8989080876951c925832473c56bf4d71ec",
+  "catalog": [
+    {
+      "name": "create-ds-from-figma",
+      "description": "Import or explicitly update one Figma component in this DS repo. USE WHEN: \"crea un DS\"/\"create a design system\", a Figma URL alone (including repeated URLs), or an explicit component/set/variant/instance import or update. Inspect the node type first. A \"crea un DS\" request pointing to a frame stays in this flow: report DS_GAP without writing or switching workflows. DO NOT USE WHEN: explicitly building a screen from a frame, or editing existing UI without a component import/update request."
+    },
+    {
+      "name": "find-component",
+      "description": "Resolve whether a UI element or Figma node matches an existing Design System component. USE WHEN: the user asks whether the DS already has an element or which component matches a node. DO NOT USE WHEN: importing or implementing UI is the primary task; follow the owning flow, which may call this skill to check for reuse."
+    },
+    {
+      "name": "map-figma-to-code",
+      "description": "Resolve an existing Figma-mapped Design System component to its code path and props. USE WHEN: a reliable component match is known and the user needs its implementation or props. DO NOT USE WHEN: no reliable match exists, or importing or implementing UI is the primary task; follow the owning flow, which may call this skill after a match."
+    },
+    {
+      "name": "validate-ds",
+      "description": "Validate implemented UI against Design System composition, tokens, reuse, bindings and accessibility. USE WHEN: the user asks to validate existing UI or an implementation is ready for final checks, including UI built from Figma. DO NOT USE WHEN: only identifying, mapping or planning UI and there is no implementation to verify yet."
+    }
+  ],
+  "instructions": "Select the primary route only. build-from-figma is the existing screen workflow; none means no skill is needed yet. Do not execute the requests. Return observations [{id, primary, reason}]. Use the current catalog and context; do not invent a match or perform writes.",
+  "cases": [
+    {
+      "id": "c01",
+      "prompt": "Crea un DS con este componente de Figma.",
+      "context": "URL de un componente nuevo; el repo es el kit preparado."
+    },
+    {
+      "id": "c02",
+      "prompt": "Implementa esta pantalla desde Figma usando el DS.",
+      "context": "La URL identifica un frame de pantalla y ya hay componentes importados."
+    },
+    {
+      "id": "c03",
+      "prompt": "Aquí está otra vez la misma URL del Button.",
+      "context": "Button ya está importado; no hay petición explícita de actualizar ni diferencias conocidas."
+    },
+    {
+      "id": "c13",
+      "prompt": "No importes nada: ¿este nodo ya corresponde a algún componente del DS?",
+      "context": "Se proporciona una URL Figma, sin coincidencia estable conocida."
+    },
+    {
+      "id": "c14",
+      "prompt": "Actualiza Button con lo que aparece en esta URL.",
+      "context": "Button ya existe y el usuario solicita expresamente su actualización."
+    },
+    {
+      "id": "c15",
+      "prompt": "Crea un DS con esta URL.",
+      "context": "Al inspeccionarla, el nodo resulta ser un frame de pantalla."
+    },
+    {
+      "id": "c04",
+      "prompt": "¿Ya existe en el DS algo equivalente a este botón?",
+      "context": "Hay una descripción visual; todavía no hay coincidencia fiable."
+    },
+    {
+      "id": "c05",
+      "prompt": "Dame la ruta de código y las props de este Button ya mapeado.",
+      "context": "La coincidencia estable y fiable con Button está establecida."
+    },
+    {
+      "id": "c06",
+      "prompt": "Creo que esta capa llamada Button es nuestro botón, ¿puedes comprobarlo?",
+      "context": "Solo coincide el nombre; refs contradictorios y ninguna identidad fiable."
+    },
+    {
+      "id": "c16",
+      "prompt": "Antes de seguir con Tabs, comprueba únicamente si esta instancia hija está en el DS.",
+      "context": "El padre forma parte de una importación abierta; esta petición limita el trabajo a resolver la instancia."
+    },
+    {
+      "id": "c17",
+      "prompt": "Ajusta el padding de este botón existente.",
+      "context": "No hay URL Figma ni petición de importar, mapear o revisar. Hay código implementado."
+    },
+    {
+      "id": "c18",
+      "prompt": "¿Qué componente corresponde a este nodo y qué props tendría que usar?",
+      "context": "No hay una coincidencia estable: primero hay que resolver la identidad."
+    },
+    {
+      "id": "c07",
+      "prompt": "¿Qué archivo y props implementan esta variante de Button?",
+      "context": "La identidad estable y la coincidencia con el DS ya se han confirmado."
+    },
+    {
+      "id": "c08",
+      "prompt": "¿Qué componente del DS corresponde a este nodo desconocido?",
+      "context": "No hay coincidencia fiable; hay que buscarla primero."
+    },
+    {
+      "id": "c09",
+      "prompt": "Dame las props de este Button mapeado y dime qué está pendiente.",
+      "context": "Identidad fiable; usage tiene correspondencias candidatas e informes íntegros caducados."
+    },
+    {
+      "id": "c19",
+      "prompt": "Muéstrame dónde vive Button y cómo se usa.",
+      "context": "Se refiere al Button del DS cuya identidad Figma-código ya está establecida."
+    },
+    {
+      "id": "c20",
+      "prompt": "Implementa esta pantalla con Button size lg.",
+      "context": "Hay un frame de pantalla y componentes del DS importados; la tarea principal es construir la pantalla."
+    },
+    {
+      "id": "c21",
+      "prompt": "¿Puedo usar size lg para esta variante Large?",
+      "context": "La identidad del componente es fiable; el tipo admite lg pero la correspondencia de variante no está confirmada."
+    },
+    {
+      "id": "c10",
+      "prompt": "Valida este componente ya implementado contra el DS.",
+      "context": "Existen código, ficha y referencias Figma; solo se solicita revisión."
+    },
+    {
+      "id": "c11",
+      "prompt": "Ayúdame a definir los criterios de aceptación de una futura UI.",
+      "context": "No hay implementación, nodo Figma ni petición de importar."
+    },
+    {
+      "id": "c12",
+      "prompt": "Valida esta UI existente e indica lo que no puedas comprobar.",
+      "context": "Hay implementación; en este entorno no está disponible el navegador."
+    },
+    {
+      "id": "c22",
+      "prompt": "Explícame qué props permiten controlar disabled en este Button.",
+      "context": "Componente fiable ya mapeado; el usuario pide consultar su API, no comprobar su renderizado."
+    },
+    {
+      "id": "c23",
+      "prompt": "Revisa la UI y separa lo que puedas comprobar de lo pendiente.",
+      "context": "Hay implementación local; no está disponible el diseño Figma original."
+    },
+    {
+      "id": "c24",
+      "prompt": "No implementes ni valides todavía: ayúdame a planificar la API futura.",
+      "context": "No hay código ni nodo Figma ni petición de búsqueda de componentes."
+    }
+  ]
+}
