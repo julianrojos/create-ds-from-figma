@@ -76,17 +76,24 @@ export function inventoryCollections(inventory) {
   return data.collections.filter(c => !c.remote).map(c => ({ ...c, variables: data.variables.filter(v => v.collectionId === c.id) }));
 }
 
-// Resolve only mode-independent cross-collection aliases; no implicit active-mode choice.
-export function inventoryTokenCollections(input) {
+// Explicit modes describe resolved source values, not the runtime CSS cascade.
+export function inventoryTokenCollections(input, aliasModes = {}) {
   const data = normalizeInventory(input), variables = new Map(data.variables.map(v => [v.id, v]));
   const collections = new Map(data.collections.map(c => [c.id, c]));
+  if (!object(aliasModes)) fail('aliasModes must be an object keyed by collection ID');
+  for (const [id, name] of Object.entries(aliasModes)) {
+    if (collections.get(id)?.remote !== false || !collections.get(id)?.modes.some(m => m.name === name)) fail(`unknown local alias mode ${id}/${name}`);
+  }
   const resolve = (v, mode, seen = new Set()) => {
     const key = `${v.id}:${mode}`;
     if (seen.has(key)) fail(`alias cycle at ${key}`);
     const next = new Set([...seen, key]), raw = v.valuesByMode[mode];
     if (raw?.type === 'VARIABLE_ALIAS') {
       const target = variables.get(raw.id), targetCollection = collections.get(target.collectionId);
-      const candidates = target.collectionId === v.collectionId ? [resolve(target, mode, next)] : targetCollection.modes.map(m => resolve(target, m.modeId, next));
+      const selected = Object.hasOwn(aliasModes, target.collectionId)
+        ? targetCollection.modes.find(m => m.name === aliasModes[target.collectionId]) : null;
+      const candidates = target.collectionId === v.collectionId ? [resolve(target, mode, next)]
+        : selected ? [resolve(target, selected.modeId, next)] : targetCollection.modes.map(m => resolve(target, m.modeId, next));
       if (new Set(candidates.map(canonicalJson)).size !== 1) fail(`cross-collection alias ${v.id} -> ${target.id} depends on an unrecorded mode; explicit resolution is required`);
       return candidates[0];
     }

@@ -155,7 +155,7 @@ export async function captureFigma(figma, options, extract = extractObservations
     const collections = [];
     try {
       for (const c of await figma.variables.getLocalVariableCollectionsAsync()) {
-        collections.push(clean({ id: c.id, name: c.name, modes: c.modes, defaultModeId: c.defaultModeId, variableIds: c.variableIds }));
+        collections.push(clean({ id: c.id, name: c.name, modes: c.modes, defaultModeId: c.defaultModeId, variableIds: [...c.variableIds].sort() }));
       }
     } catch (error) { issues.push({ node: root.id, field: 'collections', reason: String(error.message || error) }); }
     const variables = [];
@@ -174,7 +174,7 @@ export async function captureFigma(figma, options, extract = extractObservations
         if (!collections.some(c => c.id === v.variableCollectionId)) {
           const c = await figma.variables.getVariableCollectionByIdAsync(v.variableCollectionId);
           if (!c) throw new Error('Variable collection unavailable');
-          collections.push(clean({ id: c.id, name: c.name, modes: c.modes, defaultModeId: c.defaultModeId, variableIds: c.variableIds, remote: c.remote }));
+          collections.push(clean({ id: c.id, name: c.name, modes: c.modes, defaultModeId: c.defaultModeId, variableIds: [...c.variableIds].sort(), remote: c.remote }));
         }
         for (const value of Object.values(v.valuesByMode)) if (value?.type === 'VARIABLE_ALIAS') pending.push(value.id);
       } catch (error) { issues.push({ node: root.id, field: `variables.${id}`, reason: String(error.message || error) }); }
@@ -184,7 +184,7 @@ export async function captureFigma(figma, options, extract = extractObservations
     return { schemaVersion: 2, source: { tool: 'use_figma', api: 'PLUGIN', collector: 'capture-figma-v2',
       fileKey: options.fileKey, requestedNodeId: options.nodeId, rootNodeId: root.id, revision: null },
       profile: { fields, textFields, scope: 'component-subtree-and-used-variable-aliases', excluded: ['vector geometry', 'image bytes', 'file-wide variable values', 'CSS and API decisions'] },
-      variants, nodes, observations, collections, variables, styles,
+      variants, nodes, observations, collections: collections.sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0), variables, styles,
       coverage: { traversal: 'children-recursive-including-hidden-and-instance-descendants', nodeCount: nodes.length, issues } };
   }
 }

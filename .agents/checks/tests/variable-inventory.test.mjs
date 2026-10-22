@@ -48,6 +48,8 @@ test('inventory rejects wrong identity, API failures and omitted local alias tar
 
 test('inventory schema rejects incomplete graph, modes, duplicate IDs/names, foreign collections and invalid typed values', async () => {
   const raw = await captureInventory(inventoryMock(), { fileKey: 'FILE' });
+  // These mutations address named fixture records, independently of transport ordering.
+  raw.variables.sort((a, b) => ['base', 'alias', 'size', 'external-alias', 'remote'].indexOf(a.id) - ['base', 'alias', 'size', 'external-alias', 'remote'].indexOf(b.id));
   for (const mutate of [d => d.variables.pop(), d => d.variables.push(d.variables[0]), d => d.collections.push(d.collections[0]),
     d => delete d.variables[0].valuesByMode.dark, d => d.variables[0].valuesByMode.extra = 1, d => d.variables[0].collectionId = 'missing',
     d => d.variables[0].valuesByMode.light.r = 4, d => d.variables[2].valuesByMode.light = Infinity,
@@ -55,6 +57,59 @@ test('inventory schema rejects incomplete graph, modes, duplicate IDs/names, for
     d => d.variables[1].valuesByMode.light.id = 'unknown', d => d.variables[2].remote = true]) {
     const bad = structuredClone(raw); mutate(bad); assert.throws(() => sealInventory(bad), /Variable inventory:/);
   }
+});
+
+test('inventory transport is invariant to unordered API lists, but preserves mode order', async () => {
+  const mock = inventoryMock(), before = await captureInventory(mock, { fileKey: 'FILE' });
+  const locals = await mock.variables.getLocalVariablesAsync(), collections = await mock.variables.getLocalVariableCollectionsAsync();
+  locals.reverse(); collections.forEach(c => c.variableIds.reverse());
+  mock.variables.getLocalVariablesAsync = async () => locals;
+  assert.deepEqual(await captureInventory(mock, { fileKey: 'FILE' }), before);
+  collections[0].modes.reverse();
+  assert.notDeepEqual(await captureInventory(mock, { fileKey: 'FILE' }), before);
+});
+
+async function themedInventory() {
+  const raw = await captureInventory(inventoryMock(), { fileKey: 'FILE' });
+  raw.collections.push({ id: 'T', name: 'Theme', remote: false, defaultModeId: 'slate', modes: [{ modeId: 'slate', name: 'Slate' }, { modeId: 'other', name: 'Other' }], variableIds: ['hue'] });
+  raw.variables.push({ id: 'hue', name: 'hue', remote: false, collectionId: 'T', type: 'COLOR', scopes: ['ALL_SCOPES'], valuesByMode: { slate: { r: 1, g: 0, b: 0, a: 1 }, other: { r: 0, g: 0, b: 1, a: 1 } } });
+  raw.variables.find(v => v.id === 'alias').valuesByMode = { light: { type: 'VARIABLE_ALIAS', id: 'hue' }, dark: { type: 'VARIABLE_ALIAS', id: 'hue' } };
+  return raw;
+}
+
+test('explicit local alias modes resolve only cross-collection values without changing captured facts or same-collection modes', async () => {
+  const raw = await themedInventory(), before = structuredClone(raw);
+  assert.throws(() => inventoryTokenCollections(raw), /unrecorded mode/);
+  const selected = inventoryTokenCollections(raw, { T: 'Slate' });
+  assert.equal(selected.find(c => c.id === 'C').variables.alias.valuesByMode.Dark.value, '#FF0000');
+  assert.equal(selected.find(c => c.id === 'C').variables.size.valuesByMode.Dark, 14);
+  assert.equal(selected.find(c => c.id === 'T').variables.hue.valuesByMode.Other, '#0000FF');
+  assert.equal(inventoryTokenCollections(raw, { T: 'Other' }).find(c => c.id === 'C').variables.alias.valuesByMode.Light.value, '#0000FF');
+  assert.deepEqual(raw, before);
+  for (const modes of [null, [], { T: 'missing' }, { missing: 'Slate' }, { T: 1 }, { R: 'Base' }]) assert.throws(() => inventoryTokenCollections(raw, modes), /alias mode|aliasModes/);
+  raw.variables.find(v => v.id === 'hue').valuesByMode.slate = { type: 'VARIABLE_ALIAS', id: 'alias' };
+  assert.throws(() => inventoryTokenCollections(raw, { T: 'Slate' }), /cycle/);
+});
+
+test('alias choices are saved, revalidated and cannot be silently replaced; CLI check uses stored decisions', async t => {
+  const root = temporary(t), file = path.join(root, 'inventory.json'), modes = path.join(root, 'modes.json');
+  writeFileSync(file, JSON.stringify(sealInventory(await themedInventory())));
+  writeFileSync(modes, JSON.stringify({ T: 'Slate' }));
+  const planned = invoke('generate-token-json', ['plan', root, '--inventory', file, '--alias-modes', modes]);
+  assert.equal(planned.status, 0, planned.stderr); assert.equal(existsSync(path.join(root, 'design-system')), false);
+  const plan = planInventoryTokens(root, file, { aliasModes: { T: 'Slate' } }); saveInventoryTokens(root, plan);
+  const stateFile = path.join(root, 'design-system/relationships/figma-state.json'), state = JSON.parse(readFileSync(stateFile));
+  assert.deepEqual(state.aliasModes, { T: 'Slate' });
+  assert.equal(tokenInventoryComparison(root, readInventory(file)).status, 'PASS');
+  assert.deepEqual(planInventoryTokens(root, file).outputs, plan.outputs);
+  assert.match(generateTokensCss(root).css, /--ds-color-alias: var\(--ds-theme-hue\)/);
+  assert.throws(() => planInventoryTokens(root, file, { aliasModes: { T: 'Other' } }), /migration/);
+  assert.equal(invoke('generate-token-json', ['check', root, '--inventory', file]).status, 0);
+  assert.equal(invoke('generate-token-json', ['check', root, '--inventory', file, '--alias-modes', modes]).status, 1);
+  state.aliasModes.T = 'Other'; writeFileSync(stateFile, JSON.stringify(state));
+  assert.equal(tokenInventoryComparison(root, readInventory(file)).status, 'FAIL');
+  state.aliasModes.T = 'missing'; writeFileSync(stateFile, JSON.stringify(state));
+  assert.throws(() => tokenInventoryComparison(root, readInventory(file)), /alias mode/);
 });
 
 test('seal verifies hash, provenance, canonical representation and capture date', async t => {

@@ -14,13 +14,22 @@ const readState = root => existsSync(path.join(root, statePath)) ? json(projectF
 const encode = data => JSON.stringify(data, null, 2) + '\n';
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const sameFact = (actual, expected) => actual !== undefined && canonicalJson(actual) === canonicalJson(expected);
+function observedAliasModes(state, inventory) {
+  const modes = state.aliasModes === undefined ? {} : state.aliasModes;
+  if (!object(modes)) throw new Error('aliasModes must be an object keyed by collection ID');
+  const observed = new Set(inventory.collections.map(c => c.id));
+  for (const [id, mode] of Object.entries(modes)) {
+    if (!observed.has(id) && !state.collections?.[id]?.modes?.includes(mode)) throw new Error(`Unknown retained alias mode ${id}/${mode}`);
+  }
+  return Object.fromEntries(Object.entries(modes).filter(([id]) => observed.has(id)));
+}
 const modeFacts = values => object(values) ? Object.fromEntries(Object.entries(values).map(([mode, value]) => [mode,
   object(value) ? Object.fromEntries(['targetVariableId', 'source', 'value'].filter(key => Object.hasOwn(value, key)).map(key => [key, value[key]])) : value])) : values;
 
 export function tokenInventoryComparison(root, envelope) {
   const state = readState(root), errors = [], retainedCollections = [], retainedVariables = [];
   if (state.fileKey !== envelope.inventory.source.fileKey) errors.push('Inventory file origin differs from project');
-  const observed = inventoryTokenCollections(envelope.inventory), ids = new Set(observed.map(c => c.id));
+  const observed = inventoryTokenCollections(envelope.inventory, observedAliasModes(state, envelope.inventory)), ids = new Set(observed.map(c => c.id));
   for (const collection of observed) {
     const record = state.collections?.[collection.id];
     if (!record || !isPortableTokenFileName(record.file)) { errors.push(`Collection ${collection.id} has no registered token file`); continue; }
@@ -49,7 +58,7 @@ export function tokenInventoryComparison(root, envelope) {
     retainedCollections, retainedVariables, scope: 'Observed local facts compared with this sealed inventory; retained records are not evidence of continued presence in Figma. Hash and origin do not authenticate Figma.' };
 }
 
-export function planInventoryTokens(root, inventoryPath, { tokenPrefix } = {}) {
+export function planInventoryTokens(root, inventoryPath, { tokenPrefix, aliasModes } = {}) {
   root = path.resolve(root);
   const state = readState(root), envelope = readInventory(inventoryPath, state.fileKey || undefined);
   const preflightScript = fileURLToPath(new URL('../../skills/create-ds-from-figma/scripts/preflight-token-files.mjs', import.meta.url));
@@ -57,9 +66,19 @@ export function planInventoryTokens(root, inventoryPath, { tokenPrefix } = {}) {
   const result = spawnSync(process.execPath, args, { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
   if (result.error || result.status !== 0) throw new Error(result.error?.message || result.stderr || 'Token preflight failed');
   const preflight = JSON.parse(result.stdout), next = structuredClone(state), outputs = {};
+  observedAliasModes(state, envelope.inventory);
+  if (aliasModes !== undefined) {
+    if (!object(aliasModes)) throw new Error('aliasModes must be an object keyed by collection ID');
+    const known = new Map(envelope.inventory.collections.map(c => [c.id, c]));
+    for (const [id, mode] of Object.entries(aliasModes)) {
+      if (known.get(id)?.remote !== false || !known.get(id)?.modes.some(m => m.name === mode)) throw new Error(`Unknown local alias mode ${id}/${mode}`);
+      if (Object.hasOwn(state.aliasModes || {}, id) && state.aliasModes[id] !== mode) throw new Error(`Alias mode ${id} is already fixed; changing it requires an explicit migration`);
+    }
+    next.aliasModes = { ...state.aliasModes, ...aliasModes };
+  }
   next.fileKey = envelope.inventory.source.fileKey; next.tokenPrefix = preflight.tokenPrefix.value;
   next.collections = Object.assign(Object.create(null), next.collections); next.variables = Object.assign(Object.create(null), next.variables);
-  for (const collection of inventoryTokenCollections(envelope.inventory)) {
+  for (const collection of inventoryTokenCollections(envelope.inventory, observedAliasModes(next, envelope.inventory))) {
     const file = preflight.files[collection.id], relative = `design-system/tokens/${file}`;
     const old = existsSync(path.join(root, relative)) ? json(projectFile(root, relative)) : null;
     const incomingIds = new Set(Object.values(collection.variables).map(v => v.id));

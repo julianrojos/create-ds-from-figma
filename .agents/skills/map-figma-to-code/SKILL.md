@@ -1,4 +1,5 @@
 ---
+
 name: map-figma-to-code
 description: >-
   Resolve an existing Figma-mapped Design System component to its code path and props.
@@ -9,6 +10,8 @@ description: >-
 ---
 
 # Map Figma to Code
+
+Las decisiones opcionales `figma-state.json.aliasModes` no seleccionan el modo CSS activo ni prueban el color renderizado; no las cambies al consultar el mapeo.
 
 ## Goal
 

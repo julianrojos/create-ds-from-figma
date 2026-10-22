@@ -674,6 +674,12 @@ export function verify(root, { metadataOverrides, visualSummaries = new Map(), d
   const stateVariables = isObject(state.variables) ? state.variables : null;
   if (!stateCollections) fail("figma-state.json: collections must be an ID-keyed object");
   if (!stateVariables) fail("figma-state.json: variables must be grouped by collection ID");
+  if (state.aliasModes !== undefined) {
+    if (!isObject(state.aliasModes)) fail('figma-state.json: aliasModes must be an object keyed by collection ID');
+    else for (const [id, mode] of Object.entries(state.aliasModes)) {
+      if (!isText(mode) || !stateCollections?.[id]?.modes?.includes(mode)) fail(`figma-state.json: unknown alias mode ${id}/${mode}`);
+    }
+  }
   const modeChecks = [];
   const floatDecisions = new Map();
   if (stateCollections) {

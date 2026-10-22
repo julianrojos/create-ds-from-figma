@@ -1,5 +1,9 @@
 # Casos de evaluación de create-ds-from-figma
 
+## Alias entre colecciones con elección explícita
+
+Con dos modos de una colección local que dan colores diferentes a un alias de otra colección, plan sin elección debe bloquear. Con autorización explícita y --alias-modes, plan no escribe, save conserva la elección y check compara los valores con ella. Un modo desconocido, colección remota, ciclo o cambio silencioso de elección debe fallar sin alterar el proyecto. Los modos CSS y los alias internos siguen independientes. Reordenar solo IDs de conjuntos en la API no debe cambiar los bloques de transporte; reordenar modos o capas sí conserva su diferencia. No se reescriben capturas históricas.
+
 Estos casos describen decisiones observables, no sustituyen una ejecución real con Figma. Para cada prueba, registra la URL, refs consultados, diagnóstico, archivos modificados y resultados de los checks. Ejecútalos en una rama que el usuario haya seleccionado; no cambies de rama por cuenta del kit.
 
 ## Recuperación De Capturas Y Serializaciones

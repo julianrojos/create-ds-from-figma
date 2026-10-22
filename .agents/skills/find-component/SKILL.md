@@ -1,4 +1,5 @@
 ---
+
 name: find-component
 description: >-
   Resolve whether a UI element or Figma node matches an existing Design System component.
@@ -9,6 +10,8 @@ description: >-
 ---
 
 # Find Component
+
+Las decisiones opcionales `figma-state.json.aliasModes` resuelven valores entre colecciones, no prueban el modo CSS activo ni la fidelidad de un componente. No las cambies durante una consulta de reutilización.
 
 ## Goal
 

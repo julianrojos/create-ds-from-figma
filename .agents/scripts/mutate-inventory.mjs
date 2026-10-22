@@ -11,6 +11,9 @@ runMutations({
   scope: 'Targeted inventory, token preservation and nested-identity regressions; not exhaustive mutation coverage or live Figma validation.',
   tests: ['.agents/checks/tests/variable-inventory.test.mjs', '.agents/checks/tests/figma-reference.test.mjs'],
   mutants: [
+    [inventory, 'ignore-explicit-alias-mode', ': selected ? [resolve(target, selected.modeId, next)]', ': false ? [resolve(target, selected.modeId, next)]'],
+    [tokens, 'discard-alias-mode-decision', 'next.aliasModes = { ...state.aliasModes, ...aliasModes };', 'next.aliasModes = {};'],
+    [collector, 'unordered-variable-ids', 'variableIds: [...c.variableIds].sort()', 'variableIds: [...c.variableIds]'],
     [inventory, 'accept-non-object-envelope', "if (!object(envelope)) fail('envelope must be an object');", ''],
     [inventory, 'accept-unknown-envelope-fields', 'if (Object.keys(envelope).length !== envelopeFields.length || !envelopeFields.every(key => Object.hasOwn(envelope, key)))', 'if (false)'],
     [inventory, 'accept-invalid-capture-date', "return Number.isFinite(time) && new Date(time).toISOString() === value;", 'return true;'],

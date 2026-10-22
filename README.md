@@ -1,5 +1,7 @@
 # CREATE DS FROM FIGMA
 
+Para alias entre colecciones locales con valores distintos por modo, `generate-token-json.mjs plan/save --inventory INVENTORY --alias-modes PATH` admite un JSON de IDs de colección a nombres exactos de modo autorizados. Guarda la elección en `figma-state.json.aliasModes`; no activa un modo CSS. check revalida la decisión persistida. Los colectores ordenan conjuntos de IDs para estabilizar el transporte, sin alterar modos ni capas; los snapshots históricos permanecen inmutables.
+
 Proyecto para arrancar un Design System desde 0 dentro de este repo preparado.
 
 No trae tokens, componentes ni pantallas. El agente analiza la URL de Figma antes de escribir y crea el DS cuando el componente puede importarse.

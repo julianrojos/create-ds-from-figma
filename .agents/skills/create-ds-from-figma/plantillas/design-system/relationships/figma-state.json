@@ -46,6 +46,7 @@
       }
     },
     "notes": [
+      "aliasModes optionally maps local collection IDs to exact mode names explicitly authorized for resolving cross-collection alias values. It does not select the runtime CSS mode; modeScopes remains independent. Changing a recorded choice requires an explicit migration. Same-collection aliases always use their own mode.",
       "Ignore keys that start with _ when reading runtime state.",
       "tokenPrefix is null only before the first import. The first import writes the prefix (default ds, or the one the user requested) and the flow does not change it afterwards without an explicit migration. Every local cssName starts with --<tokenPrefix>-; a cssName already assigned to a variable ID is never recalculated, even if Figma renames the variable or its collection.",
       "modeScopes has one entry per non-default mode of the collection: null means the CSS scope is not decided yet (the mode is NOT VERIFIED, never invented), { \"kind\": \"selector\", \"value\": \"[data-theme=\\\"dark\\\"]\" } is one selector emitted after the base :root, and { \"kind\": \"media\", \"query\": \"(min-width: 768px)\", \"order\": 1 } is a media query emitted in ascending order. The default mode always lives in :root and has no entry. Figma does not define these scopes: ask the user once per collection.",
@@ -66,6 +67,7 @@
   },
   "fileKey": "",
   "tokenPrefix": null,
+  "aliasModes": {},
   "collections": {},
   "variables": {},
   "components": {}

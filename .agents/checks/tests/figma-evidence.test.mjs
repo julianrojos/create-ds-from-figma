@@ -44,6 +44,17 @@ async function fixture() {
   return captureFigma(mockFigma(), { fileKey: 'FILE', nodeId: '1:1' });
 }
 
+test('capture transport sorts unordered collection IDs, never layers or modes', async () => {
+  const figma = mockFigma(), collections = await figma.variables.getLocalVariableCollectionsAsync();
+  collections.push({ ...collections[0], id: 'OTHER', variableIds: [] });
+  figma.variables.getLocalVariableCollectionsAsync = async () => collections;
+  const before = await captureFigma(figma, { fileKey: 'FILE', nodeId: '1:1' });
+  collections.reverse(); collections.forEach(c => c.variableIds.reverse());
+  assert.equal(canonicalJson(await captureFigma(figma, { fileKey: 'FILE', nodeId: '1:1' })), canonicalJson(before));
+  figma.nodes.get('1:1').children.reverse();
+  assert.notEqual(canonicalJson(await captureFigma(figma, { fileKey: 'FILE', nodeId: '1:1' })), canonicalJson(before));
+});
+
 test('capture v2 preserves absolute bounds/transforms without deriving them and rejects v1', async () => {
   const figma = mockFigma(), source = figma.nodes.get('1:2');
   source.absoluteBoundingBox = { x: 10.25, y: 20.5, width: 32, height: 32 };

@@ -1,4 +1,5 @@
 ---
+
 name: validate-ds
 description: >-
   Validate implemented UI against Design System composition, tokens, reuse, bindings and accessibility.
@@ -9,6 +10,8 @@ description: >-
 ---
 
 # Validate Design System Compliance
+
+Al validar tokens, conserva `figma-state.json.aliasModes`: registra elecciones explícitas para valores de alias, no el modo activo del navegador. `generate-token-json.mjs check --inventory INVENTORY` revalida las elecciones guardadas; una validación no autoriza cambiarlas.
 
 Read importDiagnostics/nextActions even when snapshot validation fails. RESOLVE_FLOAT_SERIALIZATION lists local pending FLOAT variables and identified references, not inferred units. Dynamic or unreadable analysis remains partial/unknown, never proof of non-use. Capture recovery distinguishes empty/incompatible captures from damaged or unreadable historical originals: inspect/restore the original or request an authorized new capture, never patch hashes or invent evidence. These actions do not authorize writes during standalone validation and do not disable independent application diagnostics.
 

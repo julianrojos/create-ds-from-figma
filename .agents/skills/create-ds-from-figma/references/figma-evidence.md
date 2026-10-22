@@ -1,5 +1,7 @@
 # Captura auditable de Figma
 
+Los colectores estabilizan el orden de conjuntos de IDs de colecciones y variables antes de fragmentar. No ordenan capas ni modos: su orden conserva significado. Esta normalización no añade campos ni cambia el perfil v2 y no reescribe snapshots históricos; una captura nueva puede tener otro hash. Cada sesión sigue exigiendo checksum idéntico entre bloques y un hash final válido, sin demostrar atomicidad de Figma.
+
 ## Responsabilidades
 
 Las pruebas del kit separan conformidad estática, ejecución real de navegador y fidelidad. npm test exige el perfil Chromium fijado; npm run test:browser:setup lo prepara en un runtime aislado. Un corpus de texto repetible no demuestra calibración contra Figma. El margen TEXT de 1 px sigue provisional: los PASS geométricos de texto necesitan checkReviews específicos con artefactos del caso antes de measured/confirmed. Ningún juicio rescata FAIL/NOT RUN. Esto no modifica la captura ni autoriza inventar valores de Figma.

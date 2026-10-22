@@ -124,6 +124,8 @@ En la primera importación, añade una app Vite React TS compatible con `index.h
 
 ## Preanálisis antes de escribir
 
+Si un alias entre colecciones locales tiene varios valores posibles, pregunta qué modo usar para resolver esos valores. Solo con autorización explícita usa `generate-token-json.mjs plan/save --inventory INVENTORY --alias-modes PATH` y registra la elección en `figma-state.json.aliasModes`. No fija un modo CSS, no sustituye `modeScopes` ni cambia los alias de la misma colección. Una dependencia remota ambigua sigue bloqueada.
+
 No crees el árbol, tokens, fichas, código ni registros durante este preanálisis. Reutiliza sus resultados al implementar; no repitas llamadas a Figma salvo que falte información o los datos hayan cambiado.
 
 1. Lee el nodo de la URL con `get_metadata` para identificar tipo y estructura. Si es una variante, localiza su component set y analiza **todas** las variantes; conserva la variante enlazada como referencia. Si es una instancia, resuelve su `mainComponent`. Si es un frame o pantalla, detente. Si la instancia raíz es `remote`, pide la URL del componente en su file de origen; no asumas que las variables del file enlazado le pertenecen.

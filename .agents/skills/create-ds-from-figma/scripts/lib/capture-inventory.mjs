@@ -26,8 +26,8 @@ export async function captureInventory(figma, { fileKey }) {
     }
   }
   return { schemaVersion: 1, source: { fileKey, collector: 'variable-inventory-v1', api: 'PLUGIN', tool: 'use_figma', revision: null },
-    collections: [...collectionMap.values()].map(c => ({ id: c.id, name: c.name, remote: c.remote,
-      defaultModeId: c.defaultModeId, modes: c.modes.map(m => ({ modeId: m.modeId, name: m.name })), variableIds: [...c.variableIds] })),
-    variables: [...variables.values()].map(v => ({ id: v.id, name: v.name, remote: v.remote,
-      collectionId: v.variableCollectionId, type: v.resolvedType, valuesByMode: v.valuesByMode, scopes: [...v.scopes] })) };
+    collections: [...collectionMap.values()].sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0).map(c => ({ id: c.id, name: c.name, remote: c.remote,
+      defaultModeId: c.defaultModeId, modes: c.modes.map(m => ({ modeId: m.modeId, name: m.name })), variableIds: [...c.variableIds].sort() })),
+    variables: [...variables.values()].sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0).map(v => ({ id: v.id, name: v.name, remote: v.remote,
+      collectionId: v.variableCollectionId, type: v.resolvedType, valuesByMode: v.valuesByMode, scopes: [...v.scopes].sort() })) };
 }
