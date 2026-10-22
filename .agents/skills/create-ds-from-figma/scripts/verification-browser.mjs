@@ -147,7 +147,7 @@ export async function runBrowserVerification(root, metadataPath, { playwright, e
         browser = await playwright.chromium.launch({ headless: true, ...(executablePath ? { executablePath } : {}), timeout: timeoutMs });
         execution.phase = 'collection';
         for (const c of metadata.verification.cases) {
-          if (c.states.length) { blocked.push({ caseId: c.id, status: 'NOT RUN', reason: 'Activate states through the environment browser; this adapter does not invent interaction paths.' }); continue; }
+          if (c.states.some(s => s.verification?.kind !== 'native')) { blocked.push({ caseId: c.id, status: 'NOT RUN', reason: 'Activate states through the environment browser; this adapter only supports declared native state assertions, not inferred interaction paths.' }); continue; }
           const context = await browser.newContext({ viewport: c.viewport, deviceScaleFactor: 1 });
           try {
             const page = await context.newPage();

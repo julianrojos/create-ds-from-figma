@@ -28,6 +28,110 @@ if (!existsSync(executablePath)) throw new Error('Locked Chromium binary missing
 const output = path.join(repoRoot, 'test-results/browser');
 mkdirSync(output, { recursive: true });
 
+test('computed color audit detects a cascade error with correct geometry and uses raw Figma paint instead of the declared CSS literal', async t => {
+  const { root, metadataPath } = createPreviewProject({ runtimeModules: path.join(runtime, 'node_modules') });
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const file = path.join(root, metadataPath), metadata = JSON.parse(readFileSync(file));
+  const original = JSON.parse(readFileSync(path.join(root, metadata.evidence.snapshot))).capture;
+  original.nodes[0].properties.fills = [{ type: 'SOLID', color: { r: 1, g: 0, b: 0 } }];
+  const capture = componentCapture({ seeds: original.nodes, rootNodeId: original.source.rootNodeId });
+  const observation = capture.observations.find(o => o.node === '1:2' && o.field === 'fills');
+  Object.assign(metadata.evidence, persistCapture(root, capture));
+  metadata.measuredLiterals.push({ observation: observation.id, source: 'FILE:1:2', figmaProperty: 'fills', part: 'root', variant: 'default',
+    cssSelector: '.root', cssProperty: 'background-color', value: '#ff0000', translation: 'approximate',
+    reason: 'Single synthetic solid fill maps to one CSS background color.', figmaValue: { source: 'PLUGIN', field: 'fills', value: observation.value } });
+  writeFileSync(file, JSON.stringify(metadata));
+  writeFileSync(path.join(root, 'src/PreviewGlyph.module.css'), readFileSync(path.join(root, 'src/PreviewGlyph.module.css'), 'utf8') + '\n.root{box-sizing:border-box;background-color:#ff0000}');
+  const base = readFileSync(path.join(root, 'src/base.css'), 'utf8');
+  writeFileSync(path.join(root, 'src/base.css'), base + '\n[data-ds-part="root"]{background-color:blue !important}');
+  const run = async () => {
+    const result = await finalizeImport(root, metadataPath, { diagnose: true, browserOptions: { executablePath } });
+    if (result.diagnosis?.directory) t.after(() => rmSync(result.diagnosis.directory, { recursive: true, force: true }));
+    assert.equal(result.diagnosis?.execution.status, 'COMPLETED', JSON.stringify(result)); return result;
+  };
+  const broken = await run();
+  assert.equal(broken.status, 'FAIL');
+  for (const c of broken.diagnosis.diagnostics.cases) assert.equal(c.checks.find(c => c.id === 'color:root:background-color').status, 'FAIL');
+  assert.equal(broken.diagnosis.diagnostics.cases[0].checks.find(c => c.id === 'geometry:root').status, 'PASS');
+  assert.equal(broken.report.components[0].cases[0].computedColors[0].status, 'FAIL');
+  writeFileSync(path.join(root, 'src/base.css'), base);
+  const corrected = await run();
+  assert.equal(corrected.status, 'NOT VERIFIED', JSON.stringify(corrected));
+  assert.ok(corrected.diagnosis.diagnostics.cases.every(c => c.checks.find(c => c.id === 'color:root:background-color').status === 'PASS'));
+  assert.equal(corrected.report.components[0].coverage.confirmed, null);
+  assert.equal(existsSync(path.join(root, 'design-system/verification')), false);
+});
+
+test('native state assertions collect configured states and detect ignored props without publishing diagnostics', async t => {
+  const { root, metadataPath } = createPreviewProject({ runtimeModules: path.join(runtime, 'node_modules') });
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const file = path.join(root, metadataPath), metadata = JSON.parse(readFileSync(file));
+  metadata.states = [{ name: 'checked', control: 'shared' }, { name: 'disabled', control: 'consumer' }];
+  for (const c of metadata.verification.cases) {
+    c.props = { ...c.props, checked: true, disabled: true };
+    c.states = ['checked', 'disabled'].map(property => ({ name: property, activation: `Native ${property} supplied through the recorded prop.`, verification: { kind: 'native', selector: 'input', property, value: true } }));
+  }
+  writeFileSync(file, JSON.stringify(metadata));
+  const source = 'import {useState} from "react"; import s from "./PreviewGlyph.module.css"; export function PreviewGlyph({initial,checked,defaultChecked=false,disabled}:{initial:string,checked?:boolean,defaultChecked?:boolean,disabled?:boolean}){const [value,setValue]=useState(defaultChecked);return <span data-ds-part="root" className={s.root}><input aria-label="Synthetic control" type="checkbox" checked={checked??value} disabled={disabled} onChange={e=>setValue(e.currentTarget.checked)} style={{position:"absolute",opacity:0}}/><span data-ds-part="initial" className={s.initial}>{initial}</span></span>}';
+  writeFileSync(path.join(root, 'src/PreviewGlyph.tsx'), source);
+  writeFileSync(path.join(root, 'src/PreviewGlyph.module.css'), readFileSync(path.join(root, 'src/PreviewGlyph.module.css'), 'utf8') + '\n.root {position:relative;box-sizing:border-box}');
+  const run = async () => {
+    const result = await runBrowserVerification(root, metadataPath, { playwright, executablePath, diagnostic: true });
+    t.after(() => rmSync(result.directory, { recursive: true, force: true })); return result;
+  };
+  const good = await run();
+  assert.equal(good.execution.status, 'COMPLETED', JSON.stringify(good));
+  assert.equal(good.diagnostics.summary.FAIL, 0);
+  for (const c of good.diagnostics.cases) {
+    assert.equal(c.checks.find(c => c.id === 'state:checked').status, 'PASS');
+    assert.equal(c.checks.find(c => c.id === 'state:disabled').status, 'PASS');
+  }
+  assert.deepEqual(good.manifest.cases, []); assert.equal(existsSync(path.join(root, 'design-system/verification')), false);
+  writeFileSync(path.join(root, 'src/PreviewGlyph.tsx'), source.replace('checked={checked??value}', 'checked={false}'));
+  const ignored = await run();
+  assert.ok(ignored.diagnostics.cases.every(c => c.checks.find(c => c.id === 'state:checked').status === 'FAIL'));
+  writeFileSync(path.join(root, 'src/PreviewGlyph.tsx'), source.replace('disabled={disabled}', 'disabled={false}'));
+  const enabled = await run();
+  assert.ok(enabled.diagnostics.cases.every(c => c.checks.find(c => c.id === 'state:disabled').status === 'FAIL'));
+  writeFileSync(path.join(root, 'src/PreviewGlyph.tsx'), source);
+  for (const c of metadata.verification.cases) {
+    delete c.props.checked; c.props.defaultChecked = true; c.props.disabled = false;
+    c.states[1].verification.value = false;
+  }
+  writeFileSync(file, JSON.stringify(metadata));
+  const uncontrolled = await run();
+  assert.equal(uncontrolled.execution.status, 'COMPLETED');
+  assert.ok(uncontrolled.diagnostics.cases.every(c => c.checks.filter(check => check.id.startsWith('state:')).every(check => check.status === 'PASS')));
+  for (const c of metadata.verification.cases) c.states[0].verification.selector = 'input, span';
+  writeFileSync(file, JSON.stringify(metadata));
+  const ambiguous = await run();
+  assert.ok(ambiguous.diagnostics.cases.every(c => c.checks.find(c => c.id === 'state:checked').status === 'NOT RUN'));
+  for (const c of metadata.verification.cases) delete c.states[0].verification;
+  writeFileSync(file, JSON.stringify(metadata));
+  const unsupported = await run();
+  assert.equal(unsupported.execution.status, 'PARTIAL'); assert.equal(unsupported.blocked.length, metadata.verification.cases.length);
+});
+
+test('real native probes read effective disabled, enforce ownership and support keyboard state changes', async () => {
+  const { readNativeState } = await import('../checks/lib/native-state.mjs');
+  const browser = await playwright.chromium.launch({ executablePath, headless: true });
+  try {
+    const page = await browser.newPage();
+    await page.setContent('<fieldset disabled><label data-ds-part="root"><input type="checkbox" aria-label="Control"/><span data-ds-part="root"><input type="checkbox" checked/></span></label></fieldset>');
+    const read = (property, value) => page.evaluate(({ source, property, value }) => {
+      const probe = (0, eval)('(' + source + ')');
+      return probe(document.querySelector('label'), { name: property, verification: { selector: 'input', property, value } });
+    }, { source: readNativeState.toString(), property, value });
+    assert.equal((await read('disabled', true)).status, 'PASS', 'fieldset disability is effective even when input.disabled is false');
+    assert.equal((await read('checked', false)).status, 'PASS', 'nested roots do not make the target ambiguous');
+    await page.locator('fieldset').evaluate(e => e.disabled = false);
+    await page.getByLabel('Control').focus(); await page.keyboard.press('Space');
+    assert.equal((await read('checked', true)).status, 'PASS');
+    assert.equal((await read('disabled', false)).status, 'PASS');
+    await page.keyboard.press('Space'); assert.equal((await read('checked', false)).status, 'PASS');
+  } finally { await browser.close(); }
+});
+
 test('real delegated instance diagnostics block undeclared differences and keep implementations pending specific review', async t => {
   const f = createDelegationProject({ runtimeModules: path.join(runtime, 'node_modules') });
   t.after(() => rmSync(f.root, { recursive: true, force: true }));

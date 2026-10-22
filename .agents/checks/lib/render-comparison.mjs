@@ -2,12 +2,14 @@ import { renderRequirements } from './render-plan.mjs';
 import { compareBehavior } from './behavior-comparison.mjs';
 import { delegationChecks } from './delegation-differences.mjs';
 import { nodeCoverage } from './node-coverage.mjs';
+import { compareNativeStates } from './native-state.mjs';
+import { compareColors } from './color-comparison.mjs';
 
 // CSS pixels, independent of the PNG export tolerance. Never supplied by the reviewer.
 export const GEOMETRY_TOLERANCE = 1;
 export const TEXT_METRIC_TOLERANCE = 1;
 export const VECTOR_POSITION_TOLERANCE = 1;
-export const COMPARATOR_VERSION = 'render-comparator-v20';
+export const COMPARATOR_VERSION = 'render-comparator-v21';
 const matrix = m => Array.isArray(m) && m.length === 2 && m.every(row => Array.isArray(row) && row.length === 3 && row.every(Number.isFinite));
 const translationOnly = m => matrix(m) && Math.abs(m[0][0] - 1) < 1e-8 && Math.abs(m[1][1] - 1) < 1e-8 && Math.abs(m[0][1]) < 1e-8 && Math.abs(m[1][0]) < 1e-8;
 const invertible = m => matrix(m) && Math.abs(m[0][0] * m[1][1] - m[0][1] * m[1][0]) > 1e-8;
@@ -114,6 +116,8 @@ export function compareRendered(capture, metadata, configuration, measurement, {
   checks.push(...delegationChecks(capture, metadata, configuration, mappedComponents));
   const browserRoot = measurement?.parts?.root?.elements?.[0];
   const add = (id, status, reason, detail = {}) => checks.push({ id, status, reason, ...detail });
+  compareNativeStates(configuration, measurement, add);
+  compareColors(capture, metadata, configuration, measurement, scope, add);
   let coverage;
   if (configuration.kind === 'fidelity') {
     coverage = nodeCoverage(metadata, capture, configuration);
@@ -222,7 +226,7 @@ export function compareRendered(capture, metadata, configuration, measurement, {
     add(id, loaded ? 'PASS' : 'FAIL', 'Matching declared font face must be loaded; this does not prove glyph coverage or the rendered glyph font.');
   }
   if (!checks.length) add('geometry:coverage', 'NOT COMPARABLE', 'No mapped parts to compare.');
-  return { policy: 'mapped-layout-v1', comparatorVersion: COMPARATOR_VERSION, checks, summary: checkSummary(checks), scope: 'Mapped layout geometry and declared font loading, not complete visual fidelity.' };
+  return { policy: 'mapped-layout-v1', comparatorVersion: COMPARATOR_VERSION, checks, summary: checkSummary(checks), scope: 'Mapped layout, native states, explicit computed sRGB colors and font loading; not complete visual fidelity or proof of visible paint.' };
 }
 
 export function assertConfirmationChecks(result, reviews, artifactPaths) {

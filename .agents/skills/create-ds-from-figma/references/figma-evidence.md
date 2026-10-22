@@ -1,5 +1,9 @@
 # Captura auditable de Figma
 
+El comparador puede derivar colores sRGB desde pinturas SOLID y alias del snapshot con modos explícitos por colección; contrasta propiedades CSS calculadas ya recogidas en el cuerpo original. Solo cubre bindings/literales con correspondencias inequívocas declaradas, no toda pintura ni el consumo interno de una delegación. Gradientes, mezclas o contextos ambiguos quedan no comparables. No cambia el perfil de captura. Un valor calculado correcto no prueba que se pinte ni que una máscara cargue: composición y revisión visual siguen separadas.
+
+Las mediciones de navegador pueden contener nativeStates para declaraciones explícitas checked/disabled del caso. Se conservan dentro del cuerpo original sellado por el recibo, no dentro de la captura de Figma. El comparador exige la lectura vigente y no interpreta las props como evidencia. La declaración verification del estado contiene kind=native, selector propio, property checked/disabled y value booleano; identifica una comprobación de configuración, no una acción que el agente pueda inventar. Este cambio de productor/comparador requiere recoger de nuevo, no modificar snapshots de Figma ni bytes históricos.
+
 Los colectores estabilizan el orden de conjuntos de IDs de colecciones y variables antes de fragmentar. No ordenan capas ni modos: su orden conserva significado. Esta normalización no añade campos ni cambia el perfil v2 y no reescribe snapshots históricos; una captura nueva puede tener otro hash. Cada sesión sigue exigiendo checksum idéntico entre bloques y un hash final válido, sin demostrar atomicidad de Figma.
 
 ## Responsabilidades

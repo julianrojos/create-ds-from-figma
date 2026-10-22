@@ -17,6 +17,7 @@ import { MEASUREMENT_VERSION } from '../../../checks/lib/measurement-version.mjs
 import { collectCssDiagnostics } from '../../../checks/lib/css-diagnostics.mjs';
 import { previewLogger } from './lib/preview-logger.mjs';
 import { evidenceSessionFor } from '../../../checks/lib/evidence-session.mjs';
+import { readNativeState } from '../../../checks/lib/native-state.mjs';
 
 const json = value => JSON.stringify(value).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
 const urlPath = relative => '/' + relative.split('/').map(encodeURIComponent).join('/');
@@ -36,6 +37,7 @@ import { createRoot } from 'react-dom/client';
 import * as exports from ${json(urlPath(metadata.code.path))};
 ${metadata.verification.stylesheets.map(file => `import ${json(urlPath(file))};`).join('\n')}
 const data = ${json(data)};
+const readNativeState = ${readNativeState.toString()};
 const id = new URL(location.href).searchParams.get('case');
 const configuration = data.verification.cases.find(c => c.id === id);
 const syntax = data.cssDiagnostics.byCase?.[id] || data.cssDiagnostics;
@@ -128,6 +130,7 @@ async function collect(signal, diagnostic) {
   });
   const payload = JSON.stringify({ schemaVersion: 2, measurementVersion: data.measurementVersion, kind: 'browser-measurement', producer: 'verification-preview-v2', capturedAt: new Date().toISOString(), snapshotHash: data.snapshotHash, caseId: configuration.id, phase: 'measurement', url: location.href,
     viewport: { width: innerWidth, height: innerHeight, devicePixelRatio }, configuration, parts, fonts,
+    nativeStates: configuration.states.filter(s => s.verification?.kind === 'native').map(s => readNativeState(root, s)),
     cssDiagnostics: { schemaVersion: 1, results: syntax.declarations.map(d => ({ id: d.id, supported: CSS.supports(d.property, d.value), ...(d.supports?.length ? { applicable: d.supports.every(query => CSS.supports(query)) } : {}) })) },
     images: [...target.querySelectorAll('img')].map(img => ({ src: img.currentSrc, complete: img.complete, naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight })),
     limitations: ['Measurements are not visual fidelity or authenticity proof.', 'State activations and mode scopes require independent verification.', 'Font availability and matching faces do not prove the rendered glyph font.'] });

@@ -2,9 +2,11 @@
 
 Apply when reading, editing or generating `src/` or `design-system/` files.
 
-Consume the generated report in verify:imports/finalize:import instead of inventing delivery counts, mode coverage or approvals from warnings. Diagnostic reports do not revalidate persisted confirmations.
+Inspect color:PART:PROPERTY checks against raw snapshot solid paints and active alias modes, not only geometry or the CSS token spelling. Computed-color PASS is not evidence of visible paint, a loaded mask or correct composition. Unsupported color mappings need specific fidelity reviews; behavior must PASS. Consume the generated report in verify:imports/finalize:import instead of inventing delivery counts, mode coverage or approvals from warnings. Diagnostic reports do not revalidate persisted confirmations.
 
 Every imported component requires metadata.verification with font/image sources and reproducible fidelity/behavior cases. Run `node .agents/checks/verify-render-plan.mjs .` before rendering (included in verify-ds). A valid plan or transferred measurement never establishes visual PASS; follow validate-ds for independent state/mode/font/content comparison.
+
+Configured native checked/disabled states may use an explicit states[].verification assertion with a unique own-control selector and boolean value. Compare original nativeStates readings, never infer state from props, ARIA or classes or remove declared states to enable collection. Native FAIL/NOT RUN blocks confirmation; unsupported activation needs an explicit environment-browser harness. These assertions do not execute interaction sequences or replace keyboard/focus checks.
 
 Missing essential resources stop a new import before implementation; report DS_GAP/BLOCKED and ask for authorized sources, or stop without writing if no interaction is available. After permitted implementation or visual edits, run `npm run finalize:import -- ROOT METADATA --diagnose` for each changed component and inspect every measured part/case before presenting results. Correct demonstrated defects and repeat; unavailable execution is NOT RUN/BLOCKED. This temporary-only mode can inspect existing incomplete code without publishing or confirming, but never authorizes bypassing an import block. Missing resources remain blockers and may affect geometric deltas; do not infer their cause automatically. Delivery still requires --collect, explicit rendered reviews and verify:imports.
 

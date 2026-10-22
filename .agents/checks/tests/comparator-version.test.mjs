@@ -29,12 +29,14 @@ const versions = {
     'render-comparator-v18': '387e1be5de325964b46ff83a0e25bba96c4f1ea075ac6a855ffca1962ca04186',
     'render-comparator-v19': '751d8dbb7d6e66c622344315b09310471632c63d06014ff603a389f4e26595e9',
     'render-comparator-v20': '801d6d7be9246c9194dd126f74823d80d133f1c7770af3f2f3dbb5d1ef35cdab',
+    'render-comparator-v21': '53e62edb82851edaf33db7f5f03deedb80f5696a8ab0a5c221c0eb001ad16e61',
   },
   measurement: {
     'measurement-rules-v1': 'c5fc3f91d47851f0db30839789f3dbbf18c3eae6aee8c936342c6a2e93462a99',
     'measurement-rules-v2': '1b1e90895e055e8b3b7e167b16c8f98708b56517281e8d0d8490b60be562b005',
     'measurement-rules-v3': 'ac90008c34389942824dc88fbfae4e53bb8e6917e05aa3b6441067dd6f431517',
     'measurement-rules-v4': 'fd2f922ee2e2e606ef21276e177b7f599178b05330b23a4a86a8d9b33a83f9e4',
+    'measurement-rules-v5': 'b5303c7ed0781e9aac159a9e585ee3b361a4907050346778258c595f3c8b87db',
   },
 };
 const altered = (entries, suffix, before, after) => {
@@ -68,12 +70,19 @@ test('the comparator guard follows requirements, dimension rules and canonicaliz
   assert.equal(altered(comparator, 'render-comparison.mjs', "'NOT RUN', 'No browser measurement.'", "'NOT RUN', 'Reworded diagnostic.'"), result.hash);
 });
 
-test('conversion rule edits affect only the measurement producer guard, not comparator validity', () => {
+test('shared raw color conversions join both guards while producer geometry remains independent', () => {
   const original = ruleFingerprint(measurement);
   assert.ok(original.declarations.some(d => d.endsWith('render-values.mjs#renderedExpectation')));
-  assert.ok(!ruleFingerprint(comparator).declarations.some(d => d.includes('render-values.mjs')));
+  const compared = ruleFingerprint(comparator);
+  assert.ok(compared.declarations.some(d => d.endsWith('color-comparison.mjs#compareColors')));
+  assert.ok(compared.declarations.some(d => d.endsWith('render-values.mjs#renderedExpectation')));
+  assert.notEqual(altered(comparator, 'render-values.mjs', 'Math.round(value[k] * 255)', 'Math.round(value[k] * 254)'), compared.hash);
+  assert.notEqual(altered(comparator, 'color-comparison.mjs', 'COLOR_CHANNEL_TOLERANCE = 1', 'COLOR_CHANNEL_TOLERANCE = 5'), compared.hash);
   assert.notEqual(altered(measurement, 'render-values.mjs', 'fontSize * value.value / 100', 'fontSize * value.value / 200'), original.hash);
   assert.notEqual(altered(measurement, 'verification-preview.mjs', 'axisAligned = true', 'axisAligned = false'), original.hash);
+  assert.ok(original.declarations.some(d => d.endsWith('native-state.mjs#readNativeState')));
+  assert.notEqual(altered(measurement, 'native-state.mjs', "element.matches(':disabled')", 'element.disabled'), original.hash);
+  assert.ok(ruleFingerprint(comparator).declarations.some(d => d.endsWith('native-state.mjs#compareNativeStates')));
 });
 
 test('new named helpers join the guard automatically; unsupported dynamic rule imports fail closed', () => {

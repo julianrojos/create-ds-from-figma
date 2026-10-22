@@ -10,7 +10,12 @@ export function diagnosisActions(root, metadataPath, diagnosticCases = []) {
   const compositions = diagnosticCases.map(c => ({ caseId: c.caseId, checks: (c.composition?.checks || []).filter(check => check.status === 'FAIL').map(check => check.id) })).filter(c => c.checks.length);
   const unrunCompositions = diagnosticCases.map(c => ({ caseId: c.caseId,
     checks: (c.composition?.checks || []).filter(check => check.status === 'NOT RUN').map(({ id, status, reason }) => ({ id, status, reason })) })).filter(c => c.checks.length);
+  const pendingStates = diagnosticCases.map(c => ({ caseId: c.caseId,
+    checks: c.checks.filter(check => check.id.startsWith('state:') && ['NOT COMPARABLE', 'NOT RUN'].includes(check.status)).map(({ id, status, reason }) => ({ id, status, reason })) })).filter(c => c.checks.length);
   return [
+    ...(pendingStates.length ? [{ code: 'RESOLVE_STATE_VERIFICATION', targets: [metadataPath], cases: pendingStates,
+      permissions: ['project-read'], command: null,
+      reason: 'Inspect the declared state, scoped target and actual activation path. Native checked/disabled assertions must read the real control. Unsupported activations require an explicit environment-browser harness, not removal of the state or guessed events. No command is authorized automatically.' }] : []),
     ...delegationNextActions(metadataPath, diagnosticCases.flatMap(c => c.checks.filter(check => check.delegation).map(check => ({ ...check.delegation, reason: check.reason })))),
     ...(unrunCompositions.length ? [{ code: 'RETRY_COMPOSITION_DIAGNOSTICS', targets: [metadataPath], cases: unrunCompositions,
       permissions: ['project-read', 'browser-execution', 'temporary-write'],

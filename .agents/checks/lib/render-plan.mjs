@@ -4,6 +4,7 @@ import path from 'node:path';
 import { textDimensionRequirements } from './figma-dimensions.mjs';
 import { nodeCoverage } from './node-coverage.mjs';
 import { concreteFontWeight } from './font-weight.mjs';
+import { nativeStateProblem } from './native-state.mjs';
 
 const object = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const text = v => typeof v === 'string' && v.trim().length > 0;
@@ -131,6 +132,13 @@ export function verifyRenderPlan(root, metadata, capture, { delegations = [], re
     if (!object(c.props) || !object(c.content) || !object(c.modes) || !object(c.environment) || !object(c.environment.attributes) || !Array.isArray(c.environment.classes) || c.environment.classes.some(v => !text(v) || /\s/.test(v))) errors.push(`${label}: explicit props, content, modes and environment required`);
     if (!object(c.viewport) || !['width', 'height'].every(k => Number.isInteger(c.viewport[k]) && c.viewport[k] > 0 && c.viewport[k] <= 16384)) errors.push(`${label}: viewport must use positive bounded CSS pixels`);
     if (!Array.isArray(c.states) || c.states.some(s => !object(s) || !text(s.name) || !text(s.activation))) errors.push(`${label}: states need names and real activation instructions`);
+    else {
+      if (new Set(c.states.map(s => s.name)).size !== c.states.length) errors.push(`${label}: state names must be unique`);
+      for (const state of c.states) {
+        const problem = nativeStateProblem(state);
+        if (problem) errors.push(`${label}: ${problem}`);
+      }
+    }
     if (!Array.isArray(c.expectations)) errors.push(`${label}: expectations must be an array`);
     for (const [collection, modes] of expectedModes) if (!modes.has(c.modes?.[collection])) errors.push(`${label}: active captured mode required for ${collection}`);
     for (const collection of Object.keys(c.modes || {})) if (!expectedModes.has(collection)) errors.push(`${label}: unknown collection ${collection}`);

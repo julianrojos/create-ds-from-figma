@@ -1,4 +1,8 @@
 {
+  "_schema": {
+    "computedColorAudit": "Existing binding/literal observation + variant + part + cssProperty mappings enable single-solid sRGB computed-color checks. Raw snapshot aliases resolve in each case mode; computed PASS does not prove visible paint, a loaded mask or internal delegated consumption. No declared PASS or extra verification field belongs here.",
+    "nativeStateVerification": "Optional per verification.cases[].states[]: verification { kind: native, selector: scoped CSS selector, property: checked or disabled, value: boolean }. Keep the matching state name and real activation instructions. This asserts configured native DOM state, never invents interaction events."
+  },
   "name": "<Nombre>",
   "description": "<Una frase.>",
   "figma": {

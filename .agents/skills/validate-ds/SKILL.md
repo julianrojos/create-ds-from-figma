@@ -11,7 +11,9 @@ description: >-
 
 # Validate Design System Compliance
 
-Consume report para las confirmaciones vigentes y cobertura exacta de modos, decisiones declaradas y obligaciones; un informe diagnóstico no revalida confirmaciones. Las decisiones declaradas no prueban autorización humana.
+Revisa los checks color:PARTE:PROPIEDAD además de geometría: comparan pinturas sólidas del snapshot y alias por modo contra destinos CSS explícitos, no la tinta visible. No tomes un color calculado como prueba de máscara, consumo interno delegado ni composición. Consume report para las confirmaciones vigentes y cobertura exacta de modos, decisiones declaradas y obligaciones; un informe diagnóstico no revalida confirmaciones. Las decisiones declaradas no prueban autorización humana.
+
+Para estados con verification.kind=native, revisa los checks state:NAME derivados de nativeStates del cuerpo original. Checked/disabled deben leerse sobre el control propio, no inferirse de props, ARIA o clases. El adaptador solo verifica configuración, sin inventar acciones. Un estado nativo fallido o sin ejecutar bloquea; teclado, foco y el recorrido de interacción se comprueban aparte. No retires declaraciones para eludir la verificación ni edites recibos antiguos tras un cambio de MEASUREMENT_VERSION.
 
 Al validar tokens, conserva `figma-state.json.aliasModes`: registra elecciones explícitas para valores de alias, no el modo activo del navegador. `generate-token-json.mjs check --inventory INVENTORY` revalida las elecciones guardadas; una validación no autoriza cambiarlas.
 
