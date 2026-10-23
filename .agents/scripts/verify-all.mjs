@@ -9,7 +9,7 @@ export const help = `Usage: npm run verify:all -- kit [--dry-run]
        npm run verify:all -- screen --root ROOT [--metadata PATH ...] [--dry-run]
 
 Profiles are explicit; changes are never inferred from Git.
-kit: full unit + real Chromium tests, strict documentation checks, routing fixture checks and complete reference-heading accounting.
+kit: full unit + real Chromium tests, strict documentation checks, routing/behavior fixture checks and complete reference-heading accounting.
 import: static DS/props/bindings checks, temporary diagnosis for each supplied component,
         current persisted import gate. All changed components must be supplied.
 screen: static DS/props/bindings checks and temporary diagnosis for supplied components.
@@ -74,6 +74,7 @@ export function makePlan(options, { toolsRoot = kitRoot } = {}) {
     node('docs', '.agents/checks/verify-docs.mjs', [root, '--strict'], ['project-read']),
     node('reading-plan', '.agents/scripts/read-guidance.mjs', ['--check'], ['kit-read; pointers, conditions and reference-heading accounting']),
     node('routing-fixtures', '.agents/scripts/evaluate-routing.mjs', ['--check'], ['kit-read; validates fixtures, not agent routing']),
+    node('behavior-fixtures', '.agents/scripts/evaluate-behavior.mjs', ['--check'], ['kit-read; validates cases, not agent behavior']),
   ];
   return [
     node('structure', '.agents/checks/verify-ds.mjs', [root], ['project-read']),

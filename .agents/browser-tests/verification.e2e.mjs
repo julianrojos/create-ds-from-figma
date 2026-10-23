@@ -625,3 +625,18 @@ test('controlled font corpus records loading and repeatability, never a universa
       runs: 2, conclusion: 'Repeatability across two isolated contexts in one pinned renderer; no Figma ground truth, font-binary identity or universal tolerance is established.' }, null, 2));
   } finally { await browser.close(); }
 });
+
+
+test('behavior recorder permits the exact diagnostic and retains real Chromium output without project changes',t=>{
+ // Uses the same executable entry point as external behavioral sessions, with the locked browser runtime.
+ return import('../scripts/behavior-session.mjs').then(async ({beginSession,recordExec,finishSession})=>{
+  const start=beginSession('candidate-correspondence',{model:'synthetic-browser-control',modelVersion:'none',executor:'browser-regression'});
+  t.after(()=>{rmSync(start.session,{recursive:true,force:true});rmSync(start.projectRoot,{recursive:true,force:true});});
+  const event=await recordExec(start.session,start.diagnosticArgv);assert.equal(event.execution,'ATTEMPTED');assert.equal(event.complete,true);
+  const result=JSON.parse(event.stdout);assert.equal(result.diagnosis?.execution.status,'COMPLETED',event.stdout+event.stderr);
+  if(result.diagnosis?.directory)t.after(()=>rmSync(result.diagnosis.directory,{recursive:true,force:true}));
+  assert.equal(result.complete,false);assert.equal(result.report.source,'temporary-diagnosis');
+  const finished=await finishSession(start.session,{status:'diagnosed',confirmed:false,finalText:'Synthetic Chromium diagnostic process regression; not an agent evaluation.'});
+  assert.equal(finished.status,'PASS');const trace=JSON.parse(readFileSync(finished.trace));assert.deepEqual(trace.before,trace.after);assert.equal(trace.events[0].stdout,event.stdout);
+ });
+});

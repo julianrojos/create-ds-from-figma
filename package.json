@@ -16,7 +16,8 @@
     "finalize:import": "node .agents/skills/create-ds-from-figma/scripts/finalize-import.mjs",
     "verify:all": "node .agents/scripts/verify-all.mjs",
     "eval:routing": "node .agents/scripts/evaluate-routing.mjs",
-    "read:guidance": "node .agents/scripts/read-guidance.mjs"
+    "read:guidance": "node .agents/scripts/read-guidance.mjs",
+    "eval:behavior": "node .agents/scripts/evaluate-behavior.mjs"
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "1.32.1",
