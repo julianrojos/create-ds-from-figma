@@ -1,0 +1,449 @@
+{
+  "schemaVersion": 2,
+  "source": {
+    "tool": "use_figma",
+    "api": "PLUGIN",
+    "collector": "capture-figma-v2",
+    "fileKey": "FILE",
+    "rootNodeId": "1:2",
+    "requestedNodeId": "1:2",
+    "revision": null
+  },
+  "profile": {
+    "fields": [
+      "width",
+      "height",
+      "x",
+      "y",
+      "absoluteBoundingBox",
+      "absoluteTransform",
+      "visible",
+      "opacity",
+      "rotation",
+      "layoutMode",
+      "layoutSizingHorizontal",
+      "layoutSizingVertical",
+      "layoutPositioning",
+      "primaryAxisSizingMode",
+      "counterAxisSizingMode",
+      "primaryAxisAlignItems",
+      "counterAxisAlignItems",
+      "itemSpacing",
+      "counterAxisSpacing",
+      "layoutWrap",
+      "itemReverseZIndex",
+      "paddingLeft",
+      "paddingRight",
+      "paddingTop",
+      "paddingBottom",
+      "cornerRadius",
+      "topLeftRadius",
+      "topRightRadius",
+      "bottomLeftRadius",
+      "bottomRightRadius",
+      "fills",
+      "strokes",
+      "effects",
+      "strokeWeight",
+      "strokeAlign",
+      "clipsContent",
+      "fillStyleId",
+      "strokeStyleId",
+      "effectStyleId",
+      "textStyleId",
+      "boundVariables",
+      "explicitVariableModes",
+      "resolvedVariableModes",
+      "componentPropertyReferences",
+      "componentProperties",
+      "variantProperties",
+      "characters",
+      "fontName",
+      "fontSize",
+      "fontWeight",
+      "lineHeight",
+      "letterSpacing",
+      "textAlignHorizontal",
+      "textAlignVertical",
+      "textAutoResize",
+      "reactions"
+    ],
+    "textFields": [
+      "fontName",
+      "fontSize",
+      "fontWeight",
+      "lineHeight",
+      "letterSpacing",
+      "fills",
+      "textStyleId",
+      "fillStyleId",
+      "boundVariables"
+    ],
+    "scope": "component-subtree-and-used-variable-aliases",
+    "excluded": [
+      "vector geometry",
+      "image bytes",
+      "file-wide variable values",
+      "CSS and API decisions"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "1:2",
+      "parentId": null,
+      "type": "COMPONENT",
+      "name": "PreviewGlyph",
+      "children": [
+        "1:3"
+      ],
+      "properties": {
+        "width": 48,
+        "height": 48,
+        "absoluteBoundingBox": {
+          "x": 100,
+          "y": 100,
+          "width": 48,
+          "height": 48
+        },
+        "absoluteTransform": [
+          [
+            1,
+            0,
+            100
+          ],
+          [
+            0,
+            1,
+            100
+          ]
+        ],
+        "fills": [
+          {
+            "type": "IMAGE",
+            "imageHash": "image-1"
+          }
+        ]
+      },
+      "inspected": [
+        "width",
+        "height",
+        "absoluteBoundingBox",
+        "absoluteTransform",
+        "fills"
+      ],
+      "notApplicable": [
+        "x",
+        "y",
+        "visible",
+        "opacity",
+        "rotation",
+        "layoutMode",
+        "layoutSizingHorizontal",
+        "layoutSizingVertical",
+        "layoutPositioning",
+        "primaryAxisSizingMode",
+        "counterAxisSizingMode",
+        "primaryAxisAlignItems",
+        "counterAxisAlignItems",
+        "itemSpacing",
+        "counterAxisSpacing",
+        "layoutWrap",
+        "itemReverseZIndex",
+        "paddingLeft",
+        "paddingRight",
+        "paddingTop",
+        "paddingBottom",
+        "cornerRadius",
+        "topLeftRadius",
+        "topRightRadius",
+        "bottomLeftRadius",
+        "bottomRightRadius",
+        "strokes",
+        "effects",
+        "strokeWeight",
+        "strokeAlign",
+        "clipsContent",
+        "fillStyleId",
+        "strokeStyleId",
+        "effectStyleId",
+        "textStyleId",
+        "boundVariables",
+        "explicitVariableModes",
+        "resolvedVariableModes",
+        "componentPropertyReferences",
+        "componentProperties",
+        "variantProperties",
+        "characters",
+        "fontName",
+        "fontSize",
+        "fontWeight",
+        "lineHeight",
+        "letterSpacing",
+        "textAlignHorizontal",
+        "textAlignVertical",
+        "textAutoResize",
+        "reactions"
+      ]
+    },
+    {
+      "id": "1:3",
+      "parentId": "1:2",
+      "type": "TEXT",
+      "name": "Initial",
+      "children": [],
+      "properties": {
+        "characters": "F",
+        "segments": [],
+        "width": 12,
+        "height": 24,
+        "textAutoResize": "WIDTH_AND_HEIGHT",
+        "fontSize": 20,
+        "lineHeight": {
+          "unit": "PIXELS",
+          "value": 24
+        },
+        "letterSpacing": {
+          "unit": "PIXELS",
+          "value": 0
+        },
+        "absoluteBoundingBox": {
+          "x": 118,
+          "y": 112,
+          "width": 12,
+          "height": 24
+        },
+        "absoluteTransform": [
+          [
+            1,
+            0,
+            118
+          ],
+          [
+            0,
+            1,
+            112
+          ]
+        ]
+      },
+      "inspected": [
+        "width",
+        "height",
+        "absoluteBoundingBox",
+        "absoluteTransform",
+        "characters",
+        "fontSize",
+        "lineHeight",
+        "letterSpacing",
+        "textAutoResize"
+      ],
+      "notApplicable": [
+        "x",
+        "y",
+        "visible",
+        "opacity",
+        "rotation",
+        "layoutMode",
+        "layoutSizingHorizontal",
+        "layoutSizingVertical",
+        "layoutPositioning",
+        "primaryAxisSizingMode",
+        "counterAxisSizingMode",
+        "primaryAxisAlignItems",
+        "counterAxisAlignItems",
+        "itemSpacing",
+        "counterAxisSpacing",
+        "layoutWrap",
+        "itemReverseZIndex",
+        "paddingLeft",
+        "paddingRight",
+        "paddingTop",
+        "paddingBottom",
+        "cornerRadius",
+        "topLeftRadius",
+        "topRightRadius",
+        "bottomLeftRadius",
+        "bottomRightRadius",
+        "fills",
+        "strokes",
+        "effects",
+        "strokeWeight",
+        "strokeAlign",
+        "clipsContent",
+        "fillStyleId",
+        "strokeStyleId",
+        "effectStyleId",
+        "textStyleId",
+        "boundVariables",
+        "explicitVariableModes",
+        "resolvedVariableModes",
+        "componentPropertyReferences",
+        "componentProperties",
+        "variantProperties",
+        "fontName",
+        "fontWeight",
+        "textAlignHorizontal",
+        "textAlignVertical",
+        "reactions"
+      ]
+    }
+  ],
+  "observations": [
+    {
+      "id": "1:2#absoluteBoundingBox#property",
+      "node": "1:2",
+      "field": "absoluteBoundingBox",
+      "kind": "property",
+      "value": {
+        "x": 100,
+        "y": 100,
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "id": "1:2#absoluteTransform#property",
+      "node": "1:2",
+      "field": "absoluteTransform",
+      "kind": "property",
+      "value": [
+        [
+          1,
+          0,
+          100
+        ],
+        [
+          0,
+          1,
+          100
+        ]
+      ]
+    },
+    {
+      "id": "1:2#fills#property",
+      "node": "1:2",
+      "field": "fills",
+      "kind": "property",
+      "value": [
+        {
+          "type": "IMAGE",
+          "imageHash": "image-1"
+        }
+      ]
+    },
+    {
+      "id": "1:2#height#property",
+      "node": "1:2",
+      "field": "height",
+      "kind": "property",
+      "value": 48
+    },
+    {
+      "id": "1:2#width#property",
+      "node": "1:2",
+      "field": "width",
+      "kind": "property",
+      "value": 48
+    },
+    {
+      "id": "1:3#absoluteBoundingBox#property",
+      "node": "1:3",
+      "field": "absoluteBoundingBox",
+      "kind": "property",
+      "value": {
+        "x": 118,
+        "y": 112,
+        "width": 12,
+        "height": 24
+      }
+    },
+    {
+      "id": "1:3#absoluteTransform#property",
+      "node": "1:3",
+      "field": "absoluteTransform",
+      "kind": "property",
+      "value": [
+        [
+          1,
+          0,
+          118
+        ],
+        [
+          0,
+          1,
+          112
+        ]
+      ]
+    },
+    {
+      "id": "1:3#characters#property",
+      "node": "1:3",
+      "field": "characters",
+      "kind": "property",
+      "value": "F"
+    },
+    {
+      "id": "1:3#fontSize#property",
+      "node": "1:3",
+      "field": "fontSize",
+      "kind": "property",
+      "value": 20
+    },
+    {
+      "id": "1:3#height#property",
+      "node": "1:3",
+      "field": "height",
+      "kind": "property",
+      "value": 24
+    },
+    {
+      "id": "1:3#letterSpacing#property",
+      "node": "1:3",
+      "field": "letterSpacing",
+      "kind": "property",
+      "value": {
+        "unit": "PIXELS",
+        "value": 0
+      }
+    },
+    {
+      "id": "1:3#lineHeight#property",
+      "node": "1:3",
+      "field": "lineHeight",
+      "kind": "property",
+      "value": {
+        "unit": "PIXELS",
+        "value": 24
+      }
+    },
+    {
+      "id": "1:3#segments#property",
+      "node": "1:3",
+      "field": "segments",
+      "kind": "property",
+      "value": []
+    },
+    {
+      "id": "1:3#textAutoResize#property",
+      "node": "1:3",
+      "field": "textAutoResize",
+      "kind": "property",
+      "value": "WIDTH_AND_HEIGHT"
+    },
+    {
+      "id": "1:3#width#property",
+      "node": "1:3",
+      "field": "width",
+      "kind": "property",
+      "value": 12
+    }
+  ],
+  "variants": [],
+  "variables": [],
+  "collections": [],
+  "styles": [],
+  "coverage": {
+    "traversal": "children-recursive-including-hidden-and-instance-descendants",
+    "nodeCount": 2,
+    "issues": []
+  }
+}

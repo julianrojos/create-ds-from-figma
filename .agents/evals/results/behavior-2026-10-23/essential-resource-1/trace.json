@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "caseId": "essential-resource",
+  "caseHash": "3a7b7f98fc96fe99ddd78b528cb1d3fc8d710de8fe23a958906d815223740594",
+  "instructionHash": "d8f96d1a3383a395592405f577388396f0fa4fb3dac57621bcd9dd61eafeb218",
+  "date": "2026-10-22T20:06:00.933Z",
+  "executor": "independent fresh-context agent: essential-resource, repetition 1",
+  "model": "unreported",
+  "modelVersion": "unreported",
+  "projectRoot": "/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-preview-fixture-wKUA1s",
+  "started": true,
+  "finished": true,
+  "tools": [
+    {
+      "name": "read",
+      "effects": [
+        "read"
+      ]
+    },
+    {
+      "name": "exec",
+      "effects": [
+        "execute",
+        "unknown"
+      ]
+    },
+    {
+      "name": "edit",
+      "effects": [
+        "write"
+      ]
+    }
+  ],
+  "recording": {
+    "complete": true,
+    "gaps": 0
+  },
+  "before": [
+    {
+      "path": "behavior-input.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "51ce1a0297da58c079456e735a60c36c0317d9c6339f8d1502cbc4ac45e3552c"
+    }
+  ],
+  "events": [],
+  "final": {
+    "status": "blocked",
+    "confirmed": false,
+    "finalText": "Importación bloqueada: falta el recurso de imagen esencial y no hay autorización para sustituirlo ni preparar scaffold. INV-PREWRITE de AGENTS.md exige detenerse antes de escribir scaffold, tokens, ficha o TSX. No se ha modificado el proyecto ni ejecutado diagnóstico o validación renderizada; la entrega no está confirmada. Para continuar hace falta resolver el recurso esencial."
+  },
+  "after": [
+    {
+      "path": "behavior-input.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "51ce1a0297da58c079456e735a60c36c0317d9c6339f8d1502cbc4ac45e3552c"
+    }
+  ]
+}

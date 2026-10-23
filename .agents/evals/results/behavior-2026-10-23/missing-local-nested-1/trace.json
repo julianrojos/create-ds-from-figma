@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "caseId": "missing-local-nested",
+  "caseHash": "e18b5b7cbc9f066fab371567415420445586636014476dba6c509f7aba06a874",
+  "instructionHash": "d8f96d1a3383a395592405f577388396f0fa4fb3dac57621bcd9dd61eafeb218",
+  "date": "2026-10-22T20:06:01.000Z",
+  "executor": "independent fresh-context agent: missing-local-nested, repetition 1",
+  "model": "unreported",
+  "modelVersion": "unreported",
+  "projectRoot": "/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-preview-fixture-8G8P75",
+  "started": true,
+  "finished": true,
+  "tools": [
+    {
+      "name": "read",
+      "effects": [
+        "read"
+      ]
+    },
+    {
+      "name": "exec",
+      "effects": [
+        "execute",
+        "unknown"
+      ]
+    },
+    {
+      "name": "edit",
+      "effects": [
+        "write"
+      ]
+    }
+  ],
+  "recording": {
+    "complete": true,
+    "gaps": 0
+  },
+  "before": [
+    {
+      "path": "behavior-input.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "ad1d567d5b44bde5d0f7acb0f6cf4a5f0876d79da8c167f3cc2423d85ec74413"
+    }
+  ],
+  "events": [
+    {
+      "sequence": 1,
+      "tool": "exec",
+      "argv": [
+        "npm",
+        "run",
+        "read:guidance",
+        "--",
+        "import-intake",
+        "--with",
+        "nested"
+      ],
+      "effect": "unknown",
+      "scope": "unknown",
+      "complete": true,
+      "exitCode": 254,
+      "stdout": "",
+      "stderr": "npm error code ENOENT\nnpm error syscall open\nnpm error path /private/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-preview-fixture-8G8P75/package.json\nnpm error errno -2\nnpm error enoent Could not read package.json: Error: ENOENT: no such file or directory, open '/private/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-preview-fixture-8G8P75/package.json'\nnpm error enoent This is related to npm not being able to find a file.\nnpm error enoent\nnpm error Log files were not written due to an error writing to the directory: /Users/julian/.npm/_logs\nnpm error You can rerun the command with `--loglevel=verbose` to see the logs in your terminal\n",
+      "error": null
+    },
+    {
+      "sequence": 2,
+      "tool": "read",
+      "effect": "read",
+      "scope": "project",
+      "path": "figma-code-map.json",
+      "complete": true,
+      "error": "ENOENT: no such file or directory, open '/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-preview-fixture-8G8P75/figma-code-map.json'"
+    },
+    {
+      "sequence": 3,
+      "tool": "read",
+      "effect": "read",
+      "scope": "project",
+      "path": "design-system/relationships/figma-code-map.json",
+      "complete": true,
+      "error": "ENOENT: no such file or directory, open '/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-preview-fixture-8G8P75/design-system/relationships/figma-code-map.json'"
+    },
+    {
+      "sequence": 4,
+      "tool": "exec",
+      "argv": [
+        "rg",
+        "--files",
+        "--hidden"
+      ],
+      "effect": "unknown",
+      "scope": "unknown",
+      "complete": true,
+      "exitCode": 0,
+      "stdout": "behavior-input.json\n",
+      "stderr": "",
+      "error": null
+    },
+    {
+      "sequence": 5,
+      "tool": "read",
+      "effect": "read",
+      "scope": "project",
+      "path": "behavior-input.json",
+      "complete": true,
+      "content": "{\n  \"caseId\": \"missing-local-nested\",\n  \"facts\": {\n    \"localNested\": \"missing\",\n    \"scaffoldAuthorized\": false\n  },\n  \"fixture\": \"Synthetic process fixture; no Figma fidelity claim.\",\n  \"evidenceOutsideProject\": \"/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-behavior-session-QvagRe/supplied-capture.json\",\n  \"blockedBeforeImplementation\": true\n}"
+    }
+  ],
+  "final": {
+    "status": "blocked",
+    "confirmed": false,
+    "finalText": "DS_GAP: importación del padre PreviewGlyph bloqueada por el anidado local Child missing (FILE:9:1; componentKey:child-key; instancia 2:1). Primero importa Child, luego vuelve a este componente. No se ha escrito scaffold, tokens, ficha, TSX ni registros. Sin autorización de scaffold, no aplica la excepción de preparación. No se ejecutó diagnóstico renderizado ni verify:imports porque la importación está bloqueada antes de implementar; no hay entrega visual confirmada. La evidencia utilizada es sintética, sin Figma vivo. read:guidance no pudo ejecutarse porque falta package.json; se consultaron los apartados sellados aplicables. La parada sigue create-ds-from-figma/SKILL.md y su referencia import-preanalysis.md, Clasificación de anidados: «Si hay cualquier missing, para antes de escribir con DS_GAP». Archivos del proyecto tocados: ninguno."
+  },
+  "after": [
+    {
+      "path": "behavior-input.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "ad1d567d5b44bde5d0f7acb0f6cf4a5f0876d79da8c167f3cc2423d85ec74413"
+    }
+  ]
+}

@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 1,
+  "caseId": "essential-resource",
+  "caseHash": "3a7b7f98fc96fe99ddd78b528cb1d3fc8d710de8fe23a958906d815223740594",
+  "instructionHash": "1d055fef1a99adfe758e14416d268aa7e45c3ac3239b23ef7d929724a9fefcd5",
+  "date": "2026-10-23T07:52:43.905Z",
+  "executor": "independent-fresh-subagent",
+  "model": "unreported",
+  "modelVersion": "unreported",
+  "projectRoot": "/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-preview-fixture-hY0Jeo",
+  "started": true,
+  "finished": true,
+  "tools": [
+    {
+      "name": "read",
+      "effects": [
+        "read"
+      ]
+    },
+    {
+      "name": "exec",
+      "effects": [
+        "execute",
+        "unknown"
+      ]
+    },
+    {
+      "name": "edit",
+      "effects": [
+        "write"
+      ]
+    },
+    {
+      "name": "query",
+      "effects": [
+        "read"
+      ]
+    }
+  ],
+  "recording": {
+    "complete": true,
+    "gaps": 0
+  },
+  "before": [
+    {
+      "path": "behavior-input.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "d1a0c454bf59a11e610385d1f161869d762e1239c0a9bafbb52461a9079fff76"
+    }
+  ],
+  "events": [
+    {
+      "sequence": 1,
+      "tool": "query",
+      "operation": "guidance",
+      "args": [
+        "import-intake"
+      ],
+      "effect": "read",
+      "scope": "instructions",
+      "complete": true,
+      "result": {
+        "schemaVersion": 1,
+        "phases": [
+          "import-intake"
+        ],
+        "features": [],
+        "conditions": {
+          "update": "Existing component explicitly updated or dependency substitution authorized",
+          "nested": "Source subtree contains instances"
+        },
+        "sections": [
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+            "section": "Dos modos",
+            "start": 200,
+            "end": 1562
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+            "section": "Preanálisis antes de escribir",
+            "start": 1562,
+            "end": 2232
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+            "section": "Inspección del nodo",
+            "start": 2232,
+            "end": 2695
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+            "section": "Clasificación de anidados",
+            "start": 25772,
+            "end": 28721
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+            "section": "Recursos esenciales",
+            "start": 8382,
+            "end": 9367
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+            "section": "Decisión antes de escribir",
+            "start": 12784,
+            "end": 22956
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+            "section": "Parada por recursos",
+            "start": 12063,
+            "end": 12784
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+            "section": "Preanálisis y decisiones de importación",
+            "start": 0,
+            "end": 200
+          }
+        ],
+        "excerpts": [
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+            "start": 0,
+            "end": 2695,
+            "text": "# Preanálisis y decisiones de importación\n\nDetalle de la fase indicada en la skill canónica; no es un flujo independiente.\n\nContenido: Dos modos; Preanálisis antes de escribir; Componentes anidados.\n\n## Dos modos\n\n**Primera vez** (falta `design-system/relationships/figma-code-map.json` o `src/styles/tokens.css`, aunque haya un directorio `design-system/` vacío o instrucciones propias del repo): analiza Figma antes de escribir; si el diagnóstico permite importar, monta el **árbol entero**, vuelca **todas** las variables del file (todas las colecciones) y rellena **el componente de la URL**. Si el scaffold quedó a medias (existe uno de esos dos archivos pero no el otro), completa solo lo que falte sin sobrescribir lo existente.\n\n**Siguiente componente** (existen `design-system/relationships/figma-code-map.json` y `src/styles/tokens.css`, incluso si solo se preparó el scaffold): analiza Figma antes de escribir. Si el componente es nuevo, añade ficha, código, mapa e inventario sin recrear Vite. Si ya existe, solo la transición comprobada de un anidado `external` a `mapped` habilita una actualización localizada; otros cambios se comunican y requieren una petición explícita de actualización. Si Figma trae colecciones o variables nuevas durante una importación o actualización autorizada, **mézclalas**; no borres las que ya hay.\n\nLa falta de `design-system/inventory.json` no cambia el modo: diagnostícala como scaffold incompleto y aplica la regla de reparación tras la tabla de decisiones. No termines una importación con el inventario ausente.\n\n## Preanálisis antes de escribir\n\nSi un alias entre colecciones locales tiene varios valores posibles, pregunta qué modo usar para resolver esos valores. Solo con autorización explícita usa `generate-token-json.mjs plan/save --inventory INVENTORY --alias-modes PATH` y registra la elección en `figma-state.json.aliasModes`. No fija un modo CSS, no sustituye `modeScopes` ni cambia los alias de la misma colección. Una dependencia remota ambigua sigue bloqueada.\n\nNo crees el árbol, tokens, fichas, código ni registros durante este preanálisis. Reutiliza sus resultados al implementar; no repitas llamadas a Figma salvo que falte información o los datos hayan cambiado.\n\n### Inspección del nodo\n\n1. Lee el nodo de la URL con `get_metadata` para identificar tipo y estructura. Si es una variante, localiza su component set y analiza **todas** las variantes; conserva la variante enlazada como referencia. Si es una instancia, resuelve su `mainComponent`. Si es un frame o pantalla, detente. Si la instancia raíz es `remote`, pide la URL del componente en su file de origen; no asumas que las variables del file enlazado le pertenecen.\n"
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+            "start": 8382,
+            "end": 9367,
+            "text": "### Recursos esenciales\n\n6. Sobre la captura temporal, antes de escribir el proyecto, ejecuta `node .agents/skills/create-ds-from-figma/scripts/verification-plan.mjs requirements SNAPSHOT`. Usa resources/nextActions para reunir en una sola pregunta los orígenes autorizados necesarios para la implementación prevista. Son candidatos observados con nodos/variantes, no carencias esenciales: casos y descriptores CSS quedan pending hasta tener plan. No inventes pesos por el nombre de estilo ni exijas todos los candidatos ocultos. Si falta un recurso esencial para la implementación prevista, informa DS_GAP antes del TSX, sin elegir paquetes o imágenes por tu cuenta. No alteres fichas históricas en una ruta de reutilización.\n   Los nodos vectoriales observados aparecen como `vectors`: reprodúcelos con su exportación SVG original (`scripts/figma-vectors.mjs`, acción `EXPORT_VECTOR_SOURCES`) en lugar de reconstruirlos con CSS; una aproximación exige aprobación y revisión visual.\n\n"
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+            "start": 12063,
+            "end": 22956,
+            "text": "### Parada por recursos\n\n**Parada por recursos esenciales:** DS_GAP significa detener la implementación, no continuar y avisar al final. Antes de escribir scaffold, tokens, TSX o registrar el componente, solicita en un único mensaje los orígenes autorizados que falten. Si no hay interacción disponible, devuelve BLOCKED con los recursos y acciones pendientes, sin escribir. Una petición genérica de importar no autoriza sustitutos ni una importación provisional. Los candidatos de requirements no son todos esenciales: decide su necesidad para la implementación prevista sin inventar descriptores. --diagnose solo examina código existente; no permite saltarse esta parada ni crear componentes bloqueados para medirlos.\n\n## Decisión antes de escribir\n\nEvalúa esta tabla **de arriba abajo**; aplica la primera fila que corresponda:\n\n| Resultado del diagnóstico                                                                                                                                    | Decisión antes de escribir                                                                                                                      |\n| ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |\n| Frame o pantalla                                                                                                                                             | `DS_GAP`; no escribir                                                                                                                           |\n| Instancia raíz `remote`                                                                                                                                      | Pedir URL del componente en su file de origen; no escribir                                                                                      |\n| Sin variables locales ni bindings externos con ID y valor resuelto                                                                                           | `DS_GAP`; no escribir                                                                                                                           |\n| Valor de variable (directo o alias) sin resolver, o alias sin ID de destino                                                                                  | `DS_GAP`; no escribir tokens ni registrar el componente                                                                                         |\n| Binding directo a variable externa sin ID o valor resuelto                                                                                                   | `DS_GAP`; no inventar variable local ni registrar el componente                                                                                 |\n| Laguna que impide decidir la API o implementar fielmente                                                                                                     | `DS_GAP`; no registrar el componente                                                                                                            |\n| Algún anidado local `missing`                                                                                                                                | Mostrar nombres y refs; `DS_GAP`; no escribir                                                                                                   |\n| Componente ya importado y actualización pedida expresamente (general o sustitución de una dependencia concreta)                                              | Seguir «Actualización solicitada» con el alcance pedido                                                                                         |\n| Componente ya importado: un anidado pasa de `external` a `mapped`, pero su identidad no es verificable (sin identificador común o con datos contradictorios) | No escribir; pedir un ref adicional o autorización explícita para sustituir esa dependencia. Comunicar también las demás diferencias observadas |\n| Componente ya importado: un anidado registrado como `external` ahora resuelve a `mapped`, con identidad verificada como igual y sin otras diferencias        | Actualizar solo esa dependencia y su import en el código, con la cautela indicada abajo                                                         |\n| Componente ya importado: otros cambios observados                                                                                                            | Mostrar diferencias; solicitar una petición explícita de actualización; no escribir                                                             |\n| Componente ya importado: ninguna transición de dependencia ni otros cambios observados                                                                       | Reutilizar; no reescribir                                                                                                                       |\n| Anidado `external` sin otros bloqueos                                                                                                                        | Continuar y avisar de la librería externa                                                                                                       |\n| Componente nuevo sin bloqueos                                                                                                                                | Importar                                                                                                                                        |\n\nLos cambios de verification (recursos, fuentes, casos y tratamientos) también cuentan como otros cambios observados, junto con evidence: no se reescriben al reutilizar ni en una sustitución limitada a otra dependencia sin autorización. Cambiar un plan o informe no prueba por sí solo que Figma haya cambiado.\n\n«Otros cambios observados» significa diferencias comprobables entre el análisis actual y los datos ya guardados: `metadata.json` (variantes, `variantClassification`, `figmaCoverage`, estados, tokens, `parts`, `styles`, `bindings`, `externalVariables`, `measuredLiterals`, `unresolved`, `notApplicable`, `notBuilt` y `evidence`), la entrada correspondiente de `figma-code-map.json` (refs y props) y los `nestedComponents` de `figma-state.json` (instancias añadidas o quitadas, o un cambio de identidad verificado según la comparación indicada abajo). Compara también `evidence.decisions`, `evidence.translations` y `evidence.dispositions`: una diferencia solo en esas decisiones requiere revisión explícita, pero no demuestra por sí sola que Figma haya cambiado. Si cambia únicamente el enlace `snapshot` o su `hash`, compara las capturas con `figma-capture.mjs compare` para identificar diferencias reales; otro hash no prueba una revisión Figma ni autoriza actualizar. Conserva el snapshot enlazado y la evidencia histórica al reutilizar o sustituir solo una dependencia; no los reemplaces por la captura nueva. La ausencia de datos de estilos en una herramienta no demuestra que se haya quitado un estilo de Figma. Un cambio verificado de identidad cuenta como otro cambio observado aunque el nuevo estado sea `mapped`. No deduzcas cambios visuales o de código que esos datos no permiten comparar.\n\nRepara antes el árbol o los tokens del file de origen si quedaron incompletos (ver «Dos modos» en el preanálisis ya leído), sin sobrescribir lo existente, solo al importar, actualizar automáticamente una dependencia, continuar con un anidado `external`, reutilizar o realizar una actualización general solicitada. Una sustitución autorizada solo para una dependencia no permite reparar el scaffold. En cualquier fila cuya decisión sea no escribir —incluidas `DS_GAP`, pedir la URL de origen, identidad no verificable y «otros cambios observados»—, no repares el scaffold, salvo la excepción explícita de abajo.\n\nSi falta `design-system/inventory.json` y la decisión permite reparar el scaffold, copia la plantilla vacía solo cuando no hay componentes mapeados ni páginas implementadas. Si ya hay trabajo importado, reconstruye `components` con los nombres de entradas del mapa que tengan ficha y código reales; reconstruye `screens` solo para páginas existentes cuya composición con componentes del DS puedas comprobar. Si faltan pruebas para alguna entrada, pide la información necesaria en vez de inventar o descartar piezas. No sobrescribas un inventario existente ni registres componentes bloqueados o páginas previstas.\n\nSi el único bloqueo son anidados `missing` y el usuario pide expresamente preparar solo el proyecto, crea el scaffold y los tokens después de comunicar el diagnóstico, pero no registres el componente bloqueado como importado. En este caso, `App.tsx` debe ser una app válida que renderice un `main` vacío, sin componente ficticio. No guardes `pendingImports`: el reintento consiste en volver a pegar la URL y repetir el preanálisis.\n\nSi la identidad del componente principal de un anidado no es verificable, no cambies código ni estado. Pide un ref adicional o autorización explícita para sustituir esa dependencia concreta. Con un ref nuevo, repite el preanálisis y vuelve a aplicar la tabla. Si el usuario autoriza la sustitución sin poder verificar la identidad, sigue «Actualización solicitada» con alcance limitado a esa dependencia; su autorización no convierte la identidad en verificada ni habilita la actualización automática. Si no aporta ref ni autoriza el cambio, conserva el estado actual.\n\nPara un padre ya importado, localiza cada anidado guardado por su `figmaNodeId` y compara la identidad de su componente principal por tipo de identificador (`mainComponentKey`, o `mainComponentNodeId` con el `fileKey` que le corresponda). Hay tres resultados: identidad verificada como igual si todos los identificadores compartidos coinciden; verificada como distinta si todos difieren; no verificable si no hay ninguno compartido o los compartidos se contradicen. Solo el segundo caso cuenta como «otro cambio observado»; en el tercero, pide un ref o autorización antes de decidir. Aplica la actualización automática solo con identidad verificada igual, cuando además el estado pasó de `external` a `mapped` y no hay ninguna otra diferencia observada: edita únicamente la composición de ese anidado y su estado, conservando el resto del código y las ediciones del usuario. Si no puedes aislar el cambio sin pisar código existente, muestra la modificación propuesta y pide confirmación antes de escribir. `git diff` ayuda a revisar cambios sin confirmar, pero no revela ediciones manuales ya confirmadas. No infieras otros cambios de Figma a partir de una supuesta versión o huella que este kit no guarda.\n\n"
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+            "start": 25772,
+            "end": 28721,
+            "text": "## Clasificación de anidados\n\nDurante el preanálisis, detecta las instancias de todas las variantes antes de escribir ningún archivo. Reutiliza ese análisis al implementar.\n\n1. Recorre el árbol del nodo del componente y lista cada instancia (`INSTANCE`). `get_metadata` basta para saber que existen (`<instance>`). Para el `mainComponent` (su id, si es `remote`, su `componentKey` si existe y, cuando sea `remote`, el `fileKey` de su propio file si la herramienta lo devuelve), props y variants usa `get_design_context` o `use_figma`; si una herramienta no devuelve un ref estable, intenta la otra antes de clasificar. Vectores, formas e imágenes que no son instancias no son anidados: se quedan dentro del componente y no se registran.\n2. Ejecuta `find-component` sobre **cada** instancia. La clasificación la hace `find-component`, no este paso:\n   - `mapped`: ya está en `figma-code-map.json`, sea local o de otra librería;\n   - `missing`: instancia de un componente **local** (mismo file que el DS) sin mapeo;\n   - `external`: instancia de un componente de **otra librería** (`remote`) sin mapeo.\n3. Si hay cualquier `missing`, para antes de escribir con `DS_GAP` y di explícitamente: `Primero importa <Nombre>, luego vuelve a este componente.` No implementes componentes anidados de forma implícita ni guardes el padre en `figma-state.json`.\n4. Un `external` **no bloquea**: se trata como parte del componente actual. Avísalo en el resumen final: `<Nombre> viene de otra librería y se ha tratado como parte de este componente; si es parte del DS, importa su URL y vuelve a este componente.`\n5. Si tras intentarlo con `get_design_context` y `use_figma` no puedes obtener un ref estable (`<FILE_KEY>:<MAIN_COMPONENT_NODE_ID>` para un anidado local, `<MAIN_COMPONENT_FILE_KEY>:<MAIN_COMPONENT_NODE_ID>` para uno remoto si la herramienta devuelve ambos valores, o `componentKey:<COMPONENT_KEY>`), usa nombre y variants solo como pista de baja confianza, sin devolver `mapped` y sin escribir mapeos nuevos. Si tampoco puedes saber si el `mainComponent` es local o `remote`, no adivines: pregunta al usuario.\n6. Solo tras importar con éxito, registra los anidados `mapped` o `external` en `figma-state.json`, dentro de la entrada del componente, con el esquema de `nestedComponents` de `references/relationships.md`. No añadas anidados a `design-system/inventory.json` sin carpeta real en `design-system/components/`.\n\nAl volver a pedir un componente ya importado, reanaliza sus anidados con el mapa actual y aplica la tabla del preanálisis. Si uno pasa de `external` a `mapped`, cambia `nestedComponents` y el import/uso del componente local en el padre solo cuando se verifiquen las condiciones para la actualización automática o el usuario autorice expresamente esa sustitución; nunca cambies solo el JSON. Para otros cambios observados, informa y espera una petición explícita de actualización; no reescribas el componente por iniciativa propia.\n"
+          }
+        ],
+        "stats": {
+          "selectedBytes": 17699,
+          "selectedWords": 2098,
+          "wholeReferencedFilesBytes": 29005
+        },
+        "sourceHash": "6c82481e262032c5733722b5dd110a5a76137721f868088e1ad78103325e9db3",
+        "scope": "Selected documentation only; bytes/words, not measured model tokens. Conditions must be established from observations; omitted sections do not waive obligations. Shared/existing context is not counted."
+      }
+    },
+    {
+      "sequence": 2,
+      "tool": "query",
+      "operation": "files",
+      "args": [],
+      "effect": "read",
+      "scope": "project",
+      "complete": true,
+      "result": {
+        "entries": [
+          {
+            "path": "behavior-input.json",
+            "type": "file",
+            "mode": 420,
+            "hash": "d1a0c454bf59a11e610385d1f161869d762e1239c0a9bafbb52461a9079fff76"
+          }
+        ]
+      }
+    },
+    {
+      "sequence": 3,
+      "tool": "read",
+      "effect": "read",
+      "scope": "project",
+      "path": "behavior-input.json",
+      "complete": true,
+      "content": "{\n  \"caseId\": \"essential-resource\",\n  \"facts\": {\n    \"resource\": \"essential image missing\",\n    \"scaffoldAuthorized\": false\n  },\n  \"fixture\": \"Synthetic process fixture; no Figma fidelity claim.\",\n  \"evidenceOutsideProject\": \"/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-behavior-session-HbrW3m/supplied-capture.json\",\n  \"blockedBeforeImplementation\": true\n}"
+    }
+  ],
+  "final": {
+    "status": "blocked",
+    "confirmed": false,
+    "finalText": "BLOCKED / DS_GAP: PreviewGlyph (FILE:1:2) necesita la imagen esencial image-1, todavía pendiente. Para continuar hace falta su origen autorizado. No se ha modificado ningún archivo del proyecto ni se han creado scaffold, tokens, ficha o TSX. No se ejecutaron diagnóstico renderizado ni verify:imports porque la implementación está bloqueada antes de escribir; no hay entrega visual confirmada. La skill sellada create-ds-from-figma (.agents/skills/create-ds-from-figma/SKILL.md), apartado Bloqueos antes de escribir, exige: «Sin interacción: BLOCKED, sin escribir»; se aplica porque falta una imagen esencial y no hay autorización de sustitución ni scaffold."
+  },
+  "after": [
+    {
+      "path": "behavior-input.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "d1a0c454bf59a11e610385d1f161869d762e1239c0a9bafbb52461a9079fff76"
+    }
+  ]
+}

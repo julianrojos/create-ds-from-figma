@@ -1,0 +1,448 @@
+{
+  "schemaVersion": 1,
+  "caseId": "candidate-correspondence",
+  "caseHash": "c661868b6b10251e5a32cdf69f6784364cdb7b36a12fb9542fb5e0a00d95766d",
+  "instructionHash": "d8f96d1a3383a395592405f577388396f0fa4fb3dac57621bcd9dd61eafeb218",
+  "date": "2026-10-22T20:06:00.976Z",
+  "executor": "independent fresh-context agent: candidate-correspondence, repetition 1",
+  "model": "unreported",
+  "modelVersion": "unreported",
+  "projectRoot": "/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-preview-fixture-mqTjlL",
+  "started": true,
+  "finished": true,
+  "tools": [
+    {
+      "name": "read",
+      "effects": [
+        "read"
+      ]
+    },
+    {
+      "name": "exec",
+      "effects": [
+        "execute",
+        "unknown"
+      ]
+    },
+    {
+      "name": "edit",
+      "effects": [
+        "write"
+      ]
+    }
+  ],
+  "recording": {
+    "complete": true,
+    "gaps": 0
+  },
+  "before": [
+    {
+      "path": "behavior-input.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "a3a3c1c73047d5906044ee16fe478b1c2bfcf36fd08f2fb74b5de1a2debf2fe1"
+    },
+    {
+      "path": "design-system",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/components",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/components/PreviewGlyph",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/components/PreviewGlyph/metadata.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "afbfddc666628388dcb9d5a72e06819b7ff4e8e939e29bdaa0cf7f30658ca2b5"
+    },
+    {
+      "path": "design-system/components/PreviewGlyph/usage.md",
+      "type": "file",
+      "mode": 420,
+      "hash": "9d7e6cab1ee58b103388782dd8a551cdc2b779b54cc24421c466348bc88eae8f"
+    },
+    {
+      "path": "design-system/figma",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/figma/snapshots",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/figma/snapshots/FILE",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/figma/snapshots/FILE/1-2",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/figma/snapshots/FILE/1-2/f38b524696048dea379eb460fb48cc2ef7298cfe30ea7800aa37d15bad20c580.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "8bbe73986330cda39c725a3f4343d81b892f9ce995aceb859764f62cc290ec78"
+    },
+    {
+      "path": "design-system/inventory.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "7a7003192ecf6702ac5fd1077a626b7be5a105a5d28cd54ec7916b6cb34725e2"
+    },
+    {
+      "path": "design-system/relationships",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/relationships/figma-code-map.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "e122adfa7b1bbcda5219af6a5de6ccecc02f96be5b4288700125c5ec49799b4c"
+    },
+    {
+      "path": "design-system/relationships/figma-state.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "d4981f02ed69f889f6e65c9d361e202b1837bfec02cc084e49d8f5a7f167b58d"
+    },
+    {
+      "path": "design-system/tokens",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/tokens/Colors.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "8511c4590a8480f2d8d1d402ee212092b64c1a91835ae536d722777db23fa9e2"
+    },
+    {
+      "path": "node_modules",
+      "type": "symlink",
+      "mode": 493,
+      "target": "/Users/julian/Documents/create-ds-from-figma/.agents/browser-tests/node_modules"
+    },
+    {
+      "path": "package.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "ef05921daf71f547fc19b95b2a1417d7e0625950882906c823b20f0739f28191"
+    },
+    {
+      "path": "src",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "src/PreviewGlyph.module.css",
+      "type": "file",
+      "mode": 420,
+      "hash": "0e9e5f442bc0d025b30fc4f662b14bf35a586622068a77981b1829ee5bca1536"
+    },
+    {
+      "path": "src/PreviewGlyph.tsx",
+      "type": "file",
+      "mode": 420,
+      "hash": "596487060d4fa5890809d34ddd9905e44534e8427834b45c4e56b678b29aea98"
+    },
+    {
+      "path": "src/base.css",
+      "type": "file",
+      "mode": 420,
+      "hash": "c9c89823ea428b5cd44752e934403edfaf9e705d4f9efbda4b425511d5007c3d"
+    },
+    {
+      "path": "src/styles",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "src/styles/tokens.css",
+      "type": "file",
+      "mode": 420,
+      "hash": "c5cd37174eda8fc951c9a69ea4ecc0c293cf81b848caca003e0b323981b18afc"
+    }
+  ],
+  "events": [
+    {
+      "sequence": 1,
+      "tool": "exec",
+      "argv": [
+        "npm",
+        "run",
+        "read:guidance",
+        "--",
+        "validate-static",
+        "--with",
+        "evidence"
+      ],
+      "effect": "unknown",
+      "scope": "unknown",
+      "complete": true,
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "npm error Missing script: \"read:guidance\"\nnpm error\nnpm error To see a list of scripts, run:\nnpm error   npm run\nnpm error Log files were not written due to an error writing to the directory: /Users/julian/.npm/_logs\nnpm error You can rerun the command with `--loglevel=verbose` to see the logs in your terminal\n",
+      "error": null
+    },
+    {
+      "sequence": 2,
+      "tool": "read",
+      "effect": "read",
+      "scope": "project",
+      "path": "design-system/components/PreviewGlyph/metadata.json",
+      "complete": true,
+      "content": "{\n  \"name\": \"PreviewGlyph\",\n  \"description\": \"Synthetic intrinsic text fixture.\",\n  \"figma\": {\n    \"fileKey\": \"FILE\",\n    \"nodeId\": \"1:2\",\n    \"url\": \"https://www.figma.com/design/FILE?node-id=1-2\"\n  },\n  \"code\": {\n    \"path\": \"src/PreviewGlyph.tsx\",\n    \"component\": \"PreviewGlyph\"\n  },\n  \"states\": [],\n  \"tokens\": [],\n  \"externalVariables\": [],\n  \"unresolved\": [],\n  \"notApplicable\": [],\n  \"notBuilt\": [],\n  \"variants\": {},\n  \"variantClassification\": {},\n  \"figmaCoverage\": {\n    \"variants\": [],\n    \"styles\": {\n      \"status\": \"captured\",\n      \"source\": \"synthetic fixture\"\n    }\n  },\n  \"styles\": [],\n  \"parts\": {\n    \"root\": {\n      \"selector\": \".root\",\n      \"nodes\": {\n        \"default\": \"FILE:1:2\"\n      }\n    },\n    \"initial\": {\n      \"selector\": \".initial\",\n      \"nodes\": {\n        \"default\": \"FILE:1:3\"\n      }\n    }\n  },\n  \"bindings\": [],\n  \"measuredLiterals\": [\n    {\n      \"observation\": \"1:3#fontSize#property\",\n      \"source\": \"FILE:1:3\",\n      \"figmaProperty\": \"fontSize\",\n      \"part\": \"initial\",\n      \"variant\": \"default\",\n      \"cssSelector\": \".initial\",\n      \"cssProperty\": \"font-size\",\n      \"value\": \"20px\",\n      \"translation\": \"direct\"\n    },\n    {\n      \"observation\": \"1:3#letterSpacing#property\",\n      \"source\": \"FILE:1:3\",\n      \"figmaProperty\": \"letterSpacing\",\n      \"part\": \"initial\",\n      \"variant\": \"default\",\n      \"cssSelector\": \".initial\",\n      \"cssProperty\": \"letter-spacing\",\n      \"value\": \"0px\",\n      \"translation\": \"approximate\",\n      \"reason\": \"PIXELS becomes a CSS pixel length.\",\n      \"figmaValue\": {\n        \"source\": \"PLUGIN\",\n        \"field\": \"letterSpacing\",\n        \"value\": {\n          \"unit\": \"PIXELS\",\n          \"value\": 0\n        }\n      }\n    },\n    {\n      \"observation\": \"1:3#lineHeight#property\",\n      \"source\": \"FILE:1:3\",\n      \"figmaProperty\": \"lineHeight\",\n      \"part\": \"initial\",\n      \"variant\": \"default\",\n      \"cssSelector\": \".initial\",\n      \"cssProperty\": \"line-height\",\n      \"value\": \"24px\",\n      \"translation\": \"approximate\",\n      \"reason\": \"PIXELS becomes a CSS pixel length.\",\n      \"figmaValue\": {\n        \"source\": \"PLUGIN\",\n        \"field\": \"lineHeight\",\n        \"value\": {\n          \"unit\": \"PIXELS\",\n          \"value\": 24\n        }\n      }\n    }\n  ],\n  \"evidence\": {\n    \"snapshot\": \"design-system/figma/snapshots/FILE/1-2/f38b524696048dea379eb460fb48cc2ef7298cfe30ea7800aa37d15bad20c580.json\",\n    \"hash\": \"f38b524696048dea379eb460fb48cc2ef7298cfe30ea7800aa37d15bad20c580\",\n    \"captureIssues\": 0,\n    \"decisions\": [],\n    \"dispositions\": [],\n    \"textDimensions\": [\n      {\n        \"observation\": \"1:3#height#property\",\n        \"node\": \"FILE:1:3\",\n        \"field\": \"height\",\n        \"behavior\": \"content\",\n        \"rule\": \"text-auto-resize-v1\",\n        \"observations\": [\n          \"1:3#textAutoResize#property\"\n        ],\n        \"reason\": \"WIDTH_AND_HEIGHT establishes content sizing for height in the captured configuration.\",\n        \"treatment\": \"translation\",\n        \"cssSelector\": \".initial\",\n        \"cssProperty\": \"height\"\n      },\n      {\n        \"observation\": \"1:3#width#property\",\n        \"node\": \"FILE:1:3\",\n        \"field\": \"width\",\n        \"behavior\": \"content\",\n        \"rule\": \"text-auto-resize-v1\",\n        \"observations\": [\n          \"1:3#textAutoResize#property\"\n        ],\n        \"reason\": \"WIDTH_AND_HEIGHT establishes content sizing for width in the captured configuration.\",\n        \"treatment\": \"translation\",\n        \"cssSelector\": \".initial\",\n        \"cssProperty\": \"width\"\n      }\n    ],\n    \"translations\": [\n      {\n        \"observations\": [\n          \"1:3#height#property\",\n          \"1:3#textAutoResize#property\"\n        ],\n        \"cssSelector\": \".initial\",\n        \"cssProperty\": \"height\",\n        \"reason\": \"Inline text uses intrinsic content sizing.\"\n      },\n      {\n        \"observations\": [\n          \"1:3#width#property\",\n          \"1:3#textAutoResize#property\"\n        ],\n        \"cssSelector\": \".initial\",\n        \"cssProperty\": \"width\",\n        \"reason\": \"Inline text uses intrinsic content sizing.\"\n      }\n    ]\n  },\n  \"verification\": {\n    \"schemaVersion\": 1,\n    \"geometryPolicy\": \"mapped-layout-v1\",\n    \"fonts\": [],\n    \"assets\": [],\n    \"stylesheets\": [\n      \"src/base.css\",\n      \"src/styles/tokens.css\"\n    ],\n    \"inputs\": [],\n    \"unestablished\": [],\n    \"cases\": [\n      {\n        \"id\": \"source-0\",\n        \"kind\": \"fidelity\",\n        \"figmaRef\": \"FILE:1:2\",\n        \"props\": {\n          \"initial\": \"F\"\n        },\n        \"content\": {\n          \"FILE:1:3\": \"F\"\n        },\n        \"modes\": {},\n        \"viewport\": {\n          \"width\": 640,\n          \"height\": 480\n        },\n        \"environment\": {\n          \"attributes\": {},\n          \"classes\": []\n        },\n        \"states\": [],\n        \"expectations\": []\n      },\n      {\n        \"id\": \"wide-W\",\n        \"kind\": \"behavior\",\n        \"figmaRef\": \"FILE:1:2\",\n        \"props\": {\n          \"initial\": \"W\"\n        },\n        \"content\": {\n          \"FILE:1:3\": \"W\"\n        },\n        \"modes\": {},\n        \"viewport\": {\n          \"width\": 640,\n          \"height\": 480\n        },\n        \"environment\": {\n          \"attributes\": {},\n          \"classes\": []\n        },\n        \"states\": [],\n        \"expectations\": [\n          {\n            \"kind\": \"intrinsic-size\",\n            \"observation\": \"1:3#height#property\",\n            \"axis\": \"height\",\n            \"part\": \"initial\",\n            \"relation\": \"equal\",\n            \"reason\": \"Synthetic schema case requires wider text with unchanged line height.\"\n          },\n          {\n            \"kind\": \"intrinsic-size\",\n            \"observation\": \"1:3#width#property\",\n            \"axis\": \"width\",\n            \"part\": \"initial\",\n            \"relation\": \"grow\",\n            \"reason\": \"Synthetic schema case requires wider text with unchanged line height.\"\n          }\n        ],\n        \"baseline\": \"source-0\"\n      },\n      {\n        \"id\": \"wide-M\",\n        \"kind\": \"behavior\",\n        \"figmaRef\": \"FILE:1:2\",\n        \"props\": {\n          \"initial\": \"M\"\n        },\n        \"content\": {\n          \"FILE:1:3\": \"M\"\n        },\n        \"modes\": {},\n        \"viewport\": {\n          \"width\": 640,\n          \"height\": 480\n        },\n        \"environment\": {\n          \"attributes\": {},\n          \"classes\": []\n        },\n        \"states\": [],\n        \"expectations\": [\n          {\n            \"kind\": \"intrinsic-size\",\n            \"observation\": \"1:3#height#property\",\n            \"axis\": \"height\",\n            \"part\": \"initial\",\n            \"relation\": \"equal\",\n            \"reason\": \"Synthetic schema case requires wider text with unchanged line height.\"\n          },\n          {\n            \"kind\": \"intrinsic-size\",\n            \"observation\": \"1:3#width#property\",\n            \"axis\": \"width\",\n            \"part\": \"initial\",\n            \"relation\": \"grow\",\n            \"reason\": \"Synthetic schema case requires wider text with unchanged line height.\"\n          }\n        ],\n        \"baseline\": \"source-0\"\n      }\n    ]\n  }\n}"
+    },
+    {
+      "sequence": 3,
+      "tool": "exec",
+      "argv": [
+        "node",
+        ".agents/checks/verify-ds.mjs",
+        "."
+      ],
+      "effect": "unknown",
+      "scope": "unknown",
+      "complete": true,
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "node:internal/modules/cjs/loader:1404\n  throw err;\n  ^\n\nError: Cannot find module '/private/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-preview-fixture-mqTjlL/.agents/checks/verify-ds.mjs'\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1401:15)\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1057:19)\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1062:22)\n    at Function._load (node:internal/modules/cjs/loader:1211:37)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)\n    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)\n    at node:internal/main/run_main_module:36:49 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v22.17.1\n",
+      "error": null
+    },
+    {
+      "sequence": 4,
+      "tool": "read",
+      "effect": "read",
+      "scope": "project",
+      "path": "design-system/components/PreviewGlyph/usage.md",
+      "complete": true,
+      "content": "## Figma to code correspondences\n\n```json\n{\"schemaVersion\":1,\"correspondences\":[{\"caseId\":\"source-0\",\"status\":\"candidate\"}]}\n```\n"
+    },
+    {
+      "sequence": 5,
+      "tool": "exec",
+      "argv": [
+        "/Users/julian/.nvm/versions/node/v22.17.1/bin/node",
+        "/Users/julian/Documents/create-ds-from-figma/.agents/skills/create-ds-from-figma/scripts/finalize-import.mjs",
+        "/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-preview-fixture-mqTjlL",
+        "design-system/components/PreviewGlyph/metadata.json",
+        "--diagnose"
+      ],
+      "effect": "execute",
+      "scope": "external-temporaries",
+      "operation": "diagnosis",
+      "metadata": "design-system/components/PreviewGlyph/metadata.json",
+      "complete": true,
+      "exitCode": 1,
+      "stdout": "{\n  \"status\": \"FAIL\",\n  \"complete\": false,\n  \"errors\": [],\n  \"diagnosis\": {\n    \"directory\": \"/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-browser-run-Rj33g6\",\n    \"mode\": \"diagnostic\",\n    \"manifest\": {\n      \"schemaVersion\": 1,\n      \"cases\": []\n    },\n    \"blocked\": [],\n    \"application\": {\n      \"errors\": [],\n      \"results\": [],\n      \"checks\": [],\n      \"status\": \"NOT RUN\",\n      \"reason\": \"Application diagnostics were not executed.\"\n    },\n    \"closure\": {\n      \"state\": \"pending\",\n      \"complete\": false,\n      \"failures\": [],\n      \"pending\": [\n        {\n          \"caseId\": \"source-0\",\n          \"reason\": \"Published measurement missing\"\n        },\n        {\n          \"caseId\": \"wide-W\",\n          \"reason\": \"Published measurement missing\"\n        },\n        {\n          \"caseId\": \"wide-M\",\n          \"reason\": \"Published measurement missing\"\n        }\n      ],\n      \"stale\": [],\n      \"warnings\": [\n        \"2 text dimension(s): sizing semantics checked against snapshot; CSS behavior and rendering NOT VERIFIED; see review.textDimensions\",\n        \"2 literal translation(s) need contextual verification; see review.literals\",\n        \"2 translation(s): accounted for, CSS identity and rendering NOT VERIFIED; see review.translations\",\n        \"1:3#height#property: intrinsic CSS NOT VERIFIED; cascade, expression or unsupported declaration requires rendered review\",\n        \"1:3#width#property: intrinsic CSS NOT VERIFIED; cascade, expression or unsupported declaration requires rendered review\"\n      ],\n      \"cases\": [],\n      \"scope\": \"Current mapped geometry, font resources and mandatory behavior; not complete visual fidelity or full application validation.\"\n    },\n    \"execution\": {\n      \"status\": \"NOT RUN\",\n      \"phase\": \"preview\",\n      \"reason\": \"listen EPERM: operation not permitted 127.0.0.1\"\n    },\n    \"complete\": false,\n    \"diagnostics\": {\n      \"complete\": false,\n      \"cases\": [],\n      \"summary\": {\n        \"PASS\": 0,\n        \"FAIL\": 0,\n        \"NOT COMPARABLE\": 0,\n        \"NOT RUN\": 0\n      },\n      \"resources\": {\n        \"fonts\": [],\n        \"assets\": []\n      },\n      \"scope\": \"Temporary observations, never publication or confirmation. Missing resources can affect geometry; numeric deltas do not identify their cause.\"\n    },\n    \"scope\": \"Browser measurements and literal syntax diagnostics, not automatic visual judgment or glyph-font proof.\"\n  },\n  \"importDiagnostics\": {\n    \"components\": [\n      {\n        \"metadataPath\": \"design-system/components/PreviewGlyph/metadata.json\",\n        \"name\": \"PreviewGlyph\",\n        \"serialization\": {\n          \"consumption\": {\n            \"status\": \"STATIC_REFERENCES\",\n            \"unknownStyles\": [],\n            \"uncertainInlineReferences\": [],\n            \"scope\": \"Metadata bindings and reachable CSS/JSX literal styles with local aliases across recorded modes; not proof of execution. Dynamic expressions and unresolved imports remain unknown.\"\n          },\n          \"pending\": [],\n          \"warnings\": []\n        }\n      }\n    ],\n    \"warnings\": [],\n    \"nextActions\": []\n  },\n  \"report\": {\n    \"schemaVersion\": 1,\n    \"source\": \"temporary-diagnosis\",\n    \"status\": \"FAIL\",\n    \"headline\": \"1 declared fidelity cases; temporary diagnosis does not revalidate confirmations or confirm delivery.\",\n    \"structure\": {\n      \"status\": \"NOT RUN\",\n      \"reason\": \"Not evaluated by this diagnostic surface.\"\n    },\n    \"application\": {\n      \"status\": \"NOT RUN\",\n      \"reason\": \"Application diagnostics were not executed.\"\n    },\n    \"components\": [\n      {\n        \"name\": \"PreviewGlyph\",\n        \"status\": \"NOT VERIFIED\",\n        \"invalidInputs\": [],\n        \"coverage\": {\n          \"confirmationsRevalidated\": false,\n          \"fidelity\": 1,\n          \"confirmed\": null,\n          \"pending\": null,\n          \"stale\": 0,\n          \"failedRecords\": 0\n        },\n        \"cases\": [\n          {\n            \"caseId\": \"source-0\",\n            \"kind\": \"fidelity\",\n            \"modes\": {},\n            \"status\": \"not-revalidated\",\n            \"computedColors\": []\n          },\n          {\n            \"caseId\": \"wide-W\",\n            \"kind\": \"behavior\",\n            \"modes\": {},\n            \"status\": \"not-revalidated\",\n            \"computedColors\": []\n          },\n          {\n            \"caseId\": \"wide-M\",\n            \"kind\": \"behavior\",\n            \"modes\": {},\n            \"status\": \"not-revalidated\",\n            \"computedColors\": []\n          }\n        ],\n        \"modeCoverage\": [\n          {\n            \"modes\": {},\n            \"fidelity\": [\n              \"source-0\"\n            ],\n            \"confirmedFidelity\": [],\n            \"behavior\": [\n              \"wide-W\",\n              \"wide-M\"\n            ],\n            \"verifiedBehavior\": []\n          }\n        ],\n        \"declaredDecisions\": [],\n        \"excludedObservations\": [],\n        \"unresolvedDesign\": [],\n        \"unestablished\": []\n      }\n    ],\n    \"pendingAuthorizations\": [],\n    \"obligations\": [],\n    \"errors\": [],\n    \"warningCount\": 0,\n    \"limits\": [\n      \"Only explicitly mapped single solid sRGB color properties are compared; computed values do not prove visible paint, mask loading, shape or glyph coverage.\",\n      \"Mode coverage lists exact declared case configurations, not every available mode or every combination.\",\n      \"Declared decisions and exclusions are not proof of user approval. Temporary diagnostics never replace persisted evidence and specific rendered reviews.\"\n    ]\n  },\n  \"nextActions\": [],\n  \"scope\": \"Diagnostic feedback on existing code only. No project evidence is published, no reviews are recorded and delivery is not confirmed. Fix observed defects, resolve resources and collect again before delivery.\"\n}\n",
+      "stderr": "",
+      "error": null
+    },
+    {
+      "sequence": 6,
+      "tool": "exec",
+      "argv": [
+        "/Users/julian/.nvm/versions/node/v22.17.1/bin/node",
+        "/Users/julian/Documents/create-ds-from-figma/.agents/skills/create-ds-from-figma/scripts/finalize-import.mjs",
+        "/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-preview-fixture-mqTjlL",
+        "design-system/components/PreviewGlyph/metadata.json",
+        "--diagnose"
+      ],
+      "effect": "execute",
+      "scope": "external-temporaries",
+      "operation": "diagnosis",
+      "metadata": "design-system/components/PreviewGlyph/metadata.json",
+      "complete": true,
+      "exitCode": 1,
+      "stdout": "{\n  \"status\": \"FAIL\",\n  \"complete\": false,\n  \"errors\": [],\n  \"diagnosis\": {\n    \"directory\": \"/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-browser-run-SCL38l\",\n    \"mode\": \"diagnostic\",\n    \"manifest\": {\n      \"schemaVersion\": 1,\n      \"cases\": []\n    },\n    \"blocked\": [],\n    \"application\": {\n      \"schemaVersion\": 1,\n      \"scope\": \"application-source\",\n      \"declarations\": [\n        {\n          \"id\": \"17af7b3b8100dbbec77639f5596e5f7294c51b84b993fdce9069ae0dbb36fa56\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 1,\n          \"property\": \"display\",\n          \"value\": \"inline-flex\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"fef6c926c2d9c8c65ec78a52789018165cf500a66f372c958d08b98f066c4f83\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 1,\n          \"property\": \"align-items\",\n          \"value\": \"center\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"9c17407b26c6ae8b5d76fa602828ba87b1c0a760f5e6ad2d1c08c1cc9f1e868e\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 1,\n          \"property\": \"justify-content\",\n          \"value\": \"center\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"b71585e8e8ecbf5d3668f2558394db52c88cf3f52db65ca14482a85300ffebcf\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 1,\n          \"property\": \"width\",\n          \"value\": \"48px\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"5ee53b7b38a046be71e21c21863e9229460085779e5eebbcf0871228fd490c34\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 1,\n          \"property\": \"height\",\n          \"value\": \"48px\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"7056c323c1dfb4ff61af437699b2d126a7ec5f28f8e2df0a54eb08bf00f371a0\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 1,\n          \"property\": \"border-radius\",\n          \"value\": \"50%\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"985ed1922d655effe6ab3326f98a0d16b4eccb7ad4fd8ea82d4da07ba8abf51e\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 2,\n          \"property\": \"font-family\",\n          \"value\": \"Arial, sans-serif\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"b06e87fabd36203f017af59574e402722726f144b8eb2a7b97240ace032065ac\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 2,\n          \"property\": \"font-size\",\n          \"value\": \"20px\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"b237cd7e3c16bb8c953fdc05f6f010230a2bcc8d22b659dcc583339250bc233d\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 2,\n          \"property\": \"line-height\",\n          \"value\": \"24px\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"5e0689a66b6dfbc66c7bbe5dac44b03c244dabaa61293b4abfb76e6ed3c41146\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 2,\n          \"property\": \"letter-spacing\",\n          \"value\": \"0\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"5f0ce550dc65255704b80469135e1cfa55fd5f3781a17b1fcd872082dd969466\",\n          \"file\": \"src/base.css\",\n          \"line\": 1,\n          \"property\": \"margin\",\n          \"value\": \"0\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"d916970a98c8af12c91721e83ef7e8ae2a710b04299dcbe69cfd351d0ceff038\",\n          \"file\": \"src/base.css\",\n          \"line\": 1,\n          \"property\": \"padding\",\n          \"value\": \"24px\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"55fbf8a20a8a61955af79dcf23bbcef7e71372b9f4e0c4410fdb7c644c91ac17\",\n          \"file\": \"src/base.css\",\n          \"line\": 1,\n          \"property\": \"background\",\n          \"value\": \"white\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"a267c87749e157540e0c3f3ce47c4a3adf8178c5d03f523f53c3223f33e0698f\",\n          \"file\": \"src/base.css\",\n          \"line\": 1,\n          \"property\": \"color\",\n          \"value\": \"black\",\n          \"kind\": \"css\"\n        }\n      ],\n      \"errors\": [],\n      \"warnings\": [],\n      \"results\": [\n        {\n          \"id\": \"17af7b3b8100dbbec77639f5596e5f7294c51b84b993fdce9069ae0dbb36fa56\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 1,\n          \"property\": \"display\",\n          \"value\": \"inline-flex\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"fef6c926c2d9c8c65ec78a52789018165cf500a66f372c958d08b98f066c4f83\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 1,\n          \"property\": \"align-items\",\n          \"value\": \"center\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"9c17407b26c6ae8b5d76fa602828ba87b1c0a760f5e6ad2d1c08c1cc9f1e868e\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 1,\n          \"property\": \"justify-content\",\n          \"value\": \"center\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"b71585e8e8ecbf5d3668f2558394db52c88cf3f52db65ca14482a85300ffebcf\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 1,\n          \"property\": \"width\",\n          \"value\": \"48px\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"5ee53b7b38a046be71e21c21863e9229460085779e5eebbcf0871228fd490c34\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 1,\n          \"property\": \"height\",\n          \"value\": \"48px\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"7056c323c1dfb4ff61af437699b2d126a7ec5f28f8e2df0a54eb08bf00f371a0\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 1,\n          \"property\": \"border-radius\",\n          \"value\": \"50%\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"985ed1922d655effe6ab3326f98a0d16b4eccb7ad4fd8ea82d4da07ba8abf51e\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 2,\n          \"property\": \"font-family\",\n          \"value\": \"Arial, sans-serif\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"b06e87fabd36203f017af59574e402722726f144b8eb2a7b97240ace032065ac\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 2,\n          \"property\": \"font-size\",\n          \"value\": \"20px\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"b237cd7e3c16bb8c953fdc05f6f010230a2bcc8d22b659dcc583339250bc233d\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 2,\n          \"property\": \"line-height\",\n          \"value\": \"24px\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"5e0689a66b6dfbc66c7bbe5dac44b03c244dabaa61293b4abfb76e6ed3c41146\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 2,\n          \"property\": \"letter-spacing\",\n          \"value\": \"0\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"5f0ce550dc65255704b80469135e1cfa55fd5f3781a17b1fcd872082dd969466\",\n          \"file\": \"src/base.css\",\n          \"line\": 1,\n          \"property\": \"margin\",\n          \"value\": \"0\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"d916970a98c8af12c91721e83ef7e8ae2a710b04299dcbe69cfd351d0ceff038\",\n          \"file\": \"src/base.css\",\n          \"line\": 1,\n          \"property\": \"padding\",\n          \"value\": \"24px\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"55fbf8a20a8a61955af79dcf23bbcef7e71372b9f4e0c4410fdb7c644c91ac17\",\n          \"file\": \"src/base.css\",\n          \"line\": 1,\n          \"property\": \"background\",\n          \"value\": \"white\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"a267c87749e157540e0c3f3ce47c4a3adf8178c5d03f523f53c3223f33e0698f\",\n          \"file\": \"src/base.css\",\n          \"line\": 1,\n          \"property\": \"color\",\n          \"value\": \"black\",\n          \"kind\": \"css\",\n          \"supported\": true\n        }\n      ],\n      \"checks\": [\n        {\n          \"id\": \"css:17af7b3b8100dbbec77639f5596e5f7294c51b84b993fdce9069ae0dbb36fa56\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"17af7b3b8100dbbec77639f5596e5f7294c51b84b993fdce9069ae0dbb36fa56\",\n            \"file\": \"src/PreviewGlyph.module.css\",\n            \"line\": 1,\n            \"property\": \"display\",\n            \"value\": \"inline-flex\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:fef6c926c2d9c8c65ec78a52789018165cf500a66f372c958d08b98f066c4f83\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"fef6c926c2d9c8c65ec78a52789018165cf500a66f372c958d08b98f066c4f83\",\n            \"file\": \"src/PreviewGlyph.module.css\",\n            \"line\": 1,\n            \"property\": \"align-items\",\n            \"value\": \"center\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:9c17407b26c6ae8b5d76fa602828ba87b1c0a760f5e6ad2d1c08c1cc9f1e868e\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"9c17407b26c6ae8b5d76fa602828ba87b1c0a760f5e6ad2d1c08c1cc9f1e868e\",\n            \"file\": \"src/PreviewGlyph.module.css\",\n            \"line\": 1,\n            \"property\": \"justify-content\",\n            \"value\": \"center\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:b71585e8e8ecbf5d3668f2558394db52c88cf3f52db65ca14482a85300ffebcf\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"b71585e8e8ecbf5d3668f2558394db52c88cf3f52db65ca14482a85300ffebcf\",\n            \"file\": \"src/PreviewGlyph.module.css\",\n            \"line\": 1,\n            \"property\": \"width\",\n            \"value\": \"48px\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:5ee53b7b38a046be71e21c21863e9229460085779e5eebbcf0871228fd490c34\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"5ee53b7b38a046be71e21c21863e9229460085779e5eebbcf0871228fd490c34\",\n            \"file\": \"src/PreviewGlyph.module.css\",\n            \"line\": 1,\n            \"property\": \"height\",\n            \"value\": \"48px\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:7056c323c1dfb4ff61af437699b2d126a7ec5f28f8e2df0a54eb08bf00f371a0\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"7056c323c1dfb4ff61af437699b2d126a7ec5f28f8e2df0a54eb08bf00f371a0\",\n            \"file\": \"src/PreviewGlyph.module.css\",\n            \"line\": 1,\n            \"property\": \"border-radius\",\n            \"value\": \"50%\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:985ed1922d655effe6ab3326f98a0d16b4eccb7ad4fd8ea82d4da07ba8abf51e\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"985ed1922d655effe6ab3326f98a0d16b4eccb7ad4fd8ea82d4da07ba8abf51e\",\n            \"file\": \"src/PreviewGlyph.module.css\",\n            \"line\": 2,\n            \"property\": \"font-family\",\n            \"value\": \"Arial, sans-serif\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:b06e87fabd36203f017af59574e402722726f144b8eb2a7b97240ace032065ac\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"b06e87fabd36203f017af59574e402722726f144b8eb2a7b97240ace032065ac\",\n            \"file\": \"src/PreviewGlyph.module.css\",\n            \"line\": 2,\n            \"property\": \"font-size\",\n            \"value\": \"20px\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:b237cd7e3c16bb8c953fdc05f6f010230a2bcc8d22b659dcc583339250bc233d\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"b237cd7e3c16bb8c953fdc05f6f010230a2bcc8d22b659dcc583339250bc233d\",\n            \"file\": \"src/PreviewGlyph.module.css\",\n            \"line\": 2,\n            \"property\": \"line-height\",\n            \"value\": \"24px\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:5e0689a66b6dfbc66c7bbe5dac44b03c244dabaa61293b4abfb76e6ed3c41146\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"5e0689a66b6dfbc66c7bbe5dac44b03c244dabaa61293b4abfb76e6ed3c41146\",\n            \"file\": \"src/PreviewGlyph.module.css\",\n            \"line\": 2,\n            \"property\": \"letter-spacing\",\n            \"value\": \"0\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:5f0ce550dc65255704b80469135e1cfa55fd5f3781a17b1fcd872082dd969466\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"5f0ce550dc65255704b80469135e1cfa55fd5f3781a17b1fcd872082dd969466\",\n            \"file\": \"src/base.css\",\n            \"line\": 1,\n            \"property\": \"margin\",\n            \"value\": \"0\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:d916970a98c8af12c91721e83ef7e8ae2a710b04299dcbe69cfd351d0ceff038\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"d916970a98c8af12c91721e83ef7e8ae2a710b04299dcbe69cfd351d0ceff038\",\n            \"file\": \"src/base.css\",\n            \"line\": 1,\n            \"property\": \"padding\",\n            \"value\": \"24px\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:55fbf8a20a8a61955af79dcf23bbcef7e71372b9f4e0c4410fdb7c644c91ac17\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"55fbf8a20a8a61955af79dcf23bbcef7e71372b9f4e0c4410fdb7c644c91ac17\",\n            \"file\": \"src/base.css\",\n            \"line\": 1,\n            \"property\": \"background\",\n            \"value\": \"white\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:a267c87749e157540e0c3f3ce47c4a3adf8178c5d03f523f53c3223f33e0698f\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"a267c87749e157540e0c3f3ce47c4a3adf8178c5d03f523f53c3223f33e0698f\",\n            \"file\": \"src/base.css\",\n            \"line\": 1,\n            \"property\": \"color\",\n            \"value\": \"black\",\n            \"kind\": \"css\"\n          }\n        }\n      ],\n      \"status\": \"PASS\",\n      \"reason\": \"Applicable literal syntax checks passed in this browser; not proof of cascade, React behavior or visual fidelity.\"\n    },\n    \"closure\": {\n      \"state\": \"pending\",\n      \"complete\": false,\n      \"failures\": [],\n      \"pending\": [\n        {\n          \"caseId\": \"source-0\",\n          \"reason\": \"Published measurement missing\"\n        },\n        {\n          \"caseId\": \"wide-W\",\n          \"reason\": \"Published measurement missing\"\n        },\n        {\n          \"caseId\": \"wide-M\",\n          \"reason\": \"Published measurement missing\"\n        }\n      ],\n      \"stale\": [],\n      \"warnings\": [\n        \"2 text dimension(s): sizing semantics checked against snapshot; CSS behavior and rendering NOT VERIFIED; see review.textDimensions\",\n        \"2 literal translation(s) need contextual verification; see review.literals\",\n        \"2 translation(s): accounted for, CSS identity and rendering NOT VERIFIED; see review.translations\",\n        \"1:3#height#property: intrinsic CSS NOT VERIFIED; cascade, expression or unsupported declaration requires rendered review\",\n        \"1:3#width#property: intrinsic CSS NOT VERIFIED; cascade, expression or unsupported declaration requires rendered review\"\n      ],\n      \"cases\": [],\n      \"scope\": \"Current mapped geometry, font resources and mandatory behavior; not complete visual fidelity or full application validation.\"\n    },\n    \"execution\": {\n      \"status\": \"COMPLETED\",\n      \"phase\": \"complete\"\n    },\n    \"complete\": false,\n    \"diagnostics\": {\n      \"complete\": false,\n      \"cases\": [\n        {\n          \"caseId\": \"source-0\",\n          \"kind\": \"fidelity\",\n          \"file\": \"/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-browser-run-SCL38l/source-0-1.json\",\n          \"receipt\": \"/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-browser-run-SCL38l/source-0-1.receipt.json\",\n          \"policy\": \"mapped-layout-v1\",\n          \"comparatorVersion\": \"render-comparator-v21\",\n          \"checks\": [\n            {\n              \"id\": \"geometry:root\",\n              \"status\": \"FAIL\",\n              \"reason\": \"Layout bounds relative to the root; CSS border-box corresponds to unstroked or INSIDE-stroked source bounds.\",\n              \"expected\": {\n                \"x\": 0,\n                \"y\": 0,\n                \"width\": 48,\n                \"height\": 48\n              },\n              \"measured\": {\n                \"x\": 0,\n                \"y\": 0,\n                \"width\": 50,\n                \"height\": 50\n              },\n              \"delta\": {\n                \"x\": 0,\n                \"y\": 0,\n                \"width\": 2,\n                \"height\": 2\n              },\n              \"tolerance\": 1,\n              \"tolerances\": {\n                \"x\": 1,\n                \"y\": 1,\n                \"width\": 1,\n                \"height\": 1\n              }\n            },\n            {\n              \"id\": \"geometry:initial\",\n              \"status\": \"PASS\",\n              \"reason\": \"Layout bounds relative to the root; CSS border-box corresponds to unstroked or INSIDE-stroked source bounds.\",\n              \"expected\": {\n                \"x\": 18,\n                \"y\": 12,\n                \"width\": 12,\n                \"height\": 24\n              },\n              \"measured\": {\n                \"x\": 18.890625,\n                \"y\": 13,\n                \"width\": 12.21875,\n                \"height\": 24\n              },\n              \"delta\": {\n                \"x\": 0.890625,\n                \"y\": 1,\n                \"width\": 0.21875,\n                \"height\": 0\n              },\n              \"tolerance\": 1,\n              \"tolerances\": {\n                \"x\": 1,\n                \"y\": 1,\n                \"width\": 1,\n                \"height\": 1\n              },\n              \"typographyTolerance\": {\n                \"status\": \"provisional\",\n                \"requiresRenderedReview\": true,\n                \"basis\": \"No cross-font or cross-renderer Figma calibration establishes this threshold.\"\n              }\n            }\n          ],\n          \"summary\": {\n            \"PASS\": 1,\n            \"FAIL\": 1,\n            \"NOT COMPARABLE\": 0,\n            \"NOT RUN\": 0\n          },\n          \"scope\": \"Mapped layout, native states, explicit computed sRGB colors and font loading; not complete visual fidelity or proof of visible paint.\",\n          \"diagnostics\": [],\n          \"composition\": {\n            \"schemaVersion\": 1,\n            \"version\": \"composition-diagnostic-v4\",\n            \"status\": \"NOT VERIFIED\",\n            \"caseId\": \"source-0\",\n            \"figmaRef\": \"FILE:1:2\",\n            \"snapshotHash\": \"f38b524696048dea379eb460fb48cc2ef7298cfe30ea7800aa37d15bad20c580\",\n            \"scale\": 4,\n            \"checks\": [\n              {\n                \"id\": \"composition:initial\",\n                \"part\": \"initial\",\n                \"status\": \"NOT COMPARABLE\",\n                \"reason\": \"A visible, uniquely mapped leaf shape with captured bounds is required; text and absent parts are excluded.\"\n              }\n            ],\n            \"groups\": [],\n            \"artifacts\": [],\n            \"scope\": \"Experimental flat-sibling composition model, not overall Figma fidelity, actual layer attribution or confirmation. The snapshot does not capture source masks or every blend operation. Equal colors and unexplained paint remain indeterminate. No published measurement or gate is changed.\"\n          }\n        },\n        {\n          \"caseId\": \"wide-W\",\n          \"kind\": \"behavior\",\n          \"file\": \"/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-browser-run-SCL38l/wide-W-2.json\",\n          \"receipt\": \"/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-browser-run-SCL38l/wide-W-2.receipt.json\",\n          \"policy\": \"mapped-layout-v1\",\n          \"comparatorVersion\": \"render-comparator-v21\",\n          \"checks\": [\n            {\n              \"id\": \"behavior:0:intrinsic-size\",\n              \"status\": \"PASS\",\n              \"reason\": \"Explicit dimensional relation against the measured baseline, not copied source dimensions.\",\n              \"relation\": \"equal\",\n              \"axis\": \"height\",\n              \"expected\": 24,\n              \"measured\": 24,\n              \"delta\": 0,\n              \"tolerance\": 1\n            },\n            {\n              \"id\": \"behavior:1:intrinsic-size\",\n              \"status\": \"PASS\",\n              \"reason\": \"Explicit dimensional relation against the measured baseline, not copied source dimensions.\",\n              \"relation\": \"grow\",\n              \"axis\": \"width\",\n              \"expected\": 12.21875,\n              \"measured\": 18.890625,\n              \"delta\": 6.671875,\n              \"tolerance\": 1\n            }\n          ],\n          \"summary\": {\n            \"PASS\": 2,\n            \"FAIL\": 0,\n            \"NOT COMPARABLE\": 0,\n            \"NOT RUN\": 0\n          },\n          \"scope\": \"Mapped layout, native states, explicit computed sRGB colors and font loading; not complete visual fidelity or proof of visible paint.\",\n          \"diagnostics\": []\n        },\n        {\n          \"caseId\": \"wide-M\",\n          \"kind\": \"behavior\",\n          \"file\": \"/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-browser-run-SCL38l/wide-M-3.json\",\n          \"receipt\": \"/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-browser-run-SCL38l/wide-M-3.receipt.json\",\n          \"policy\": \"mapped-layout-v1\",\n          \"comparatorVersion\": \"render-comparator-v21\",\n          \"checks\": [\n            {\n              \"id\": \"behavior:0:intrinsic-size\",\n              \"status\": \"PASS\",\n              \"reason\": \"Explicit dimensional relation against the measured baseline, not copied source dimensions.\",\n              \"relation\": \"equal\",\n              \"axis\": \"height\",\n              \"expected\": 24,\n              \"measured\": 24,\n              \"delta\": 0,\n              \"tolerance\": 1\n            },\n            {\n              \"id\": \"behavior:1:intrinsic-size\",\n              \"status\": \"PASS\",\n              \"reason\": \"Explicit dimensional relation against the measured baseline, not copied source dimensions.\",\n              \"relation\": \"grow\",\n              \"axis\": \"width\",\n              \"expected\": 12.21875,\n              \"measured\": 16.671875,\n              \"delta\": 4.453125,\n              \"tolerance\": 1\n            }\n          ],\n          \"summary\": {\n            \"PASS\": 2,\n            \"FAIL\": 0,\n            \"NOT COMPARABLE\": 0,\n            \"NOT RUN\": 0\n          },\n          \"scope\": \"Mapped layout, native states, explicit computed sRGB colors and font loading; not complete visual fidelity or proof of visible paint.\",\n          \"diagnostics\": []\n        }\n      ],\n      \"summary\": {\n        \"PASS\": 5,\n        \"FAIL\": 1,\n        \"NOT COMPARABLE\": 0,\n        \"NOT RUN\": 0\n      },\n      \"resources\": {\n        \"fonts\": [],\n        \"assets\": []\n      },\n      \"scope\": \"Temporary observations, never publication or confirmation. Missing resources can affect geometry; numeric deltas do not identify their cause.\",\n      \"warnings\": [\n        \"2 text dimension(s): sizing semantics checked against snapshot; CSS behavior and rendering NOT VERIFIED; see review.textDimensions\",\n        \"2 literal translation(s) need contextual verification; see review.literals\",\n        \"2 translation(s): accounted for, CSS identity and rendering NOT VERIFIED; see review.translations\",\n        \"1:3#height#property: intrinsic CSS NOT VERIFIED; cascade, expression or unsupported declaration requires rendered review\",\n        \"1:3#width#property: intrinsic CSS NOT VERIFIED; cascade, expression or unsupported declaration requires rendered review\"\n      ],\n      \"compositionSummary\": {\n        \"PASS\": 0,\n        \"FAIL\": 0,\n        \"NOT COMPARABLE\": 1,\n        \"NOT RUN\": 0\n      }\n    },\n    \"preview\": {\n      \"requestedPort\": 0,\n      \"port\": 50142,\n      \"cases\": [\n        {\n          \"id\": \"source-0\",\n          \"viewport\": {\n            \"width\": 640,\n            \"height\": 480\n          },\n          \"url\": \"http://127.0.0.1:50142/__ds_verification?case=source-0\"\n        },\n        {\n          \"id\": \"wide-W\",\n          \"viewport\": {\n            \"width\": 640,\n            \"height\": 480\n          },\n          \"url\": \"http://127.0.0.1:50142/__ds_verification?case=wide-W\"\n        },\n        {\n          \"id\": \"wide-M\",\n          \"viewport\": {\n            \"width\": 640,\n            \"height\": 480\n          },\n          \"url\": \"http://127.0.0.1:50142/__ds_verification?case=wide-M\"\n        }\n      ],\n      \"diagnosticsUrl\": \"http://127.0.0.1:50142/__ds_css_diagnostics\"\n    },\n    \"scope\": \"Browser measurements and literal syntax diagnostics, not automatic visual judgment or glyph-font proof.\"\n  },\n  \"importDiagnostics\": {\n    \"components\": [\n      {\n        \"metadataPath\": \"design-system/components/PreviewGlyph/metadata.json\",\n        \"name\": \"PreviewGlyph\",\n        \"serialization\": {\n          \"consumption\": {\n            \"status\": \"STATIC_REFERENCES\",\n            \"unknownStyles\": [],\n            \"uncertainInlineReferences\": [],\n            \"scope\": \"Metadata bindings and reachable CSS/JSX literal styles with local aliases across recorded modes; not proof of execution. Dynamic expressions and unresolved imports remain unknown.\"\n          },\n          \"pending\": [],\n          \"warnings\": []\n        }\n      }\n    ],\n    \"warnings\": [],\n    \"nextActions\": []\n  },\n  \"report\": {\n    \"schemaVersion\": 1,\n    \"source\": \"temporary-diagnosis\",\n    \"status\": \"FAIL\",\n    \"headline\": \"1 declared fidelity cases; temporary diagnosis does not revalidate confirmations or confirm delivery.\",\n    \"structure\": {\n      \"status\": \"NOT RUN\",\n      \"reason\": \"Not evaluated by this diagnostic surface.\"\n    },\n    \"application\": {\n      \"status\": \"PASS\",\n      \"reason\": \"Applicable literal syntax checks passed in this browser; not proof of cascade, React behavior or visual fidelity.\"\n    },\n    \"components\": [\n      {\n        \"name\": \"PreviewGlyph\",\n        \"status\": \"NOT VERIFIED\",\n        \"invalidInputs\": [],\n        \"coverage\": {\n          \"confirmationsRevalidated\": false,\n          \"fidelity\": 1,\n          \"confirmed\": null,\n          \"pending\": null,\n          \"stale\": 0,\n          \"failedRecords\": 0\n        },\n        \"cases\": [\n          {\n            \"caseId\": \"source-0\",\n            \"kind\": \"fidelity\",\n            \"modes\": {},\n            \"status\": \"not-revalidated\",\n            \"computedColors\": [],\n            \"temporaryChecks\": {\n              \"PASS\": 1,\n              \"FAIL\": 1,\n              \"NOT COMPARABLE\": 0,\n              \"NOT RUN\": 0\n            },\n            \"requiredCorrections\": [\n              {\n                \"id\": \"geometry:root\",\n                \"status\": \"FAIL\",\n                \"reason\": \"Layout bounds relative to the root; CSS border-box corresponds to unstroked or INSIDE-stroked source bounds.\"\n              }\n            ],\n            \"requiredReviews\": [\n              {\n                \"id\": \"geometry:initial\",\n                \"status\": \"PASS\",\n                \"reason\": \"Layout bounds relative to the root; CSS border-box corresponds to unstroked or INSIDE-stroked source bounds.\"\n              }\n            ],\n            \"requiredExecution\": []\n          },\n          {\n            \"caseId\": \"wide-W\",\n            \"kind\": \"behavior\",\n            \"modes\": {},\n            \"status\": \"not-revalidated\",\n            \"computedColors\": [],\n            \"temporaryChecks\": {\n              \"PASS\": 2,\n              \"FAIL\": 0,\n              \"NOT COMPARABLE\": 0,\n              \"NOT RUN\": 0\n            },\n            \"requiredCorrections\": [],\n            \"requiredReviews\": [],\n            \"requiredExecution\": []\n          },\n          {\n            \"caseId\": \"wide-M\",\n            \"kind\": \"behavior\",\n            \"modes\": {},\n            \"status\": \"not-revalidated\",\n            \"computedColors\": [],\n            \"temporaryChecks\": {\n              \"PASS\": 2,\n              \"FAIL\": 0,\n              \"NOT COMPARABLE\": 0,\n              \"NOT RUN\": 0\n            },\n            \"requiredCorrections\": [],\n            \"requiredReviews\": [],\n            \"requiredExecution\": []\n          }\n        ],\n        \"modeCoverage\": [\n          {\n            \"modes\": {},\n            \"fidelity\": [\n              \"source-0\"\n            ],\n            \"confirmedFidelity\": [],\n            \"behavior\": [\n              \"wide-W\",\n              \"wide-M\"\n            ],\n            \"verifiedBehavior\": []\n          }\n        ],\n        \"declaredDecisions\": [],\n        \"excludedObservations\": [],\n        \"unresolvedDesign\": [],\n        \"unestablished\": []\n      }\n    ],\n    \"pendingAuthorizations\": [],\n    \"obligations\": [\n      {\n        \"code\": \"REVIEW_RENDERED_DIFFERENCES\",\n        \"targets\": [\n          \"design-system/components/PreviewGlyph/metadata.json\"\n        ],\n        \"cases\": [\n          {\n            \"caseId\": \"source-0\",\n            \"checks\": [\n              \"geometry:root\"\n            ]\n          }\n        ],\n        \"permissions\": [\n          \"project-read\",\n          \"browser-execution\",\n          \"temporary-write\"\n        ],\n        \"reason\": \"Inspect observed deltas and resource limitations before attributing a cause. Correct demonstrated implementation defects and repeat the diagnosis.\",\n        \"command\": {\n          \"executable\": \"npm\",\n          \"args\": [\n            \"run\",\n            \"finalize:import\",\n            \"--\",\n            \"/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-preview-fixture-mqTjlL\",\n            \"design-system/components/PreviewGlyph/metadata.json\",\n            \"--diagnose\"\n          ]\n        }\n      }\n    ],\n    \"errors\": [],\n    \"warningCount\": 0,\n    \"limits\": [\n      \"Only explicitly mapped single solid sRGB color properties are compared; computed values do not prove visible paint, mask loading, shape or glyph coverage.\",\n      \"Mode coverage lists exact declared case configurations, not every available mode or every combination.\",\n      \"Declared decisions and exclusions are not proof of user approval. Temporary diagnostics never replace persisted evidence and specific rendered reviews.\"\n    ]\n  },\n  \"nextActions\": [\n    {\n      \"code\": \"REVIEW_RENDERED_DIFFERENCES\",\n      \"targets\": [\n        \"design-system/components/PreviewGlyph/metadata.json\"\n      ],\n      \"cases\": [\n        {\n          \"caseId\": \"source-0\",\n          \"checks\": [\n            \"geometry:root\"\n          ]\n        }\n      ],\n      \"permissions\": [\n        \"project-read\",\n        \"browser-execution\",\n        \"temporary-write\"\n      ],\n      \"reason\": \"Inspect observed deltas and resource limitations before attributing a cause. Correct demonstrated implementation defects and repeat the diagnosis.\",\n      \"command\": {\n        \"executable\": \"npm\",\n        \"args\": [\n          \"run\",\n          \"finalize:import\",\n          \"--\",\n          \"/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-preview-fixture-mqTjlL\",\n          \"design-system/components/PreviewGlyph/metadata.json\",\n          \"--diagnose\"\n        ]\n      }\n    }\n  ],\n  \"scope\": \"Diagnostic feedback on existing code only. No project evidence is published, no reviews are recorded and delivery is not confirmed. Fix observed defects, resolve resources and collect again before delivery.\"\n}\n",
+      "stderr": "",
+      "error": null
+    },
+    {
+      "sequence": 7,
+      "tool": "read",
+      "effect": "read",
+      "scope": "project",
+      "path": "src/PreviewGlyph.module.css",
+      "complete": true,
+      "content": ".root { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border: 1px solid var(--ds-color-id); border-radius: 50%; }\n.initial { font-family: Arial, sans-serif; font-size: 20px; line-height: 24px; letter-spacing: 0; }"
+    },
+    {
+      "sequence": 8,
+      "tool": "read",
+      "effect": "read",
+      "scope": "project",
+      "path": "src/PreviewGlyph.tsx",
+      "complete": true,
+      "content": "import styles from \"./PreviewGlyph.module.css\";\nexport function PreviewGlyph({ initial }: { initial: string }) { return <span data-ds-part=\"root\" className={styles.root}><span data-ds-part=\"initial\" className={styles.initial}>{initial}</span></span>; }"
+    },
+    {
+      "sequence": 9,
+      "tool": "read",
+      "effect": "read",
+      "scope": "project",
+      "path": "src/base.css",
+      "complete": true,
+      "content": "body { margin: 0; padding: 24px; background: white; color: black; }"
+    }
+  ],
+  "final": {
+    "status": "diagnosed",
+    "confirmed": false,
+    "finalText": "Diagnóstico temporal ejecutado en Chromium: FAIL, complete=false (salida 1). source-0 geometry:root mide 50×50 px frente a 48×48 px, diferencia +2 px que supera la tolerancia de 1 px. En src/PreviewGlyph.module.css:1 se declaran 48 px más borde de 1 px por lado; propongo revisar box-sizing: border-box para conservar la caja exterior, sin modificar código en esta validación. geometry:initial pasa numéricamente con tolerancia TEXT provisional y requiere revisión renderizada específica. wide-W y wide-M pasan sus dos checks de tamaño intrínseco: altura 24 px y anchuras 18.890625/16.671875 px frente a 12.21875 px del caso F. Total comparador: 5 PASS y 1 FAIL. Composición: NOT COMPARABLE por texto excluido del modelo. Sintaxis de literales de la aplicación: PASS, sin acreditar cascada ni fidelidad. Validación estructural/manual, evidencia capturada/procedencia, props, reutilización, tokens/bindings, accesibilidad y comparación visual Figma-navegador: NOT RUN o NOT VERIFIED; el fixture no incluye read:guidance ni el check local verify-ds, y no hay revisión visual autorizada ni Figma vivo. La primera ejecución falló por EPERM localhost; el reintento escalado terminó COMPLETED, lo que no confirma entrega. Overall: FAIL por la diferencia geométrica; fidelidad completa NOT VERIFIED. La correspondencia source-0 permanece candidate. No se publicaron mediciones, no se registraron revisiones y no se modificó el proyecto. Artefactos temporales: /var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-browser-run-SCL38l."
+  },
+  "after": [
+    {
+      "path": "behavior-input.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "a3a3c1c73047d5906044ee16fe478b1c2bfcf36fd08f2fb74b5de1a2debf2fe1"
+    },
+    {
+      "path": "design-system",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/components",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/components/PreviewGlyph",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/components/PreviewGlyph/metadata.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "afbfddc666628388dcb9d5a72e06819b7ff4e8e939e29bdaa0cf7f30658ca2b5"
+    },
+    {
+      "path": "design-system/components/PreviewGlyph/usage.md",
+      "type": "file",
+      "mode": 420,
+      "hash": "9d7e6cab1ee58b103388782dd8a551cdc2b779b54cc24421c466348bc88eae8f"
+    },
+    {
+      "path": "design-system/figma",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/figma/snapshots",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/figma/snapshots/FILE",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/figma/snapshots/FILE/1-2",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/figma/snapshots/FILE/1-2/f38b524696048dea379eb460fb48cc2ef7298cfe30ea7800aa37d15bad20c580.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "8bbe73986330cda39c725a3f4343d81b892f9ce995aceb859764f62cc290ec78"
+    },
+    {
+      "path": "design-system/inventory.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "7a7003192ecf6702ac5fd1077a626b7be5a105a5d28cd54ec7916b6cb34725e2"
+    },
+    {
+      "path": "design-system/relationships",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/relationships/figma-code-map.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "e122adfa7b1bbcda5219af6a5de6ccecc02f96be5b4288700125c5ec49799b4c"
+    },
+    {
+      "path": "design-system/relationships/figma-state.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "d4981f02ed69f889f6e65c9d361e202b1837bfec02cc084e49d8f5a7f167b58d"
+    },
+    {
+      "path": "design-system/tokens",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/tokens/Colors.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "8511c4590a8480f2d8d1d402ee212092b64c1a91835ae536d722777db23fa9e2"
+    },
+    {
+      "path": "node_modules",
+      "type": "symlink",
+      "mode": 493,
+      "target": "/Users/julian/Documents/create-ds-from-figma/.agents/browser-tests/node_modules"
+    },
+    {
+      "path": "package.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "ef05921daf71f547fc19b95b2a1417d7e0625950882906c823b20f0739f28191"
+    },
+    {
+      "path": "src",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "src/PreviewGlyph.module.css",
+      "type": "file",
+      "mode": 420,
+      "hash": "0e9e5f442bc0d025b30fc4f662b14bf35a586622068a77981b1829ee5bca1536"
+    },
+    {
+      "path": "src/PreviewGlyph.tsx",
+      "type": "file",
+      "mode": 420,
+      "hash": "596487060d4fa5890809d34ddd9905e44534e8427834b45c4e56b678b29aea98"
+    },
+    {
+      "path": "src/base.css",
+      "type": "file",
+      "mode": 420,
+      "hash": "c9c89823ea428b5cd44752e934403edfaf9e705d4f9efbda4b425511d5007c3d"
+    },
+    {
+      "path": "src/styles",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "src/styles/tokens.css",
+      "type": "file",
+      "mode": 420,
+      "hash": "c5cd37174eda8fc951c9a69ea4ecc0c293cf81b848caca003e0b323981b18afc"
+    }
+  ]
+}

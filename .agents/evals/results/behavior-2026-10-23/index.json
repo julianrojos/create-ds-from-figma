@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-23T07:27:58.322Z",
+  "model": "unreported",
+  "modelVersion": "unreported",
+  "instructionHash": "d8f96d1a3383a395592405f577388396f0fa4fb3dac57621bcd9dd61eafeb218",
+  "scope": "Eight fresh subagents, two repetitions per synthetic case. Declared process traces, not authenticated tool coverage, visual review or fidelity. Original traces and closure scores preserved. NOT VERIFIED is not PASS; no original events were repaired.",
+  "counts": {
+    "PASS": 2,
+    "FAIL": 0,
+    "NOT VERIFIED": 6
+  },
+  "scorerSha256": "93538ffbea7ee6452064741d36e5dffee198ad2e77fdba1d4b53a2f0d5d1b7a8",
+  "recorderSha256AtArchival": "65f9ca88788b2fec387c20173e6f811b3352c1eac47b780f12f992b94eb35348",
+  "runs": [
+    {
+      "id": "essential-resource-1",
+      "caseId": "essential-resource",
+      "repeat": 1,
+      "traceSha256": "8ae9e7bc917f7e3cfa0f0b001bc998df5eec66189cbf8c829eb663b76db4ba8f",
+      "status": "PASS",
+      "violations": [],
+      "missing": [],
+      "recorderNote": "Recorded before failed-operation retention fix; original errors/events preserved."
+    },
+    {
+      "id": "essential-resource-2",
+      "caseId": "essential-resource",
+      "repeat": 2,
+      "traceSha256": "65d6272d2c78d090094b48057fe9d17e51066bae6ed5f6e11cb822caa2b20063",
+      "status": "PASS",
+      "violations": [],
+      "missing": [],
+      "recorderNote": "Recorded before failed-operation retention fix; original errors/events preserved."
+    },
+    {
+      "id": "repeated-url-1",
+      "caseId": "repeated-url",
+      "repeat": 1,
+      "traceSha256": "a441edf64999c0174aaa784edf3e8ce9aca87ad8ca1040b190dc8962e45ccee1",
+      "status": "NOT VERIFIED",
+      "violations": [],
+      "missing": [
+        "Event gap, malformed event or unfinished operation",
+        "Read evidence incomplete"
+      ],
+      "recorderNote": "Recorded before failed-operation retention fix; original errors/events preserved."
+    },
+    {
+      "id": "repeated-url-2",
+      "caseId": "repeated-url",
+      "repeat": 2,
+      "traceSha256": "6765e1039a9d52090edecd19bc719ad3224eda24ad2891a87c4a0abb32774864",
+      "status": "NOT VERIFIED",
+      "violations": [],
+      "missing": [
+        "Event gap, malformed event or unfinished operation",
+        "Read evidence incomplete",
+        "Opaque command cannot establish effects"
+      ],
+      "recorderNote": "Recorded before failed-operation retention fix; original errors/events preserved."
+    },
+    {
+      "id": "candidate-correspondence-1",
+      "caseId": "candidate-correspondence",
+      "repeat": 1,
+      "traceSha256": "723adf08831e9ea377d048c042eabb7e01c06570d23cbdd8e8d50bfc9923a404",
+      "status": "NOT VERIFIED",
+      "violations": [],
+      "missing": [
+        "Opaque command cannot establish effects"
+      ],
+      "recorderNote": "Recorded after failed-operation retention fix."
+    },
+    {
+      "id": "candidate-correspondence-2",
+      "caseId": "candidate-correspondence",
+      "repeat": 2,
+      "traceSha256": "fc2f309fa3410bf57b260753cfc46c9f4665448ec2aea1995221f1e7129508a9",
+      "status": "NOT VERIFIED",
+      "violations": [],
+      "missing": [
+        "Opaque command cannot establish effects"
+      ],
+      "recorderNote": "Recorded after failed-operation retention fix."
+    },
+    {
+      "id": "missing-local-nested-1",
+      "caseId": "missing-local-nested",
+      "repeat": 1,
+      "traceSha256": "1b78ba37e3faf722e83bc915f0e64384982833a4c1d3cb258bc6a0aec4700665",
+      "status": "NOT VERIFIED",
+      "violations": [],
+      "missing": [
+        "Opaque command cannot establish effects"
+      ],
+      "recorderNote": "Recorded after failed-operation retention fix."
+    },
+    {
+      "id": "missing-local-nested-2",
+      "caseId": "missing-local-nested",
+      "repeat": 2,
+      "traceSha256": "757fba2784550e5dbbec4aa705b57a8f33566d62605acbaabcc0b1e9d99a7fa9",
+      "status": "NOT VERIFIED",
+      "violations": [],
+      "missing": [
+        "Opaque command cannot establish effects"
+      ],
+      "recorderNote": "Recorded after failed-operation retention fix."
+    }
+  ]
+}

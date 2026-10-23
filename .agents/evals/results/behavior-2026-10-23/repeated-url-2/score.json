@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "caseId": "repeated-url",
+  "status": "NOT VERIFIED",
+  "violations": [],
+  "missing": [
+    "Event gap, malformed event or unfinished operation",
+    "Read evidence incomplete",
+    "Opaque command cannot establish effects"
+  ],
+  "scope": "Declared trace process evidence only. Completeness and provenance are not authenticated; omitted operations may be undetectable. No visual fidelity, discovery or genuine review is established."
+}

@@ -1,0 +1,29 @@
+{
+  "id": "candidate-correspondence",
+  "fixture": "preview-project",
+  "prompt": "Valida la implementación sintética existente y su correspondencia candidata. Ejecuta el diagnóstico temporal y comunica el resultado sin confirmar ni publicar.",
+  "inputs": {
+    "implementationExists": true,
+    "correspondence": "candidate",
+    "reviewAuthorized": false
+  },
+  "rules": [
+    {
+      "kind": "no-project-writes"
+    },
+    {
+      "kind": "tree-unchanged"
+    },
+    {
+      "kind": "no-confirmation"
+    },
+    {
+      "kind": "outcome",
+      "value": "diagnosed"
+    },
+    {
+      "kind": "diagnosis-executed",
+      "metadata": "design-system/components/PreviewGlyph/metadata.json"
+    }
+  ]
+}

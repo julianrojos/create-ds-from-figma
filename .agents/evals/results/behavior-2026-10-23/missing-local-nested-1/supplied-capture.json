@@ -1,0 +1,781 @@
+{
+  "schemaVersion": 2,
+  "source": {
+    "tool": "use_figma",
+    "api": "PLUGIN",
+    "collector": "capture-figma-v2",
+    "fileKey": "FILE",
+    "rootNodeId": "1:2",
+    "requestedNodeId": "1:2",
+    "revision": null
+  },
+  "profile": {
+    "fields": [
+      "width",
+      "height",
+      "x",
+      "y",
+      "absoluteBoundingBox",
+      "absoluteTransform",
+      "visible",
+      "opacity",
+      "rotation",
+      "layoutMode",
+      "layoutSizingHorizontal",
+      "layoutSizingVertical",
+      "layoutPositioning",
+      "primaryAxisSizingMode",
+      "counterAxisSizingMode",
+      "primaryAxisAlignItems",
+      "counterAxisAlignItems",
+      "itemSpacing",
+      "counterAxisSpacing",
+      "layoutWrap",
+      "itemReverseZIndex",
+      "paddingLeft",
+      "paddingRight",
+      "paddingTop",
+      "paddingBottom",
+      "cornerRadius",
+      "topLeftRadius",
+      "topRightRadius",
+      "bottomLeftRadius",
+      "bottomRightRadius",
+      "fills",
+      "strokes",
+      "effects",
+      "strokeWeight",
+      "strokeAlign",
+      "clipsContent",
+      "fillStyleId",
+      "strokeStyleId",
+      "effectStyleId",
+      "textStyleId",
+      "boundVariables",
+      "explicitVariableModes",
+      "resolvedVariableModes",
+      "componentPropertyReferences",
+      "componentProperties",
+      "variantProperties",
+      "characters",
+      "fontName",
+      "fontSize",
+      "fontWeight",
+      "lineHeight",
+      "letterSpacing",
+      "textAlignHorizontal",
+      "textAlignVertical",
+      "textAutoResize",
+      "reactions"
+    ],
+    "textFields": [
+      "fontName",
+      "fontSize",
+      "fontWeight",
+      "lineHeight",
+      "letterSpacing",
+      "fills",
+      "textStyleId",
+      "fillStyleId",
+      "boundVariables"
+    ],
+    "scope": "component-subtree-and-used-variable-aliases",
+    "excluded": [
+      "vector geometry",
+      "image bytes",
+      "file-wide variable values",
+      "CSS and API decisions"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "1:2",
+      "parentId": null,
+      "type": "COMPONENT",
+      "name": "PreviewGlyph",
+      "children": [
+        "2:1"
+      ],
+      "properties": {
+        "width": 48,
+        "height": 48,
+        "visible": true,
+        "opacity": 1,
+        "absoluteBoundingBox": {
+          "x": 0,
+          "y": 0,
+          "width": 48,
+          "height": 48
+        },
+        "absoluteTransform": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ]
+        ],
+        "resolvedVariableModes": {
+          "COL": "light"
+        },
+        "boundVariables": {},
+        "fills": [],
+        "strokes": []
+      },
+      "inspected": [
+        "width",
+        "height",
+        "absoluteBoundingBox",
+        "absoluteTransform",
+        "visible",
+        "opacity",
+        "fills",
+        "strokes",
+        "boundVariables",
+        "resolvedVariableModes"
+      ],
+      "notApplicable": [
+        "x",
+        "y",
+        "rotation",
+        "layoutMode",
+        "layoutSizingHorizontal",
+        "layoutSizingVertical",
+        "layoutPositioning",
+        "primaryAxisSizingMode",
+        "counterAxisSizingMode",
+        "primaryAxisAlignItems",
+        "counterAxisAlignItems",
+        "itemSpacing",
+        "counterAxisSpacing",
+        "layoutWrap",
+        "itemReverseZIndex",
+        "paddingLeft",
+        "paddingRight",
+        "paddingTop",
+        "paddingBottom",
+        "cornerRadius",
+        "topLeftRadius",
+        "topRightRadius",
+        "bottomLeftRadius",
+        "bottomRightRadius",
+        "effects",
+        "strokeWeight",
+        "strokeAlign",
+        "clipsContent",
+        "fillStyleId",
+        "strokeStyleId",
+        "effectStyleId",
+        "textStyleId",
+        "explicitVariableModes",
+        "componentPropertyReferences",
+        "componentProperties",
+        "variantProperties",
+        "characters",
+        "fontName",
+        "fontSize",
+        "fontWeight",
+        "lineHeight",
+        "letterSpacing",
+        "textAlignHorizontal",
+        "textAlignVertical",
+        "textAutoResize",
+        "reactions"
+      ]
+    },
+    {
+      "id": "2:1",
+      "parentId": "1:2",
+      "type": "INSTANCE",
+      "name": "Remove",
+      "children": [
+        "I2:1;9:2"
+      ],
+      "properties": {
+        "width": 16,
+        "height": 16,
+        "visible": true,
+        "opacity": 1,
+        "absoluteBoundingBox": {
+          "x": 8,
+          "y": 8,
+          "width": 16,
+          "height": 16
+        },
+        "absoluteTransform": [
+          [
+            1,
+            0,
+            8
+          ],
+          [
+            0,
+            1,
+            8
+          ]
+        ],
+        "resolvedVariableModes": {
+          "COL": "light"
+        },
+        "boundVariables": {},
+        "fills": [],
+        "strokes": [],
+        "componentProperties": {},
+        "mainComponent": {
+          "id": "9:1",
+          "key": "child-key",
+          "remote": false
+        }
+      },
+      "inspected": [
+        "width",
+        "height",
+        "absoluteBoundingBox",
+        "absoluteTransform",
+        "visible",
+        "opacity",
+        "fills",
+        "strokes",
+        "boundVariables",
+        "resolvedVariableModes",
+        "componentProperties"
+      ],
+      "notApplicable": [
+        "x",
+        "y",
+        "rotation",
+        "layoutMode",
+        "layoutSizingHorizontal",
+        "layoutSizingVertical",
+        "layoutPositioning",
+        "primaryAxisSizingMode",
+        "counterAxisSizingMode",
+        "primaryAxisAlignItems",
+        "counterAxisAlignItems",
+        "itemSpacing",
+        "counterAxisSpacing",
+        "layoutWrap",
+        "itemReverseZIndex",
+        "paddingLeft",
+        "paddingRight",
+        "paddingTop",
+        "paddingBottom",
+        "cornerRadius",
+        "topLeftRadius",
+        "topRightRadius",
+        "bottomLeftRadius",
+        "bottomRightRadius",
+        "effects",
+        "strokeWeight",
+        "strokeAlign",
+        "clipsContent",
+        "fillStyleId",
+        "strokeStyleId",
+        "effectStyleId",
+        "textStyleId",
+        "explicitVariableModes",
+        "componentPropertyReferences",
+        "variantProperties",
+        "characters",
+        "fontName",
+        "fontSize",
+        "fontWeight",
+        "lineHeight",
+        "letterSpacing",
+        "textAlignHorizontal",
+        "textAlignVertical",
+        "textAutoResize",
+        "reactions"
+      ]
+    },
+    {
+      "id": "I2:1;9:2",
+      "parentId": "2:1",
+      "type": "VECTOR",
+      "name": "Glyph",
+      "children": [],
+      "properties": {
+        "width": 8,
+        "height": 8,
+        "visible": true,
+        "opacity": 1,
+        "absoluteBoundingBox": {
+          "x": 12,
+          "y": 12,
+          "width": 8,
+          "height": 8
+        },
+        "absoluteTransform": [
+          [
+            1,
+            0,
+            12
+          ],
+          [
+            0,
+            1,
+            12
+          ]
+        ],
+        "resolvedVariableModes": {
+          "COL": "light"
+        },
+        "boundVariables": {},
+        "fills": [],
+        "strokes": [
+          {
+            "type": "SOLID",
+            "color": {
+              "r": 0.1,
+              "g": 0.1,
+              "b": 0.1
+            },
+            "boundVariables": {
+              "color": {
+                "type": "VARIABLE_ALIAS",
+                "id": "on-brand"
+              }
+            }
+          }
+        ]
+      },
+      "inspected": [
+        "width",
+        "height",
+        "absoluteBoundingBox",
+        "absoluteTransform",
+        "visible",
+        "opacity",
+        "fills",
+        "strokes",
+        "boundVariables",
+        "resolvedVariableModes"
+      ],
+      "notApplicable": [
+        "x",
+        "y",
+        "rotation",
+        "layoutMode",
+        "layoutSizingHorizontal",
+        "layoutSizingVertical",
+        "layoutPositioning",
+        "primaryAxisSizingMode",
+        "counterAxisSizingMode",
+        "primaryAxisAlignItems",
+        "counterAxisAlignItems",
+        "itemSpacing",
+        "counterAxisSpacing",
+        "layoutWrap",
+        "itemReverseZIndex",
+        "paddingLeft",
+        "paddingRight",
+        "paddingTop",
+        "paddingBottom",
+        "cornerRadius",
+        "topLeftRadius",
+        "topRightRadius",
+        "bottomLeftRadius",
+        "bottomRightRadius",
+        "effects",
+        "strokeWeight",
+        "strokeAlign",
+        "clipsContent",
+        "fillStyleId",
+        "strokeStyleId",
+        "effectStyleId",
+        "textStyleId",
+        "explicitVariableModes",
+        "componentPropertyReferences",
+        "componentProperties",
+        "variantProperties",
+        "characters",
+        "fontName",
+        "fontSize",
+        "fontWeight",
+        "lineHeight",
+        "letterSpacing",
+        "textAlignHorizontal",
+        "textAlignVertical",
+        "textAutoResize",
+        "reactions"
+      ]
+    }
+  ],
+  "observations": [
+    {
+      "id": "1:2#absoluteBoundingBox#property",
+      "node": "1:2",
+      "field": "absoluteBoundingBox",
+      "kind": "property",
+      "value": {
+        "x": 0,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "id": "1:2#absoluteTransform#property",
+      "node": "1:2",
+      "field": "absoluteTransform",
+      "kind": "property",
+      "value": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "1:2#boundVariables#property",
+      "node": "1:2",
+      "field": "boundVariables",
+      "kind": "property",
+      "value": {}
+    },
+    {
+      "id": "1:2#fills#property",
+      "node": "1:2",
+      "field": "fills",
+      "kind": "property",
+      "value": []
+    },
+    {
+      "id": "1:2#height#property",
+      "node": "1:2",
+      "field": "height",
+      "kind": "property",
+      "value": 48
+    },
+    {
+      "id": "1:2#opacity#property",
+      "node": "1:2",
+      "field": "opacity",
+      "kind": "property",
+      "value": 1
+    },
+    {
+      "id": "1:2#resolvedVariableModes#property",
+      "node": "1:2",
+      "field": "resolvedVariableModes",
+      "kind": "property",
+      "value": {
+        "COL": "light"
+      }
+    },
+    {
+      "id": "1:2#strokes#property",
+      "node": "1:2",
+      "field": "strokes",
+      "kind": "property",
+      "value": []
+    },
+    {
+      "id": "1:2#visible#property",
+      "node": "1:2",
+      "field": "visible",
+      "kind": "property",
+      "value": true
+    },
+    {
+      "id": "1:2#width#property",
+      "node": "1:2",
+      "field": "width",
+      "kind": "property",
+      "value": 48
+    },
+    {
+      "id": "2:1#absoluteBoundingBox#property",
+      "node": "2:1",
+      "field": "absoluteBoundingBox",
+      "kind": "property",
+      "value": {
+        "x": 8,
+        "y": 8,
+        "width": 16,
+        "height": 16
+      }
+    },
+    {
+      "id": "2:1#absoluteTransform#property",
+      "node": "2:1",
+      "field": "absoluteTransform",
+      "kind": "property",
+      "value": [
+        [
+          1,
+          0,
+          8
+        ],
+        [
+          0,
+          1,
+          8
+        ]
+      ]
+    },
+    {
+      "id": "2:1#boundVariables#property",
+      "node": "2:1",
+      "field": "boundVariables",
+      "kind": "property",
+      "value": {}
+    },
+    {
+      "id": "2:1#componentProperties#property",
+      "node": "2:1",
+      "field": "componentProperties",
+      "kind": "property",
+      "value": {}
+    },
+    {
+      "id": "2:1#fills#property",
+      "node": "2:1",
+      "field": "fills",
+      "kind": "property",
+      "value": []
+    },
+    {
+      "id": "2:1#height#property",
+      "node": "2:1",
+      "field": "height",
+      "kind": "property",
+      "value": 16
+    },
+    {
+      "id": "2:1#mainComponent#property",
+      "node": "2:1",
+      "field": "mainComponent",
+      "kind": "property",
+      "value": {
+        "id": "9:1",
+        "key": "child-key",
+        "remote": false
+      }
+    },
+    {
+      "id": "2:1#opacity#property",
+      "node": "2:1",
+      "field": "opacity",
+      "kind": "property",
+      "value": 1
+    },
+    {
+      "id": "2:1#resolvedVariableModes#property",
+      "node": "2:1",
+      "field": "resolvedVariableModes",
+      "kind": "property",
+      "value": {
+        "COL": "light"
+      }
+    },
+    {
+      "id": "2:1#strokes#property",
+      "node": "2:1",
+      "field": "strokes",
+      "kind": "property",
+      "value": []
+    },
+    {
+      "id": "2:1#visible#property",
+      "node": "2:1",
+      "field": "visible",
+      "kind": "property",
+      "value": true
+    },
+    {
+      "id": "2:1#width#property",
+      "node": "2:1",
+      "field": "width",
+      "kind": "property",
+      "value": 16
+    },
+    {
+      "id": "I2:1;9:2#absoluteBoundingBox#property",
+      "node": "I2:1;9:2",
+      "field": "absoluteBoundingBox",
+      "kind": "property",
+      "value": {
+        "x": 12,
+        "y": 12,
+        "width": 8,
+        "height": 8
+      }
+    },
+    {
+      "id": "I2:1;9:2#absoluteTransform#property",
+      "node": "I2:1;9:2",
+      "field": "absoluteTransform",
+      "kind": "property",
+      "value": [
+        [
+          1,
+          0,
+          12
+        ],
+        [
+          0,
+          1,
+          12
+        ]
+      ]
+    },
+    {
+      "id": "I2:1;9:2#boundVariables#property",
+      "node": "I2:1;9:2",
+      "field": "boundVariables",
+      "kind": "property",
+      "value": {}
+    },
+    {
+      "id": "I2:1;9:2#fills#property",
+      "node": "I2:1;9:2",
+      "field": "fills",
+      "kind": "property",
+      "value": []
+    },
+    {
+      "id": "I2:1;9:2#height#property",
+      "node": "I2:1;9:2",
+      "field": "height",
+      "kind": "property",
+      "value": 8
+    },
+    {
+      "id": "I2:1;9:2#opacity#property",
+      "node": "I2:1;9:2",
+      "field": "opacity",
+      "kind": "property",
+      "value": 1
+    },
+    {
+      "id": "I2:1;9:2#resolvedVariableModes#property",
+      "node": "I2:1;9:2",
+      "field": "resolvedVariableModes",
+      "kind": "property",
+      "value": {
+        "COL": "light"
+      }
+    },
+    {
+      "id": "I2:1;9:2#strokes#property",
+      "node": "I2:1;9:2",
+      "field": "strokes",
+      "kind": "property",
+      "value": [
+        {
+          "type": "SOLID",
+          "color": {
+            "r": 0.1,
+            "g": 0.1,
+            "b": 0.1
+          },
+          "boundVariables": {
+            "color": {
+              "type": "VARIABLE_ALIAS",
+              "id": "on-brand"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "I2:1;9:2#strokes[0].color#binding",
+      "node": "I2:1;9:2",
+      "field": "strokes[0].color",
+      "kind": "binding",
+      "value": {
+        "type": "VARIABLE_ALIAS",
+        "id": "on-brand"
+      },
+      "variableId": "on-brand"
+    },
+    {
+      "id": "I2:1;9:2#visible#property",
+      "node": "I2:1;9:2",
+      "field": "visible",
+      "kind": "property",
+      "value": true
+    },
+    {
+      "id": "I2:1;9:2#width#property",
+      "node": "I2:1;9:2",
+      "field": "width",
+      "kind": "property",
+      "value": 8
+    }
+  ],
+  "variants": [],
+  "variables": [
+    {
+      "id": "base",
+      "collectionId": "COL",
+      "type": "COLOR",
+      "valuesByMode": {
+        "light": {
+          "r": 0.1,
+          "g": 0.1,
+          "b": 0.1,
+          "a": 1
+        },
+        "dark": {
+          "r": 1,
+          "g": 1,
+          "b": 1,
+          "a": 1
+        }
+      }
+    },
+    {
+      "id": "on-brand",
+      "collectionId": "COL",
+      "type": "COLOR",
+      "valuesByMode": {
+        "light": {
+          "r": 0.1,
+          "g": 0.1,
+          "b": 0.1,
+          "a": 1
+        },
+        "dark": {
+          "r": 1,
+          "g": 1,
+          "b": 1,
+          "a": 1
+        }
+      }
+    }
+  ],
+  "collections": [
+    {
+      "id": "COL",
+      "defaultModeId": "light",
+      "modes": [
+        {
+          "modeId": "light",
+          "name": "Light"
+        },
+        {
+          "modeId": "dark",
+          "name": "Dark"
+        }
+      ]
+    }
+  ],
+  "styles": [],
+  "coverage": {
+    "traversal": "children-recursive-including-hidden-and-instance-descendants",
+    "nodeCount": 3,
+    "issues": []
+  }
+}

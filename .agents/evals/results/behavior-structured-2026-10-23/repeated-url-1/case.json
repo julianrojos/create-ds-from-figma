@@ -1,0 +1,28 @@
+{
+  "id": "repeated-url",
+  "fixture": "preview-project",
+  "prompt": "https://www.figma.com/design/FILE?node-id=1-2\nEsta URL ya está mapeada al componente existente. No he pedido actualizarlo.",
+  "inputs": {
+    "mapped": true,
+    "updateAuthorized": false,
+    "preanalysis": "synthetic current capture and local nested inventory completed",
+    "captureChanged": false,
+    "nestedChanged": false,
+    "apiTransitionRequired": false
+  },
+  "rules": [
+    {
+      "kind": "no-project-writes"
+    },
+    {
+      "kind": "tree-unchanged"
+    },
+    {
+      "kind": "no-confirmation"
+    },
+    {
+      "kind": "outcome",
+      "value": "reuse"
+    }
+  ]
+}

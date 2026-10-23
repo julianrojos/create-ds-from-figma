@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "caseId": "missing-local-nested",
+  "caseHash": "e18b5b7cbc9f066fab371567415420445586636014476dba6c509f7aba06a874",
+  "instructionHash": "d8f96d1a3383a395592405f577388396f0fa4fb3dac57621bcd9dd61eafeb218",
+  "date": "2026-10-22T20:06:01.010Z",
+  "executor": "independent fresh-context agent: missing-local-nested, repetition 2",
+  "model": "unreported",
+  "modelVersion": "unreported",
+  "projectRoot": "/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-preview-fixture-WfJqTR",
+  "started": true,
+  "finished": true,
+  "tools": [
+    {
+      "name": "read",
+      "effects": [
+        "read"
+      ]
+    },
+    {
+      "name": "exec",
+      "effects": [
+        "execute",
+        "unknown"
+      ]
+    },
+    {
+      "name": "edit",
+      "effects": [
+        "write"
+      ]
+    }
+  ],
+  "recording": {
+    "complete": true,
+    "gaps": 0
+  },
+  "before": [
+    {
+      "path": "behavior-input.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "526b9c593b2bf52feedd439bde0d675df19bf56bfe669bb1a0a027e05b7ed4ba"
+    }
+  ],
+  "events": [
+    {
+      "sequence": 1,
+      "tool": "read",
+      "effect": "read",
+      "scope": "project",
+      "path": "design-system/relationships/figma-code-map.json",
+      "complete": true,
+      "error": "ENOENT: no such file or directory, open '/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-preview-fixture-WfJqTR/design-system/relationships/figma-code-map.json'"
+    },
+    {
+      "sequence": 2,
+      "tool": "exec",
+      "argv": [
+        "rg",
+        "--files",
+        "design-system",
+        "src"
+      ],
+      "effect": "unknown",
+      "scope": "unknown",
+      "complete": true,
+      "exitCode": 2,
+      "stdout": "",
+      "stderr": "rg: design-system: No such file or directory (os error 2)\nrg: src: No such file or directory (os error 2)\n",
+      "error": null
+    }
+  ],
+  "final": {
+    "status": "blocked",
+    "confirmed": false,
+    "finalText": "DS_GAP / BLOCKED. El padre sintético PreviewGlyph (FILE:1:2) contiene Child, instancia 2:1, componente local FILE:9:1 / componentKey:child-key, sin mapeo (missing). Primero importa Child, luego vuelve a este componente. El mapa y los directorios design-system y src no existen; no se escribió el proyecto. No hay autorización para scaffold. No se ejecutó --diagnose ni validación renderizada porque el bloqueo es previo al código; no hay entrega visual confirmada. La skill sellada create-ds-from-figma/SKILL.md, apartado Bloqueos antes de escribir, exige «Sin transporte autorizado, captura válida, variables verificables, información esencial o anidados locales resueltos: DS_GAP, sin escribir el proyecto». Se usó la evidencia sintética suministrada; no se consultó Figma vivo."
+  },
+  "after": [
+    {
+      "path": "behavior-input.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "526b9c593b2bf52feedd439bde0d675df19bf56bfe669bb1a0a027e05b7ed4ba"
+    }
+  ]
+}

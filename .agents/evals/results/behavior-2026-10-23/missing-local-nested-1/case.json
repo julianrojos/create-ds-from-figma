@@ -1,0 +1,24 @@
+{
+  "id": "missing-local-nested",
+  "fixture": "preview-project",
+  "prompt": "Importa el padre sintético: su instancia anidada local Child está missing. No hay autorización para scaffold.",
+  "inputs": {
+    "localNested": "missing",
+    "scaffoldAuthorized": false
+  },
+  "rules": [
+    {
+      "kind": "no-project-writes"
+    },
+    {
+      "kind": "tree-unchanged"
+    },
+    {
+      "kind": "no-confirmation"
+    },
+    {
+      "kind": "outcome",
+      "value": "blocked"
+    }
+  ]
+}

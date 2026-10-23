@@ -1,0 +1,1083 @@
+{
+  "schemaVersion": 1,
+  "caseId": "candidate-correspondence",
+  "caseHash": "c661868b6b10251e5a32cdf69f6784364cdb7b36a12fb9542fb5e0a00d95766d",
+  "instructionHash": "1d055fef1a99adfe758e14416d268aa7e45c3ac3239b23ef7d929724a9fefcd5",
+  "date": "2026-10-23T07:52:44.183Z",
+  "executor": "independent-fresh-subagent",
+  "model": "unreported",
+  "modelVersion": "unreported",
+  "projectRoot": "/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-preview-fixture-nsSoH1",
+  "started": true,
+  "finished": true,
+  "tools": [
+    {
+      "name": "read",
+      "effects": [
+        "read"
+      ]
+    },
+    {
+      "name": "exec",
+      "effects": [
+        "execute",
+        "unknown"
+      ]
+    },
+    {
+      "name": "edit",
+      "effects": [
+        "write"
+      ]
+    },
+    {
+      "name": "query",
+      "effects": [
+        "read"
+      ]
+    }
+  ],
+  "recording": {
+    "complete": true,
+    "gaps": 0
+  },
+  "before": [
+    {
+      "path": "behavior-input.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "a3a3c1c73047d5906044ee16fe478b1c2bfcf36fd08f2fb74b5de1a2debf2fe1"
+    },
+    {
+      "path": "design-system",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/components",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/components/PreviewGlyph",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/components/PreviewGlyph/metadata.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "afbfddc666628388dcb9d5a72e06819b7ff4e8e939e29bdaa0cf7f30658ca2b5"
+    },
+    {
+      "path": "design-system/components/PreviewGlyph/usage.md",
+      "type": "file",
+      "mode": 420,
+      "hash": "9d7e6cab1ee58b103388782dd8a551cdc2b779b54cc24421c466348bc88eae8f"
+    },
+    {
+      "path": "design-system/figma",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/figma/snapshots",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/figma/snapshots/FILE",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/figma/snapshots/FILE/1-2",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/figma/snapshots/FILE/1-2/f38b524696048dea379eb460fb48cc2ef7298cfe30ea7800aa37d15bad20c580.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "a67692c0e99cc62a2defb37f3c5386e1773f0142536b43405733160b42fcae28"
+    },
+    {
+      "path": "design-system/inventory.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "7a7003192ecf6702ac5fd1077a626b7be5a105a5d28cd54ec7916b6cb34725e2"
+    },
+    {
+      "path": "design-system/relationships",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/relationships/figma-code-map.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "e122adfa7b1bbcda5219af6a5de6ccecc02f96be5b4288700125c5ec49799b4c"
+    },
+    {
+      "path": "design-system/relationships/figma-state.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "d4981f02ed69f889f6e65c9d361e202b1837bfec02cc084e49d8f5a7f167b58d"
+    },
+    {
+      "path": "design-system/tokens",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/tokens/Colors.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "8511c4590a8480f2d8d1d402ee212092b64c1a91835ae536d722777db23fa9e2"
+    },
+    {
+      "path": "node_modules",
+      "type": "symlink",
+      "mode": 493,
+      "target": "/Users/julian/Documents/create-ds-from-figma/.agents/browser-tests/node_modules"
+    },
+    {
+      "path": "package.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "ef05921daf71f547fc19b95b2a1417d7e0625950882906c823b20f0739f28191"
+    },
+    {
+      "path": "src",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "src/PreviewGlyph.module.css",
+      "type": "file",
+      "mode": 420,
+      "hash": "0e9e5f442bc0d025b30fc4f662b14bf35a586622068a77981b1829ee5bca1536"
+    },
+    {
+      "path": "src/PreviewGlyph.tsx",
+      "type": "file",
+      "mode": 420,
+      "hash": "596487060d4fa5890809d34ddd9905e44534e8427834b45c4e56b678b29aea98"
+    },
+    {
+      "path": "src/base.css",
+      "type": "file",
+      "mode": 420,
+      "hash": "c9c89823ea428b5cd44752e934403edfaf9e705d4f9efbda4b425511d5007c3d"
+    },
+    {
+      "path": "src/styles",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "src/styles/tokens.css",
+      "type": "file",
+      "mode": 420,
+      "hash": "c5cd37174eda8fc951c9a69ea4ecc0c293cf81b848caca003e0b323981b18afc"
+    }
+  ],
+  "events": [
+    {
+      "sequence": 1,
+      "tool": "query",
+      "operation": "files",
+      "args": [],
+      "effect": "read",
+      "scope": "project",
+      "complete": true,
+      "result": {
+        "entries": [
+          {
+            "path": "behavior-input.json",
+            "type": "file",
+            "mode": 420,
+            "hash": "a3a3c1c73047d5906044ee16fe478b1c2bfcf36fd08f2fb74b5de1a2debf2fe1"
+          },
+          {
+            "path": "design-system",
+            "type": "directory",
+            "mode": 493
+          },
+          {
+            "path": "design-system/components",
+            "type": "directory",
+            "mode": 493
+          },
+          {
+            "path": "design-system/components/PreviewGlyph",
+            "type": "directory",
+            "mode": 493
+          },
+          {
+            "path": "design-system/components/PreviewGlyph/metadata.json",
+            "type": "file",
+            "mode": 420,
+            "hash": "afbfddc666628388dcb9d5a72e06819b7ff4e8e939e29bdaa0cf7f30658ca2b5"
+          },
+          {
+            "path": "design-system/components/PreviewGlyph/usage.md",
+            "type": "file",
+            "mode": 420,
+            "hash": "9d7e6cab1ee58b103388782dd8a551cdc2b779b54cc24421c466348bc88eae8f"
+          },
+          {
+            "path": "design-system/figma",
+            "type": "directory",
+            "mode": 493
+          },
+          {
+            "path": "design-system/figma/snapshots",
+            "type": "directory",
+            "mode": 493
+          },
+          {
+            "path": "design-system/figma/snapshots/FILE",
+            "type": "directory",
+            "mode": 493
+          },
+          {
+            "path": "design-system/figma/snapshots/FILE/1-2",
+            "type": "directory",
+            "mode": 493
+          },
+          {
+            "path": "design-system/figma/snapshots/FILE/1-2/f38b524696048dea379eb460fb48cc2ef7298cfe30ea7800aa37d15bad20c580.json",
+            "type": "file",
+            "mode": 420,
+            "hash": "a67692c0e99cc62a2defb37f3c5386e1773f0142536b43405733160b42fcae28"
+          },
+          {
+            "path": "design-system/inventory.json",
+            "type": "file",
+            "mode": 420,
+            "hash": "7a7003192ecf6702ac5fd1077a626b7be5a105a5d28cd54ec7916b6cb34725e2"
+          },
+          {
+            "path": "design-system/relationships",
+            "type": "directory",
+            "mode": 493
+          },
+          {
+            "path": "design-system/relationships/figma-code-map.json",
+            "type": "file",
+            "mode": 420,
+            "hash": "e122adfa7b1bbcda5219af6a5de6ccecc02f96be5b4288700125c5ec49799b4c"
+          },
+          {
+            "path": "design-system/relationships/figma-state.json",
+            "type": "file",
+            "mode": 420,
+            "hash": "d4981f02ed69f889f6e65c9d361e202b1837bfec02cc084e49d8f5a7f167b58d"
+          },
+          {
+            "path": "design-system/tokens",
+            "type": "directory",
+            "mode": 493
+          },
+          {
+            "path": "design-system/tokens/Colors.json",
+            "type": "file",
+            "mode": 420,
+            "hash": "8511c4590a8480f2d8d1d402ee212092b64c1a91835ae536d722777db23fa9e2"
+          },
+          {
+            "path": "node_modules",
+            "type": "symlink",
+            "mode": 493,
+            "target": "/Users/julian/Documents/create-ds-from-figma/.agents/browser-tests/node_modules"
+          },
+          {
+            "path": "package.json",
+            "type": "file",
+            "mode": 420,
+            "hash": "ef05921daf71f547fc19b95b2a1417d7e0625950882906c823b20f0739f28191"
+          },
+          {
+            "path": "src",
+            "type": "directory",
+            "mode": 493
+          },
+          {
+            "path": "src/PreviewGlyph.module.css",
+            "type": "file",
+            "mode": 420,
+            "hash": "0e9e5f442bc0d025b30fc4f662b14bf35a586622068a77981b1829ee5bca1536"
+          },
+          {
+            "path": "src/PreviewGlyph.tsx",
+            "type": "file",
+            "mode": 420,
+            "hash": "596487060d4fa5890809d34ddd9905e44534e8427834b45c4e56b678b29aea98"
+          },
+          {
+            "path": "src/base.css",
+            "type": "file",
+            "mode": 420,
+            "hash": "c9c89823ea428b5cd44752e934403edfaf9e705d4f9efbda4b425511d5007c3d"
+          },
+          {
+            "path": "src/styles",
+            "type": "directory",
+            "mode": 493
+          },
+          {
+            "path": "src/styles/tokens.css",
+            "type": "file",
+            "mode": 420,
+            "hash": "c5cd37174eda8fc951c9a69ea4ecc0c293cf81b848caca003e0b323981b18afc"
+          }
+        ]
+      }
+    },
+    {
+      "sequence": 2,
+      "tool": "query",
+      "operation": "guidance",
+      "args": [
+        "validate-static",
+        "evidence"
+      ],
+      "effect": "read",
+      "scope": "instructions",
+      "complete": true,
+      "result": {
+        "schemaVersion": 1,
+        "phases": [
+          "validate-static"
+        ],
+        "features": [
+          "evidence"
+        ],
+        "conditions": {
+          "resources": "Snapshot contains observed IMAGE paints (including hidden) or observed fonts/images require authorized sourcing, registration, configuration or loading review; decide before metadata/code.",
+          "composition": "Observed diagnostic output has composition checks or REVIEW_COMPOSITION_DIAGNOSTICS/RETRY_COMPOSITION_DIAGNOSTICS actions; read after execution, before interpreting or retrying.",
+          "recovery": "Capture/serialization/infrastructure recovery is being investigated",
+          "styles": "Applied-style provenance is inspected",
+          "evidence": "Validation of an imported Figma component and its persisted evidence"
+        },
+        "sections": [
+          {
+            "file": ".agents/skills/validate-ds/references/rendered-checks.md",
+            "section": "Part mapping",
+            "start": 9193,
+            "end": 9717
+          },
+          {
+            "file": ".agents/skills/validate-ds/references/rendered-checks.md",
+            "section": "Composition",
+            "start": 9717,
+            "end": 10186
+          },
+          {
+            "file": ".agents/skills/validate-ds/references/rendered-checks.md",
+            "section": "Binding report",
+            "start": 10186,
+            "end": 11412
+          },
+          {
+            "file": ".agents/skills/validate-ds/references/resources-and-evidence.md",
+            "section": "Captured evidence",
+            "start": 7659,
+            "end": 16110
+          },
+          {
+            "file": ".agents/skills/validate-ds/references/resources-and-evidence.md",
+            "section": "Recursos y evidencia",
+            "start": 0,
+            "end": 2524
+          },
+          {
+            "file": ".agents/skills/validate-ds/references/rendered-checks.md",
+            "section": "Comprobaciones renderizadas",
+            "start": 0,
+            "end": 262
+          }
+        ],
+        "excerpts": [
+          {
+            "file": ".agents/skills/validate-ds/references/rendered-checks.md",
+            "start": 0,
+            "end": 262,
+            "text": "# Comprobaciones renderizadas\n\nDetalle de validación; aplica el alcance de escritura de la skill canónica.\n\nContenido: API state control, Part mapping, Composition, Binding report, Figma style provenance, Computed binding values, Approximate measured literals.\n\n"
+          },
+          {
+            "file": ".agents/skills/validate-ds/references/rendered-checks.md",
+            "start": 9193,
+            "end": 11412,
+            "text": "## Part mapping\n\nFor each recorded `metadata.json` part, inspect the rendered DOM: its `data-ds-part` and the CSS Module class named by `selector` must be on the same element. Author the marker as a literal JSX string attribute, such as `data-ds-part=\"root\"`, not an expression. `verify-ds.mjs` checks that this literal attribute and the class selector exist, but cannot establish their DOM relationship. Record the result under Structural validation; if DOM inspection was not done, report it as NOT RUN rather than PASS.\n\n## Composition\n\nCheck the implemented UI against every applicable requirement in `.agents/rules/design-system-composition.md`, using the rendered structure and source where needed. Record which requirements do not apply and why. Report Composition PASS only after checking all applicable requirements; report FAIL for a violation or NOT RUN with a reason when a required review was not performed. Static verifier results alone do not establish composition compliance.\n\n## Binding report\n\nLines marked ADVISORY (a binding straight to a variable of a primitive collection) never change a status: mirror Figma's binding and list them under Token usage as a suggestion, not as a finding. Review every FAIL and NOT_RUN from `verify-bindings.mjs`. It reports every unobserved CSS declaration: direct literals on supported properties can be FAIL, while unsupported properties, uncovered `var()` declarations, shorthands and conditional rules are NOT_RUN. For each recorded binding or literal, `writtenStatus` says whether the direct declaration names the measured token or literal; `status` also reflects limits of the same-file analysis. A PASS does not prove the effective value. Local custom-property redefinitions and other potentially related declarations in that file become NOT_RUN. CSS in global stylesheets, other components and libraries is outside this static check. A reported FAIL is a finding, not yet a CI gate. Report genuine token or literal mismatches and propose corrections; apply fixes only within an authorized implementation scope. List unsupported constructs under Token usage as NOT RUN with their reason. Do not turn a missing Figma binding into a `notApplicable` exception.\n\n"
+          },
+          {
+            "file": ".agents/skills/validate-ds/references/resources-and-evidence.md",
+            "start": 0,
+            "end": 2524,
+            "text": "# Recursos y evidencia\n\nDetalle de validación; aplica el alcance de escritura de la skill canónica.\n\nContenido: Resource Diagnostics, Captured evidence.\n\nRevisa los checks color:PARTE:PROPIEDAD además de geometría: comparan pinturas sólidas del snapshot y alias por modo contra destinos CSS explícitos, no la tinta visible. No tomes un color calculado como prueba de máscara, consumo interno delegado ni composición. Consume report para las confirmaciones vigentes y cobertura exacta de modos, decisiones declaradas y obligaciones; un informe diagnóstico no revalida confirmaciones. Las decisiones declaradas no prueban autorización humana.\n\nPara estados con verification.kind=native, revisa los checks state:NAME derivados de nativeStates del cuerpo original. Checked/disabled deben leerse sobre el control propio, no inferirse de props, ARIA o clases. El adaptador solo verifica configuración, sin inventar acciones. Un estado nativo fallido o sin ejecutar bloquea; teclado, foco y el recorrido de interacción se comprueban aparte. No retires declaraciones para eludir la verificación ni edites recibos antiguos tras un cambio de MEASUREMENT_VERSION.\n\nAl validar tokens, conserva `figma-state.json.aliasModes`: registra elecciones explícitas para valores de alias, no el modo activo del navegador. `generate-token-json.mjs check --inventory INVENTORY` revalida las elecciones guardadas; una validación no autoriza cambiarlas.\n\nRead importDiagnostics/nextActions even when snapshot validation fails. RESOLVE_FLOAT_SERIALIZATION lists local pending FLOAT variables and identified references, not inferred units. Dynamic or unreadable analysis remains partial/unknown, never proof of non-use. Capture recovery distinguishes empty/incompatible captures from damaged or unreadable historical originals: inspect/restore the original or request an authorized new capture, never patch hashes or invent evidence. These actions do not authorize writes during standalone validation and do not disable independent application diagnostics.\n\nIf an explicitly supplied sealed file-level inventory is available, `node .agents/skills/create-ds-from-figma/scripts/generate-token-json.mjs check . --inventory INVENTORY` compares observed token facts without writing. Retained records are separate from matches; hash and origin do not authenticate Figma or prove current presence. Do not discover an inventory automatically or claim this check ran when no path was supplied. This does not replace existing token, binding or rendered checks.\n\n"
+          },
+          {
+            "file": ".agents/skills/validate-ds/references/resources-and-evidence.md",
+            "start": 7659,
+            "end": 16110,
+            "text": "## Captured evidence\n\nVerification commands run locally; no CI or Git hooks are configured. Collection automatically requests an available preview port; finalize:import --collect accepts --port for an explicit port and refuses an occupied one. collection.preview records effective URLs/port; the adapter closes its preview on completion. Do not use a local-only branch/commit anecdote as a reproducible kit guarantee: regression fixtures are versioned, but do not prove real Figma fidelity.\n\nApplication diagnostics are required for a root index.html or an App/app/main/index JS/TS entry under src; application.signals records the detected files. They scan source literals under src without running project code, including custom-named demos. No signals means an explicitly scoped NOT APPLICABLE, not proof that an arbitrary project has no UI. Finalization rejects its target usage.md as an examined input, including extra reviewer or behavior inputs, before publishing reports: rewriting that file must not stale the confirmation itself. AABB size diagnostics have their own nonblocking threshold, independent of position/fidelity tolerances.\n\nWithin an authorized import or explicit recording request, `npm run finalize:import -- ROOT METADATA --reviews REVIEW_FILE` records supplied rendered reviews, generates immutable reports, validates their currency and atomically updates only the canonical correspondence JSON before running the repository gate. REVIEW_FILE has schemaVersion 1 and cases [{caseId, review}], covering every fidelity case with the existing report-review contract. It never supplies its own PASS. `--collect` collects/publishes with the locked runtime; `--check` is read-only. Collection and recording are not authorized by standalone read-only validation. Closure retains static CSS border warnings and informational AABB size deltas; these are not objective shape failures for noncomparable vectors.\n\nFor import delivery, run `npm run verify:imports` as a read-only repository gate. It consumes verify-ds visual summaries and revalidates persisted confirmations, including mandatory behavior and essential resources, without remeasuring geometry. Candidates, missing fidelity cases/summaries, stale reports and unestablished correspondences fail. Application literal diagnostics run independently in a blank page of the kit's locked Chromium, even if component preflight fails; no Vite or project code executes. Missing runtime is explicit NOT RUN and fails delivery. Prepare the runtime with `npm run test:browser:setup` only with installation authorization. This gate does not replace manual/rendered validation or prove overall visual fidelity.\n\nAccount for every node in each fidelity subtree, including structural containers. verification.nodeCoverage may use only verified same-layout-box/permanently-hidden conditions or an explicit unresolved obligation. Delegated instance internals do not waive mapping the instance placement. An omitted node fails; unresolved stays NOT RUN and cannot be rescued by a generic review. The capture profile is unchanged.\n\nThe original measurement includes cssDiagnostics with CSS.supports results for the exact literal declarations derived from component dependencies; reports and closure recompute those IDs. Missing/unsupported literal results block confirmation. Custom properties and var()/env() are outside this syntax lane, not implicitly validated. PostCSS border-default warnings require cascade review, not a universal prohibition. Application-wide diagnostics at the preview's diagnosticsUrl include App.tsx separately; do not mix their scope with component closure. Numeric/dynamic inline styles still need independent review.\n\nAn optional verification-browser.mjs import adapter uses an explicitly supplied Playwright module and browser executable without installing them. This is separate from the kit's mandatory locked real-browser test runtime. It publishes measurements and therefore is not authorized by standalone read-only validation; use the environment browser unless publication is separately authorized. It does not infer interactions or issue visual judgments. Typography calibration loads explicitly provided font files only in the calibration browser and records hashes/metrics; this is not proof of the Figma font binary or a universal tolerance policy.\n\nTEXT geometry uses a provisional 1px threshold: numerical PASS requires a specific rendered checkReviews entry for geometry:PART, with artifacts of the same case, before measured/confirmed. This is an additional review obligation alongside fidelity NOT COMPARABLE reviews, not an exception to FAIL/NOT RUN or mandatory behavior PASS. General visual approval is insufficient. A same-browser font repeatability corpus does not establish Figma calibration across fonts or renderers.\n\nRead contextual CSS check statuses, not the raw supported boolean: inactive @supports declarations do not fail, and unsupported vendor extensions require fallback/target-engine review rather than a universal-invalidity claim. Numeric inline constants use React units; dynamic expressions still need review. A static closure failure retains missing-measurement obligations while leaving supplied measurements explicitly unevaluated; do not infer currency from their presence.\n\nThe optional adapter reserves an empty output directory before starting. Static preflight failure retains structured closure/pending data and exits 1 without opening a browser; infrastructure failure retains execution phase/reason and exits 2. Read closure and application diagnostics, not execution COMPLETED alone, to assess completion. Publication still requires separate authorization for read-only validation.\n\nUse verification-browser.mjs inspect-lock DIRECTORY for read-only reservation diagnostics. PID visibility is not ownership authentication or permission to delete: preserve abandoned output and use a new empty directory instead of reclaiming locks or removing evidence. The default adapter output is a fresh temporary directory.\n\nUse capture v2 (absoluteBoundingBox/absoluteTransform), measurement v2 and report v4; no compatibility with earlier captures/reports. Require verification.geometryPolicy=mapped-layout-v1. Run verification-plan.mjs compare ROOT METADATA CASE BODY [BASELINE_BODY] before a confirmation: layout geometry is root-relative, not a forced CSS technique. Exact source geometry applies only to fidelity. Supported vector/rotated 2D parts also get independent center-position checks; their shape remains NOT COMPARABLE. Behavior uses explicit containment/anchoring/centering/dimensional relations and, where required, a separately measured fidelity baseline. Unknown contexts remain NOT COMPARABLE. Hidden content may remain in the DOM. Essential visible-text fonts require current source files and loaded matching faces, not document.fonts.check alone. A loaded face does not prove glyph coverage. FAIL/NOT RUN block confirmed; specific checkReviews cover fidelity NOT COMPARABLE and provisional TEXT geometry PASS with exact retained artifacts, in addition to the general visual judgment. Diagnostics may still be persisted/published without a confirmation. Report static conformance separately from the VISUAL accounting and automatic check statuses; do not promote missing comparisons into PASS.\n\nRun `node .agents/checks/verify-figma-evidence.mjs .` and read the component's required immutable `metadata.evidence.snapshot`. Missing evidence is FAIL, without exceptions. Capture issues, manual decisions, composite translations and delegated overrides remain NOT VERIFIED pending review. Detailed grouped findings are in each component's review report. This checks accounting against the import capture, not live completeness or rendering. Optional rereads do not authorize updates.\n\nInspect review.delegationDifferences, not just binding coverage. Undeclared per-property differences fail; omitted treatments, unmatched correspondences and unreadable data block confirmation. Implemented is only a declaration: its delegation check remains NOT COMPARABLE until a specific same-case rendered checkReview covers it. General reviews or reviews of another difference do not suffice. Check both verified snapshots: changing the child's snapshot also stales affected parent cases. No automatic computed-color comparator exists in this phase, including Figma strokes rendered through CSS mask background-color.\n"
+          }
+        ],
+        "stats": {
+          "selectedBytes": 13476,
+          "selectedWords": 1761,
+          "wholeReferencedFilesBytes": 34798
+        },
+        "sourceHash": "8e89aef8ccf92e3edb3f468c54120391a8f2913808298898aaed50f31ac3ae91",
+        "scope": "Selected documentation only; bytes/words, not measured model tokens. Conditions must be established from observations; omitted sections do not waive obligations. Shared/existing context is not counted."
+      }
+    },
+    {
+      "sequence": 3,
+      "tool": "read",
+      "effect": "read",
+      "scope": "project",
+      "path": "design-system/components/PreviewGlyph/metadata.json",
+      "complete": true,
+      "content": "{\n  \"name\": \"PreviewGlyph\",\n  \"description\": \"Synthetic intrinsic text fixture.\",\n  \"figma\": {\n    \"fileKey\": \"FILE\",\n    \"nodeId\": \"1:2\",\n    \"url\": \"https://www.figma.com/design/FILE?node-id=1-2\"\n  },\n  \"code\": {\n    \"path\": \"src/PreviewGlyph.tsx\",\n    \"component\": \"PreviewGlyph\"\n  },\n  \"states\": [],\n  \"tokens\": [],\n  \"externalVariables\": [],\n  \"unresolved\": [],\n  \"notApplicable\": [],\n  \"notBuilt\": [],\n  \"variants\": {},\n  \"variantClassification\": {},\n  \"figmaCoverage\": {\n    \"variants\": [],\n    \"styles\": {\n      \"status\": \"captured\",\n      \"source\": \"synthetic fixture\"\n    }\n  },\n  \"styles\": [],\n  \"parts\": {\n    \"root\": {\n      \"selector\": \".root\",\n      \"nodes\": {\n        \"default\": \"FILE:1:2\"\n      }\n    },\n    \"initial\": {\n      \"selector\": \".initial\",\n      \"nodes\": {\n        \"default\": \"FILE:1:3\"\n      }\n    }\n  },\n  \"bindings\": [],\n  \"measuredLiterals\": [\n    {\n      \"observation\": \"1:3#fontSize#property\",\n      \"source\": \"FILE:1:3\",\n      \"figmaProperty\": \"fontSize\",\n      \"part\": \"initial\",\n      \"variant\": \"default\",\n      \"cssSelector\": \".initial\",\n      \"cssProperty\": \"font-size\",\n      \"value\": \"20px\",\n      \"translation\": \"direct\"\n    },\n    {\n      \"observation\": \"1:3#letterSpacing#property\",\n      \"source\": \"FILE:1:3\",\n      \"figmaProperty\": \"letterSpacing\",\n      \"part\": \"initial\",\n      \"variant\": \"default\",\n      \"cssSelector\": \".initial\",\n      \"cssProperty\": \"letter-spacing\",\n      \"value\": \"0px\",\n      \"translation\": \"approximate\",\n      \"reason\": \"PIXELS becomes a CSS pixel length.\",\n      \"figmaValue\": {\n        \"source\": \"PLUGIN\",\n        \"field\": \"letterSpacing\",\n        \"value\": {\n          \"unit\": \"PIXELS\",\n          \"value\": 0\n        }\n      }\n    },\n    {\n      \"observation\": \"1:3#lineHeight#property\",\n      \"source\": \"FILE:1:3\",\n      \"figmaProperty\": \"lineHeight\",\n      \"part\": \"initial\",\n      \"variant\": \"default\",\n      \"cssSelector\": \".initial\",\n      \"cssProperty\": \"line-height\",\n      \"value\": \"24px\",\n      \"translation\": \"approximate\",\n      \"reason\": \"PIXELS becomes a CSS pixel length.\",\n      \"figmaValue\": {\n        \"source\": \"PLUGIN\",\n        \"field\": \"lineHeight\",\n        \"value\": {\n          \"unit\": \"PIXELS\",\n          \"value\": 24\n        }\n      }\n    }\n  ],\n  \"evidence\": {\n    \"snapshot\": \"design-system/figma/snapshots/FILE/1-2/f38b524696048dea379eb460fb48cc2ef7298cfe30ea7800aa37d15bad20c580.json\",\n    \"hash\": \"f38b524696048dea379eb460fb48cc2ef7298cfe30ea7800aa37d15bad20c580\",\n    \"captureIssues\": 0,\n    \"decisions\": [],\n    \"dispositions\": [],\n    \"textDimensions\": [\n      {\n        \"observation\": \"1:3#height#property\",\n        \"node\": \"FILE:1:3\",\n        \"field\": \"height\",\n        \"behavior\": \"content\",\n        \"rule\": \"text-auto-resize-v1\",\n        \"observations\": [\n          \"1:3#textAutoResize#property\"\n        ],\n        \"reason\": \"WIDTH_AND_HEIGHT establishes content sizing for height in the captured configuration.\",\n        \"treatment\": \"translation\",\n        \"cssSelector\": \".initial\",\n        \"cssProperty\": \"height\"\n      },\n      {\n        \"observation\": \"1:3#width#property\",\n        \"node\": \"FILE:1:3\",\n        \"field\": \"width\",\n        \"behavior\": \"content\",\n        \"rule\": \"text-auto-resize-v1\",\n        \"observations\": [\n          \"1:3#textAutoResize#property\"\n        ],\n        \"reason\": \"WIDTH_AND_HEIGHT establishes content sizing for width in the captured configuration.\",\n        \"treatment\": \"translation\",\n        \"cssSelector\": \".initial\",\n        \"cssProperty\": \"width\"\n      }\n    ],\n    \"translations\": [\n      {\n        \"observations\": [\n          \"1:3#height#property\",\n          \"1:3#textAutoResize#property\"\n        ],\n        \"cssSelector\": \".initial\",\n        \"cssProperty\": \"height\",\n        \"reason\": \"Inline text uses intrinsic content sizing.\"\n      },\n      {\n        \"observations\": [\n          \"1:3#width#property\",\n          \"1:3#textAutoResize#property\"\n        ],\n        \"cssSelector\": \".initial\",\n        \"cssProperty\": \"width\",\n        \"reason\": \"Inline text uses intrinsic content sizing.\"\n      }\n    ]\n  },\n  \"verification\": {\n    \"schemaVersion\": 1,\n    \"geometryPolicy\": \"mapped-layout-v1\",\n    \"fonts\": [],\n    \"assets\": [],\n    \"stylesheets\": [\n      \"src/base.css\",\n      \"src/styles/tokens.css\"\n    ],\n    \"inputs\": [],\n    \"unestablished\": [],\n    \"cases\": [\n      {\n        \"id\": \"source-0\",\n        \"kind\": \"fidelity\",\n        \"figmaRef\": \"FILE:1:2\",\n        \"props\": {\n          \"initial\": \"F\"\n        },\n        \"content\": {\n          \"FILE:1:3\": \"F\"\n        },\n        \"modes\": {},\n        \"viewport\": {\n          \"width\": 640,\n          \"height\": 480\n        },\n        \"environment\": {\n          \"attributes\": {},\n          \"classes\": []\n        },\n        \"states\": [],\n        \"expectations\": []\n      },\n      {\n        \"id\": \"wide-W\",\n        \"kind\": \"behavior\",\n        \"figmaRef\": \"FILE:1:2\",\n        \"props\": {\n          \"initial\": \"W\"\n        },\n        \"content\": {\n          \"FILE:1:3\": \"W\"\n        },\n        \"modes\": {},\n        \"viewport\": {\n          \"width\": 640,\n          \"height\": 480\n        },\n        \"environment\": {\n          \"attributes\": {},\n          \"classes\": []\n        },\n        \"states\": [],\n        \"expectations\": [\n          {\n            \"kind\": \"intrinsic-size\",\n            \"observation\": \"1:3#height#property\",\n            \"axis\": \"height\",\n            \"part\": \"initial\",\n            \"relation\": \"equal\",\n            \"reason\": \"Synthetic schema case requires wider text with unchanged line height.\"\n          },\n          {\n            \"kind\": \"intrinsic-size\",\n            \"observation\": \"1:3#width#property\",\n            \"axis\": \"width\",\n            \"part\": \"initial\",\n            \"relation\": \"grow\",\n            \"reason\": \"Synthetic schema case requires wider text with unchanged line height.\"\n          }\n        ],\n        \"baseline\": \"source-0\"\n      },\n      {\n        \"id\": \"wide-M\",\n        \"kind\": \"behavior\",\n        \"figmaRef\": \"FILE:1:2\",\n        \"props\": {\n          \"initial\": \"M\"\n        },\n        \"content\": {\n          \"FILE:1:3\": \"M\"\n        },\n        \"modes\": {},\n        \"viewport\": {\n          \"width\": 640,\n          \"height\": 480\n        },\n        \"environment\": {\n          \"attributes\": {},\n          \"classes\": []\n        },\n        \"states\": [],\n        \"expectations\": [\n          {\n            \"kind\": \"intrinsic-size\",\n            \"observation\": \"1:3#height#property\",\n            \"axis\": \"height\",\n            \"part\": \"initial\",\n            \"relation\": \"equal\",\n            \"reason\": \"Synthetic schema case requires wider text with unchanged line height.\"\n          },\n          {\n            \"kind\": \"intrinsic-size\",\n            \"observation\": \"1:3#width#property\",\n            \"axis\": \"width\",\n            \"part\": \"initial\",\n            \"relation\": \"grow\",\n            \"reason\": \"Synthetic schema case requires wider text with unchanged line height.\"\n          }\n        ],\n        \"baseline\": \"source-0\"\n      }\n    ]\n  }\n}"
+    },
+    {
+      "sequence": 4,
+      "tool": "read",
+      "effect": "read",
+      "scope": "project",
+      "path": "design-system/components/PreviewGlyph/usage.md",
+      "complete": true,
+      "content": "## Figma to code correspondences\n\n```json\n{\"schemaVersion\":1,\"correspondences\":[{\"caseId\":\"source-0\",\"status\":\"candidate\"}]}\n```\n"
+    },
+    {
+      "sequence": 5,
+      "tool": "read",
+      "effect": "read",
+      "scope": "project",
+      "path": "src/PreviewGlyph.tsx",
+      "complete": true,
+      "content": "import styles from \"./PreviewGlyph.module.css\";\nexport function PreviewGlyph({ initial }: { initial: string }) { return <span data-ds-part=\"root\" className={styles.root}><span data-ds-part=\"initial\" className={styles.initial}>{initial}</span></span>; }"
+    },
+    {
+      "sequence": 6,
+      "tool": "read",
+      "effect": "read",
+      "scope": "project",
+      "path": "src/PreviewGlyph.module.css",
+      "complete": true,
+      "content": ".root { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border: 1px solid var(--ds-color-id); border-radius: 50%; }\n.initial { font-family: Arial, sans-serif; font-size: 20px; line-height: 24px; letter-spacing: 0; }"
+    },
+    {
+      "sequence": 7,
+      "tool": "read",
+      "effect": "read",
+      "scope": "project",
+      "path": "design-system/relationships/figma-state.json",
+      "complete": true,
+      "content": "{\n  \"fileKey\": \"FILE\",\n  \"tokenPrefix\": \"ds\",\n  \"collections\": {\n    \"COL\": {\n      \"name\": \"Colors\",\n      \"modes\": [\n        \"Default\"\n      ],\n      \"varCount\": 1,\n      \"file\": \"Colors.json\",\n      \"serialization\": {},\n      \"modeScopes\": {}\n    }\n  },\n  \"variables\": {\n    \"COL\": {\n      \"foreground\": {\n        \"id\": \"color-id\",\n        \"type\": \"COLOR\"\n      }\n    }\n  },\n  \"components\": {\n    \"PreviewGlyph\": {\n      \"figmaNodeId\": \"1:2\",\n      \"nestedComponents\": []\n    }\n  }\n}"
+    },
+    {
+      "sequence": 8,
+      "tool": "query",
+      "operation": "guidance",
+      "args": [
+        "import-diagnose"
+      ],
+      "effect": "read",
+      "scope": "instructions",
+      "complete": true,
+      "result": {
+        "schemaVersion": 1,
+        "phases": [
+          "import-diagnose"
+        ],
+        "features": [],
+        "conditions": {
+          "native-states": "A case declares checked/disabled native assertions",
+          "resources": "Snapshot contains observed IMAGE paints (including hidden) or observed fonts/images require authorized sourcing, registration, configuration or loading review; decide before metadata/code.",
+          "color": "Explicit solid-paint color mappings are compared",
+          "recovery": "Capture/serialization/infrastructure recovery is being investigated"
+        },
+        "sections": [
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+            "section": "Diagnóstico temporal",
+            "start": 10155,
+            "end": 11446
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+            "section": "Comparación Renderizada General",
+            "start": 23017,
+            "end": 31410
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+            "section": "Posición Parcial Y Comportamiento",
+            "start": 31410,
+            "end": 35595
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+            "section": "Componentes anidados",
+            "start": 24490,
+            "end": 25772
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+            "section": "Diagnóstico y cierre de la importación",
+            "start": 0,
+            "end": 253
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+            "section": "Recursos Y Casos",
+            "start": 2582,
+            "end": 3772
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+            "section": "Puertos de recogida",
+            "start": 11446,
+            "end": 12029
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+            "section": "Preparar el diagnóstico",
+            "start": 253,
+            "end": 1334
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+            "section": "Interpretar el informe de bindings",
+            "start": 57199,
+            "end": 59228
+          }
+        ],
+        "excerpts": [
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+            "start": 10155,
+            "end": 12029,
+            "text": "## Diagnóstico temporal\n\n`npm run finalize:import -- ROOT METADATA --diagnose [--port PORT]` examina una implementación existente sin publicar evidencia ni registrar revisiones. diagnosis contiene mode=diagnostic, execution, diagnostics.cases (comparaciones fidelity/behavior existentes, mediciones y diagnósticos AABB), diagnostics.resources, diagnostics.warnings y manifest.cases vacío. Cuerpos, recibos, capturas y caché viven en un temporal nuevo; no se admite directorio de salida suministrado por el consumidor en este modo. No cambia el formato de metadata ni de sus snapshots. Fuentes e imágenes pendientes no bloquean la recogida diagnóstica, pero conservan sus carencias y no habilitan confirmed. Los errores estáticos siguen impidiendo ejecutar código. FAIL indica fallos/bloqueos; una ejecución numéricamente limpia queda NOT VERIFIED, siempre complete=false y CLI exit 1. El diagnóstico no ejecuta el gate de entrega ni acredita fidelidad. nextActions separa autorización de recursos y REVIEW_RENDERED_DIFFERENCES por caso/check. Recursos ausentes pueden afectar geometría; la salida no atribuye automáticamente una causa. No combines --diagnose con --collect/--reviews/--check. El puerto opcional sigue las mismas reglas de recogida, y diagnosis.preview conserva el efectivo.\n\n## Puertos de recogida\n\nLa recogida integrada solicita un puerto libre por defecto; `--collect --port 5189` selecciona uno explícito (0 solicita asignación automática). La salida integrada conserva collection.preview con requestedPort, port, cases y diagnosticsUrl; el result.json del adaptador conserva ese mismo objeto en preview. El puerto efectivo identifica las URL recogidas, no un servidor que siga abierto después de terminar el adaptador. Un puerto explícito ocupado falla, sin usar el servidor ajeno. --port no aplica al registro de revisiones ni al gate de solo lectura.\n\n"
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+            "start": 23017,
+            "end": 35595,
+            "text": "## Comparación Renderizada General\n\nLa tolerancia TEXT de 1 px es provisional: el check geometry:PARTE incluye typographyTolerance con status provisional y requiresRenderedReview true. Aunque su resultado numérico sea PASS, measured/confirmed exige un checkReviews específico con el mismo formato y artefactos retenidos del caso que las revisiones NOT COMPARABLE de fidelidad. Documenta la comparación renderizada real de ese texto. No cambia PASS/FAIL ni permite rescatar FAIL/NOT RUN; la revisión general no lo sustituye. La versión del comparador hace caducar confirmaciones anteriores a esta obligación. El corpus real de 56 combinaciones de Inter comprueba carga/repetibilidad en dos contextos del mismo Chromium; sin ground truth equivalente de Figma no determina tolerancia entre fuentes, plataformas o renderers.\n\nToda ficha declara `verification.geometryPolicy: \"mapped-layout-v1\"`. No depende del nombre del componente ni impone Flexbox, Grid o una técnica de dibujo. La captura v2 guarda absoluteBoundingBox y absoluteTransform; el sobre del snapshot sigue en versión 1. Sin retrocompatibilidad: las capturas anteriores deben repetirse, nunca rellenarse con datos inventados.\n\nLas mediciones usan schemaVersion 2, producer verification-preview-v2 y measurementVersion con el valor vigente de MEASUREMENT_VERSION, definido en `.agents/checks/lib/measurement-version.mjs`. Lo escribe el productor: no lo transcribas ni cambies versiones de recibos históricos. El recibo original conserva la misma measurementVersion. No son versiones del snapshot ni de la aplicación. Cada elemento conserva rect/computed y `geometry: { visible, laidOut, axisAligned, affine2d }`: visibilidad efectiva (incluidos ancestros), participación en layout y ausencia de transformaciones no soportadas. Una parte oculta puede existir en el DOM. Las caras declaradas loaded son un requisito de recurso, no prueba de la fuente de los glifos.\n\n`node .agents/skills/create-ds-from-figma/scripts/verification-plan.mjs compare . METADATA CASE BODY [BASELINE_BODY]` compara un cuerpo con SU snapshot/configuración. Es diagnóstico, no publicación ni confirmación: verifica identidad del caso, no autenticidad ni hashes del recibo original. Emite checks con ID estable, motivo, expected/measured/delta cuando procede y summary. FAIL termina con código 1. Estados:\n\n- PASS: comparada y dentro de tolerancia, o ausencia visual comprobada para contenido oculto.\n- FAIL: diferencia detectada, contenido distinto, parte visible ausente o fuente esencial pendiente/no cargada.\n- NOT COMPARABLE: equivalencia no establecida con los datos y reglas disponibles, con motivo.\n- NOT RUN: no hay medición o falta el registro necesario.\n\nEn fidelity cada parte necesita una ref de nodo y un elemento DOM inequívocos para la variante. Los bounds se comparan relativos a la raíz; tolerancia fija de 1 píxel CSS por x/y/width/height, independiente de la exportación PNG y no elegida por el revisor. Solo se admiten matrices absolutas de traslación y cajas sin trazo o con trazo INSIDE en nodos admitidos. Un trazo inspeccionado pero ilegible (mixed, unavailable, mal formado, o una lectura fallida que el colector registra en coverage.issues) es desconocido, no ausente; solo un campo que el nodo no expone (`notApplicable`) significa que no hay trazo, y un texto capturado ilegible no se declara diferencia de texto: la geometría queda NOT COMPARABLE, igual que la posición parcial, hasta una revisión específica. El borde CSS no se resta automáticamente: debe conservar la caja exterior Figma INSIDE. Rotación, escala, reflejo, skew, matrices singulares/no leídas, grupos, booleanos, vectores, bounds ausentes y modos distintos de la captura quedan NOT COMPARABLE. No se invierte un AABB para reconstruir una forma ni se impone una propiedad CSS concreta.\n\nLa visibilidad se evalúa en el subárbol de la variante: contenido oculto por sí mismo o por ancestros no debe mostrarse, pero no se exige eliminarlo del DOM. Visibilidad ilegible no se presume. Las cajas exactas no se heredan por los casos behavior; sus expectativas se comprueban solo mediante invariantes explícitas: contained, anchored, centered e intrinsic-size con relación declarada.\n\nLas fuentes esenciales de un caso de fidelidad se derivan del texto visible y no vacío de esa configuración, porque renderiza exactamente el contenido capturado. Un caso de comportamiento aporta su propio contenido y props, que pueden rellenar un texto vacío o mostrar uno oculto, pero solo donde el diseño lo permite: exige la fuente de un texto visible y no vacío, de uno cuyo contenido aporta el propio caso, de uno oculto con una propiedad de visibilidad (`componentPropertyReferences.visible`, también en sus ancestros ocultos) y de uno vacío con una propiedad de texto (`componentPropertyReferences.characters`). Una capa oculta de forma permanente (sin propiedad de visibilidad, o con opacidad 0) o un texto vacío sin propiedad de texto nunca se renderizan y no la exigen. Si las referencias no son legibles, se exige por precaución. El contexto global de modos es el modo resuelto de la raíz examinada (un `resolvedVariableModes` legible que omite la colección significa su modo predeterminado; uno ilegible no se sustituye por el predeterminado: se usa el modo explícito conocido de la raíz o el contexto queda NOT COMPARABLE, y sin contexto no se registran `localModes`): un descendiente con un modo forzado propio forma parte del diseño y se mide tal como se renderiza, sin volver incomparable el resto de partes. Esos modos locales se registran como `localModes` junto a la comprobación de geometría, como hecho de origen; nada comprueba que el código acote ese modo en ese subárbol. confirmed exige source file con bytes vigentes y una cara loaded con familia/peso/estilo correspondientes. source unresolved bloquea la confirmación, no la recogida/publicación diagnóstica. Ni el recurso loaded ni document.fonts.check demuestran cobertura de caracteres o la fuente de cada glifo.\n\nLos informes v4 guardan `renderChecks` derivado (policy/comparatorVersion/checks/summary/scope) y `checkReviews`. Cada NOT COMPARABLE de fidelidad y cada PASS geométrico TEXT con tolerancia provisional requieren una revisión específica `{ checkId, result: \"PASS\", reason, artifacts: [ruta] }` con artefactos tipados del mismo informe, además del juicio visual general. La revisión alternativa no cambia el resultado numérico ni rescata FAIL/NOT RUN. El gate recalcula los hechos de confirmaciones vigentes: IDs, estados, medidas, diferencias, tolerancias y parámetros, excluyendo reason/scope. Cambiar prosa no invalida; cambiar comparatorVersion caduca la confirmación sin convertirla en corrupción. Cambios de reglas o tolerancias exigen incrementar la versión. Bajo la misma versión, una diferencia factual sigue siendo error. Las caducadas conservan el tratamiento histórico NOT VERIFIED sin editar usage.md. El test comparator-version fija dos huellas independientes: la del comparador sigue las declaraciones nombradas usadas por compareRendered/renderResultFacts/assertConfirmationChecks y sus dependencias locales, incluidas renderRequirements, textDimensionRequirements y canonicalJson; la del productor sigue previewModule/receiptHandler y renderedExpectation. No hashea validadores ajenos solo por compartir archivo. Sigue helpers/imports estáticos nuevos y rechaza formas locales no soportadas (por ejemplo imports dinámicos) en vez de omitirlas. La normalización del comparador excluye comentarios, reason/scope y diagnósticos reconocidos; la plantilla serializada del navegador se protege conservadoramente como parte del productor. No cubre implementaciones de Node/React/navegador ni toda semántica dinámica de JavaScript. Un cambio lógico exige incrementar la versión y añadir su huella revisada; no reemplazar una entrada previa. No sustituye las pruebas de resultados ni protege contra manipulación del propio test.\n\nverify-ds imprime VISUAL por componente: confirmados, pendientes, registros fallidos, no establecidos y recuentos automáticos de confirmaciones vigentes. Un registro fallido no demuestra una diferencia visual; una fila candidate sin informe no se inventa como FAIL. El informe final debe separar PASS estático y cobertura visual, enumerando los NOT COMPARABLE/NOT RUN conocidos. El alcance es geometría mapeada y carga de fuentes, no fidelidad completa.\n\n### Posición Parcial Y Comportamiento\n\nEl comparador declara su `comparatorVersion` (la constante `COMPARATOR_VERSION` de `render-comparison.mjs`, que no se repite aquí para no desfasarse). La política mapped-layout-v1 sigue siendo el contrato general, no un selector para saltarse reglas. Nuevas capacidades se incorporan con condiciones y versión; no por nombre de componente. Un informe sin versión no satisface este contrato.\n\nabsence:PARTE sustituye a geometry:PARTE cuando una parte solo está mapeada en otras variantes y la cobertura de nodos de esta variante está completa (sin errores ni obligaciones pendientes): el origen exige su ausencia y se comprueba que no se renderice de forma visible (PASS u FAIL, sin revisión específica). Sin esa prueba (variante sin mapear, nodos sin cobertura, parte sin mapeo alguno) sigue siendo NOT COMPARABLE. Un FAIL suele indicar que las props o el contenido del caso producen una parte que la variante no tiene. geometry:PARTE conserva la comprobación completa. Para un vector o parte transformada se añade position:PARTE cuando la raíz es de traslación pura, ambas cajas están disponibles, la matriz Figma es 2D no singular y la medición acredita affine2d. Se compara el centro de cada AABB relativo al origen de la raíz con 1 píxel CSS por eje, sin ampliar la tolerancia para esconder diferencias. Las dimensiones se guardan como informativas: PASS de posición no confirma tamaño ni forma. Grupos/booleanos, trazos que alteran las cajas, perspectiva/3D, matrices ilegibles o raíz transformada no habilitan esta regla. Una revisión de geometry no rescata un FAIL de position.\n\nLas invariantes behavior se declaran en expectations, con part y reason explícitos; el validador rechaza nombres/participantes/parámetros inválidos. No se deducen del nombre de la capa ni se activan solo porque cambió un texto:\n\n- `{ kind: \"contained\", part, container, inset: 0, reason }`: distancias a los cuatro bordes de la caja del contenedor mayores o iguales al inset menos tolerancia. inset es un mínimo explícito en píxeles CSS, no padding inferido. part y container deben ser distintos y estar mapeados en la variante.\n- `{ kind: \"anchored\", part, container, edge: \"right\", reason }`: distancia con signo al borde indicado igual a la medida en el caso baseline. edge admite left/right/top/bottom; una distancia negativa puede representar contenido exterior.\n- `{ kind: \"centered\", part, container, axis: \"x\", relation: \"center\", reason }`: centros coincidentes en x/y dentro de tolerancia. relation preserve-offset conserva el desfase con signo medido en baseline, que no equivale a centrado. Ambas relaciones exigen eje y motivo explícitos.\n- `{ kind: \"intrinsic-size\", observation, part, axis: \"width\", relation: \"grow\", reason }`: compara la dimensión medida con baseline usando grow/shrink/equal/change. axis admite width/height; relation y reason no se inventan a partir de auto-resize. Sin relación declarada conserva NOT COMPARABLE: cambiar contenido no garantiza cambiar cada dimensión.\n\nanchored, centered con preserve-offset y las relaciones dimensionales requieren BASELINE_BODY del caso fidelity indicado por baseline, con mismo snapshot/ref/modos/viewport/entorno/estados. La CLI valida ambos sobres y el plan. Sin esa medición dan NOT RUN; contención puede evaluarse con la medición actual. DOM con texto distinto del content declarado da FAIL. Se requiere un elemento inequívoco por parte. centered admite el centro AABB de una parte affine2d aunque esté rotada, con raíz y contenedor sin transformaciones incompatibles; no comprueba forma. Las demás invariantes siguen exigiendo cajas axisAligned. compare sigue siendo diagnóstico, pero report deriva y persiste estos checks: todos los casos behavior asociados por baseline son obligatorios para confirmed y todos sus checks deben ser PASS, sin rescate manual de FAIL/NOT RUN/NOT COMPARABLE. No confirman variantes nuevas de Figma. La falta de comparabilidad o de ejecución de una obligación mantiene candidate/NOT VERIFIED: no demuestra un defecto visual. Un registro que ya afirme confirmed sin cumplir esas obligaciones es inválido, no una prueba de que el diseño sea incorrecto.\n\n"
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+            "start": 57199,
+            "end": 59228,
+            "text": "#### Interpretar el informe de bindings\n\nEl informe `node .agents/checks/verify-bindings.mjs` une ID de variable, `cssName` del inventario de tokens o de `externalVariables`, selector y declaración CSS. Solo evalúa selectores formados por clases y declaraciones directas. Recorre todas las declaraciones del CSS del componente: los literales directos sin medida de propiedades compatibles (incluida `font-family`) son FAIL; cualquier otra declaración sin observación, incluidos `var()` sin binding, shorthand, propiedades no soportadas, reglas condicionales y selectores complejos, es NOT_RUN con motivo. `calc()`, fallback de `var()`, herencia, modos forzados, redefiniciones locales del token y posibles conflictos con otras declaraciones del archivo tampoco se consideran PASS. Cada binding o literal registrado tiene `writtenStatus` para la identidad escrita y `status` para el alcance estático: un `status: NOT_RUN` por cascada no borra un `writtenStatus: PASS`. Un literal `approximate` con CSS escrito correctamente conserva `writtenStatus: PASS`, pero su `status` estático es `NOT_RUN` hasta la comprobación renderizada; una declaración CSS incorrecta sigue siendo FAIL. El informe estático no conoce la cascada de otros archivos ni el valor efectivo. Revisa cada hallazgo y corrige los problemas reales antes de cerrar el componente. No declares PASS por el mero hecho de que el informe no haya evaluado una propiedad. Para la conformidad final, sigue `.agents/skills/validate-ds/SKILL.md` y comprueba cada binding con `getComputedStyle` frente al valor Figma independiente del elemento; si no puedes hacerlo, informa NOT RUN y no declares Overall PASS. Las líneas `ADVISORY` avisan de un binding directo a una variable de una colección de primitivas: reflejas el binding de Figma y no cambian ningún estado. `verify-ds` rechaza además un binding cuyo tipo de variable no puede dirigir su `cssProperty` (por ejemplo, `COLOR` en `padding-left` o `FLOAT` en `background-color`); si falla, corrige el registro, no el CSS.\n\n"
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+            "start": 24490,
+            "end": 25772,
+            "text": "## Componentes anidados\n\nLa vista debe cargar las definiciones de los tokens usados mediante imports reales o verification.stylesheets: listar tokens.css solo en inputs no las carga. El gate rechaza definiciones ausentes, pero su presencia no confirma el modo o valor efectivo. La resolución TypeScript solo lee configuración local y extends contenidos en el proyecto; no hereda automáticamente configuración del directorio padre.\n\nLa verificación no debe bloquear la siguiente importación por confirmaciones caducadas de otros componentes: caducidad íntegra es aviso NOT VERIFIED, sin reescribir usage.md; corrupción sigue siendo error. Declara verification.inputs para archivos adicionales y sigue la clausura local de imports/CSS, sin hashear el árbol completo ni las relaciones completas. Imports/globs no resolubles requieren revisión; no inventes cobertura.\n\nEn la vista de verificación, la raíz superior delimita las partes de la instancia: los marcadores root y partes homónimas de anidados no se cuentan como partes del padre. Los recibos incluyen huella semántica del caso y hashes originales; ni publicar ni generar un informe nuevo permite confirmar una recogida caducada por cambios de implementación. Recoge de nuevo si cambiaron esos inputs o decisiones relevantes.\n\n"
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+            "start": 0,
+            "end": 1334,
+            "text": "# Diagnóstico y cierre de la importación\n\nAplica las [invariantes de proceso](../../../../AGENTS.md#invariantes-de-proceso). Los formatos completos son los seleccionados por el plan; esta referencia contiene el procedimiento, sin copiar sus contratos.\n\n## Preparar el diagnóstico\n\nDiagnostica código existente únicamente dentro del alcance autorizado. Después de implementación permitida y cada corrección visual ejecuta `npm run finalize:import -- ROOT METADATA --diagnose`; INV-PREWRITE sigue impidiendo crear una importación bloqueada para medirla. El diagnóstico ejecuta código/navegador y escribe temporales; INV-DIAGNOSE prohíbe publicar o confirmar por ese hecho.\n\nAntes de arrancar, completa preflight estático, recursos esenciales previstos, casos, contenido, modos, estados y viewport. Los contratos de ficha/casos se leen antes de TSX en import-code. Para vista manual usa import-preview. Un estado que no puede activar el adaptador necesita un harness autorizado, no eventos inventados.\n\nLa CLI limpia devuelve NOT VERIFIED, complete=false y salida 1; errores y falta de ejecución conservan FAIL/NOT RUN. Lee execution, errors y blocked antes de interpretar números. Revisa por separado el diagnóstico de literales de la app. No combines --diagnose, --collect, --reviews o --check. Sin navegador informa NOT RUN/BLOCKED.\n\n"
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+            "start": 2582,
+            "end": 3772,
+            "text": "## Recursos Y Casos\n\nUsa los contratos canónicos de metadata seleccionados por fase: cobertura de nodos, estados originales, dimensiones intrínsecas, recursos registrados/configurados/cargados, CSS.supports, puerto efectivo, mediciones originales y revisión específica. No contabilices un contenedor oculto ni internos delegados como omisiones automáticamente. Las tolerancias TEXT son provisionales y mantienen la revisión renderizada específica; behavior exige todos sus checks en PASS.\n\nEl kit sin DS ni aplicación es NOT APPLICABLE, no una importación confirmada. Un scaffold coherente sin componentes es admisible; un scaffold parcial falla y un index.html aislado no permite aprobar un kit vacío. La detección de demo usa application.signals; revisa el motivo de NOT APPLICABLE si la estructura es distinta.\n\nEl gate y la finalización conservan sus contratos en metadata y AGENTS; para publicar cuerpo/recibo o registrar revisiones aplica exactamente sus comandos y evidencias. La sintaxis CSS de la demo se diagnostica independientemente; no prueba ejecución de la demo ni fidelidad. La comparación de imágenes y las revisiones son reales, no afirmaciones fabricadas en un informe.\n\n"
+          }
+        ],
+        "stats": {
+          "selectedBytes": 20496,
+          "selectedWords": 2848,
+          "wholeReferencedFilesBytes": 134305
+        },
+        "sourceHash": "28e850ce56b809cb600afd7f8c29ecfc35438a11b63e089588a674d90a90a007",
+        "scope": "Selected documentation only; bytes/words, not measured model tokens. Conditions must be established from observations; omitted sections do not waive obligations. Shared/existing context is not counted."
+      }
+    },
+    {
+      "sequence": 9,
+      "tool": "query",
+      "operation": "static",
+      "args": [
+        "ds"
+      ],
+      "effect": "read",
+      "scope": "project",
+      "complete": true,
+      "result": {
+        "errors": [],
+        "warnings": [
+          "PreviewGlyph: 2 text dimension(s): sizing semantics checked against snapshot; CSS behavior and rendering NOT VERIFIED; see review.textDimensions",
+          "PreviewGlyph: 2 literal translation(s) need contextual verification; see review.literals",
+          "PreviewGlyph: 2 translation(s): accounted for, CSS identity and rendering NOT VERIFIED; see review.translations",
+          "PreviewGlyph: 1:3#height#property: intrinsic CSS NOT VERIFIED; cascade, expression or unsupported declaration requires rendered review",
+          "PreviewGlyph: 1:3#width#property: intrinsic CSS NOT VERIFIED; cascade, expression or unsupported declaration requires rendered review"
+        ]
+      }
+    },
+    {
+      "sequence": 10,
+      "tool": "query",
+      "operation": "static",
+      "args": [
+        "props"
+      ],
+      "effect": "read",
+      "scope": "project",
+      "complete": true,
+      "result": {
+        "errors": [
+          ".agents/prop-vocabulary.json: ENOENT: no such file or directory, open '/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-preview-fixture-nsSoH1/.agents/prop-vocabulary.json'"
+        ]
+      }
+    },
+    {
+      "sequence": 11,
+      "tool": "query",
+      "operation": "static",
+      "args": [
+        "bindings"
+      ],
+      "effect": "read",
+      "scope": "project",
+      "complete": true,
+      "result": {
+        "schemaVersion": 1,
+        "results": [
+          {
+            "component": "PreviewGlyph",
+            "type": "literal",
+            "part": "initial",
+            "variant": "default",
+            "property": "font-size",
+            "selector": ".initial",
+            "status": "PASS",
+            "writtenStatus": "PASS",
+            "expected": "20px",
+            "actual": "20px"
+          },
+          {
+            "component": "PreviewGlyph",
+            "type": "literal",
+            "part": "initial",
+            "variant": "default",
+            "property": "letter-spacing",
+            "selector": ".initial",
+            "status": "FAIL",
+            "writtenStatus": "FAIL",
+            "expected": "0px",
+            "actual": "0",
+            "figmaValue": {
+              "source": "PLUGIN",
+              "field": "letterSpacing",
+              "value": {
+                "unit": "PIXELS",
+                "value": 0
+              }
+            }
+          },
+          {
+            "component": "PreviewGlyph",
+            "type": "literal",
+            "part": "initial",
+            "variant": "default",
+            "property": "line-height",
+            "selector": ".initial",
+            "status": "NOT_RUN",
+            "writtenStatus": "PASS",
+            "expected": "24px",
+            "actual": "24px",
+            "figmaValue": {
+              "source": "PLUGIN",
+              "field": "lineHeight",
+              "value": {
+                "unit": "PIXELS",
+                "value": 24
+              }
+            },
+            "reason": "approximate Figma-to-CSS translation needs independent rendered comparison in validate-ds"
+          },
+          {
+            "component": "PreviewGlyph",
+            "selector": ".root",
+            "property": "display",
+            "actual": "inline-flex",
+            "type": "uncovered-declaration",
+            "status": "NOT_RUN",
+            "reason": "property not supported for direct literal comparison"
+          },
+          {
+            "component": "PreviewGlyph",
+            "selector": ".root",
+            "property": "align-items",
+            "actual": "center",
+            "type": "uncovered-declaration",
+            "status": "NOT_RUN",
+            "reason": "property not supported for direct literal comparison"
+          },
+          {
+            "component": "PreviewGlyph",
+            "selector": ".root",
+            "property": "justify-content",
+            "actual": "center",
+            "type": "uncovered-declaration",
+            "status": "NOT_RUN",
+            "reason": "property not supported for direct literal comparison"
+          },
+          {
+            "component": "PreviewGlyph",
+            "selector": ".root",
+            "property": "width",
+            "actual": "48px",
+            "type": "unrecorded-literal",
+            "status": "FAIL",
+            "reason": "literal has no measured Figma record"
+          },
+          {
+            "component": "PreviewGlyph",
+            "selector": ".root",
+            "property": "height",
+            "actual": "48px",
+            "type": "unrecorded-literal",
+            "status": "FAIL",
+            "reason": "literal has no measured Figma record"
+          },
+          {
+            "component": "PreviewGlyph",
+            "selector": ".root",
+            "property": "border",
+            "actual": "1px solid var(--ds-color-id)",
+            "type": "uncovered-declaration",
+            "status": "NOT_RUN",
+            "reason": "property not supported for direct literal comparison"
+          },
+          {
+            "component": "PreviewGlyph",
+            "selector": ".root",
+            "property": "border-radius",
+            "actual": "50%",
+            "type": "unrecorded-literal",
+            "status": "NOT_RUN",
+            "reason": "unrecorded computed or inherited value not evaluated"
+          },
+          {
+            "component": "PreviewGlyph",
+            "selector": ".initial",
+            "property": "font-family",
+            "actual": "Arial, sans-serif",
+            "type": "unrecorded-literal",
+            "status": "FAIL",
+            "reason": "literal has no measured Figma record"
+          }
+        ],
+        "counts": {
+          "PASS": 1,
+          "FAIL": 4,
+          "NOT_RUN": 6,
+          "ADVISORY": 0
+        },
+        "scope": "Written binding identity and static analysis only; computed values and visual fidelity require independent review."
+      }
+    },
+    {
+      "sequence": 12,
+      "tool": "read",
+      "effect": "read",
+      "scope": "project",
+      "path": "design-system/figma/snapshots/FILE/1-2/f38b524696048dea379eb460fb48cc2ef7298cfe30ea7800aa37d15bad20c580.json",
+      "complete": true,
+      "content": "{\n  \"schemaVersion\": 1,\n  \"capturedAt\": \"2026-10-23T07:52:44.168Z\",\n  \"hash\": \"f38b524696048dea379eb460fb48cc2ef7298cfe30ea7800aa37d15bad20c580\",\n  \"capture\": {\n    \"schemaVersion\": 2,\n    \"source\": {\n      \"tool\": \"use_figma\",\n      \"api\": \"PLUGIN\",\n      \"collector\": \"capture-figma-v2\",\n      \"fileKey\": \"FILE\",\n      \"rootNodeId\": \"1:2\",\n      \"requestedNodeId\": \"1:2\",\n      \"revision\": null\n    },\n    \"profile\": {\n      \"fields\": [\n        \"width\",\n        \"height\",\n        \"x\",\n        \"y\",\n        \"absoluteBoundingBox\",\n        \"absoluteTransform\",\n        \"visible\",\n        \"opacity\",\n        \"rotation\",\n        \"layoutMode\",\n        \"layoutSizingHorizontal\",\n        \"layoutSizingVertical\",\n        \"layoutPositioning\",\n        \"primaryAxisSizingMode\",\n        \"counterAxisSizingMode\",\n        \"primaryAxisAlignItems\",\n        \"counterAxisAlignItems\",\n        \"itemSpacing\",\n        \"counterAxisSpacing\",\n        \"layoutWrap\",\n        \"itemReverseZIndex\",\n        \"paddingLeft\",\n        \"paddingRight\",\n        \"paddingTop\",\n        \"paddingBottom\",\n        \"cornerRadius\",\n        \"topLeftRadius\",\n        \"topRightRadius\",\n        \"bottomLeftRadius\",\n        \"bottomRightRadius\",\n        \"fills\",\n        \"strokes\",\n        \"effects\",\n        \"strokeWeight\",\n        \"strokeAlign\",\n        \"clipsContent\",\n        \"fillStyleId\",\n        \"strokeStyleId\",\n        \"effectStyleId\",\n        \"textStyleId\",\n        \"boundVariables\",\n        \"explicitVariableModes\",\n        \"resolvedVariableModes\",\n        \"componentPropertyReferences\",\n        \"componentProperties\",\n        \"variantProperties\",\n        \"characters\",\n        \"fontName\",\n        \"fontSize\",\n        \"fontWeight\",\n        \"lineHeight\",\n        \"letterSpacing\",\n        \"textAlignHorizontal\",\n        \"textAlignVertical\",\n        \"textAutoResize\",\n        \"reactions\"\n      ],\n      \"textFields\": [\n        \"fontName\",\n        \"fontSize\",\n        \"fontWeight\",\n        \"lineHeight\",\n        \"letterSpacing\",\n        \"fills\",\n        \"textStyleId\",\n        \"fillStyleId\",\n        \"boundVariables\"\n      ],\n      \"scope\": \"component-subtree-and-used-variable-aliases\",\n      \"excluded\": [\n        \"vector geometry\",\n        \"image bytes\",\n        \"file-wide variable values\",\n        \"CSS and API decisions\"\n      ]\n    },\n    \"nodes\": [\n      {\n        \"id\": \"1:2\",\n        \"parentId\": null,\n        \"type\": \"COMPONENT\",\n        \"name\": \"PreviewGlyph\",\n        \"children\": [\n          \"1:3\"\n        ],\n        \"properties\": {\n          \"width\": 48,\n          \"height\": 48,\n          \"absoluteBoundingBox\": {\n            \"x\": 100,\n            \"y\": 100,\n            \"width\": 48,\n            \"height\": 48\n          },\n          \"absoluteTransform\": [\n            [\n              1,\n              0,\n              100\n            ],\n            [\n              0,\n              1,\n              100\n            ]\n          ]\n        },\n        \"inspected\": [\n          \"width\",\n          \"height\",\n          \"absoluteBoundingBox\",\n          \"absoluteTransform\"\n        ],\n        \"notApplicable\": [\n          \"x\",\n          \"y\",\n          \"visible\",\n          \"opacity\",\n          \"rotation\",\n          \"layoutMode\",\n          \"layoutSizingHorizontal\",\n          \"layoutSizingVertical\",\n          \"layoutPositioning\",\n          \"primaryAxisSizingMode\",\n          \"counterAxisSizingMode\",\n          \"primaryAxisAlignItems\",\n          \"counterAxisAlignItems\",\n          \"itemSpacing\",\n          \"counterAxisSpacing\",\n          \"layoutWrap\",\n          \"itemReverseZIndex\",\n          \"paddingLeft\",\n          \"paddingRight\",\n          \"paddingTop\",\n          \"paddingBottom\",\n          \"cornerRadius\",\n          \"topLeftRadius\",\n          \"topRightRadius\",\n          \"bottomLeftRadius\",\n          \"bottomRightRadius\",\n          \"fills\",\n          \"strokes\",\n          \"effects\",\n          \"strokeWeight\",\n          \"strokeAlign\",\n          \"clipsContent\",\n          \"fillStyleId\",\n          \"strokeStyleId\",\n          \"effectStyleId\",\n          \"textStyleId\",\n          \"boundVariables\",\n          \"explicitVariableModes\",\n          \"resolvedVariableModes\",\n          \"componentPropertyReferences\",\n          \"componentProperties\",\n          \"variantProperties\",\n          \"characters\",\n          \"fontName\",\n          \"fontSize\",\n          \"fontWeight\",\n          \"lineHeight\",\n          \"letterSpacing\",\n          \"textAlignHorizontal\",\n          \"textAlignVertical\",\n          \"textAutoResize\",\n          \"reactions\"\n        ]\n      },\n      {\n        \"id\": \"1:3\",\n        \"parentId\": \"1:2\",\n        \"type\": \"TEXT\",\n        \"name\": \"Initial\",\n        \"children\": [],\n        \"properties\": {\n          \"characters\": \"F\",\n          \"segments\": [],\n          \"width\": 12,\n          \"height\": 24,\n          \"textAutoResize\": \"WIDTH_AND_HEIGHT\",\n          \"fontSize\": 20,\n          \"lineHeight\": {\n            \"unit\": \"PIXELS\",\n            \"value\": 24\n          },\n          \"letterSpacing\": {\n            \"unit\": \"PIXELS\",\n            \"value\": 0\n          },\n          \"absoluteBoundingBox\": {\n            \"x\": 118,\n            \"y\": 112,\n            \"width\": 12,\n            \"height\": 24\n          },\n          \"absoluteTransform\": [\n            [\n              1,\n              0,\n              118\n            ],\n            [\n              0,\n              1,\n              112\n            ]\n          ]\n        },\n        \"inspected\": [\n          \"width\",\n          \"height\",\n          \"absoluteBoundingBox\",\n          \"absoluteTransform\",\n          \"characters\",\n          \"fontSize\",\n          \"lineHeight\",\n          \"letterSpacing\",\n          \"textAutoResize\"\n        ],\n        \"notApplicable\": [\n          \"x\",\n          \"y\",\n          \"visible\",\n          \"opacity\",\n          \"rotation\",\n          \"layoutMode\",\n          \"layoutSizingHorizontal\",\n          \"layoutSizingVertical\",\n          \"layoutPositioning\",\n          \"primaryAxisSizingMode\",\n          \"counterAxisSizingMode\",\n          \"primaryAxisAlignItems\",\n          \"counterAxisAlignItems\",\n          \"itemSpacing\",\n          \"counterAxisSpacing\",\n          \"layoutWrap\",\n          \"itemReverseZIndex\",\n          \"paddingLeft\",\n          \"paddingRight\",\n          \"paddingTop\",\n          \"paddingBottom\",\n          \"cornerRadius\",\n          \"topLeftRadius\",\n          \"topRightRadius\",\n          \"bottomLeftRadius\",\n          \"bottomRightRadius\",\n          \"fills\",\n          \"strokes\",\n          \"effects\",\n          \"strokeWeight\",\n          \"strokeAlign\",\n          \"clipsContent\",\n          \"fillStyleId\",\n          \"strokeStyleId\",\n          \"effectStyleId\",\n          \"textStyleId\",\n          \"boundVariables\",\n          \"explicitVariableModes\",\n          \"resolvedVariableModes\",\n          \"componentPropertyReferences\",\n          \"componentProperties\",\n          \"variantProperties\",\n          \"fontName\",\n          \"fontWeight\",\n          \"textAlignHorizontal\",\n          \"textAlignVertical\",\n          \"reactions\"\n        ]\n      }\n    ],\n    \"observations\": [\n      {\n        \"id\": \"1:2#absoluteBoundingBox#property\",\n        \"node\": \"1:2\",\n        \"field\": \"absoluteBoundingBox\",\n        \"kind\": \"property\",\n        \"value\": {\n          \"x\": 100,\n          \"y\": 100,\n          \"width\": 48,\n          \"height\": 48\n        }\n      },\n      {\n        \"id\": \"1:2#absoluteTransform#property\",\n        \"node\": \"1:2\",\n        \"field\": \"absoluteTransform\",\n        \"kind\": \"property\",\n        \"value\": [\n          [\n            1,\n            0,\n            100\n          ],\n          [\n            0,\n            1,\n            100\n          ]\n        ]\n      },\n      {\n        \"id\": \"1:2#height#property\",\n        \"node\": \"1:2\",\n        \"field\": \"height\",\n        \"kind\": \"property\",\n        \"value\": 48\n      },\n      {\n        \"id\": \"1:2#width#property\",\n        \"node\": \"1:2\",\n        \"field\": \"width\",\n        \"kind\": \"property\",\n        \"value\": 48\n      },\n      {\n        \"id\": \"1:3#absoluteBoundingBox#property\",\n        \"node\": \"1:3\",\n        \"field\": \"absoluteBoundingBox\",\n        \"kind\": \"property\",\n        \"value\": {\n          \"x\": 118,\n          \"y\": 112,\n          \"width\": 12,\n          \"height\": 24\n        }\n      },\n      {\n        \"id\": \"1:3#absoluteTransform#property\",\n        \"node\": \"1:3\",\n        \"field\": \"absoluteTransform\",\n        \"kind\": \"property\",\n        \"value\": [\n          [\n            1,\n            0,\n            118\n          ],\n          [\n            0,\n            1,\n            112\n          ]\n        ]\n      },\n      {\n        \"id\": \"1:3#characters#property\",\n        \"node\": \"1:3\",\n        \"field\": \"characters\",\n        \"kind\": \"property\",\n        \"value\": \"F\"\n      },\n      {\n        \"id\": \"1:3#fontSize#property\",\n        \"node\": \"1:3\",\n        \"field\": \"fontSize\",\n        \"kind\": \"property\",\n        \"value\": 20\n      },\n      {\n        \"id\": \"1:3#height#property\",\n        \"node\": \"1:3\",\n        \"field\": \"height\",\n        \"kind\": \"property\",\n        \"value\": 24\n      },\n      {\n        \"id\": \"1:3#letterSpacing#property\",\n        \"node\": \"1:3\",\n        \"field\": \"letterSpacing\",\n        \"kind\": \"property\",\n        \"value\": {\n          \"unit\": \"PIXELS\",\n          \"value\": 0\n        }\n      },\n      {\n        \"id\": \"1:3#lineHeight#property\",\n        \"node\": \"1:3\",\n        \"field\": \"lineHeight\",\n        \"kind\": \"property\",\n        \"value\": {\n          \"unit\": \"PIXELS\",\n          \"value\": 24\n        }\n      },\n      {\n        \"id\": \"1:3#segments#property\",\n        \"node\": \"1:3\",\n        \"field\": \"segments\",\n        \"kind\": \"property\",\n        \"value\": []\n      },\n      {\n        \"id\": \"1:3#textAutoResize#property\",\n        \"node\": \"1:3\",\n        \"field\": \"textAutoResize\",\n        \"kind\": \"property\",\n        \"value\": \"WIDTH_AND_HEIGHT\"\n      },\n      {\n        \"id\": \"1:3#width#property\",\n        \"node\": \"1:3\",\n        \"field\": \"width\",\n        \"kind\": \"property\",\n        \"value\": 12\n      }\n    ],\n    \"variants\": [],\n    \"variables\": [],\n    \"collections\": [],\n    \"styles\": [],\n    \"coverage\": {\n      \"traversal\": \"children-recursive-including-hidden-and-instance-descendants\",\n      \"nodeCount\": 2,\n      \"issues\": []\n    }\n  }\n}\n"
+    },
+    {
+      "sequence": 13,
+      "tool": "exec",
+      "argv": [
+        "/Users/julian/.nvm/versions/node/v22.17.1/bin/node",
+        "/Users/julian/Documents/create-ds-from-figma/.agents/skills/create-ds-from-figma/scripts/finalize-import.mjs",
+        "/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-preview-fixture-nsSoH1",
+        "design-system/components/PreviewGlyph/metadata.json",
+        "--diagnose"
+      ],
+      "effect": "execute",
+      "scope": "external-temporaries",
+      "operation": "diagnosis",
+      "metadata": "design-system/components/PreviewGlyph/metadata.json",
+      "complete": true,
+      "exitCode": 1,
+      "stdout": "{\n  \"status\": \"FAIL\",\n  \"complete\": false,\n  \"errors\": [],\n  \"diagnosis\": {\n    \"directory\": \"/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-browser-run-6aNOuN\",\n    \"mode\": \"diagnostic\",\n    \"manifest\": {\n      \"schemaVersion\": 1,\n      \"cases\": []\n    },\n    \"blocked\": [],\n    \"application\": {\n      \"errors\": [],\n      \"results\": [],\n      \"checks\": [],\n      \"status\": \"NOT RUN\",\n      \"reason\": \"Application diagnostics were not executed.\"\n    },\n    \"closure\": {\n      \"state\": \"pending\",\n      \"complete\": false,\n      \"failures\": [],\n      \"pending\": [\n        {\n          \"caseId\": \"source-0\",\n          \"reason\": \"Published measurement missing\"\n        },\n        {\n          \"caseId\": \"wide-W\",\n          \"reason\": \"Published measurement missing\"\n        },\n        {\n          \"caseId\": \"wide-M\",\n          \"reason\": \"Published measurement missing\"\n        }\n      ],\n      \"stale\": [],\n      \"warnings\": [\n        \"2 text dimension(s): sizing semantics checked against snapshot; CSS behavior and rendering NOT VERIFIED; see review.textDimensions\",\n        \"2 literal translation(s) need contextual verification; see review.literals\",\n        \"2 translation(s): accounted for, CSS identity and rendering NOT VERIFIED; see review.translations\",\n        \"1:3#height#property: intrinsic CSS NOT VERIFIED; cascade, expression or unsupported declaration requires rendered review\",\n        \"1:3#width#property: intrinsic CSS NOT VERIFIED; cascade, expression or unsupported declaration requires rendered review\"\n      ],\n      \"cases\": [],\n      \"scope\": \"Current mapped geometry, font resources and mandatory behavior; not complete visual fidelity or full application validation.\"\n    },\n    \"execution\": {\n      \"status\": \"NOT RUN\",\n      \"phase\": \"preview\",\n      \"reason\": \"listen EPERM: operation not permitted 127.0.0.1\"\n    },\n    \"complete\": false,\n    \"diagnostics\": {\n      \"complete\": false,\n      \"cases\": [],\n      \"summary\": {\n        \"PASS\": 0,\n        \"FAIL\": 0,\n        \"NOT COMPARABLE\": 0,\n        \"NOT RUN\": 0\n      },\n      \"resources\": {\n        \"fonts\": [],\n        \"assets\": []\n      },\n      \"scope\": \"Temporary observations, never publication or confirmation. Missing resources can affect geometry; numeric deltas do not identify their cause.\"\n    },\n    \"scope\": \"Browser measurements and literal syntax diagnostics, not automatic visual judgment or glyph-font proof.\"\n  },\n  \"importDiagnostics\": {\n    \"components\": [\n      {\n        \"metadataPath\": \"design-system/components/PreviewGlyph/metadata.json\",\n        \"name\": \"PreviewGlyph\",\n        \"serialization\": {\n          \"consumption\": {\n            \"status\": \"STATIC_REFERENCES\",\n            \"unknownStyles\": [],\n            \"uncertainInlineReferences\": [],\n            \"scope\": \"Metadata bindings and reachable CSS/JSX literal styles with local aliases across recorded modes; not proof of execution. Dynamic expressions and unresolved imports remain unknown.\"\n          },\n          \"pending\": [],\n          \"warnings\": []\n        }\n      }\n    ],\n    \"warnings\": [],\n    \"nextActions\": []\n  },\n  \"report\": {\n    \"schemaVersion\": 1,\n    \"source\": \"temporary-diagnosis\",\n    \"status\": \"FAIL\",\n    \"headline\": \"1 declared fidelity cases; temporary diagnosis does not revalidate confirmations or confirm delivery.\",\n    \"structure\": {\n      \"status\": \"NOT RUN\",\n      \"reason\": \"Not evaluated by this diagnostic surface.\"\n    },\n    \"application\": {\n      \"status\": \"NOT RUN\",\n      \"reason\": \"Application diagnostics were not executed.\"\n    },\n    \"components\": [\n      {\n        \"name\": \"PreviewGlyph\",\n        \"status\": \"NOT VERIFIED\",\n        \"invalidInputs\": [],\n        \"coverage\": {\n          \"confirmationsRevalidated\": false,\n          \"fidelity\": 1,\n          \"confirmed\": null,\n          \"pending\": null,\n          \"stale\": 0,\n          \"failedRecords\": 0\n        },\n        \"cases\": [\n          {\n            \"caseId\": \"source-0\",\n            \"kind\": \"fidelity\",\n            \"modes\": {},\n            \"status\": \"not-revalidated\",\n            \"computedColors\": []\n          },\n          {\n            \"caseId\": \"wide-W\",\n            \"kind\": \"behavior\",\n            \"modes\": {},\n            \"status\": \"not-revalidated\",\n            \"computedColors\": []\n          },\n          {\n            \"caseId\": \"wide-M\",\n            \"kind\": \"behavior\",\n            \"modes\": {},\n            \"status\": \"not-revalidated\",\n            \"computedColors\": []\n          }\n        ],\n        \"modeCoverage\": [\n          {\n            \"modes\": {},\n            \"fidelity\": [\n              \"source-0\"\n            ],\n            \"confirmedFidelity\": [],\n            \"behavior\": [\n              \"wide-W\",\n              \"wide-M\"\n            ],\n            \"verifiedBehavior\": []\n          }\n        ],\n        \"declaredDecisions\": [],\n        \"excludedObservations\": [],\n        \"unresolvedDesign\": [],\n        \"unestablished\": []\n      }\n    ],\n    \"pendingAuthorizations\": [],\n    \"obligations\": [],\n    \"errors\": [],\n    \"warningCount\": 0,\n    \"limits\": [\n      \"Only explicitly mapped single solid sRGB color properties are compared; computed values do not prove visible paint, mask loading, shape or glyph coverage.\",\n      \"Mode coverage lists exact declared case configurations, not every available mode or every combination.\",\n      \"Declared decisions and exclusions are not proof of user approval. Temporary diagnostics never replace persisted evidence and specific rendered reviews.\"\n    ]\n  },\n  \"nextActions\": [],\n  \"scope\": \"Diagnostic feedback on existing code only. No project evidence is published, no reviews are recorded and delivery is not confirmed. Fix observed defects, resolve resources and collect again before delivery.\"\n}\n",
+      "stderr": "",
+      "error": null
+    },
+    {
+      "sequence": 14,
+      "tool": "exec",
+      "argv": [
+        "/Users/julian/.nvm/versions/node/v22.17.1/bin/node",
+        "/Users/julian/Documents/create-ds-from-figma/.agents/skills/create-ds-from-figma/scripts/finalize-import.mjs",
+        "/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-preview-fixture-nsSoH1",
+        "design-system/components/PreviewGlyph/metadata.json",
+        "--diagnose"
+      ],
+      "effect": "execute",
+      "scope": "external-temporaries",
+      "operation": "diagnosis",
+      "metadata": "design-system/components/PreviewGlyph/metadata.json",
+      "complete": true,
+      "exitCode": 1,
+      "stdout": "{\n  \"status\": \"FAIL\",\n  \"complete\": false,\n  \"errors\": [],\n  \"diagnosis\": {\n    \"directory\": \"/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-browser-run-cwEYEm\",\n    \"mode\": \"diagnostic\",\n    \"manifest\": {\n      \"schemaVersion\": 1,\n      \"cases\": []\n    },\n    \"blocked\": [],\n    \"application\": {\n      \"schemaVersion\": 1,\n      \"scope\": \"application-source\",\n      \"declarations\": [\n        {\n          \"id\": \"17af7b3b8100dbbec77639f5596e5f7294c51b84b993fdce9069ae0dbb36fa56\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 1,\n          \"property\": \"display\",\n          \"value\": \"inline-flex\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"fef6c926c2d9c8c65ec78a52789018165cf500a66f372c958d08b98f066c4f83\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 1,\n          \"property\": \"align-items\",\n          \"value\": \"center\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"9c17407b26c6ae8b5d76fa602828ba87b1c0a760f5e6ad2d1c08c1cc9f1e868e\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 1,\n          \"property\": \"justify-content\",\n          \"value\": \"center\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"b71585e8e8ecbf5d3668f2558394db52c88cf3f52db65ca14482a85300ffebcf\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 1,\n          \"property\": \"width\",\n          \"value\": \"48px\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"5ee53b7b38a046be71e21c21863e9229460085779e5eebbcf0871228fd490c34\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 1,\n          \"property\": \"height\",\n          \"value\": \"48px\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"7056c323c1dfb4ff61af437699b2d126a7ec5f28f8e2df0a54eb08bf00f371a0\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 1,\n          \"property\": \"border-radius\",\n          \"value\": \"50%\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"985ed1922d655effe6ab3326f98a0d16b4eccb7ad4fd8ea82d4da07ba8abf51e\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 2,\n          \"property\": \"font-family\",\n          \"value\": \"Arial, sans-serif\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"b06e87fabd36203f017af59574e402722726f144b8eb2a7b97240ace032065ac\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 2,\n          \"property\": \"font-size\",\n          \"value\": \"20px\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"b237cd7e3c16bb8c953fdc05f6f010230a2bcc8d22b659dcc583339250bc233d\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 2,\n          \"property\": \"line-height\",\n          \"value\": \"24px\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"5e0689a66b6dfbc66c7bbe5dac44b03c244dabaa61293b4abfb76e6ed3c41146\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 2,\n          \"property\": \"letter-spacing\",\n          \"value\": \"0\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"5f0ce550dc65255704b80469135e1cfa55fd5f3781a17b1fcd872082dd969466\",\n          \"file\": \"src/base.css\",\n          \"line\": 1,\n          \"property\": \"margin\",\n          \"value\": \"0\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"d916970a98c8af12c91721e83ef7e8ae2a710b04299dcbe69cfd351d0ceff038\",\n          \"file\": \"src/base.css\",\n          \"line\": 1,\n          \"property\": \"padding\",\n          \"value\": \"24px\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"55fbf8a20a8a61955af79dcf23bbcef7e71372b9f4e0c4410fdb7c644c91ac17\",\n          \"file\": \"src/base.css\",\n          \"line\": 1,\n          \"property\": \"background\",\n          \"value\": \"white\",\n          \"kind\": \"css\"\n        },\n        {\n          \"id\": \"a267c87749e157540e0c3f3ce47c4a3adf8178c5d03f523f53c3223f33e0698f\",\n          \"file\": \"src/base.css\",\n          \"line\": 1,\n          \"property\": \"color\",\n          \"value\": \"black\",\n          \"kind\": \"css\"\n        }\n      ],\n      \"errors\": [],\n      \"warnings\": [],\n      \"results\": [\n        {\n          \"id\": \"17af7b3b8100dbbec77639f5596e5f7294c51b84b993fdce9069ae0dbb36fa56\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 1,\n          \"property\": \"display\",\n          \"value\": \"inline-flex\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"fef6c926c2d9c8c65ec78a52789018165cf500a66f372c958d08b98f066c4f83\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 1,\n          \"property\": \"align-items\",\n          \"value\": \"center\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"9c17407b26c6ae8b5d76fa602828ba87b1c0a760f5e6ad2d1c08c1cc9f1e868e\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 1,\n          \"property\": \"justify-content\",\n          \"value\": \"center\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"b71585e8e8ecbf5d3668f2558394db52c88cf3f52db65ca14482a85300ffebcf\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 1,\n          \"property\": \"width\",\n          \"value\": \"48px\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"5ee53b7b38a046be71e21c21863e9229460085779e5eebbcf0871228fd490c34\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 1,\n          \"property\": \"height\",\n          \"value\": \"48px\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"7056c323c1dfb4ff61af437699b2d126a7ec5f28f8e2df0a54eb08bf00f371a0\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 1,\n          \"property\": \"border-radius\",\n          \"value\": \"50%\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"985ed1922d655effe6ab3326f98a0d16b4eccb7ad4fd8ea82d4da07ba8abf51e\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 2,\n          \"property\": \"font-family\",\n          \"value\": \"Arial, sans-serif\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"b06e87fabd36203f017af59574e402722726f144b8eb2a7b97240ace032065ac\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 2,\n          \"property\": \"font-size\",\n          \"value\": \"20px\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"b237cd7e3c16bb8c953fdc05f6f010230a2bcc8d22b659dcc583339250bc233d\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 2,\n          \"property\": \"line-height\",\n          \"value\": \"24px\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"5e0689a66b6dfbc66c7bbe5dac44b03c244dabaa61293b4abfb76e6ed3c41146\",\n          \"file\": \"src/PreviewGlyph.module.css\",\n          \"line\": 2,\n          \"property\": \"letter-spacing\",\n          \"value\": \"0\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"5f0ce550dc65255704b80469135e1cfa55fd5f3781a17b1fcd872082dd969466\",\n          \"file\": \"src/base.css\",\n          \"line\": 1,\n          \"property\": \"margin\",\n          \"value\": \"0\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"d916970a98c8af12c91721e83ef7e8ae2a710b04299dcbe69cfd351d0ceff038\",\n          \"file\": \"src/base.css\",\n          \"line\": 1,\n          \"property\": \"padding\",\n          \"value\": \"24px\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"55fbf8a20a8a61955af79dcf23bbcef7e71372b9f4e0c4410fdb7c644c91ac17\",\n          \"file\": \"src/base.css\",\n          \"line\": 1,\n          \"property\": \"background\",\n          \"value\": \"white\",\n          \"kind\": \"css\",\n          \"supported\": true\n        },\n        {\n          \"id\": \"a267c87749e157540e0c3f3ce47c4a3adf8178c5d03f523f53c3223f33e0698f\",\n          \"file\": \"src/base.css\",\n          \"line\": 1,\n          \"property\": \"color\",\n          \"value\": \"black\",\n          \"kind\": \"css\",\n          \"supported\": true\n        }\n      ],\n      \"checks\": [\n        {\n          \"id\": \"css:17af7b3b8100dbbec77639f5596e5f7294c51b84b993fdce9069ae0dbb36fa56\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"17af7b3b8100dbbec77639f5596e5f7294c51b84b993fdce9069ae0dbb36fa56\",\n            \"file\": \"src/PreviewGlyph.module.css\",\n            \"line\": 1,\n            \"property\": \"display\",\n            \"value\": \"inline-flex\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:fef6c926c2d9c8c65ec78a52789018165cf500a66f372c958d08b98f066c4f83\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"fef6c926c2d9c8c65ec78a52789018165cf500a66f372c958d08b98f066c4f83\",\n            \"file\": \"src/PreviewGlyph.module.css\",\n            \"line\": 1,\n            \"property\": \"align-items\",\n            \"value\": \"center\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:9c17407b26c6ae8b5d76fa602828ba87b1c0a760f5e6ad2d1c08c1cc9f1e868e\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"9c17407b26c6ae8b5d76fa602828ba87b1c0a760f5e6ad2d1c08c1cc9f1e868e\",\n            \"file\": \"src/PreviewGlyph.module.css\",\n            \"line\": 1,\n            \"property\": \"justify-content\",\n            \"value\": \"center\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:b71585e8e8ecbf5d3668f2558394db52c88cf3f52db65ca14482a85300ffebcf\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"b71585e8e8ecbf5d3668f2558394db52c88cf3f52db65ca14482a85300ffebcf\",\n            \"file\": \"src/PreviewGlyph.module.css\",\n            \"line\": 1,\n            \"property\": \"width\",\n            \"value\": \"48px\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:5ee53b7b38a046be71e21c21863e9229460085779e5eebbcf0871228fd490c34\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"5ee53b7b38a046be71e21c21863e9229460085779e5eebbcf0871228fd490c34\",\n            \"file\": \"src/PreviewGlyph.module.css\",\n            \"line\": 1,\n            \"property\": \"height\",\n            \"value\": \"48px\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:7056c323c1dfb4ff61af437699b2d126a7ec5f28f8e2df0a54eb08bf00f371a0\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"7056c323c1dfb4ff61af437699b2d126a7ec5f28f8e2df0a54eb08bf00f371a0\",\n            \"file\": \"src/PreviewGlyph.module.css\",\n            \"line\": 1,\n            \"property\": \"border-radius\",\n            \"value\": \"50%\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:985ed1922d655effe6ab3326f98a0d16b4eccb7ad4fd8ea82d4da07ba8abf51e\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"985ed1922d655effe6ab3326f98a0d16b4eccb7ad4fd8ea82d4da07ba8abf51e\",\n            \"file\": \"src/PreviewGlyph.module.css\",\n            \"line\": 2,\n            \"property\": \"font-family\",\n            \"value\": \"Arial, sans-serif\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:b06e87fabd36203f017af59574e402722726f144b8eb2a7b97240ace032065ac\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"b06e87fabd36203f017af59574e402722726f144b8eb2a7b97240ace032065ac\",\n            \"file\": \"src/PreviewGlyph.module.css\",\n            \"line\": 2,\n            \"property\": \"font-size\",\n            \"value\": \"20px\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:b237cd7e3c16bb8c953fdc05f6f010230a2bcc8d22b659dcc583339250bc233d\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"b237cd7e3c16bb8c953fdc05f6f010230a2bcc8d22b659dcc583339250bc233d\",\n            \"file\": \"src/PreviewGlyph.module.css\",\n            \"line\": 2,\n            \"property\": \"line-height\",\n            \"value\": \"24px\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:5e0689a66b6dfbc66c7bbe5dac44b03c244dabaa61293b4abfb76e6ed3c41146\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"5e0689a66b6dfbc66c7bbe5dac44b03c244dabaa61293b4abfb76e6ed3c41146\",\n            \"file\": \"src/PreviewGlyph.module.css\",\n            \"line\": 2,\n            \"property\": \"letter-spacing\",\n            \"value\": \"0\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:5f0ce550dc65255704b80469135e1cfa55fd5f3781a17b1fcd872082dd969466\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"5f0ce550dc65255704b80469135e1cfa55fd5f3781a17b1fcd872082dd969466\",\n            \"file\": \"src/base.css\",\n            \"line\": 1,\n            \"property\": \"margin\",\n            \"value\": \"0\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:d916970a98c8af12c91721e83ef7e8ae2a710b04299dcbe69cfd351d0ceff038\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"d916970a98c8af12c91721e83ef7e8ae2a710b04299dcbe69cfd351d0ceff038\",\n            \"file\": \"src/base.css\",\n            \"line\": 1,\n            \"property\": \"padding\",\n            \"value\": \"24px\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:55fbf8a20a8a61955af79dcf23bbcef7e71372b9f4e0c4410fdb7c644c91ac17\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"55fbf8a20a8a61955af79dcf23bbcef7e71372b9f4e0c4410fdb7c644c91ac17\",\n            \"file\": \"src/base.css\",\n            \"line\": 1,\n            \"property\": \"background\",\n            \"value\": \"white\",\n            \"kind\": \"css\"\n          }\n        },\n        {\n          \"id\": \"css:a267c87749e157540e0c3f3ce47c4a3adf8178c5d03f523f53c3223f33e0698f\",\n          \"status\": \"PASS\",\n          \"reason\": \"Browser CSS.supports for this literal declaration; not proof of cascade or substituted token validity.\",\n          \"declaration\": {\n            \"id\": \"a267c87749e157540e0c3f3ce47c4a3adf8178c5d03f523f53c3223f33e0698f\",\n            \"file\": \"src/base.css\",\n            \"line\": 1,\n            \"property\": \"color\",\n            \"value\": \"black\",\n            \"kind\": \"css\"\n          }\n        }\n      ],\n      \"status\": \"PASS\",\n      \"reason\": \"Applicable literal syntax checks passed in this browser; not proof of cascade, React behavior or visual fidelity.\"\n    },\n    \"closure\": {\n      \"state\": \"pending\",\n      \"complete\": false,\n      \"failures\": [],\n      \"pending\": [\n        {\n          \"caseId\": \"source-0\",\n          \"reason\": \"Published measurement missing\"\n        },\n        {\n          \"caseId\": \"wide-W\",\n          \"reason\": \"Published measurement missing\"\n        },\n        {\n          \"caseId\": \"wide-M\",\n          \"reason\": \"Published measurement missing\"\n        }\n      ],\n      \"stale\": [],\n      \"warnings\": [\n        \"2 text dimension(s): sizing semantics checked against snapshot; CSS behavior and rendering NOT VERIFIED; see review.textDimensions\",\n        \"2 literal translation(s) need contextual verification; see review.literals\",\n        \"2 translation(s): accounted for, CSS identity and rendering NOT VERIFIED; see review.translations\",\n        \"1:3#height#property: intrinsic CSS NOT VERIFIED; cascade, expression or unsupported declaration requires rendered review\",\n        \"1:3#width#property: intrinsic CSS NOT VERIFIED; cascade, expression or unsupported declaration requires rendered review\"\n      ],\n      \"cases\": [],\n      \"scope\": \"Current mapped geometry, font resources and mandatory behavior; not complete visual fidelity or full application validation.\"\n    },\n    \"execution\": {\n      \"status\": \"COMPLETED\",\n      \"phase\": \"complete\"\n    },\n    \"complete\": false,\n    \"diagnostics\": {\n      \"complete\": false,\n      \"cases\": [\n        {\n          \"caseId\": \"source-0\",\n          \"kind\": \"fidelity\",\n          \"file\": \"/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-browser-run-cwEYEm/source-0-1.json\",\n          \"receipt\": \"/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-browser-run-cwEYEm/source-0-1.receipt.json\",\n          \"policy\": \"mapped-layout-v1\",\n          \"comparatorVersion\": \"render-comparator-v21\",\n          \"checks\": [\n            {\n              \"id\": \"geometry:root\",\n              \"status\": \"FAIL\",\n              \"reason\": \"Layout bounds relative to the root; CSS border-box corresponds to unstroked or INSIDE-stroked source bounds.\",\n              \"expected\": {\n                \"x\": 0,\n                \"y\": 0,\n                \"width\": 48,\n                \"height\": 48\n              },\n              \"measured\": {\n                \"x\": 0,\n                \"y\": 0,\n                \"width\": 50,\n                \"height\": 50\n              },\n              \"delta\": {\n                \"x\": 0,\n                \"y\": 0,\n                \"width\": 2,\n                \"height\": 2\n              },\n              \"tolerance\": 1,\n              \"tolerances\": {\n                \"x\": 1,\n                \"y\": 1,\n                \"width\": 1,\n                \"height\": 1\n              }\n            },\n            {\n              \"id\": \"geometry:initial\",\n              \"status\": \"PASS\",\n              \"reason\": \"Layout bounds relative to the root; CSS border-box corresponds to unstroked or INSIDE-stroked source bounds.\",\n              \"expected\": {\n                \"x\": 18,\n                \"y\": 12,\n                \"width\": 12,\n                \"height\": 24\n              },\n              \"measured\": {\n                \"x\": 18.890625,\n                \"y\": 13,\n                \"width\": 12.21875,\n                \"height\": 24\n              },\n              \"delta\": {\n                \"x\": 0.890625,\n                \"y\": 1,\n                \"width\": 0.21875,\n                \"height\": 0\n              },\n              \"tolerance\": 1,\n              \"tolerances\": {\n                \"x\": 1,\n                \"y\": 1,\n                \"width\": 1,\n                \"height\": 1\n              },\n              \"typographyTolerance\": {\n                \"status\": \"provisional\",\n                \"requiresRenderedReview\": true,\n                \"basis\": \"No cross-font or cross-renderer Figma calibration establishes this threshold.\"\n              }\n            }\n          ],\n          \"summary\": {\n            \"PASS\": 1,\n            \"FAIL\": 1,\n            \"NOT COMPARABLE\": 0,\n            \"NOT RUN\": 0\n          },\n          \"scope\": \"Mapped layout, native states, explicit computed sRGB colors and font loading; not complete visual fidelity or proof of visible paint.\",\n          \"diagnostics\": [],\n          \"composition\": {\n            \"schemaVersion\": 1,\n            \"version\": \"composition-diagnostic-v4\",\n            \"status\": \"NOT VERIFIED\",\n            \"caseId\": \"source-0\",\n            \"figmaRef\": \"FILE:1:2\",\n            \"snapshotHash\": \"f38b524696048dea379eb460fb48cc2ef7298cfe30ea7800aa37d15bad20c580\",\n            \"scale\": 4,\n            \"checks\": [\n              {\n                \"id\": \"composition:initial\",\n                \"part\": \"initial\",\n                \"status\": \"NOT COMPARABLE\",\n                \"reason\": \"A visible, uniquely mapped leaf shape with captured bounds is required; text and absent parts are excluded.\"\n              }\n            ],\n            \"groups\": [],\n            \"artifacts\": [],\n            \"scope\": \"Experimental flat-sibling composition model, not overall Figma fidelity, actual layer attribution or confirmation. The snapshot does not capture source masks or every blend operation. Equal colors and unexplained paint remain indeterminate. No published measurement or gate is changed.\"\n          }\n        },\n        {\n          \"caseId\": \"wide-W\",\n          \"kind\": \"behavior\",\n          \"file\": \"/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-browser-run-cwEYEm/wide-W-2.json\",\n          \"receipt\": \"/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-browser-run-cwEYEm/wide-W-2.receipt.json\",\n          \"policy\": \"mapped-layout-v1\",\n          \"comparatorVersion\": \"render-comparator-v21\",\n          \"checks\": [\n            {\n              \"id\": \"behavior:0:intrinsic-size\",\n              \"status\": \"PASS\",\n              \"reason\": \"Explicit dimensional relation against the measured baseline, not copied source dimensions.\",\n              \"relation\": \"equal\",\n              \"axis\": \"height\",\n              \"expected\": 24,\n              \"measured\": 24,\n              \"delta\": 0,\n              \"tolerance\": 1\n            },\n            {\n              \"id\": \"behavior:1:intrinsic-size\",\n              \"status\": \"PASS\",\n              \"reason\": \"Explicit dimensional relation against the measured baseline, not copied source dimensions.\",\n              \"relation\": \"grow\",\n              \"axis\": \"width\",\n              \"expected\": 12.21875,\n              \"measured\": 18.890625,\n              \"delta\": 6.671875,\n              \"tolerance\": 1\n            }\n          ],\n          \"summary\": {\n            \"PASS\": 2,\n            \"FAIL\": 0,\n            \"NOT COMPARABLE\": 0,\n            \"NOT RUN\": 0\n          },\n          \"scope\": \"Mapped layout, native states, explicit computed sRGB colors and font loading; not complete visual fidelity or proof of visible paint.\",\n          \"diagnostics\": []\n        },\n        {\n          \"caseId\": \"wide-M\",\n          \"kind\": \"behavior\",\n          \"file\": \"/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-browser-run-cwEYEm/wide-M-3.json\",\n          \"receipt\": \"/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-browser-run-cwEYEm/wide-M-3.receipt.json\",\n          \"policy\": \"mapped-layout-v1\",\n          \"comparatorVersion\": \"render-comparator-v21\",\n          \"checks\": [\n            {\n              \"id\": \"behavior:0:intrinsic-size\",\n              \"status\": \"PASS\",\n              \"reason\": \"Explicit dimensional relation against the measured baseline, not copied source dimensions.\",\n              \"relation\": \"equal\",\n              \"axis\": \"height\",\n              \"expected\": 24,\n              \"measured\": 24,\n              \"delta\": 0,\n              \"tolerance\": 1\n            },\n            {\n              \"id\": \"behavior:1:intrinsic-size\",\n              \"status\": \"PASS\",\n              \"reason\": \"Explicit dimensional relation against the measured baseline, not copied source dimensions.\",\n              \"relation\": \"grow\",\n              \"axis\": \"width\",\n              \"expected\": 12.21875,\n              \"measured\": 16.671875,\n              \"delta\": 4.453125,\n              \"tolerance\": 1\n            }\n          ],\n          \"summary\": {\n            \"PASS\": 2,\n            \"FAIL\": 0,\n            \"NOT COMPARABLE\": 0,\n            \"NOT RUN\": 0\n          },\n          \"scope\": \"Mapped layout, native states, explicit computed sRGB colors and font loading; not complete visual fidelity or proof of visible paint.\",\n          \"diagnostics\": []\n        }\n      ],\n      \"summary\": {\n        \"PASS\": 5,\n        \"FAIL\": 1,\n        \"NOT COMPARABLE\": 0,\n        \"NOT RUN\": 0\n      },\n      \"resources\": {\n        \"fonts\": [],\n        \"assets\": []\n      },\n      \"scope\": \"Temporary observations, never publication or confirmation. Missing resources can affect geometry; numeric deltas do not identify their cause.\",\n      \"warnings\": [\n        \"2 text dimension(s): sizing semantics checked against snapshot; CSS behavior and rendering NOT VERIFIED; see review.textDimensions\",\n        \"2 literal translation(s) need contextual verification; see review.literals\",\n        \"2 translation(s): accounted for, CSS identity and rendering NOT VERIFIED; see review.translations\",\n        \"1:3#height#property: intrinsic CSS NOT VERIFIED; cascade, expression or unsupported declaration requires rendered review\",\n        \"1:3#width#property: intrinsic CSS NOT VERIFIED; cascade, expression or unsupported declaration requires rendered review\"\n      ],\n      \"compositionSummary\": {\n        \"PASS\": 0,\n        \"FAIL\": 0,\n        \"NOT COMPARABLE\": 1,\n        \"NOT RUN\": 0\n      }\n    },\n    \"preview\": {\n      \"requestedPort\": 0,\n      \"port\": 55441,\n      \"cases\": [\n        {\n          \"id\": \"source-0\",\n          \"viewport\": {\n            \"width\": 640,\n            \"height\": 480\n          },\n          \"url\": \"http://127.0.0.1:55441/__ds_verification?case=source-0\"\n        },\n        {\n          \"id\": \"wide-W\",\n          \"viewport\": {\n            \"width\": 640,\n            \"height\": 480\n          },\n          \"url\": \"http://127.0.0.1:55441/__ds_verification?case=wide-W\"\n        },\n        {\n          \"id\": \"wide-M\",\n          \"viewport\": {\n            \"width\": 640,\n            \"height\": 480\n          },\n          \"url\": \"http://127.0.0.1:55441/__ds_verification?case=wide-M\"\n        }\n      ],\n      \"diagnosticsUrl\": \"http://127.0.0.1:55441/__ds_css_diagnostics\"\n    },\n    \"scope\": \"Browser measurements and literal syntax diagnostics, not automatic visual judgment or glyph-font proof.\"\n  },\n  \"importDiagnostics\": {\n    \"components\": [\n      {\n        \"metadataPath\": \"design-system/components/PreviewGlyph/metadata.json\",\n        \"name\": \"PreviewGlyph\",\n        \"serialization\": {\n          \"consumption\": {\n            \"status\": \"STATIC_REFERENCES\",\n            \"unknownStyles\": [],\n            \"uncertainInlineReferences\": [],\n            \"scope\": \"Metadata bindings and reachable CSS/JSX literal styles with local aliases across recorded modes; not proof of execution. Dynamic expressions and unresolved imports remain unknown.\"\n          },\n          \"pending\": [],\n          \"warnings\": []\n        }\n      }\n    ],\n    \"warnings\": [],\n    \"nextActions\": []\n  },\n  \"report\": {\n    \"schemaVersion\": 1,\n    \"source\": \"temporary-diagnosis\",\n    \"status\": \"FAIL\",\n    \"headline\": \"1 declared fidelity cases; temporary diagnosis does not revalidate confirmations or confirm delivery.\",\n    \"structure\": {\n      \"status\": \"NOT RUN\",\n      \"reason\": \"Not evaluated by this diagnostic surface.\"\n    },\n    \"application\": {\n      \"status\": \"PASS\",\n      \"reason\": \"Applicable literal syntax checks passed in this browser; not proof of cascade, React behavior or visual fidelity.\"\n    },\n    \"components\": [\n      {\n        \"name\": \"PreviewGlyph\",\n        \"status\": \"NOT VERIFIED\",\n        \"invalidInputs\": [],\n        \"coverage\": {\n          \"confirmationsRevalidated\": false,\n          \"fidelity\": 1,\n          \"confirmed\": null,\n          \"pending\": null,\n          \"stale\": 0,\n          \"failedRecords\": 0\n        },\n        \"cases\": [\n          {\n            \"caseId\": \"source-0\",\n            \"kind\": \"fidelity\",\n            \"modes\": {},\n            \"status\": \"not-revalidated\",\n            \"computedColors\": [],\n            \"temporaryChecks\": {\n              \"PASS\": 1,\n              \"FAIL\": 1,\n              \"NOT COMPARABLE\": 0,\n              \"NOT RUN\": 0\n            },\n            \"requiredCorrections\": [\n              {\n                \"id\": \"geometry:root\",\n                \"status\": \"FAIL\",\n                \"reason\": \"Layout bounds relative to the root; CSS border-box corresponds to unstroked or INSIDE-stroked source bounds.\"\n              }\n            ],\n            \"requiredReviews\": [\n              {\n                \"id\": \"geometry:initial\",\n                \"status\": \"PASS\",\n                \"reason\": \"Layout bounds relative to the root; CSS border-box corresponds to unstroked or INSIDE-stroked source bounds.\"\n              }\n            ],\n            \"requiredExecution\": []\n          },\n          {\n            \"caseId\": \"wide-W\",\n            \"kind\": \"behavior\",\n            \"modes\": {},\n            \"status\": \"not-revalidated\",\n            \"computedColors\": [],\n            \"temporaryChecks\": {\n              \"PASS\": 2,\n              \"FAIL\": 0,\n              \"NOT COMPARABLE\": 0,\n              \"NOT RUN\": 0\n            },\n            \"requiredCorrections\": [],\n            \"requiredReviews\": [],\n            \"requiredExecution\": []\n          },\n          {\n            \"caseId\": \"wide-M\",\n            \"kind\": \"behavior\",\n            \"modes\": {},\n            \"status\": \"not-revalidated\",\n            \"computedColors\": [],\n            \"temporaryChecks\": {\n              \"PASS\": 2,\n              \"FAIL\": 0,\n              \"NOT COMPARABLE\": 0,\n              \"NOT RUN\": 0\n            },\n            \"requiredCorrections\": [],\n            \"requiredReviews\": [],\n            \"requiredExecution\": []\n          }\n        ],\n        \"modeCoverage\": [\n          {\n            \"modes\": {},\n            \"fidelity\": [\n              \"source-0\"\n            ],\n            \"confirmedFidelity\": [],\n            \"behavior\": [\n              \"wide-W\",\n              \"wide-M\"\n            ],\n            \"verifiedBehavior\": []\n          }\n        ],\n        \"declaredDecisions\": [],\n        \"excludedObservations\": [],\n        \"unresolvedDesign\": [],\n        \"unestablished\": []\n      }\n    ],\n    \"pendingAuthorizations\": [],\n    \"obligations\": [\n      {\n        \"code\": \"REVIEW_RENDERED_DIFFERENCES\",\n        \"targets\": [\n          \"design-system/components/PreviewGlyph/metadata.json\"\n        ],\n        \"cases\": [\n          {\n            \"caseId\": \"source-0\",\n            \"checks\": [\n              \"geometry:root\"\n            ]\n          }\n        ],\n        \"permissions\": [\n          \"project-read\",\n          \"browser-execution\",\n          \"temporary-write\"\n        ],\n        \"reason\": \"Inspect observed deltas and resource limitations before attributing a cause. Correct demonstrated implementation defects and repeat the diagnosis.\",\n        \"command\": {\n          \"executable\": \"npm\",\n          \"args\": [\n            \"run\",\n            \"finalize:import\",\n            \"--\",\n            \"/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-preview-fixture-nsSoH1\",\n            \"design-system/components/PreviewGlyph/metadata.json\",\n            \"--diagnose\"\n          ]\n        }\n      }\n    ],\n    \"errors\": [],\n    \"warningCount\": 0,\n    \"limits\": [\n      \"Only explicitly mapped single solid sRGB color properties are compared; computed values do not prove visible paint, mask loading, shape or glyph coverage.\",\n      \"Mode coverage lists exact declared case configurations, not every available mode or every combination.\",\n      \"Declared decisions and exclusions are not proof of user approval. Temporary diagnostics never replace persisted evidence and specific rendered reviews.\"\n    ]\n  },\n  \"nextActions\": [\n    {\n      \"code\": \"REVIEW_RENDERED_DIFFERENCES\",\n      \"targets\": [\n        \"design-system/components/PreviewGlyph/metadata.json\"\n      ],\n      \"cases\": [\n        {\n          \"caseId\": \"source-0\",\n          \"checks\": [\n            \"geometry:root\"\n          ]\n        }\n      ],\n      \"permissions\": [\n        \"project-read\",\n        \"browser-execution\",\n        \"temporary-write\"\n      ],\n      \"reason\": \"Inspect observed deltas and resource limitations before attributing a cause. Correct demonstrated implementation defects and repeat the diagnosis.\",\n      \"command\": {\n        \"executable\": \"npm\",\n        \"args\": [\n          \"run\",\n          \"finalize:import\",\n          \"--\",\n          \"/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-preview-fixture-nsSoH1\",\n          \"design-system/components/PreviewGlyph/metadata.json\",\n          \"--diagnose\"\n        ]\n      }\n    }\n  ],\n  \"scope\": \"Diagnostic feedback on existing code only. No project evidence is published, no reviews are recorded and delivery is not confirmed. Fix observed defects, resolve resources and collect again before delivery.\"\n}\n",
+      "stderr": "",
+      "error": null
+    },
+    {
+      "sequence": 15,
+      "tool": "query",
+      "operation": "guidance",
+      "args": [
+        "import-diagnose-results",
+        "composition"
+      ],
+      "effect": "read",
+      "scope": "instructions",
+      "complete": true,
+      "result": {
+        "schemaVersion": 1,
+        "phases": [
+          "import-diagnose-results"
+        ],
+        "features": [
+          "composition"
+        ],
+        "conditions": {
+          "composition": "Observed diagnostic output has composition checks or REVIEW_COMPOSITION_DIAGNOSTICS/RETRY_COMPOSITION_DIAGNOSTICS actions; read after execution, before interpreting or retrying."
+        },
+        "sections": [
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+            "section": "Interpretar el diagnóstico",
+            "start": 1334,
+            "end": 2582
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+            "section": "CSS Y Navegador Opcional",
+            "start": 71294,
+            "end": 75847
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+            "section": "Diagnóstico Experimental De Composición",
+            "start": 3772,
+            "end": 4208
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+            "section": "Fallos técnicos de composición",
+            "start": 5792,
+            "end": 6995
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+            "section": "Diagnóstico experimental de composición",
+            "start": 7546,
+            "end": 10155
+          }
+        ],
+        "excerpts": [
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+            "start": 1334,
+            "end": 2582,
+            "text": "## Interpretar el diagnóstico\n\nDespués de ejecutar, lee esta fase antes de corregir, reintentar o informar conclusiones. Examina diagnosis.diagnostics.cases, resources, warnings, application y nextActions. Distingue ejecución, conformidad estática, resultado numérico y revisión visual. Las dimensiones de cada parte, bordes parciales y posición AABB se contrastan con su snapshot, no con nombres de variantes. Una fuente pendiente puede alterar anchos/posiciones; los deltas no demuestran su causa.\n\n`--diagnose` evalúa composición automáticamente; --with composition solo elige documentación. Si compositionSummary contiene checks (PASS/FAIL/NOT RUN/NOT COMPARABLE), cases[].composition contiene resultados, o nextActions incluye REVIEW_COMPOSITION_DIAGNOSTICS o RETRY_COMPOSITION_DIAGNOSTICS, lee import-diagnose-results --with composition antes de interpretarlos. Los errores técnicos requieren reintento; una abstención conocida no es un error de ejecución. No cambies tolerancias, snapshots ni recursos para obtener PASS.\n\nTras corregir defectos demostrados, repite el diagnóstico. No publiques ni confirmes por un diagnóstico limpio: aplica INV-STATUS/INV-DELIVERY y lee import-close antes de las acciones autorizadas de recogida/revisión.\n\n"
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+            "start": 3772,
+            "end": 4208,
+            "text": "## Diagnóstico Experimental De Composición\n\nEl modelo, contadores, límites y motivos de abstención están en los apartados canónicos de metadata que selecciona import-diagnose-results --with composition. Revisa capturas temporales compuestas/aisladas y sus motivos antes de corregir. La geometría o un PASS de composición no acreditan visibilidad general, máscaras, glifos ni fidelidad; no sustituyen checkReviews ni comparación visual.\n"
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+            "start": 5792,
+            "end": 6995,
+            "text": "## Fallos técnicos de composición\n\ndiagnoseComposition puede rechazar su promesa si falla la lectura inicial del estilo de body, antes de aislar, capturar o escribir. No es una API que prometa devolver siempre un registro estructurado: verification-browser captura ese fallo como composition:collection/NOT RUN con el motivo original y cierra el contexto. La derivación compartida de acciones conserva el caso y solicita RETRY_COMPOSITION_DIAGNOSTICS; no hay estado de aislamiento que restaurar en ese punto.\n\nLos fallos técnicos dentro del muestreo de composición (evaluación inesperada, screenshot, persistencia, decodificación o restauración) son NOT RUN, no abstenciones. Solo las condiciones explícitas de comparabilidad/presupuesto producen NOT COMPARABLE, comunicadas estructuralmente y sin clasificar errores por su texto. Se conserva el error original y, si procede, el de restauración, con los artefactos parciales ya escritos. Se intentan todos los pasos de limpieza y no se conservan checks aprobados de un grupo cuya restauración falla. La finalización convierte NOT RUN en FAIL diagnóstico/RETRY_COMPOSITION_DIAGNOSTICS sin afirmar un defecto visual ni afectar confirmaciones publicadas.\n\n"
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+            "start": 7546,
+            "end": 10155,
+            "text": "## Diagnóstico experimental de composición\n\nEn el modelo de composición, la coincidencia exacta del compuesto con la tinta opaca propia acredita visible aunque un hermano inferior tenga suavizado/translucidez. No se aplica si existe pintura superior, una región excluida o un color indistinguible. En los demás casos la pintura translúcida mantiene indeterminate, especialmente al intentar atribuir oclusión. Esta precedencia no permite confirmar fidelidad general.\n\nSalida experimental, no campo de metadata: en --diagnose, diagnostics.cases[].composition y diagnostics.compositionSummary comparan tinta aislada y compuesta a 4× solo para formas hoja hermanas inequívocas con cajas solapadas y orden fuente legible (incluido itemReverseZIndex). El aislamiento usa visibility y dos fondos, sin modificar layout; se verifica geometría/estilos/contenido y se restaura el compuesto. Capturas originales/aisladas/restauradas con SHA-256 permanecen en el temporal. opaque = visible + occludedByLower + legitimatelyCovered + indeterminate; nonOpaque son píxeles sin tinta opaca estable. En regiones excluidas, la tinta opaca cuenta como indeterminate, no nonOpaque. La igualdad de colores o pintura translúcida no acredita oclusión. FAIL significa que tinta esperada encima coincide con el color de un hermano inferior, no una atribución autenticada del pintor. Emite REVIEW_COMPOSITION_DIAGNOSTICS y falla el diagnóstico; PASS se limita al modelo muestreado, no a fidelidad general. Texto, descendientes, mapeos ambiguos, otros modos/estados, opacidad, filtros, recorte ancestral y cambios al aislar quedan NOT COMPARABLE. El snapshot no registra máscaras de origen ni todas las operaciones de mezcla: no se presupone que esta comprobación las valide. Topes: cuatro grupos por caso, ocho partes, 1000 elementos DOM, 512 kilopíxeles por captura y ocho megapíxeles de capturas por caso. No se publica ni entra en el cierre, gate, measurementVersion o checkReviews; tampoco exime las revisiones existentes.\n\ncompositionSummary.NOT RUN hace fallar el diagnóstico y genera RETRY_COMPOSITION_DIAGNOSTICS con caso/check/motivo y comando derivado; no demuestra un defecto visual. NOT COMPARABLE no solicita reintento. temporary-read declara lectura de artefactos temporales existentes, sin escribirlos ni ejecutar navegador; el reintento declara project-read/browser-execution/temporary-write. Son requisitos informativos, nunca autorización automática. El contador nonOpaque sustituye al nombre anterior sin alias; la versión propia de composición identifica este cambio, sin cambiar contratos de mediciones publicadas.\n\n"
+          },
+          {
+            "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+            "start": 71294,
+            "end": 75847,
+            "text": "#### CSS Y Navegador Opcional\n\nEl adaptador reserva exclusivamente un directorio vacío antes de validar o arrancar procesos; rechaza cualquier contenido previo, incluso manifest/result antiguos o la reserva de otra ejecución. No sobrescribe ni reutiliza resultados. El resultado conserva execution `{ status, phase, reason? }` junto a manifest, closure y application. Un preflight de cierre failed produce informes estructurados, mediciones pendientes y salida 1, sin navegador. Fallos de infraestructura (preview/browser-launch) conservan el cierre con execution NOT RUN y salida 2; no afirman un defecto visual. Las recogidas parciales conservan lo ya publicado. La reserva se libera al terminar y los procesos arrancados se cierran también cuando falla el lanzamiento.\n\nLa reserva registra schemaVersion 1, pid, hostname y startedAt. Un cierre forzado puede dejarla atrás. `node .agents/skills/create-ds-from-figma/scripts/verification-browser.mjs inspect-lock DIRECTORY` es de solo lectura: devuelve estado observado, owner cuando es legible, SHA-256 y orientación de recuperación. La presencia del PID no autentica al propietario (puede haberse reutilizado); ESRCH solo implica PID no visible en ese contexto. Otra máquina, permisos insuficientes o formato ilegible quedan sin verificar. La colisión devuelve DS_OUTPUT_RESERVED con ese diagnóstico. Nunca se reclama automáticamente una reserva ni se borran resultados: conserva la salida abandonada y usa una nueva carpeta vacía, o el temporal nuevo por defecto. Inspeccionar no acredita que el proceso haya terminado ni autoriza eliminar el lock.\n\napplication siempre incluye status y reason, además de errors/results/checks: PASS significa que pasan los checks aplicables en ese navegador; FAIL, error de análisis o algún check FAIL; NOT VERIFIED, checks pendientes o no comparables sin FAIL; NOT RUN, diagnóstico no ejecutado o imposible. El reason explica el alcance. execution COMPLETED no implica application PASS ni confirmación visual: distingue ejecución de resultado. Los contadores globales de npm test también separan perfiles ejecutados, fallidos y no ejecutados; el último TAP no representa su total.\n\nLos números inline constantes se serializan con la semántica de React: longitudes con px salvo cero, propiedades sin unidad (incluidas SVG y prefijos), y signos explícitos. Las expresiones dinámicas siguen sin validación estática. El diagnóstico recoge las condiciones @supports ancestrales; el navegador devuelve su aplicabilidad junto a CSS.supports por declaración. Una condición inactiva da PASS de no aplicabilidad en ese navegador, no de validez universal. Una extensión de motor no soportada sin condición inactiva queda NOT COMPARABLE y necesita revisar su fallback o el motor objetivo; un literal ordinario no soportado sigue siendo FAIL. No se deduce la cascada, el motor objetivo ni el soporte en otros navegadores. Se aplica tanto al componente como al diagnóstico separado de aplicación.\n\nEl cierre enumera mediciones ausentes antes de las validaciones estáticas siempre que los casos y el manifiesto sean interpretables. Ante fallo estático conserva failed y la lista pendiente; las mediciones aportadas quedan explícitamente sin comprobar, en vez de ejecutar comparaciones inseguras o fingir que son vigentes.\n\nPostCSS recoge declaraciones CSS literales y TypeScript las cadenas de objetos inline style. El navegador devuelve CSS.supports por ID exacto en cssDiagnostics `{ schemaVersion: 1, results: [{ id, supported }] }`. El gate recalcula el conjunto: resultado ausente/desconocido es NOT RUN; rechazo del navegador es FAIL. No demuestra cascada, intención ni compatibilidad entre navegadores. Propiedades custom y var()/env() se omiten de este diagnóstico; valores inline numéricos/dinámicos/spreads generan aviso, sin afirmarse validados. Los checks de tokens/renderizado siguen siendo obligatorios. border-style sin anchuras/colores explícitos en la misma regla avisa de valores iniciales/currentColor: no falla universalmente porque la cascada puede establecerlos. Explicita la decisión en CSS o revisa su efecto real.\n\n`node .agents/skills/create-ds-from-figma/scripts/verification-plan.mjs diagnose .` recoge diagnósticos estáticos de todos los TSX/JSX/CSS bajo src. La vista emite diagnosticsUrl (/__ds_css_diagnostics), que ejecuta CSS.supports y expone window.__dsCssDiagnostics. Ejecútalo dentro del flujo que genera App.tsx, pero separado del cierre del componente. Un fallo de demo no es un fallo del componente ni debe ignorarse al entregar la app.\n\n"
+          }
+        ],
+        "stats": {
+          "selectedBytes": 10161,
+          "selectedWords": 1335,
+          "wholeReferencedFilesBytes": 105300
+        },
+        "sourceHash": "3f0497937a32aebfb7cd5afd30eb892c65e26b40eef12ee0ed12c58ca3f9f03c",
+        "scope": "Selected documentation only; bytes/words, not measured model tokens. Conditions must be established from observations; omitted sections do not waive obligations. Shared/existing context is not counted."
+      }
+    }
+  ],
+  "final": {
+    "status": "diagnosed",
+    "confirmed": false,
+    "finalText": "Diagnóstico temporal ejecutado: FAIL, complete=false; correspondencia candidate conservada, sin publicar ni confirmar.\n\nResultados:\n- Estructura: check DS sin errores; relación DOM/clase no revisada manualmente (NOT RUN).\n- Evidencia capturada: check estático sin errores sobre snapshot sintético; no acredita Figma vivo.\n- Procedencia de estilos: NOT RUN; no se ha autentificado la declaración sintética.\n- Props/TSX: NOT RUN por falta de .agents/prop-vocabulary.json en el fixture.\n- Reutilización: NOT RUN; no se ha completado la comparación del inventario.\n- Composición: NOT COMPARABLE para initial, por ser texto excluido del modelo experimental; revisión completa NOT RUN.\n- Tokens e identidad escrita: FAIL, 4 hallazgos en src/PreviewGlyph.module.css: letter-spacing 0 frente al registro 0px, width/height 48px y font-family sin registros de literal. Propuesta: ajustar la identidad de letter-spacing y registrar únicamente observaciones autorizadas que justifiquen las declaraciones; no se han editado archivos.\n- Valores computados de bindings: NOT RUN; no hay bindings declarados.\n- Literales aproximados: comparación contextual NOT RUN; line-height conserva identidad escrita PASS y análisis estático NOT_RUN.\n- Accesibilidad: NOT RUN como revisión completa; el componente inspeccionado contiene solo spans, sin controles.\n- Comparación visual Figma/navegador: NOT RUN, sin Figma vivo ni revisión visual realizada.\n- Chromium: execution COMPLETED tras reintentar con escalación el EPERM inicial. source-0: geometry:root FAIL (50×50 frente a 48×48; delta 2 px, tolerancia 1 px). Propuesta: revisar el dimensionado exterior y box-sizing del borde en src/PreviewGlyph.module.css y repetir tras una corrección autorizada. geometry:initial PASS numérico provisional, con revisión específica pendiente.\n- Behavior wide-W y wide-M: 4 checks PASS; altura 24 px, ancho crece respecto a 12.21875 px (W 18.890625, M 16.671875).\n- Sintaxis CSS de aplicación: PASS en este Chromium; no demuestra fidelidad.\nOverall: FAIL por diferencias objetivas; fidelidad completa NOT VERIFIED. No se ejecutó verify:imports porque no se entrega ni confirma una importación. Sin cambios en código, metadata o usage.md. Temporales conservados en /var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-browser-run-cwEYEm; intento inicial en ds-browser-run-6aNOuN."
+  },
+  "after": [
+    {
+      "path": "behavior-input.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "a3a3c1c73047d5906044ee16fe478b1c2bfcf36fd08f2fb74b5de1a2debf2fe1"
+    },
+    {
+      "path": "design-system",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/components",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/components/PreviewGlyph",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/components/PreviewGlyph/metadata.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "afbfddc666628388dcb9d5a72e06819b7ff4e8e939e29bdaa0cf7f30658ca2b5"
+    },
+    {
+      "path": "design-system/components/PreviewGlyph/usage.md",
+      "type": "file",
+      "mode": 420,
+      "hash": "9d7e6cab1ee58b103388782dd8a551cdc2b779b54cc24421c466348bc88eae8f"
+    },
+    {
+      "path": "design-system/figma",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/figma/snapshots",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/figma/snapshots/FILE",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/figma/snapshots/FILE/1-2",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/figma/snapshots/FILE/1-2/f38b524696048dea379eb460fb48cc2ef7298cfe30ea7800aa37d15bad20c580.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "a67692c0e99cc62a2defb37f3c5386e1773f0142536b43405733160b42fcae28"
+    },
+    {
+      "path": "design-system/inventory.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "7a7003192ecf6702ac5fd1077a626b7be5a105a5d28cd54ec7916b6cb34725e2"
+    },
+    {
+      "path": "design-system/relationships",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/relationships/figma-code-map.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "e122adfa7b1bbcda5219af6a5de6ccecc02f96be5b4288700125c5ec49799b4c"
+    },
+    {
+      "path": "design-system/relationships/figma-state.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "d4981f02ed69f889f6e65c9d361e202b1837bfec02cc084e49d8f5a7f167b58d"
+    },
+    {
+      "path": "design-system/tokens",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "design-system/tokens/Colors.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "8511c4590a8480f2d8d1d402ee212092b64c1a91835ae536d722777db23fa9e2"
+    },
+    {
+      "path": "node_modules",
+      "type": "symlink",
+      "mode": 493,
+      "target": "/Users/julian/Documents/create-ds-from-figma/.agents/browser-tests/node_modules"
+    },
+    {
+      "path": "package.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "ef05921daf71f547fc19b95b2a1417d7e0625950882906c823b20f0739f28191"
+    },
+    {
+      "path": "src",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "src/PreviewGlyph.module.css",
+      "type": "file",
+      "mode": 420,
+      "hash": "0e9e5f442bc0d025b30fc4f662b14bf35a586622068a77981b1829ee5bca1536"
+    },
+    {
+      "path": "src/PreviewGlyph.tsx",
+      "type": "file",
+      "mode": 420,
+      "hash": "596487060d4fa5890809d34ddd9905e44534e8427834b45c4e56b678b29aea98"
+    },
+    {
+      "path": "src/base.css",
+      "type": "file",
+      "mode": 420,
+      "hash": "c9c89823ea428b5cd44752e934403edfaf9e705d4f9efbda4b425511d5007c3d"
+    },
+    {
+      "path": "src/styles",
+      "type": "directory",
+      "mode": 493
+    },
+    {
+      "path": "src/styles/tokens.css",
+      "type": "file",
+      "mode": 420,
+      "hash": "c5cd37174eda8fc951c9a69ea4ecc0c293cf81b848caca003e0b323981b18afc"
+    }
+  ]
+}

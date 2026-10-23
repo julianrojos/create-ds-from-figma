@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "caseId": "essential-resource",
+  "caseHash": "3a7b7f98fc96fe99ddd78b528cb1d3fc8d710de8fe23a958906d815223740594",
+  "instructionHash": "d8f96d1a3383a395592405f577388396f0fa4fb3dac57621bcd9dd61eafeb218",
+  "date": "2026-10-22T20:06:00.945Z",
+  "executor": "independent fresh-context agent: essential-resource, repetition 2",
+  "model": "unreported",
+  "modelVersion": "unreported",
+  "projectRoot": "/var/folders/3j/w_rqcllx6g929n5s5yfkrg740000gn/T/ds-preview-fixture-503F7S",
+  "started": true,
+  "finished": true,
+  "tools": [
+    {
+      "name": "read",
+      "effects": [
+        "read"
+      ]
+    },
+    {
+      "name": "exec",
+      "effects": [
+        "execute",
+        "unknown"
+      ]
+    },
+    {
+      "name": "edit",
+      "effects": [
+        "write"
+      ]
+    }
+  ],
+  "recording": {
+    "complete": true,
+    "gaps": 0
+  },
+  "before": [
+    {
+      "path": "behavior-input.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "6287308791638fa91e2e926072a383cc57932b72e176df07f4fb9b69b8d1b9fa"
+    }
+  ],
+  "events": [],
+  "final": {
+    "status": "blocked",
+    "confirmed": false,
+    "finalText": "DS_GAP: falta la imagen esencial del componente sintético. La importación queda bloqueada antes de escribir scaffold, tokens, ficha o TSX; no hay autorización para sustituir el recurso ni preparar scaffold. No se ha modificado el proyecto, ejecutado diagnóstico ni confirmado fidelidad visual. Para continuar hace falta resolver la imagen esencial."
+  },
+  "after": [
+    {
+      "path": "behavior-input.json",
+      "type": "file",
+      "mode": 420,
+      "hash": "6287308791638fa91e2e926072a383cc57932b72e176df07f4fb9b69b8d1b9fa"
+    }
+  ]
+}

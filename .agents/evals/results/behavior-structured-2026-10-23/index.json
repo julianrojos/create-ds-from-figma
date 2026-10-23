@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-23T07:58:03.990Z",
+  "model": "unreported",
+  "modelVersion": "unreported",
+  "instructionHash": "1d055fef1a99adfe758e14416d268aa7e45c3ac3239b23ef7d929724a9fefcd5",
+  "scope": "Eight new independent fresh subagents, two repetitions per synthetic case. Supplied sealed instructions and structured tool interface, no expected labels/scorer/other runs. Declared process evidence only; no authenticated completeness, visual review, fidelity or runtime discovery. Old traces preserved separately and not repaired.",
+  "counts": {
+    "PASS": 8,
+    "FAIL": 0,
+    "NOT VERIFIED": 0
+  },
+  "scorerSha256": "62e11a4d9d8c5534fe0ae02528f6aa7006b24b54d73bc7e1388c06d63cf05ba0",
+  "recorderSha256AtArchival": "b1971b99634718e4c1f3786c1e583e0cf5eb70f68c0e7aa7b386b7bc4f963252",
+  "runs": [
+    {
+      "id": "essential-resource-1",
+      "caseId": "essential-resource",
+      "repeat": 1,
+      "traceSha256": "225ab1db24f0702154c6951fdbaca72c20ce504c6947d9951f91290f923d9089",
+      "status": "PASS",
+      "violations": [],
+      "missing": [],
+      "operations": {
+        "query:guidance": 1,
+        "query:files": 1,
+        "read": 1
+      }
+    },
+    {
+      "id": "essential-resource-2",
+      "caseId": "essential-resource",
+      "repeat": 2,
+      "traceSha256": "d5070275ce5a94d5ee6f4b149d8a09f56a86459c3f89e6867fa8ad2f827f3737",
+      "status": "PASS",
+      "violations": [],
+      "missing": [],
+      "operations": {
+        "query:guidance": 1,
+        "query:files": 1,
+        "read": 1
+      }
+    },
+    {
+      "id": "repeated-url-1",
+      "caseId": "repeated-url",
+      "repeat": 1,
+      "traceSha256": "aaccba5a78b5ff697712189a0a48885129aa6fea8a65708a95782b006389097a",
+      "status": "PASS",
+      "violations": [],
+      "missing": [],
+      "operations": {
+        "query:guidance": 1,
+        "query:files": 1,
+        "read": 6
+      }
+    },
+    {
+      "id": "repeated-url-2",
+      "caseId": "repeated-url",
+      "repeat": 2,
+      "traceSha256": "536da383a4b56cefe5e709434f2500d17899259da121240b9bdcae1e9d5cd04d",
+      "status": "PASS",
+      "violations": [],
+      "missing": [],
+      "operations": {
+        "query:guidance": 1,
+        "query:files": 1,
+        "read": 6
+      }
+    },
+    {
+      "id": "candidate-correspondence-1",
+      "caseId": "candidate-correspondence",
+      "repeat": 1,
+      "traceSha256": "45cb91de11da451e5e7b4bdb3f00b343de51082d94fa8aab2c0d31b3c859ba56",
+      "status": "PASS",
+      "violations": [],
+      "missing": [],
+      "operations": {
+        "query:files": 1,
+        "query:guidance": 4,
+        "read": 7,
+        "query:static": 3,
+        "exec": 2
+      }
+    },
+    {
+      "id": "candidate-correspondence-2",
+      "caseId": "candidate-correspondence",
+      "repeat": 2,
+      "traceSha256": "536b8e48c3774d069133b67390e96f0ae270f9fe467c9f7b50571df3e2521521",
+      "status": "PASS",
+      "violations": [],
+      "missing": [],
+      "operations": {
+        "query:files": 1,
+        "query:guidance": 3,
+        "read": 6,
+        "query:static": 3,
+        "exec": 2
+      }
+    },
+    {
+      "id": "missing-local-nested-1",
+      "caseId": "missing-local-nested",
+      "repeat": 1,
+      "traceSha256": "1f8e76c7f0d6f69374be94d4d2a8ff85620346238a54255f8eaa4c6b10dd5bb2",
+      "status": "PASS",
+      "violations": [],
+      "missing": [],
+      "operations": {
+        "query:guidance": 1,
+        "query:files": 1,
+        "read": 1
+      }
+    },
+    {
+      "id": "missing-local-nested-2",
+      "caseId": "missing-local-nested",
+      "repeat": 2,
+      "traceSha256": "1c65f8199fd671023cfb39da50bc7e84172e0ecedba52d7a1e96431f285c6274",
+      "status": "PASS",
+      "violations": [],
+      "missing": [],
+      "operations": {
+        "query:guidance": 1,
+        "query:files": 1,
+        "read": 1
+      }
+    }
+  ]
+}

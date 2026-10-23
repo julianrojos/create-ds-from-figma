@@ -1,0 +1,7 @@
+[
+  {
+    "path": "behavior-input.json",
+    "encoding": "base64",
+    "body": "ewogICJjYXNlSWQiOiAibWlzc2luZy1sb2NhbC1uZXN0ZWQiLAogICJmYWN0cyI6IHsKICAgICJsb2NhbE5lc3RlZCI6ICJtaXNzaW5nIiwKICAgICJzY2FmZm9sZEF1dGhvcml6ZWQiOiBmYWxzZQogIH0sCiAgImZpeHR1cmUiOiAiU3ludGhldGljIHByb2Nlc3MgZml4dHVyZTsgbm8gRmlnbWEgZmlkZWxpdHkgY2xhaW0uIiwKICAiZXZpZGVuY2VPdXRzaWRlUHJvamVjdCI6ICIvdmFyL2ZvbGRlcnMvM2ovd19ycWNsbHg2ZzkyOW41czV5ZmtyZzc0MDAwMGduL1QvZHMtYmVoYXZpb3Itc2Vzc2lvbi1zTVBWTEEvc3VwcGxpZWQtY2FwdHVyZS5qc29uIiwKICAiYmxvY2tlZEJlZm9yZUltcGxlbWVudGF0aW9uIjogdHJ1ZQp9"
+  }
+]

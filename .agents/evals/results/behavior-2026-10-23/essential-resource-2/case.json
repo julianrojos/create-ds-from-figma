@@ -1,0 +1,24 @@
+{
+  "id": "essential-resource",
+  "fixture": "preview-project",
+  "prompt": "Importa el componente sintético. El recurso de imagen esencial sigue pendiente; no hay autorización de sustitución ni scaffold.",
+  "inputs": {
+    "resource": "essential image missing",
+    "scaffoldAuthorized": false
+  },
+  "rules": [
+    {
+      "kind": "no-project-writes"
+    },
+    {
+      "kind": "tree-unchanged"
+    },
+    {
+      "kind": "no-confirmation"
+    },
+    {
+      "kind": "outcome",
+      "value": "blocked"
+    }
+  ]
+}
