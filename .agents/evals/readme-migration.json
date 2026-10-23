@@ -1,0 +1,1858 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "file": "README.md",
+    "gitCommit": "46240560975cbb1cd363173d7628f9936a365afa",
+    "sha256": "c860be3665d85c4ceaa5612a5b4d10deaa1f2355bb82d0a6225d8aa492332149",
+    "bytes": 66133,
+    "lines": 288
+  },
+  "scope": "Auditable paragraph/block migration map. Original text is archival data, not a second operational guide. Destinations record human semantic review, not automated proof of equivalence. Every nonblank original block is retained here with its exact text/hash and line range.",
+  "records": [
+    {
+      "id": "readme-000",
+      "source": {
+        "startLine": 1,
+        "endLine": 1,
+        "sha256": "7aa56911aab2b71a21c2f4a79ee3e1f6065f3a63fa59117420c8ec7b3e6e9d99",
+        "text": "# CREATE DS FROM FIGMA"
+      },
+      "decision": "retained",
+      "destination": {
+        "file": "README.md",
+        "section": "CREATE DS FROM FIGMA"
+      },
+      "reason": "Se conserva el propósito, inicio rápido o resumen humano; los contratos detallados se enlazan."
+    },
+    {
+      "id": "readme-001",
+      "source": {
+        "startLine": 3,
+        "endLine": 3,
+        "sha256": "d1879ace9c10b4e4b778fa84dc78874fb989c590525c5d95d6b7b03a67b0a6b5",
+        "text": "La auditoría de colores también examina partes opcionales reveladas en behavior: exige visibilidad DOM original y un control de visibilidad identificable en el subárbol fuente. La ausencia/ocultación medida permite omitir su color; una lectura ausente no. Un mecanismo de revelado no establecido queda pendiente, no aprobado. El informe conserva entradas inválidas como invalidInputs/FAIL sin perder la salida JSON; requiredCorrections separa FAIL de requiredExecution y de las revisiones de fidelidad admisibles (NOT COMPARABLE o PASS tipográfico provisional)."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Auditoría De Color E Informe"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-002",
+      "source": {
+        "startLine": 5,
+        "endLine": 5,
+        "sha256": "a61adf5fb4c0ce4a84b4207c53885f036a8b39090ea72178ab05b6e0e7a2f4c2",
+        "text": "Una pintura con opacidad propia distinta de 1 queda NOT COMPARABLE en la auditoría de colores, tanto si el color está ligado a una variable como si es literal. No se aprueba el color opaco ni se rechaza el alfa integrado por suponer una descomposición concreta; la fidelidad exige revisión específica y behavior conserva su obligación de PASS."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Auditoría De Color E Informe"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-003",
+      "source": {
+        "startLine": 7,
+        "endLine": 7,
+        "sha256": "824466d9d210712352a339ddc4bef6d49d8cca9171825bc850c7d1fc22c7e315",
+        "text": "La auditoría renderizada incluye `color:PARTE:PROPIEDAD` para mappings explícitos en bindings/measuredLiterals: una pintura SOLID, un nodo y un elemento DOM inequívocos. Resuelve el color desde el snapshot y la cadena de alias usando el modo de cada colección (y modos explícitos locales); no reutiliza el valor escrito en CSS como expectativa. Compara color/background-color, colores físicos de borde, outline-color, fill y stroke en sRGB, con margen de un canal sobre 255 y 0,005 de alfa. Gradientes, pinturas múltiples, segmentos mixtos, colores no sRGB y propiedades suministradoras como variables CSS quedan NOT COMPARABLE; datos no recogidos son NOT RUN. No es cobertura exhaustiva de toda pintura: solo se auditan las correspondencias explícitas. FAIL/NOT RUN bloquean; en behavior todo debe ser PASS."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Auditoría De Color E Informe"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-004",
+      "source": {
+        "startLine": 9,
+        "endLine": 9,
+        "sha256": "caf3b82d0ee208c60a8e77f483b66ebeadfe7afb5dda123eb2c56bf2692e7e10",
+        "text": "`verify:imports` y `finalize:import` incluyen `report`, generado por el kit: cobertura por caso y combinación exacta de modos, confirmaciones revalidadas/caducadas, colores comprobados, decisiones declaradas, exclusiones, dudas y acciones pendientes. No acredita aprobación humana de decisiones ni todas las combinaciones disponibles. En --diagnose los resultados son temporales: confirmed/pending son null y las confirmaciones no se revalidan. Un color calculado correcto no prueba que la máscara cargue, que la tinta se vea ni la fidelidad visual; conserva las revisiones y los artefactos exigidos."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Auditoría De Color E Informe"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-005",
+      "source": {
+        "startLine": 11,
+        "endLine": 11,
+        "sha256": "070d3ac4c76c00b756f6b9845e4c19d2ac7abec293fec3037643439aaf6787d4",
+        "text": "Los casos con estados HTML checked/disabled pueden declarar `states[].verification` con kind=native, selector CSS propio, property y value booleano (véase la referencia de metadata). `finalize:import --diagnose` y `--collect` comprueban ese estado DOM después de renderizar las props, sin generar clics ni otras interacciones. Las lecturas originales alimentan el gate; props o un PASS escrito no sustituyen la comprobación. Otros estados siguen necesitando un harness explícito. Esto no acredita teclado, foco ni fidelidad visual general."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Estados Nativos Configurados"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-006",
+      "source": {
+        "startLine": 13,
+        "endLine": 13,
+        "sha256": "61c17e45c5150dae04ce0a78ca30de54a49792194c2ea12ca419131835a2497c",
+        "text": "Para alias entre colecciones locales con valores distintos por modo, `generate-token-json.mjs plan/save --inventory INVENTORY --alias-modes PATH` admite un JSON de IDs de colección a nombres exactos de modo autorizados. Guarda la elección en `figma-state.json.aliasModes`; no activa un modo CSS. check revalida la decisión persistida. Los colectores ordenan conjuntos de IDs para estabilizar el transporte, sin alterar modos ni capas; los snapshots históricos permanecen inmutables."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tokens.md",
+        "section": "Forma de cada JSON de `design-system/tokens/`"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-007",
+      "source": {
+        "startLine": 15,
+        "endLine": 15,
+        "sha256": "204d0d3819a6e449ae6249e79674339f7fd96d54ded29cd91e78eef7a1681d85",
+        "text": "Proyecto para arrancar un Design System desde 0 dentro de este repo preparado."
+      },
+      "decision": "retained",
+      "destination": {
+        "file": "README.md",
+        "section": "CREATE DS FROM FIGMA"
+      },
+      "reason": "Se conserva el propósito, inicio rápido o resumen humano; los contratos detallados se enlazan."
+    },
+    {
+      "id": "readme-008",
+      "source": {
+        "startLine": 17,
+        "endLine": 17,
+        "sha256": "0936d4c7cae08845395d90d22dc1585f1c60fbba90adad2fe58fd3bfbf4a1117",
+        "text": "No trae tokens, componentes ni pantallas. El agente analiza la URL de Figma antes de escribir y crea el DS cuando el componente puede importarse."
+      },
+      "decision": "retained",
+      "destination": {
+        "file": "README.md",
+        "section": "CREATE DS FROM FIGMA"
+      },
+      "reason": "Se conserva el propósito, inicio rápido o resumen humano; los contratos detallados se enlazan."
+    },
+    {
+      "id": "readme-009",
+      "source": {
+        "startLine": 19,
+        "endLine": 19,
+        "sha256": "725bcf14467cebe91d0fb45d5f9b8308c15b85b6eb5a3def35dc8546078b39b5",
+        "text": "## Usar"
+      },
+      "decision": "retained",
+      "destination": {
+        "file": "README.md",
+        "section": "Usar"
+      },
+      "reason": "Se conserva el propósito, inicio rápido o resumen humano; los contratos detallados se enlazan."
+    },
+    {
+      "id": "readme-010",
+      "source": {
+        "startLine": 21,
+        "endLine": 21,
+        "sha256": "7b7bdc45c8b348e52af17da2d3cd32f328683ae811cc8a4fb66b83657e33837c",
+        "text": "Instala las dependencias con `npm install`. Antes de importar, necesitas acceso a Figma y un transporte capaz de ejecutar el colector en Plugin API y guardar su respuesta sin transcripción del modelo. Una conexión que solo devuelve contexto de diseño no basta."
+      },
+      "decision": "retained",
+      "destination": {
+        "file": "README.md",
+        "section": "Usar"
+      },
+      "reason": "Se conserva el propósito, inicio rápido o resumen humano; los contratos detallados se enlazan."
+    },
+    {
+      "id": "readme-011",
+      "source": {
+        "startLine": 23,
+        "endLine": 24,
+        "sha256": "de767eba06973367803080c57c3a227e36af49c35813dc628aa09890d586bcec",
+        "text": "- Si tu entorno dispone del orquestador de Codex requerido por el adaptador, el agente puede usarlo con la conexión de Figma disponible.\n- En Claude Code u otro entorno sin ese adaptador, comprueba primero si existe una conexión MCP directa compatible (stdio o HTTP) y autorizada. Si existe, usa su configuración y el mecanismo de autenticación que requiera; no presupongas que hacen falta un servidor nuevo o credenciales nuevas. Si no existe, solicita la configuración de una conexión compatible. No se reutiliza automáticamente el OAuth del editor."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+        "section": "CLI Portable"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-012",
+      "source": {
+        "startLine": 26,
+        "endLine": 26,
+        "sha256": "6cea5a7172580ff11ba1e1cef59db1e776ef7c54a14ab0ee18f3208e4f25ed66",
+        "text": "Antes de ejecutar una conexión directa, el usuario debe revisar y autorizar su configuración. --approve-connection evita una ejecución accidental, pero el agente puede añadir la opción: no acredita revisión humana ni sustituye los permisos del entorno."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+        "section": "CLI Portable"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-013",
+      "source": {
+        "startLine": 28,
+        "endLine": 28,
+        "sha256": "579054ac1675422b810b13dd52a887d3377b6c32a8b9d0857ce410bc81dc4781",
+        "text": "Consulta [la configuración y comprobación del transporte](.agents/skills/create-ds-from-figma/references/figma-evidence.md). No hay una conexión de Claude Code validada en este repo. Esa falta de validación no implica que todas sus conexiones sean incompatibles: hay que comprobar la conexión concreta. Si no existe transporte operativo, informa `NOT RUN` y `DS_GAP` sin crear el componente ni copiar respuestas a mano; es un bloqueo de la importación en ese entorno, no del mantenimiento del kit."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+        "section": "CLI Portable"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-014",
+      "source": {
+        "startLine": 30,
+        "endLine": 30,
+        "sha256": "1e7b906e84903587efc938e04e3509a46855f97812426ef23f76e95229ceb5d1",
+        "text": "Abre este repo en tu IDE, abre un chat con la IA y pide:"
+      },
+      "decision": "retained",
+      "destination": {
+        "file": "README.md",
+        "section": "Usar"
+      },
+      "reason": "Se conserva el propósito, inicio rápido o resumen humano; los contratos detallados se enlazan."
+    },
+    {
+      "id": "readme-015",
+      "source": {
+        "startLine": 32,
+        "endLine": 33,
+        "sha256": "cca4c1b39d58ee9e1dc399adc8806a7961f6144ecbd38b942a29ab0987ac15b8",
+        "text": "```text\nCrea un DS"
+      },
+      "decision": "retained",
+      "destination": {
+        "file": "README.md",
+        "section": "Usar"
+      },
+      "reason": "Se conserva el propósito, inicio rápido o resumen humano; los contratos detallados se enlazan."
+    },
+    {
+      "id": "readme-016",
+      "source": {
+        "startLine": 35,
+        "endLine": 36,
+        "sha256": "e20fa704795cf8b68c49cedc7550781e985fc1fda228c5a8cc3d07853b222a59",
+        "text": "<URL de UN componente de Figma>\n```"
+      },
+      "decision": "retained",
+      "destination": {
+        "file": "README.md",
+        "section": "Usar"
+      },
+      "reason": "Se conserva el propósito, inicio rápido o resumen humano; los contratos detallados se enlazan."
+    },
+    {
+      "id": "readme-017",
+      "source": {
+        "startLine": 38,
+        "endLine": 38,
+        "sha256": "97cd27f87f32c9fdfb6803e26ffef5f430f18f1fde2267d86e5b891bca1b22d4",
+        "text": "El componente debe disponer de variables locales en su file de origen o de bindings a variables externas con ID y valor resuelto verificables. La URL puede apuntar a un componente, un component set, una variante o una instancia cuyo componente principal se pueda resolver; un frame o pantalla no se importa por este flujo."
+      },
+      "decision": "retained",
+      "destination": {
+        "file": "README.md",
+        "section": "Usar"
+      },
+      "reason": "Se conserva el propósito, inicio rápido o resumen humano; los contratos detallados se enlazan."
+    },
+    {
+      "id": "readme-018",
+      "source": {
+        "startLine": 40,
+        "endLine": 40,
+        "sha256": "01998c18b60224ff7fcc3c37ecbabf570fe5590220e967916924159d985f6178",
+        "text": "Antes de crear archivos, el agente identifica el componente y sus variantes, lee **todas** las colecciones del file de origen y resuelve los componentes anidados. Si falta uno local, informa `DS_GAP` y espera su URL sin escribir archivos. Solo prepara el scaffold y los tokens pese a ese bloqueo si el usuario lo pide expresamente; el componente bloqueado nunca figura como importado. Si el análisis permite continuar, vuelca un JSON por colección e implementa **solo** el componente pedido."
+      },
+      "decision": "retained",
+      "destination": {
+        "file": "README.md",
+        "section": "Usar"
+      },
+      "reason": "Se conserva el propósito, inicio rápido o resumen humano; los contratos detallados se enlazan."
+    },
+    {
+      "id": "readme-019",
+      "source": {
+        "startLine": 42,
+        "endLine": 42,
+        "sha256": "c0e11f829ea5d493877c7a1241bca42fc5c0568e8755ccb8688b4c68353d0c23",
+        "text": "Si se prepara solo el scaffold, `App.tsx` queda válida y vacía hasta importar el primer componente."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/import-implementation.md",
+        "section": "Árbol generado"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-020",
+      "source": {
+        "startLine": 44,
+        "endLine": 44,
+        "sha256": "940aaccb67d9f15e35cdd4798bf1b0da861e9bb8a8d5f0afee7d592c8ea55b8e",
+        "text": "Siguiente componente: otra URL. Pantalla: cuando ya haya componentes importados."
+      },
+      "decision": "retained",
+      "destination": {
+        "file": "README.md",
+        "section": "Usar"
+      },
+      "reason": "Se conserva el propósito, inicio rápido o resumen humano; los contratos detallados se enlazan."
+    },
+    {
+      "id": "readme-021",
+      "source": {
+        "startLine": 46,
+        "endLine": 46,
+        "sha256": "64cecc59911e232d5fffb94d8ad9c17ea97698eb00d1945a33c0a1062dd70d8e",
+        "text": "## Qué incluye"
+      },
+      "decision": "retained",
+      "destination": {
+        "file": "README.md",
+        "section": "Estructura y contratos"
+      },
+      "reason": "Se conserva el propósito, inicio rápido o resumen humano; los contratos detallados se enlazan."
+    },
+    {
+      "id": "readme-022",
+      "source": {
+        "startLine": 48,
+        "endLine": 62,
+        "sha256": "ef307b17869807c6774cffee77ff9bd191e7ac7c39961477566b8a2aa1683441",
+        "text": "| Ruta desde la raíz del repo                                                                          | Para qué                                                    |\n| ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |\n| `README.md`                                                                                          | Guía humana del kit y su estructura                         |\n| `.agents/skills/create-ds-from-figma/SKILL.md`                                                       | Skill canónica                                              |\n| `.agents/skills/create-ds-from-figma/references/`                                                    | Formatos consultados durante el preanálisis y la escritura  |\n| `.agents/skills/create-ds-from-figma/evals/`                                                         | Casos de evaluación del flujo de importación                |\n| `.agents/skills/create-ds-from-figma/scripts/`                                                       | Preflight, generador de `tokens.css` y tests de estructura  |\n| `.agents/skills/create-ds-from-figma/plantillas/design-system/`                                      | Árbol fijo vacío que se copia tal cual a `design-system/`   |\n| `.agents/skills/create-ds-from-figma/plantillas/componentes/`                                        | Plantillas de ficha por componente                          |\n| `.agents/checks/`                                                                                    | Checks automáticos y manuales que se ejecutan desde el repo |\n| `.agents/checks/tests/`                                                                              | Tests de los verificadores automáticos                      |\n| `.agents/rules/`                                                                                     | Reglas persistentes para el DS generado y `src/`            |\n| `.agents/skills/find-component/`, `.agents/skills/map-figma-to-code/`, `.agents/skills/validate-ds/` | Skills auxiliares del flujo                                 |\n| `.agents/workflows/`                                                                                 | Workflow de construcción desde Figma                        |\n| `.agents/prop-vocabulary.json`                                                                       | Vocabulario canónico de props                               |"
+      },
+      "decision": "retained",
+      "destination": {
+        "file": "README.md",
+        "section": "Estructura y contratos"
+      },
+      "reason": "Se conserva el propósito, inicio rápido o resumen humano; los contratos detallados se enlazan."
+    },
+    {
+      "id": "readme-023",
+      "source": {
+        "startLine": 64,
+        "endLine": 64,
+        "sha256": "d9992206bd9c9a60870c9ce7febb787a0570c70be6db33b53ac88f98b6370eae",
+        "text": "Para validar el kit, usa Node >=22.12.0, instala las dependencias y ejecuta una vez `npm run test:browser:setup`: prepara el runtime aislado de `.agents/browser-tests/`, con lock propio, React, Vite, Inter y Playwright fijados, y descarga su Chromium. Después, `npm test` ejecuta las pruebas unitarias y las regresiones con ese navegador real; la ausencia de requisitos es un error, nunca una omisión silenciosa. No instala nada durante las pruebas ni añade estas dependencias a la app generada."
+      },
+      "decision": "retained",
+      "destination": {
+        "file": "README.md",
+        "section": "Verificar"
+      },
+      "reason": "Se conserva el propósito, inicio rápido o resumen humano; los contratos detallados se enlazan."
+    },
+    {
+      "id": "readme-024",
+      "source": {
+        "startLine": 66,
+        "endLine": 66,
+        "sha256": "78f17b857d763948253a9fd08703c1e72e1df0fa282ed5ec8219f08b424b77c6",
+        "text": "`npm run test:unit` ejecuta solo la cobertura unitaria/simulada y no equivale a una validación completa; `npm run test:browser` ejecuta el perfil real obligatorio, sin variables de entorno especiales. Los resultados quedan en `test-results/browser/` (ignorado por Git). La verificación se ejecuta localmente: el repositorio no configura CI ni hooks automáticos de Git."
+      },
+      "decision": "retained",
+      "destination": {
+        "file": "README.md",
+        "section": "Verificar"
+      },
+      "reason": "Se conserva el propósito, inicio rápido o resumen humano; los contratos detallados se enlazan."
+    },
+    {
+      "id": "readme-025",
+      "source": {
+        "startLine": 68,
+        "endLine": 68,
+        "sha256": "4418ecbdc1031ddb69c24920cea0c82e48706fbcb539006a3d351ebe3c44d2d7",
+        "text": "La salida termina con KIT SUMMARY por perfil y TOTAL REPORTED acumulado, obtenido de los eventos estructurados del runner de Node (incluidos subtests), no del último bloque TAP. Si las unitarias fallan, browser figura NOT RUN; los perfiles no solicitados figuran NOT REQUESTED. Si falta un resumen se indica que no hay contadores disponibles y nunca se presenta una ejecución completa como correcta."
+      },
+      "decision": "moved",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tooling.md",
+        "section": "Ejecutar pruebas y mutaciones"
+      },
+      "reason": "Detalle operativo único conservado en su referencia por operación."
+    },
+    {
+      "id": "readme-026",
+      "source": {
+        "startLine": 70,
+        "endLine": 70,
+        "sha256": "bc6f693b8d83e28899e725981ba114e8ecd92bb11c2821cc2dd4cd338c637da0",
+        "text": "`npm run verify:docs` comprueba enlaces locales, rutas del kit y referencias a scripts Node y comandos npm en la documentación; informa de hallazgos sin fallar salvo con `npm run verify:docs -- --strict`."
+      },
+      "decision": "retained",
+      "destination": {
+        "file": "README.md",
+        "section": "Verificar"
+      },
+      "reason": "Se conserva el propósito, inicio rápido o resumen humano; los contratos detallados se enlazan."
+    },
+    {
+      "id": "readme-027",
+      "source": {
+        "startLine": 72,
+        "endLine": 72,
+        "sha256": "c16f1a97183a13d09c045b649636d4f15e098fd7d39b9159a145da7f0655b7c2",
+        "text": "`npm run verify:imports` es el gate local de entrega de los componentes reales del repositorio (opcionalmente `npm run verify:imports -- ROOT`). Reutiliza la API de `verify-ds`: cruza inventario, mapa y fichas, y exige al menos un caso de fidelidad por componente, todos confirmados y vigentes, sin correspondencias pendientes, fallidas o no establecidas. Revalida informes, hashes, recursos esenciales y comportamiento obligatorio desde los artefactos persistidos; no vuelve a medir geometría ni confirma por sí mismo la fidelidad visual. Cualquier incumplimiento devuelve código distinto de cero. Los avisos informativos no se convierten en errores indiscriminadamente."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+        "section": "Recursos Y Casos"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-028",
+      "source": {
+        "startLine": 74,
+        "endLine": 74,
+        "sha256": "992c19936e80443b5fb7413f92967b768ee1f5888122e929a28f7c8d4f145a36",
+        "text": "El gate comprueba además los literales CSS de la aplicación con el Chromium fijado del kit, en una página en blanco: no ejecuta App.tsx, configuración Vite ni código del proyecto. Este diagnóstico es independiente del preflight del componente y se conserva aunque falle el DS; si falta el navegador, muestra NOT RUN y falla la entrega. Su alcance es el soporte de literales aplicables en ese Chromium, no la cascada, tokens sustituidos, comportamiento React o fidelidad visual. No escribe archivos del proyecto ni necesita un manifiesto temporal."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+        "section": "Recursos Y Casos"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-029",
+      "source": {
+        "startLine": 76,
+        "endLine": 76,
+        "sha256": "7e1f9546e99db84b76337c35fa8876916ce7eb52c55f6dbbe04279e3637f00fd",
+        "text": "El diagnóstico se exige si existe index.html en la raíz o una entrada App/app/main/index en src con extensión JS/TS, JSX/TSX o sus formas de módulo. Incluye los literales de todos los archivos JS/TS y CSS de src, aunque la demo se llame Showcase o use otro nombre desde index.html. Devuelve los indicadores detectados en application.signals; sin ellos indica NOT APPLICABLE con el alcance explícito, sin inferir que cualquier archivo de una biblioteca sea una aplicación. Un index.html aislado no permite aprobar un kit vacío. Los errores estructurales incluyen structure.reason además de errors."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+        "section": "Recursos Y Casos"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-030",
+      "source": {
+        "startLine": 78,
+        "endLine": 78,
+        "sha256": "efbe8e69bd61a74830ffe4254a7ff684f338545a74868d821f0f4d75df5439ec",
+        "text": "Un kit sin DS ni aplicación pasa con NOT APPLICABLE; un scaffold coherente sin componentes también puede pasar y diagnostica la demo si existe. Un scaffold parcial falla. No se acepta un componente sin resumen o sin casos. Ejecuta el gate localmente antes de entregar una importación, además de las pruebas del kit cuando correspondan. Sus códigos de salida no bloquean commits ni pushes por sí solos: no hay pipeline remoto, protección de rama ni hooks configurados por el kit."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+        "section": "Recursos Y Casos"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-031",
+      "source": {
+        "startLine": 80,
+        "endLine": 80,
+        "sha256": "e5df73fd75ed40624dde1b329f0ef023505ef5f88f63b9c462e95fb7fb768f81",
+        "text": "La ruta integrada es `npm run finalize:import -- ROOT METADATA --collect`: recoge/publica mediciones con el runtime fijado y ejecuta el gate, sin fabricar una revisión visual. Por defecto solicita un puerto libre automático; `--collect --port 5189` fija uno explícito y falla si está ocupado, sin conectarse a un servidor ajeno. El resultado muestra el puerto y las URL efectivos en collection.preview y los conserva en result.json; la vista se cierra al terminar la recogida. Manifiesto y resultado quedan temporales; las mediciones originales sí se publican en el proyecto. Si faltan fuentes o imágenes esenciales, enumera familia, estilo y peso registrado (o el paint de la imagen) y pide un origen autorizado antes de recoger; `verify:imports` también las bloquea. El adaptador de bajo nivel sigue permitiendo mediciones diagnósticas sin esos recursos."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Finalización integrada"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-032",
+      "source": {
+        "startLine": 82,
+        "endLine": 82,
+        "sha256": "dabf8d61e89204824e7d64e3c2131e2fd29c9c02eb723ee89e9b4f0ad858d437",
+        "text": "Tras comparar realmente los artefactos, ejecuta `npm run finalize:import -- ROOT METADATA --reviews REVIEW_FILE`. Un archivo presente pero inválido (`null`, `false`, `0`, `\"\"` u otro valor que no cumpla el contrato) falla aunque las confirmaciones anteriores ya pasen el gate; solo omitir `--reviews` equivale a no registrar nada. El archivo contiene `schemaVersion: 1` y `cases: [{caseId, review}]`, con una revisión explícita por caso fidelity y el contrato existente del comando report (juicio, revisiones, artefactos publicados, checkReviews y comportamiento). Deriva/persiste informes y hashes en `design-system/verification/`, revalida y reemplaza atómicamente solo el JSON de correspondencias de usage.md, conservando Use/Do not y metadata. No admite aplicar revisiones mientras vuelve a recoger: deben referirse a los artefactos retenidos que se revisaron. Una revisión inválida se rechaza antes de persistir informes; si falla una comprobación posterior pueden conservarse informes válidos inmutables sin enlazar, nunca una confirmación inválida escrita en usage.md."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Finalización integrada"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-033",
+      "source": {
+        "startLine": 84,
+        "endLine": 84,
+        "sha256": "47021fc98fbb468be4c9acb7cb0581c2163b229503fd4005601751c64ee105c4",
+        "text": "La ficha no puede incluir sus propios archivos de salida como entradas examinadas de la confirmación. Antes de persistir informes, la finalización rechaza también usage.md si llega por inputs adicionales del revisor o por dependencias examinadas del componente/comportamiento: escribirlo caducaría la confirmación inmediatamente. El umbral AABB_SIZE_DIAGNOSTIC_THRESHOLD de tamaño es independiente de las tolerancias de posición y fidelidad; solo filtra diferencias informativas superiores a 1 px, no establece una tolerancia de forma ni una calibración visual."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Dependencias de confirmación"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-034",
+      "source": {
+        "startLine": 86,
+        "endLine": 86,
+        "sha256": "53f5df6a052a53b75f1b60d9316a730c25261257bba7aab67a21bb8be283f095",
+        "text": "`npm run finalize:import -- ROOT METADATA --check` comprueba sin escribir. Los tres modos ejecutan el gate de todo el repositorio: una revisión del componente no oculta errores de la demo ni de otros componentes. No genera el juicio visual del revisor. El cierre conserva avisos estáticos de bordes parciales y diagnósticos de diferencias de tamaño AABB, también visibles en compare. Estos últimos no convierten una geometría no comparable en un FAIL objetivo ni certifican la forma."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Finalización integrada"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-035",
+      "source": {
+        "startLine": 88,
+        "endLine": 88,
+        "sha256": "11f4ff4663a6575a47cae44afa0f449b10a84c60cafbca02f3dd972eacf40b9c",
+        "text": "### Recursos Antes De Implementar"
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Diagnóstico Y Registro De Recursos"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-036",
+      "source": {
+        "startLine": 90,
+        "endLine": 90,
+        "sha256": "fb70f7c7fc86e4d852e89a6b65492b427fca6f50cc3de2bbfb713488c21dee4a",
+        "text": "Tras capturar y antes de escribir el componente, ejecuta `node .agents/skills/create-ds-from-figma/scripts/verification-plan.mjs requirements SNAPSHOT`. Conserva los requisitos originales y añade `resources` con fuentes agrupadas e imágenes agrupadas por `imageHash`, nodos y variantes afectados. Son candidatos observados, no carencias esenciales: casos y descriptores CSS quedan pendientes, sin deducir pesos del nombre de la fuente. El snapshot temporal del preanálisis puede estar fuera del proyecto. Pide en un solo mensaje los orígenes autorizados necesarios para la implementación prevista; no instales paquetes ni sustituyas imágenes por su nombre."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Diagnóstico Y Registro De Recursos"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-037",
+      "source": {
+        "startLine": 92,
+        "endLine": 92,
+        "sha256": "0d8486b79f55ecdfc7f6e111bd5a5856f9669aed3c8e4eda9109003c1ccd8bad",
+        "text": "Con una ficha en preparación, `node .agents/skills/create-ds-from-figma/scripts/verification-resources.mjs inspect ROOT METADATA` comprueba registros y hashes sin escribir ni necesitar TSX o navegador. Para registrar un archivo existente autorizado:"
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Diagnóstico Y Registro De Recursos"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-038",
+      "source": {
+        "startLine": 94,
+        "endLine": 97,
+        "sha256": "c76feb16e1cb139ab06c67cdabf36d56e175a4194ad24358d2fa498fe95ee85f",
+        "text": "```sh\nnode .agents/skills/create-ds-from-figma/scripts/verification-resources.mjs register ROOT METADATA font FONT_ID SOURCE_PATH\nnode .agents/skills/create-ds-from-figma/scripts/verification-resources.mjs register ROOT METADATA image IMAGE_HASH SOURCE_PATH\n```"
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Diagnóstico Y Registro De Recursos"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-039",
+      "source": {
+        "startLine": 99,
+        "endLine": 99,
+        "sha256": "3daad03c75fb8bab2cb335fbcfbe57209f6837fe53a0e34bdea9d2ff2e33c65f",
+        "text": "`SOURCE_PATH` es relativo al proyecto. El comando calcula SHA-256 y solo modifica campos `source` existentes: una fuente por ID o todas las apariciones capturadas de la imagen en esa ficha. Identidades desconocidas, entradas ausentes/duplicadas, rutas externas y conflictos fallan sin modificarla. Cambiar una ruta o hash ya registrados exige `--replace` explícito; repetir el mismo registro no reescribe. No crea CSS, no edita `stylesheets`, no instala/copia recursos ni confirma su licencia, identidad o peso. Separa `registration: REGISTERED`, `configuration: DECLARED` o `NOT VERIFIED`, y `loading: NOT RUN`: registrar no es cargar ni confirmar. Cambiar recursos puede caducar evidencias anteriores."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Diagnóstico Y Registro De Recursos"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-040",
+      "source": {
+        "startLine": 101,
+        "endLine": 101,
+        "sha256": "844ba1df5af93217813844c3b27001f75326c57e476afbb9f0389e6d065b8e0a",
+        "text": "La comprobación estática busca `@font-face` en `verification.stylesheets`, sus imports CSS incondicionales y los imports/reexports estáticos alcanzables desde el componente. Resuelve CSS de paquetes instalados (incluidos subpaths exportados) sin ejecutar JavaScript; no sigue efectos secundarios de paquetes JS, imports dinámicos/globs ni condiciones CSS. Cualquier import con `?` queda sin acreditar, también dentro de `@import`: incluye worker/sharedworker, raw/url/inline, parámetros de caché y consultas desconocidas. Compara la ruta real del archivo registrado, familia, estilo y peso (incluidos rangos). `DECLARED` acredita un enlace declarado, no que el navegador seleccione ese archivo, lo cargue o use sus glifos. Formas no resolubles o no soportadas requieren revisión, sin generar un FAIL visual falso; `configurationWarnings` y `REVIEW_FONT_CONFIGURATION` conservan el diagnóstico. El gate lo muestra en `fontConfiguration`. Las fuentes esenciales sin registro o sin cara cargada siguen bloqueando; el adaptador de bajo nivel puede recoger diagnósticos, nunca confirmar por esos avisos. La ampliación del analizador compartido incrementa la versión del comparador: las confirmaciones anteriores caducan, no se relabelan ni se corrompen."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Diagnóstico Y Registro De Recursos"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-041",
+      "source": {
+        "startLine": 103,
+        "endLine": 103,
+        "sha256": "0ac2c10e83555c67b44f0e27136312e24914ae1663d0f703ba9500e9fd06fad5",
+        "text": "La resolución de `exports` usa [resolve.exports](https://github.com/lukeed/resolve.exports), fijado como dependencia directa, no Node require ni una copia interna de Vite. Preserva el orden de condiciones, claves exactas, comodines y exclusiones. Es un diagnóstico conservador, no un resolvedor completo de bundler: con `import` activo exige el mismo destino CSS bajo las combinaciones de browser/module y los modos no fijados, development y production; para `@import` considera también style activado/desactivado. Si un resultado cambia, no existe, ofrece varias alternativas o requiere condiciones desconocidas, queda NOT VERIFIED. Tampoco interpreta browser remapping ni ejecuta configuración del proyecto. Los subpaths antiguos sin exports pueden apuntar a un CSS explícito; una raíz exige un destino único de style/main. Ninguna exclusión de exports permite recurrir al archivo físico. Los destinos y symlinks deben permanecer dentro del proyecto. Esta política no demuestra equivalencia con aliases/plugins arbitrarios del proyecto ni la carga del recurso."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Diagnóstico Y Registro De Recursos"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-042",
+      "source": {
+        "startLine": 105,
+        "endLine": 105,
+        "sha256": "c3aa54788eba2edc379011bc83bab464ef38dbe2c7fc0d89ed59266fefce79fa",
+        "text": "El peso solicitado en `verification.fonts[].css.weight` es una cadena con un único número de 1 a 1000, `normal` o `bold`; no admite rangos, valores relativos ni variables. Los rangos pertenecen al descriptor de la cara disponible en `@font-face`, que puede satisfacer ese peso concreto. El plan y el registro rechazan pesos ambiguos antes de escribir. Gate y finalización comparten deduplicación de `nextActions`: `targets` contiene las rutas de las fichas destinatarias y se unen al agrupar acciones idénticas; comandos o recursos diferentes no se colapsan. Las acciones globales pueden no tener targets. Los avisos de fuentes se conservan en su detalle y también en `warnings` del gate, prefijados por componente, sin elevarlos a errores."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Recursos Y Casos Renderizados"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-043",
+      "source": {
+        "startLine": 107,
+        "endLine": 107,
+        "sha256": "a17b372e98ce853ec05f4f32ebbb1f7d26cb3aec5a45bd2db55b57530a6c8294",
+        "text": "`npm run test:resources:mutations` ejecuta mutaciones dirigidas en una copia temporal, sin alterar el checkout. Primero exige que pasen las pruebas sin mutar y después comprueba que estas rechacen cambios de hash, cobertura, sustitución, alcance de escritura, acciones y enlaces de fuentes. Guarda el resumen en `test-results/resource-mutations.json` (ignorado por Git) y falla ante supervivientes o errores de infraestructura. Es una selección explícita, no una puntuación de cobertura exhaustiva ni una prueba contra Figma real; no sustituye `npm test`."
+      },
+      "decision": "moved",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tooling.md",
+        "section": "Ejecutar pruebas y mutaciones"
+      },
+      "reason": "Detalle operativo único conservado en su referencia por operación."
+    },
+    {
+      "id": "readme-044",
+      "source": {
+        "startLine": 109,
+        "endLine": 109,
+        "sha256": "59d9f4cc45038c6f306db0d56b17bf1d8cf7719aefe9466fd57b6009482e44f4",
+        "text": "El diagnóstico, `verify:imports` y `finalize:import` comparten `nextActions` estructurado: códigos estables, recursos/casos, prerrequisitos, permisos y comando como ejecutable más argumentos, con entradas pendientes tipadas. No son cadenas de shell ni autorizaciones; completa los argumentos con rutas aprobadas y respeta los permisos del entorno. Sin `imageHash` legible se pide revisar la captura, no inventar una identidad. Un registro inválido requiere revisar sus bytes, nunca añadir `--replace` automáticamente. El gate conserva sus errores estructurales aunque todavía no pueda derivar acciones de recursos."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Diagnóstico Y Registro De Recursos"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-045",
+      "source": {
+        "startLine": 111,
+        "endLine": 111,
+        "sha256": "087b2b37fa7735392f7212562f6f857760f1d8c9eca1b5b941eb8ed1dbfd30cb",
+        "text": "Las regresiones reproducibles usan fixtures sintéticos versionados: comprueban que una geometría defectuosa, correspondencias candidatas o literales inválidos en la demo impiden la entrega. No dependen de ramas locales de prueba ni demuestran fidelidad contra Figma real."
+      },
+      "decision": "moved",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tooling.md",
+        "section": "Ejecutar pruebas y mutaciones"
+      },
+      "reason": "Detalle operativo único conservado en su referencia por operación."
+    },
+    {
+      "id": "readme-046",
+      "source": {
+        "startLine": 113,
+        "endLine": 113,
+        "sha256": "3b01b5e52060d37425c070b73412d82d833265251311339700a861d8e8468206",
+        "text": "Cada componente mapeado exige una captura estructurada e inmutable de Figma, separada de las decisiones de API y CSS, sin excepciones. El colector preserva valores brutos, modos, estilos y limitaciones; el SHA-256 identifica la captura, no la revisión de Figma. El kit sigue vacío: las capturas nacen al importar, en `design-system/figma/snapshots/`."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+        "section": "Persistencia Y Contrato"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-047",
+      "source": {
+        "startLine": 115,
+        "endLine": 115,
+        "sha256": "647a1c7b56cf839c3f7fde37e2d38a14cba042f70b9b3c061af23cf59293e1e7",
+        "text": "`node .agents/checks/verify-figma-evidence.mjs .` comprueba cobertura y fidelidad contra la captura de importación. verify-ds incluye errores y avisos, y rechaza fichas sin evidencia. Valida referencias y reglas, no equivalencia visual ni calidad de razones manuales. El CLI portable captura directamente mediante MCP por stdio o HTTP, sin APIs del editor ni copia del modelo; requiere conexión y autenticación configuradas. Codex dispone además de un adaptador opcional. Procedimiento y límites en [.agents/skills/create-ds-from-figma/references/figma-evidence.md](.agents/skills/create-ds-from-figma/references/figma-evidence.md)."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+        "section": "Verificación Y Comparación"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-048",
+      "source": {
+        "startLine": 117,
+        "endLine": 117,
+        "sha256": "1d1fd46ed14d526863ffdcac840517a0ca1ea486b4f7b11d49a4515672b060c1",
+        "text": "`node .agents/skills/create-ds-from-figma/scripts/figma-capture.mjs propose SNAPSHOT` ofrece candidatos conservadores de clasificación; no decide la API. `node .agents/skills/create-ds-from-figma/scripts/figma-capture.mjs compare ANTES DESPUES` compara una relectura opcional después de comprobar la importación original, sin modificar componentes."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+        "section": "Propuesta de clasificación"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-049",
+      "source": {
+        "startLine": 119,
+        "endLine": 119,
+        "sha256": "395d1c1fa704c2824072009d2475a4a15c7dc7546336e11ac733619a12fa26b7",
+        "text": "Para servidores que devuelven `figma_execute`, CONFIG selecciona `tool.responseFormat: \"figma-execute\"`: exige éxito explícito, extrae `result` sin transcribirlo y conserva el sobre MCP en la sesión temporal. No adivina formatos ni altera el snapshot; errores de sobre, ejecución y truncamiento siguen bloqueando. El formato directo sigue siendo `transport-v1`. La [receta y el registro de prueba](.agents/skills/create-ds-from-figma/references/figma-evidence.md#respuesta-de-figma_execute) distinguen la captura real mediante Codex de las pruebas sintéticas del cliente directo. OpenCode y su conexión stdio concreta aún requieren una prueba propia; no se necesitan nuevas credenciales por suposición ni se descubren secretos del editor."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+        "section": "Respuesta De figma_execute"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-050",
+      "source": {
+        "startLine": 121,
+        "endLine": 121,
+        "sha256": "b57805c1d0fee65441fa0a57251f195830f1295e5f69e89772d255491d97f8e7",
+        "text": "`node .agents/skills/create-ds-from-figma/scripts/figma-capture.mjs dimensions SNAPSHOT` devuelve la semántica de dimensiones TEXT con refs de apoyo. Toda ficha exige `evidence.textDimensions`: ancho/alto fijo, dependiente del contenido o no determinado, separado de su tratamiento de implementación. No permite congelar una dimensión intrínseca al tamaño del texto de ejemplo. El check verifica cobertura y enlaces, no comportamiento CSS: la comparación renderizada sigue siendo necesaria. No cambia el perfil de captura ni añade retrocompatibilidad a las fichas."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+        "section": "Dimensiones en la evidencia"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-051",
+      "source": {
+        "startLine": 123,
+        "endLine": 123,
+        "sha256": "cfb41d04ccb91ac2a3d56cf68640ca26b3e040c35cd62007b5ed737240203be7",
+        "text": "`src/styles/tokens.css` no se edita: lo genera `.agents/skills/create-ds-from-figma/scripts/generate-tokens-css.mjs` y `verify-ds` comprueba que coincide. En un DS generado, instala las dependencias y ejecuta `node .agents/checks/verify-ds.mjs`, `node .agents/checks/verify-props.mjs` y `node .agents/checks/verify-bindings.mjs`. Los dos primeros validan la coherencia del DS y la API de componentes; el último informa cobertura y diferencias de bindings CSS sin bloquear por sus hallazgos."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tokens.md",
+        "section": "Forma de cada JSON de `design-system/tokens/`"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-052",
+      "source": {
+        "startLine": 125,
+        "endLine": 125,
+        "sha256": "554fc7a3e3a28cb383af7ef8ce4a87af1733301adbc6acf88ae45c2d87547bd4",
+        "text": "## Verificación Reproducible"
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tokens.md",
+        "section": "Forma de cada JSON de `design-system/tokens/`"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-053",
+      "source": {
+        "startLine": 127,
+        "endLine": 127,
+        "sha256": "e26dfe01e041c419621f5eda03aabc7f79b7a7944067dee1f4d7050a05ef5692",
+        "text": "### Inventario Sin Transcripción"
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tokens.md",
+        "section": "Forma de cada JSON de `design-system/tokens/`"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-054",
+      "source": {
+        "startLine": 129,
+        "endLine": 129,
+        "sha256": "ef027527de47d52f2d40abf55fd80b496a736032de147f7bbac87d4d07e0549d",
+        "text": "El snapshot solo guarda valores de variables usadas y sus alias. `figma-inventory.mjs` captura por separado todas las colecciones y variables locales, modos y valores, y las dependencias remotas de alias. No cambia metadata, relaciones ni el perfil del snapshot."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tokens.md",
+        "section": "Forma de cada JSON de `design-system/tokens/`"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-055",
+      "source": {
+        "startLine": 131,
+        "endLine": 139,
+        "sha256": "d6bb65d7d7526f300ee5cf423e6e7dd3d4c84516ced36b6778c4f61da3798b0d",
+        "text": "```sh\nnode .agents/skills/create-ds-from-figma/scripts/figma-inventory.mjs capture FILE_KEY CONFIG --approve-connection\nnode .agents/skills/create-ds-from-figma/scripts/figma-inventory.mjs save SESSION INVENTORY\nnode .agents/skills/create-ds-from-figma/scripts/figma-preanalysis.mjs . --inventory INVENTORY --snapshot SNAPSHOT\nnode .agents/skills/create-ds-from-figma/scripts/generate-token-json.mjs plan . --inventory INVENTORY\nnode .agents/skills/create-ds-from-figma/scripts/generate-token-json.mjs save . --inventory INVENTORY\nnode .agents/skills/create-ds-from-figma/scripts/generate-token-json.mjs check . --inventory INVENTORY\nnode .agents/skills/create-ds-from-figma/scripts/generate-tokens-css.mjs . --inventory INVENTORY\n```"
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tokens.md",
+        "section": "Forma de cada JSON de `design-system/tokens/`"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-056",
+      "source": {
+        "startLine": 141,
+        "endLine": 141,
+        "sha256": "ba8f7c9eecc28eb1e5cd80b7cb905d7dc06f8d76aceea51d48ea915edbec465d",
+        "text": "CONFIG usa la misma conexión MCP autorizada: no descubre credenciales ni reutiliza OAuth automáticamente. `bridge FILE_KEY` genera el adaptador opcional Codex. capture solo escribe una sesión temporal; save es explícito y nunca sobrescribe otro inventario. El hash canónico ordena conjuntos por ID y conserva el orden de modos. Verifica integridad, tipos y referencias, no autenticidad, vigencia ni revisión atómica. capturedAt fecha el sellado, no una revisión de Figma. Cada bloque relee y rechaza diferencias por checksum."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tokens.md",
+        "section": "Forma de cada JSON de `design-system/tokens/`"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-057",
+      "source": {
+        "startLine": 143,
+        "endLine": 143,
+        "sha256": "14fe0d5186139b1016e095d54bebfc520a7d3d9242c4e08a54764ed9b9577eff",
+        "text": "plan/check/preanalysis son de solo lectura. save de tokens valida y mezcla JSON/estado usando el preflight; conserva nombres publicados, ámbitos, serializaciones y registros antiguos ausentes de la captura. Nuevos ámbitos quedan null y FLOAT no recibe unidad por defecto. Los alias entre colecciones solo se derivan si su valor es independiente del modo; los demás bloquean y requieren resolución explícita. Revertir fallos ordinarios de escritura no equivale a una transacción resistente a una caída del proceso. No prepara React ni instala recursos."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tokens.md",
+        "section": "Forma de cada JSON de `design-system/tokens/`"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-058",
+      "source": {
+        "startLine": 145,
+        "endLine": 145,
+        "sha256": "053e7d36a500275b96e7d84b7fa960d7b275b0b4153434ce3095e8c2c98e511a",
+        "text": "`--inventory` es explícito, nunca se descubre por proximidad. check y el generador CSS comparan hechos observados y enumeran registros conservados; conservar no demuestra presencia actual en Figma. Sin el argumento no afirman trazabilidad. No hay enlace persistente nuevo en metadata ni estado. `figma-capture.mjs nested SNAPSHOT MAP` distingue mapped/external/missing/unresolved usando identidad estable; missing exige procedencia local probada."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tokens.md",
+        "section": "Forma de cada JSON de `design-system/tokens/`"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-059",
+      "source": {
+        "startLine": 147,
+        "endLine": 147,
+        "sha256": "3b9a404d2e77940781a9720230f3b803f8f9d6138cc1f952c9cb1ae997a91954",
+        "text": "Exportación opcional: `node .agents/skills/create-ds-from-figma/scripts/figma-reference.mjs capture FILE_KEY NODE_ID SCALE CONFIG --approve-connection`, o `bridge FILE_KEY NODE_ID SCALE`. `save ROOT SESSION` publica el PNG original en design-system/verification/artifacts y devuelve un figma-screenshot tipado para report. Escala explícita mayor que cero y como máximo cuatro, límites de 32 MiB/16 megapíxeles, CRC y hash. report comprueba dimensiones y asocia caso/snapshot; exportar no confirma fidelidad. La captura fragmentada aborta si cambia el PNG."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+        "section": "Responsabilidades"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-060",
+      "source": {
+        "startLine": 149,
+        "endLine": 149,
+        "sha256": "62449c01e18f52a32dd7d188d122bee7a5cb22ce62fc5df852c2cafac94f3a8a",
+        "text": "### Vectores Originales"
+      },
+      "decision": "moved",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tooling.md",
+        "section": "Exportar vectores originales"
+      },
+      "reason": "Detalle operativo único conservado en su referencia por operación."
+    },
+    {
+      "id": "readme-061",
+      "source": {
+        "startLine": 151,
+        "endLine": 151,
+        "sha256": "e2390d9e7dbb0a473a093da4b66b9738d558bb99a147e42ec37a096fe5851604",
+        "text": "La exportación original o la aproximación aprobada es una obligación del agente: los checks actuales no vinculan el SVG exportado con el código ni detectan por sí solos una reconstrucción CSS. No se presenta como una garantía automática de fidelidad."
+      },
+      "decision": "moved",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tooling.md",
+        "section": "Exportar vectores originales"
+      },
+      "reason": "Detalle operativo único conservado en su referencia por operación."
+    },
+    {
+      "id": "readme-062",
+      "source": {
+        "startLine": 153,
+        "endLine": 153,
+        "sha256": "4c6a9179e1a5394f6f5d3902128a99e397a3010c4ca6959ed2ab3f96907698c3",
+        "text": "Un nodo vectorial de Figma no se reconstruye con cuadrados rotados y bordes CSS: su forma, su trazo y su color se pierden sin que ninguna comprobación de geometría lo vea. `verification-plan.mjs requirements SNAPSHOT` lista como `vectors` los nodos VECTOR, BOOLEAN_OPERATION, STAR, POLYGON y LINE observados (candidatos sin clasificar, no recursos que haya que autorizar) y propone `EXPORT_VECTOR_SOURCES`."
+      },
+      "decision": "moved",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tooling.md",
+        "section": "Exportar vectores originales"
+      },
+      "reason": "Detalle operativo único conservado en su referencia por operación."
+    },
+    {
+      "id": "readme-063",
+      "source": {
+        "startLine": 155,
+        "endLine": 159,
+        "sha256": "a7ae5432bdef088e23b29c04668829e2b35b16790db8de863dfa83790fbd4216",
+        "text": "```sh\nnode .agents/skills/create-ds-from-figma/scripts/figma-vectors.mjs capture FILE_KEY NODE_ID CONFIG --approve-connection\nnode .agents/skills/create-ds-from-figma/scripts/figma-vectors.mjs save SESSION EXPORT.json\nnode .agents/skills/create-ds-from-figma/scripts/figma-vectors.mjs svg EXPORT.json VECTOR_ID RUTA.svg\n```"
+      },
+      "decision": "moved",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tooling.md",
+        "section": "Exportar vectores originales"
+      },
+      "reason": "Detalle operativo único conservado en su referencia por operación."
+    },
+    {
+      "id": "readme-064",
+      "source": {
+        "startLine": 161,
+        "endLine": 161,
+        "sha256": "1beeb50ee4fa209e3767fd2bec3d5de61d6595a458601139af93b275efa03b45",
+        "text": "`capture` usa la misma conexión MCP autorizada que el resto (también existe `bridge FILE_KEY NODE_ID` para el adaptador de Codex) y transfiere el SVG exacto de `exportAsync` por bloques comprobados, sin transcripción. El sobre sellado guarda el SVG, las cajas de maquetación (`bounds`) y de renderizado (`renderBounds`): el SVG exportado se recorta a lo que el nodo dibuja, así que `renderBounds` es lo que lo coloca respecto a la raíz, no `bounds`. `svg` escribe el archivo tal cual y nunca sobrescribe. El SVG se analiza con un parser XML estricto (`saxes`): se rechaza lo mal formado o incompleto, un DOCTYPE, entidades, CDATA o instrucciones de proceso, un elemento fuera del espacio de nombres SVG y los elementos que ejecutan, cargan o estilan contenido (`script`, `style`, `foreignObject`, `iframe`, `a`, animaciones...). Los valores de atributo se restringen por gramática y no por búsqueda de palabras: no pueden llevar barras invertidas, comentarios ni `@` (así los escapes CSS como `u\\72l(` o `@im\\70 ort` no tienen dónde esconderse), solo pueden usar las funciones que escribe el exportador (`url`, `rgb`, `rgba`, `hsl`, `hsla`, `matrix`, `translate`, `rotate`, `scale`, `skewX`, `skewY`; `image-set()` y similares se rechazan), `url()`, `href`, `xlink:href` y `src` solo pueden apuntar a un fragmento local `#id` o a una imagen raster `data:` en línea, `style` se limita a las propiedades que emite Figma, y de los atributos con espacio de nombres solo se admiten `xlink:href`, `xml:space` y `xml:lang` (`xml:base` redirigiría las referencias). También se acotan elementos y profundidad. No es un sanitizador: rechaza lo que el exportador de Figma nunca emite, de modo que lo que pasa es inerte como `<img>` o archivo y no contiene contenido activo ni externo en lo que se comprueba, pero insertarlo en línea en la página exige revisarlo o reconstruirlo desde un DOM filtrado. Es el SVG original, no una autorización ni una equivalencia CSS ni una prueba de fidelidad renderizada: usarlo como archivo del proyecto requiere la misma aprobación que cualquier recurso, y aproximar la forma con CSS es una decisión explícita que debe revisarse con la comparación visual. La integración con Figma real se comprobó leyendo un componente con el colector exacto (dos vectores con su `renderBounds`); el cliente MCP directo y Claude Code siguen sin validar."
+      },
+      "decision": "moved",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tooling.md",
+        "section": "Exportar vectores originales"
+      },
+      "reason": "Detalle operativo único conservado en su referencia por operación."
+    },
+    {
+      "id": "readme-065",
+      "source": {
+        "startLine": 163,
+        "endLine": 163,
+        "sha256": "85e8a10850f0538563c463eb95b49c0fe0c7680acc01e08fea1a1438a67cf7a5",
+        "text": "En el sobre de vectores, `capturedAt` exige una cadena ISO UTC canónica de `toISOString()`, con milisegundos y fecha válida, tanto al sellar como al leer. Fecha el sellado, no una revisión de Figma. SHA-256 cubre solo el contenido canónico de `vectorExport`, no la fecha: verifica integridad, no autenticidad ni momento de captura. La declaración XML `<?xml version=\"1.0\"?>` se admite; no es una instrucción de procesamiento como `<?xml-stylesheet?>`, que sí se rechaza."
+      },
+      "decision": "moved",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tooling.md",
+        "section": "Exportar vectores originales"
+      },
+      "reason": "Detalle operativo único conservado en su referencia por operación."
+    },
+    {
+      "id": "readme-066",
+      "source": {
+        "startLine": 165,
+        "endLine": 165,
+        "sha256": "e39085b614aec5ab85c32d453d0e8bf5bbefe0483a5cd1145c5fd8902abdc98b",
+        "text": "El conjunto versionado contiene solo datos sintéticos: el [inventario sellado de prueba](.agents/checks/tests/fixtures/variable-inventory-sealed.json) se regenera con `node .agents/checks/tests/fixtures/generate-variable-inventory.mjs`, a partir del mock y con fecha fija. Los PNG se generan durante los tests y no incluyen recursos de ningún diseño. Las capturas reales de experimentación se mantienen fuera del repositorio y no se presentan como evidencia reproducible aquí. npm test comprueba el mock, el fixture, la derivación y servidores de prueba; no acredita una conexión viva de Codex/Claude Code, el cliente directo contra Figma ni fidelidad visual."
+      },
+      "decision": "moved",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tooling.md",
+        "section": "Ejecutar pruebas y mutaciones"
+      },
+      "reason": "Detalle operativo único conservado en su referencia por operación."
+    },
+    {
+      "id": "readme-067",
+      "source": {
+        "startLine": 167,
+        "endLine": 167,
+        "sha256": "825b5d817b59da26344cda08a797d3e1d00012361317d42629ce7833a62178aa",
+        "text": "`npm run test:diagnosis:mutations` comprueba la ausencia de partes, la separación entre diferencias y bloqueos de comportamiento y la procedencia de imágenes con la misma garantía de base sin mutar, copia temporal y fallos de aserción observables. `npm run test:inventory:mutations` comprueba fallos deliberados de integridad/origen, omisión de variables y modos, clasificación local/remota, elección arbitraria de modo, conservación de decisiones/registros y resolución de anidados por identidad. Ejecuta primero una base sin mutar y después cada cambio por separado en una copia temporal; no modifica el checkout. Un superviviente, error de sintaxis, timeout o fallo de infraestructura devuelve error. El informe queda en test-results/inventory-mutations.json, ignorado por Git. Es cobertura dirigida, no una garantía exhaustiva; `npm run test:resources:mutations` mantiene su alcance independiente sobre recursos y CSS. Ambos usan el mismo ejecutor."
+      },
+      "decision": "moved",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tooling.md",
+        "section": "Ejecutar pruebas y mutaciones"
+      },
+      "reason": "Detalle operativo único conservado en su referencia por operación."
+    },
+    {
+      "id": "readme-068",
+      "source": {
+        "startLine": 169,
+        "endLine": 169,
+        "sha256": "8dc7a41ee10a33d26f9928f2fae430a8e7fa82d89211663781453d78908e9bc9",
+        "text": "La captura v2 incorpora cajas y matrices absolutas; requiere recapturar importaciones antiguas, sin reconstruir datos. Las fichas declaran verification.geometryPolicy=mapped-layout-v1 y la vista transfiere mediciones v2. `node .agents/skills/create-ds-from-figma/scripts/verification-plan.mjs compare . METADATA CASE BODY [BASELINE_BODY]` emite PASS/FAIL/NOT COMPARABLE/NOT RUN por parte y fuente esencial. Los informes v4 derivan esos checks y bloquean confirmed ante FAIL/NOT RUN o fuentes pendientes; lo no comparable exige una revisión específica además del juicio visual general. Las reglas no dependen de un componente concreto ni imponen Flexbox/Grid. verify-ds imprime VISUAL separado de su PASS estático: candidatos y correspondencias no establecidas no son validación visual completa. La posición de vectores 2D puede verificarse por su centro sin afirmar equivalencia de forma. Los casos behavior admiten invariantes explícitas de contención, anclaje, centrado y relación dimensional contra una medición base. La forma vectorial, transformaciones incompatibles y diff de píxeles siguen fuera del alcance. La versión del comparador controla caducidad; un test sigue las declaraciones y dependencias locales relevantes, incluidas reglas de requisitos/dimensiones, excluyendo prosa diagnóstica del comparador. El productor tiene su propia huella/versionado para recogida y conversiones: cuerpo y recibo guardan measurementVersion idéntica. Reglas antiguas caducan la evidencia; versiones ausentes o discrepantes la invalidan. Recoge de nuevo sin reescribir los originales. reason/scope no alteran la vigencia. confirmed exige también todos los casos behavior asociados en PASS, con mediciones publicadas y verificadas. Una obligación no comparable/no ejecutada mantiene candidate/NOT VERIFIED; no demuestra un defecto visual."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Comparación Renderizada General"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-069",
+      "source": {
+        "startLine": 171,
+        "endLine": 171,
+        "sha256": "c32349a84ab762e5b9127238fde3f442b9c025ede099dd2ba5440cebf5b472a2",
+        "text": "FLOAT pendiente sin usar sigue siendo aviso; consumirlo sin serialización es error. Los grafos estáticos se reutilizan dentro de cada ejecución, nunca entre recogidas o verificaciones; sus hashes se recalculan. Para medir el trabajo repetido, `node .agents/skills/create-ds-from-figma/scripts/benchmark-static-analysis.mjs . METADATA 30` compara resultados y tiempos sin/con reutilización. Es una microprueba con proceso caliente, no un benchmark del arranque o de toda la validación; ejecuta sin cargas concurrentes y no interpretes tiempos aislados como garantía."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Rendimiento del análisis"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-070",
+      "source": {
+        "startLine": 173,
+        "endLine": 173,
+        "sha256": "77c7f898ead581896a7ffae6a32f1b5c695f48c5ee44f3352966960bd24c0a45",
+        "text": "La resolución TypeScript no busca configuración en directorios padre y registra los extends locales consultados; herencia externa queda NOT VERIFIED. La vista exige definiciones CSS alcanzables para los tokens usados: tokens.css debe importarse realmente o figurar en verification.stylesheets, no solo en inputs. Esta disponibilidad estática no demuestra el modo activo ni sustituye la comprobación renderizada."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Recursos Y Casos Renderizados"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-071",
+      "source": {
+        "startLine": 175,
+        "endLine": 175,
+        "sha256": "ef42ddc0542a0b9f8534bb00e9ae24484e6e7f2054036b964ca3fc6ed47a9218",
+        "text": "La caducidad de una confirmación íntegra produce NOT VERIFIED, sin bloquear el DS ni reescribir usage.md. Registros corruptos o mal formados siguen fallando. Se examinan las dependencias locales reales del componente, no todo src/public ni el mapa completo: importar otro componente no invalida por sí solo los casos anteriores. verification.inputs declara archivos adicionales; imports dinámicos/globs o aliases no resueltos quedan pendientes, sin fingir una clausura completa. Archivos de sistema se excluyen explícitamente; symlinks locales y ciclos se resuelven, y destinos externos requieren revisión."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Dependencias y vigencia"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-072",
+      "source": {
+        "startLine": 177,
+        "endLine": 177,
+        "sha256": "9b7d5b144516127994d8f3f86ae5650023c313373b4d43f2d7ecb6a523f5e3b0",
+        "text": "Los recibos conservan la huella semántica del caso y los hashes de la recogida original. Se vuelven a comprobar al publicar, generar un informe y validar confirmed: un informe nuevo no vuelve vigentes unas mediciones caducadas. La vista distingue la raíz superior del componente de las raíces y partes de sus anidados."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Mediciones originales"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-073",
+      "source": {
+        "startLine": 179,
+        "endLine": 179,
+        "sha256": "e9bbed5b0b95e6ef195c21327f9b6a23c0f7746af1b23d537d0da8f3ca6dd170",
+        "text": "`node .agents/skills/create-ds-from-figma/scripts/verification-plan.mjs publish . METADATA CASE RECEIPT` publica las mediciones temporales y sus recibos sin reserializarlos, comprobando hashes de origen/destino y archivos examinados. Usa el artefacto devuelto en el informe. El PNG Figma se decodifica con CRC y registra sus dimensiones reales, que deben quedar a ≤1 px del tamaño capturado del nodo por la escala declarada (sin asumir cómo redondea Figma); un tamaño correcto no prueba que la imagen muestre el nodo. publish y report exigen el CSS del mapa aunque esté fuera de src/. Los recursos compartidos, colecciones usadas y manifiestos/locks siguen siendo conservadores; no se cubren recursos remotos, fuentes del sistema ni bytes de node_modules. La publicación y la decodificación no autentican el origen ni sustituyen el juicio visual del revisor. El kit usa parsers CSS/TypeScript, pngjs y el SDK MCP."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Publicación y revisión"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-074",
+      "source": {
+        "startLine": 181,
+        "endLine": 181,
+        "sha256": "ec8da070102b970f37cc021f0913517ab5481b0dbdc2b7fa94692c2292a04dcc",
+        "text": "apply valida la propuesta en memoria contra verify-ds antes de reemplazar la ficha de forma atómica: un error no modifica metadata.json. Prepara primero código, tokens, relaciones y usage de esa propuesta. confirmed usa informes v4 y requiere una medida original del navegador y una captura PNG Figma tipadas bajo design-system/verification/artifacts. REVIEW incluye behaviors: [{ caseId, artifact }] por cada caso behavior asociado; el productor deriva resultados, configuraciones y hashes, y el gate los recalcula. Su caducidad depende de decisiones relevantes del caso y su cobertura behavior y archivos examinados, no de prosa o casos ajenos. El hash completo de metadata queda para auditoría histórica. Esto permite auditar, no autentica ni demuestra la fidelidad del juicio."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Publicación y revisión"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-075",
+      "source": {
+        "startLine": 183,
+        "endLine": 183,
+        "sha256": "15f8b371bf1be7fc67bce579c181f2eb6896e9511ba7e04e065de8fa33a1f982",
+        "text": "`node .agents/skills/create-ds-from-figma/scripts/verification-plan.mjs requirements SNAPSHOT` deriva hechos y agrupa fuentes. `node .agents/skills/create-ds-from-figma/scripts/verification-plan.mjs apply . METADATA DECISIONS` incorpora esos hechos sin transcripción del agente. Los checks detectan sizing intrínseco contradicho por CSS fijo cuando es demostrable y agrupan avisos; lo ambiguo requiere revisión. usage.md usa JSON ligado a los casos: confirmed exige informe renderizado persistido con configuración exacta, archivos/artefactos y hashes vigentes. Esto valida el registro, no su veracidad visual. checkResult de fuentes es el retorno bruto de la API, no prueba de disponibilidad. La vista puede cargar configuración Vite explícitamente revisada con `--config vite.config.ts --approve-config`; nunca la carga automáticamente."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Materializar decisiones"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-076",
+      "source": {
+        "startLine": 185,
+        "endLine": 185,
+        "sha256": "3ee5111f89792e7511c71aca8494905c96ede18e7e51d5cf5bc2858e604440e9",
+        "text": "Las importaciones incluyen `metadata.verification`: recursos observados con archivos autorizados/hashes, tipografía esencial cubierta y casos separados de fidelidad y comportamiento. `node .agents/checks/verify-render-plan.mjs .` está integrado en verify-ds. Sin retrocompatibilidad para fichas que omitan el contrato."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Recursos Y Casos Renderizados"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-077",
+      "source": {
+        "startLine": 187,
+        "endLine": 187,
+        "sha256": "25a909afe7450f1c9966edf9b0145e31dfb7257f6177179db47975393325cea3",
+        "text": "Con React, React DOM y Vite del DS instalados, `node .agents/skills/create-ds-from-figma/scripts/verification-preview.mjs . design-system/components/Nombre/metadata.json` sirve los casos sin modificar App.tsx. Asigna un puerto libre automáticamente: abre las URL que imprime y ajusta el viewport declarado. Puedes añadir un puerto explícito como último argumento posicional si lo necesitas; si está ocupado, falla. La página guarda medidas originales y recibos con SHA-256 navegador/servidor en la carpeta temporal emitida. La vista no instala dependencias adicionales en el proyecto generado ni activa estados o hereda providers/plugins de la app. Los recibos quedan NOT VERIFIED: revisar recursos, modos, estados, contenido y fidelidad sigue siendo necesario. Detén el servidor al terminar. Formato y límites en [el contrato de fichas](.agents/skills/create-ds-from-figma/references/component-metadata.md)."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Vista manual y activación"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-078",
+      "source": {
+        "startLine": 189,
+        "endLine": 189,
+        "sha256": "32a4a7568925bcaaeff53296da7113e01b0dcbcc137a306aff9ac3cfd5e82e18",
+        "text": "### Residuo De Píxeles (Experimental)"
+      },
+      "decision": "moved",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tooling.md",
+        "section": "Residuo de píxeles experimental"
+      },
+      "reason": "Detalle operativo único conservado en su referencia por operación."
+    },
+    {
+      "id": "readme-079",
+      "source": {
+        "startLine": 191,
+        "endLine": 191,
+        "sha256": "6dd48a8738de7f1ce46dbd63ec43a8298be5367643ff86be9459e4dcd6bb09ba",
+        "text": "`node .agents/skills/create-ds-from-figma/scripts/pixel-diagnose.mjs compare REFERENCIA.png CANDIDATO.png REGIONES.json [--max-shift N] [--heatmap SALIDA.png]` compara, región a región, un PNG de Figma con una captura del componente y ordena las regiones por lo que se parecen menos. `REGIONES.json` es una lista de `{ id, x, y, width, height }` en píxeles enteros de la imagen de referencia, normalmente las cajas de las partes que no son texto. Cada región se alinea por separado (hasta `--max-shift` píxeles, 12 por defecto) para cancelar la desviación geométrica, que ya informan los checks de geometría, y conserva el residuo de aspecto: diferencia media y porcentaje de píxeles con diferencia fuerte (más del 8 % del rango). Lo que el candidato no cubre cuenta como diferencia total, nunca como papel blanco, y `coveragePercent` indica qué parte de la región cae dentro del candidato en el desplazamiento elegido; así un candidato totalmente distinto, recortado o desplazado fuera de la imagen no puede parecer una coincidencia. `--heatmap` escribe un PNG con las diferencias en rojo y nunca sobrescribe."
+      },
+      "decision": "moved",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tooling.md",
+        "section": "Residuo de píxeles experimental"
+      },
+      "reason": "Detalle operativo único conservado en su referencia por operación."
+    },
+    {
+      "id": "readme-080",
+      "source": {
+        "startLine": 193,
+        "endLine": 193,
+        "sha256": "923e51067556354336122321155f24f7645e06251d4fc04bba5174d450c656cb",
+        "text": "Es un aviso, no una comprobación: el resultado es siempre `NOT VERIFIED`, no calibra umbrales y no está conectado a `--diagnose` ni al cierre. El coste de la búsqueda (píxeles de las regiones por (2·maxShift+1)² comparaciones) se calcula antes de empezar y se rechaza si supera `--max-operations` (250 millones por defecto, máximo 4000 millones), con un tope de 256 regiones e imágenes de hasta 8 megapíxeles y 16384 píxeles por lado. La cabecera del PNG se lee antes de descomprimir nada, de modo que un archivo pequeño que declare dimensiones enormes se rechaza sin reservar memoria, y los PNG entrelazados no se admiten porque su descompresión no se puede acotar; la búsqueda descarta pronto los desplazamientos que ya no pueden ganar, sin cambiar el resultado, y `--heatmap` estima la alineación en una ventana central de hasta 256×256 en lugar de en toda la imagen. Ordena regiones por su residuo; `hotspots` marca las que superan el 2 % de píxeles fuertes y, si hay al menos dos regiones más, triplican la mediana de las demás. Sirve para que un modelo que no ve imágenes pueda leer \"esta región difiere\" y para localizar defectos que la geometría no ve, como el contorno ausente de un pico. Límites: el suavizado de aristas rotadas deja un suelo (una corrección buena sigue apareciendo como la región más alta, con un residuo bastante menor), el texto y las sombras difieren entre renderizadores, y las dos imágenes deben estar a la misma escala. La exportación `node-bounds` de `figma-reference.mjs` recorta lo que sobresale de la caja (un pico, una sombra); para comparar eso hace falta una exportación con los límites de renderizado, que el kit no genera todavía."
+      },
+      "decision": "moved",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tooling.md",
+        "section": "Residuo de píxeles experimental"
+      },
+      "reason": "Detalle operativo único conservado en su referencia por operación."
+    },
+    {
+      "id": "readme-081",
+      "source": {
+        "startLine": 195,
+        "endLine": 195,
+        "sha256": "8ed2060b2103c4e47c517085892a0578f4b6e89c9cbaee1c2b57cadaa2d240fa",
+        "text": "Medido sobre el pico de un Tooltip real a 4×: región del pico 8,5 % de píxeles fuertes (18 veces las demás) con el defecto y 2,9 % (7 veces) corregido; bordes y esquina por debajo del 0,2 % tras alinear. Una sola muestra."
+      },
+      "decision": "moved",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tooling.md",
+        "section": "Residuo de píxeles experimental"
+      },
+      "reason": "Detalle operativo único conservado en su referencia por operación."
+    },
+    {
+      "id": "readme-082",
+      "source": {
+        "startLine": 197,
+        "endLine": 197,
+        "sha256": "7fdcf1c9026a9b25733441eb31cc010f46c9db6e4ad017a41d3fd50d581ec586",
+        "text": "### Cierre De La Importación"
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+        "section": "Recursos Y Casos"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-083",
+      "source": {
+        "startLine": 199,
+        "endLine": 199,
+        "sha256": "42f34bb455e62387f8e3960f97d006a11efddf401fe4eb760bfc84ea7949d231",
+        "text": "Las declaraciones de alias inline no generan por si solas acciones de serializacion FLOAT. El analizador parte de propiedades consumidoras y sigue los alias del mismo objeto, respetando las sobrescrituras y conservando la ubicacion consumidora y `aliasChain`. Un uso identificado desde CSS u otro objeto puede alcanzar el alias, pero queda como consumo posible y `PARTIAL`: no demuestra coincidencia de elementos ni herencia. Las comprobaciones de definiciones siguen siendo independientes."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Recuperación de serializaciones"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-084",
+      "source": {
+        "startLine": 201,
+        "endLine": 201,
+        "sha256": "3cc16e81f7be55698bc0e883a528b7743cacf83db3f166f4f75f1b9f756609d8",
+        "text": "Los valores dinámicos de propiedades personalizadas inline quedan como inciertos: aviso, consumo `PARTIAL` y referencias en `consumption.uncertainInlineReferences`, nunca ausencia demostrada ni definición verificada. Paréntesis, aserciones de tipo, `satisfies` y aserciones no nulas se desenvuelven sin ejecutar código; los literales conservan su significado, incluidos los borrados explícitos."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Recuperación de serializaciones"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-085",
+      "source": {
+        "startLine": 203,
+        "endLine": 203,
+        "sha256": "b97a59caf51118a90d0aaca04d021a2ffc645ce9ee1dd7cd41f71538b2d612b1",
+        "text": "Un spread desconocido puede aportar o sobrescribir una definición inline: genera aviso y consumo `PARTIAL`, no un error de token ausente por esa referencia. `consumption.uncertainInlineReferences` conserva las referencias afectadas sin contarlas como definiciones verificadas. Una asignación explícita posterior prevalece: un borrado mantiene la comprobación de ausencia y un literal válido define la propiedad. Las obligaciones independientes de bindings o CSS no se omiten. Los nombres de objetos const se resuelven con el enlace léxico de TypeScript, respetando desestructuración y nombres ocultos en ámbitos interiores, sin cargar dependencias ni ejecutar código; parámetros y enlaces no evaluables permanecen desconocidos."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Recuperación de serializaciones"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-086",
+      "source": {
+        "startLine": 205,
+        "endLine": 205,
+        "sha256": "a8f9fe0e8bf9a22b418eca227e7aa2c2abf02456de00ee4f1e19ac395a3d5f46",
+        "text": "El gate y la finalización exponen `importDiagnostics` aun si falla el snapshot. `RESOLVE_FLOAT_SERIALIZATION` lista variables locales pendientes, fichas afectadas y referencias estáticas desde bindings, CSS, estilos inline y alias. No elige unidades. Las pendientes sin referencias identificadas no pasan a ser errores ni se declaran sin uso: imports no resueltos, expresiones dinámicas y errores de lectura dejan consumo parcial/desconocido. Los objetos const locales inequívocos se analizan sin ejecutar JavaScript ni demostrar que una rama se renderice. Una propiedad personalizada inline (cadena o número) solo satisface referencias de su propio objeto de estilo; en otro elemento queda como aviso (herencia no verificada), no como definición. Se respeta la última asignación tras spreads: null, booleanos y cadena vacía no definen la propiedad; cero sí. Las referencias sobrescritas se descartan. Un spread desconocido no acredita las definiciones anteriores y mantiene el análisis parcial."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Recuperación de serializaciones"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-087",
+      "source": {
+        "startLine": 207,
+        "endLine": 207,
+        "sha256": "6aca7e9fe07068b9e4daf00ff8dfa1c9efa2ff8011d5beb91e4456e17d3fdb78",
+        "text": "Las referencias idénticas se deduplican aunque lleguen por varios modos o caminos de alias; ubicaciones distintas (archivo, línea, columna, propiedad) y bindings distintos se conservan. Los avisos dinámicos se agrupan por archivo: la consola resume hasta seis ubicaciones y consumption.unknownStyles conserva todas. El estado sigue siendo PARTIAL; el gate evita repetir el mismo aviso de la verificación estática y del diagnóstico de recuperación."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Recuperación de serializaciones"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-088",
+      "source": {
+        "startLine": 209,
+        "endLine": 209,
+        "sha256": "824ef0deb47f67de4e1d199cba98eab8fdd8fe8868be291fbf2a8435fa94345d",
+        "text": "Las capturas vacías, incompatibles, corruptas e ilegibles tienen motivos distintos. `OBTAIN_VALID_CAPTURE`, `RESTORE_OR_INSPECT_CAPTURE` y `REVIEW_CAPTURE_REFERENCE` orientan sin escribir. Restaura el original histórico cuando exista; una captura nueva requiere transporte autorizado y persistencia explícita en una ruta nueva, nunca reparar hashes o inventar observaciones. El contrato/hash no acredita autenticidad y estos fallos no desactivan el diagnóstico independiente de la aplicación. `npm run test:imports:mutations` prueba estas regresiones con datos sintéticos."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+        "section": "Verificación Y Comparación"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-089",
+      "source": {
+        "startLine": 211,
+        "endLine": 211,
+        "sha256": "5b515a5df7404d64a8a6a9fcf966047ac3a69d0891aceb69336ba00326dab5b7",
+        "text": "Las delegaciones mapped comparan ligaduras y pinturas de cada propiedad con el snapshot sellado del hijo. `review.delegationDifferences` distingue same, difference, unmatched, unreadable y not applicable. Cada diferencia requiere tratamiento explícito en disposition.differences: implemented (con part/cssProperty/reason) u omitted. No declararla falla estáticamente; omitirla o dejar la correspondencia/lectura sin resolver bloquea confirmed. Implemented no es evidencia: exige revisión específica del check delegation con artefactos del mismo caso. No hay todavía comparador automático de colores. Los casos del padre incluyen el snapshot completo del hijo en sus dependencias: cambiarlo caduca las confirmaciones afectadas. No se cambia el formato de captura ni se impone una API de color."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+        "section": "Tratamientos delegados"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-090",
+      "source": {
+        "startLine": 213,
+        "endLine": 213,
+        "sha256": "6f1c5b0f7bd1d5bac215ab0d8fc8a02d54018342f650c6f13bf9ab3e41ca48c2",
+        "text": "`npm run test:delegation:mutations` comprueba regresiones deliberadas de detección, omisión, revisiones específicas y caducidad con fixtures sintéticos; no acredita fidelidad real ni sustituye `npm test`."
+      },
+      "decision": "moved",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tooling.md",
+        "section": "Ejecutar pruebas y mutaciones"
+      },
+      "reason": "Detalle operativo único conservado en su referencia por operación."
+    },
+    {
+      "id": "readme-091",
+      "source": {
+        "startLine": 215,
+        "endLine": 215,
+        "sha256": "0b22deef7c116790c2b222a47e3f2ddd4f03a86fe1586f97d32fb802c16a3dab",
+        "text": "El gate solo pide revisar diferencias delegadas cuya confirmación específica siga pendiente o haya caducado. Una revisión vigente no se vuelve a solicitar; tampoco cubre otros casos pendientes que compartan esa diferencia. El diagnóstico temporal sigue mostrando las revisiones que necesitaría una nueva confirmación."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+        "section": "Tratamientos delegados"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-092",
+      "source": {
+        "startLine": 217,
+        "endLine": 217,
+        "sha256": "4ae77c5210fded0b769c0b8801a993eb2ecd9668475d2640eb94918594cac1b9",
+        "text": "La validación de candidatos comparte metadataOverrides entre evidencia, inputs por caso, comportamiento y confirmaciones: editar un componente que sirve de base también invalida las confirmaciones afectadas del padre antes de escribir. Cada operación reutiliza el análisis JSON y la validación de snapshots mediante una sesión aislada, sin caché global. Cada consulta vuelve a resolver la ruta segura y calcular SHA-256 de los bytes actuales (o del candidato explícito), no confía solo en tamaño/mtime. Una modificación, borrado o corrupción no se oculta por la caché. Las consultas por caso cargan únicamente las bases delegadas necesarias. Esto reduce parseos/validaciones repetidos, no elimina lectura/hash, no hace las lecturas atómicas ni garantiza una aceleración concreta. El benchmark de análisis estático incluye contadores evidence de reads/parses/validations para medirlo sin confundirlo con fidelidad visual."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Rendimiento del análisis"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-093",
+      "source": {
+        "startLine": 219,
+        "endLine": 219,
+        "sha256": "95760d99e1234de18962eb56a7c45c68637f0ffc399cb97c334a223ce63a34d2",
+        "text": "En composición, solo las condiciones explícitas del modelo (por ejemplo, máscaras ancestrales, aislamiento inestable o presupuesto excedido) generan NOT COMPARABLE. Los errores inesperados del navegador, timeouts de captura, fallos de guardado/decodificación y errores de restauración generan NOT RUN y el reintento correspondiente. Se intentan todos los pasos de limpieza, se conserva el motivo original junto al de restauración si ambos fallan y se mantienen las capturas parciales ya guardadas; un grupo no conserva PASS si falla su restauración."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Fallos técnicos de composición"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-094",
+      "source": {
+        "startLine": 221,
+        "endLine": 221,
+        "sha256": "72afb18ec91661b3ea91834fa1fd07d509ca7fb024e5432ad32edcfa4dddda56",
+        "text": "La vista dirige los mensajes propios del logger de Vite a stderr, incluidos info, avisos y errores, sin limpiar la terminal ni mezclarlos con el JSON de las CLI Node. Para consumir JSON por proceso usa Node directamente: `npm run` añade sus propias cabeceras. Esto no intercepta console.log arbitrarios de una configuración/plugin autorizado. La preoptimización incluye React, react-dom/client y ambos runtimes JSX para reducir descubrimientos tardíos; no garantiza que otras dependencias nunca provoquen una recarga. La composición analiza primero el snapshot y no abre el contexto 4× si no hay grupos comparables: conserva sus motivos NOT COMPARABLE, no los convierte en PASS."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Ejecución de la vista"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-095",
+      "source": {
+        "startLine": 223,
+        "endLine": 223,
+        "sha256": "fce06d37d797f4ec263f1f1f9878bd2e9294b0539d40343bbdba138b6c13d672",
+        "text": "En el diagnóstico de composición, la tinta opaca propia que coincide exactamente con el compuesto puede contar como visible pese al suavizado de capas inferiores. La pintura superior, colores indistinguibles y regiones excluidas siguen impidiendo esa conclusión. La translucidez mantiene indeterminadas las atribuciones de oclusión; no se convierte una coincidencia local en fidelidad visual general."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Diagnóstico experimental de composición"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-096",
+      "source": {
+        "startLine": 225,
+        "endLine": 225,
+        "sha256": "20524fb719554a1a54fe028eb77546486147c7d78f341dce7e7ab1b2b7ac0d34",
+        "text": "El flujo se detiene antes de implementar si faltan fuentes o imágenes esenciales autorizadas. Pregunta por ellas juntas; si el agente no puede interactuar, debe devolver BLOCKED sin escribir código ni registrar el componente. No se eligen paquetes por el nombre de una fuente ni se sustituyen imágenes por placeholders."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+        "section": "Parada por recursos"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-097",
+      "source": {
+        "startLine": 227,
+        "endLine": 227,
+        "sha256": "48635180cb125aba8512f664015226eeadd5cfdc39b2aeb30bc81cfdeae80d04",
+        "text": "Para obtener feedback sobre código existente antes de publicar evidencia:"
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+        "section": "Recursos Y Casos"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-098",
+      "source": {
+        "startLine": 229,
+        "endLine": 231,
+        "sha256": "b9fd261d69b1a1aee8be347048e02674851652f96090abf8c89e32e45434492e",
+        "text": "```sh\nnpm run finalize:import -- . design-system/components/Nombre/metadata.json --diagnose\n```"
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+        "section": "Recursos Y Casos"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-099",
+      "source": {
+        "startLine": 233,
+        "endLine": 233,
+        "sha256": "f643c289597cf18489a8e9903b2aa6c5ad4d7617845ff66d5aaf51bace858fb5",
+        "text": "Este paso forma parte del bucle de implementación: medir, revisar diferencias, corregir defectos demostrados y volver a medir antes de presentar el resultado. Usa el Chromium fijado y los casos actuales, aunque queden recursos pendientes. Los datos originales, recibos, capturas, comparaciones y caché se guardan únicamente en un temporal nuevo; no altera metadata/usage ni crea artefactos de verificación en el proyecto. No autoriza iniciar una importación bloqueada. Requiere el runtime de navegador preparado y permiso para ejecutar el componente/abrir servidores locales; no instala dependencias."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+        "section": "Recursos Y Casos"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-100",
+      "source": {
+        "startLine": 235,
+        "endLine": 235,
+        "sha256": "565dcb555d8e4dcda5869e21cf3381d22c7c75ecfa086d38192ac52c8658bfe3",
+        "text": "Lee diagnosis.execution, diagnosis.diagnostics.cases, resources, warnings y nextActions. REVIEW_RENDERED_DIFFERENCES identifica casos/checks con diferencias observadas; no atribuye su causa al CSS. RESOLVE_BEHAVIOR_CHECKS lista los checks de comportamiento NOT COMPARABLE o NOT RUN: ninguna revisión renderizada los rescata, hay que declarar en la ficha la expectativa justificada que falta (por ejemplo una relación intrinsic-size con su motivo) o corregir el caso, y diagnosticar de nuevo. Fuentes ausentes pueden afectar la geometría del texto y del contenedor. Los recursos siguen pendientes y los FAIL no se ocultan. --diagnose nunca alcanza PASS de entrega: devuelve FAIL o NOT VERIFIED, complete=false y código de salida 1 incluso si los checks numéricos pasan. No combina publicación, revisión ni --check. Admite --port para un puerto explícito; el automático también funciona con Vite 5 y no toma la demo de otro proceso. La vista se cierra al terminar."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+        "section": "Recursos Y Casos"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-101",
+      "source": {
+        "startLine": 237,
+        "endLine": 237,
+        "sha256": "dab0e08802095e9a50363394706d2e736b90bbba2c12b0433244c7d29f3a7a7f",
+        "text": "La regresión genérica de Chromium cubre dimensiones de raíz aplicadas al texto, punta invertida y bordes parciales. Comprueba que hay feedback sin recursos resueltos, que las correcciones eliminan los defectos medidos y que ningún diagnóstico confirma candidatos ni modifica el proyecto. No demuestra por sí sola que cualquier LLM seguirá el flujo: los scripts detectan diferencias; el agente debe ejecutar el bucle y resolverlas."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+        "section": "Recursos Y Casos"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-102",
+      "source": {
+        "startLine": 239,
+        "endLine": 239,
+        "sha256": "01cf44e29438fb73a160eb30fe94ca3685ab921b131c1fdd540ac56bdd59f0dc",
+        "text": "`--diagnose` incluye un diagnóstico experimental de composición en fidelity: `diagnosis.diagnostics.cases[].composition` y `diagnosis.diagnostics.compositionSummary`. Busca formas hoja inequívocas, hermanas y solapadas en el snapshot y en el DOM; usa el orden de hijos de Figma y `itemReverseZIndex` en auto-layout, no impone el orden del DOM. A 4× conserva el compuesto, cada parte aislada sobre magenta/verde y el compuesto restaurado, con ruta y SHA-256 en el temporal. Verifica que aislar no cambie cajas, contenido ni estilos calculados (salvo visibilidad/fondo de aislamiento), y que los píxeles compuestos se restauren."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Diagnóstico experimental de composición"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-103",
+      "source": {
+        "startLine": 241,
+        "endLine": 241,
+        "sha256": "561eed1c117e613d44d74d9db0560202a45f2b0e30392892a88999b2eb6334b5",
+        "text": "Solo cuenta como tinta opaca el color idéntico sobre ambos fondos. Por parte, `opaque` se reparte entre `visible`, `occludedByLower`, `legitimatelyCovered` e `indeterminate`; `nonOpaque` cuenta píxeles sin tinta opaca estable, incluido suavizado. Las regiones excluidas no son nonOpaque: su tinta opaca cuenta como indeterminate. Colores iguales, otras partes y pintura translúcida no prueban oclusión. Una tinta superior reemplazada por un color que coincide con un hermano inferior emite FAIL y `REVIEW_COMPOSITION_DIAGNOSTICS`; el diagnóstico global falla, pero no se atribuye automáticamente quién pintó ese píxel. PASS se limita a la tinta muestreada bajo este modelo, nunca a fidelidad visual general. Texto, descendientes agrupados, mapeos ambiguos, estados interactivos, filtros, opacidad, recorte ancestral o aislamiento inestable quedan NOT COMPARABLE. El snapshot no captura máscaras de origen ni todas las operaciones de mezcla: ese límite permanece explícito incluso con PASS."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Diagnóstico experimental de composición"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-104",
+      "source": {
+        "startLine": 243,
+        "endLine": 243,
+        "sha256": "860ac73e469d104de30ab7592ffbb4ed37c127b73b7920fd34d10be867c3ab02",
+        "text": "Una muestra de composición NOT RUN también hace fallar --diagnose y genera `RETRY_COMPOSITION_DIAGNOSTICS`, con caso, check, motivo técnico y comando de reintento. Es ejecución pendiente, no una diferencia visual; NOT COMPARABLE sigue siendo abstención sin exigir reintentos. En nextActions, `temporary-read` significa leer capturas/informes temporales ya existentes, sin escritura ni arranque de navegador. El reintento requiere project-read, browser-execution y temporary-write. Estos permisos son requisitos informativos, no autorizaciones concedidas por el kit. El contrato del diagnóstico usa nonOpaque sin alias para el contador anterior; no cambia las mediciones publicadas ni confirmed."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Diagnóstico experimental de composición"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-105",
+      "source": {
+        "startLine": 245,
+        "endLine": 245,
+        "sha256": "6bf2b80f8145f26e9e1a58d462b4e21974e482c49a4f9fee435de47fecdd6a2f",
+        "text": "Los límites son cuatro grupos por caso, ocho partes por grupo, 1000 elementos DOM, 512 kilopíxeles por captura y ocho megapíxeles de capturas por caso; superarlos produce NOT COMPARABLE. Las regresiones obligatorias de Chromium cubren inversión de relleno/trazo rotados, orden corregido, cobertura legítima, transparencia, colores iguales y abstención/restauración. `npm run test:diagnosis:mutations` incluye alteraciones deliberadas de orden, opacidad, colores ambiguos y contabilización de tinta. Esta salida es solo diagnóstica: no cambia mediciones publicadas, contratos de metadata/snapshot, el gate ni las revisiones específicas exigidas para confirmed. Los temporales no se borran automáticamente; conserva lo necesario para auditar y limpia el directorio al acabar."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Diagnóstico experimental de composición"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-106",
+      "source": {
+        "startLine": 247,
+        "endLine": 247,
+        "sha256": "3d6748ef84f1a927401dd0de058b50e72dec4d60d535a1a2e3f0ba3bf2ea6e7b",
+        "text": "El cierre conserva también la lista de mediciones pendientes cuando falla la conformidad estática, si los casos son interpretables. No ejecuta comparaciones dependientes de datos inválidos: indica que las medidas aportadas aún no se han evaluado. Los números inline constantes usan la serialización React (px, cero y propiedades sin unidad). Los diagnósticos CSS consideran @supports: una rama inactiva no es un fallo de sintaxis; una extensión de otro motor no soportada queda pendiente de revisión, no declarada inválida universalmente. El diagnóstico de aplicación comparte este criterio."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+        "section": "Recursos Y Casos"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-107",
+      "source": {
+        "startLine": 249,
+        "endLine": 249,
+        "sha256": "b026b60d90e6ac8dbbecf6fa2ea710e3823b4058008ea4faceee75cc84f6f56f",
+        "text": "La exploración histórica de Inter identifica ahora el commit exacto y las 14 entradas verificadas; el procedimiento de reconstrucción y sus límites están en [las notas del experimento](.agents/skills/create-ds-from-figma/evals/results/README.md). Reconstruir su fuente no significa que el Tooltip haya superado el cierre actual."
+      },
+      "decision": "moved",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tooling.md",
+        "section": "Procedencia de experimentos"
+      },
+      "reason": "Detalle operativo único conservado en su referencia por operación."
+    },
+    {
+      "id": "readme-108",
+      "source": {
+        "startLine": 251,
+        "endLine": 251,
+        "sha256": "2c53ad4e01e6b2f07903da2ad2a65ef9e26989e4f8714b3dc823d62954ae169d",
+        "text": "La cobertura ya no depende solo de las partes elegidas por el modelo: cada nodo del subárbol fidelity necesita mapeo, regla comprobable o delegación validada. verification.nodeCoverage registra excepciones; unresolved no habilita confirmed. Los recibos incluyen CSS.supports para literales CSS/inline del componente, con IDs recalculados en el gate; las variables CSS y los estilos dinámicos siguen necesitando sus comprobaciones propias. PostCSS avisa de bordes que pueden conservar anchuras/colores iniciales. `verification-plan.mjs diagnose .` y diagnosticsUrl de la vista comprueban la aplicación por separado, incluido App.tsx."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Cobertura De Nodos"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-109",
+      "source": {
+        "startLine": 253,
+        "endLine": 253,
+        "sha256": "9c708e640910d0f9d47d42acb2b3b680fe91a98e8f0ebcba5aafeb3366c3dce6",
+        "text": "El adaptador opcional de importación `node .agents/skills/create-ds-from-figma/scripts/verification-browser.mjs ROOT METADATA ABSOLUTE_PLAYWRIGHT_MODULE BROWSER_EXECUTABLE` usa Playwright/Playwright Core y un navegador aportados por rutas explícitas; no instala nada. Es independiente del perfil de pruebas obligatorio del kit. Recoge/publica casos con viewport exacto, ejecuta cierre y diagnóstico de app, guarda resultados temporales y cierra sus procesos. No inventa interacciones ni emite confirmed. Publicar sigue requiriendo autorización; el navegador del entorno permanece disponible."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "CSS Y Navegador Opcional"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-110",
+      "source": {
+        "startLine": 255,
+        "endLine": 255,
+        "sha256": "57b06607102eb4fe4c3ff3be8fe593d506b096df5b8c1c5b35471bc7e6b0cf07",
+        "text": "Antes de arrancar reserva un directorio de salida vacío; rechaza uno ocupado o reservado por otra ejecución sin modificar sus archivos. Ante fallo del preflight estático conserva manifest.json y result.json con el cierre failed y lo pendiente, sin abrir navegador (salida 1). Si falla la vista o el arranque del navegador, conserva el cierre y execution con la fase/motivo (salida 2), sin convertir la falta de ejecución en un fallo visual. Una recogida completa no equivale a fidelidad confirmada."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "CSS Y Navegador Opcional"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-111",
+      "source": {
+        "startLine": 257,
+        "endLine": 257,
+        "sha256": "0194c8c16e117f3f3b0eff7be37b55220545046cec7acdfe0ece1bb0c3fffddd",
+        "text": "Si un proceso termina sin limpiar su reserva, `node .agents/skills/create-ds-from-figma/scripts/verification-browser.mjs inspect-lock DIRECTORY` muestra su PID, máquina, fecha y SHA-256 sin escribir ni borrar. Un PID visible puede haberse reutilizado; uno no visible tampoco autoriza eliminar el lock. Conserva la carpeta y reintenta con otra salida vacía, u omite directory para obtener un temporal nuevo. Incluso sin lock, los resultados previos impiden reutilizar la salida: no se borran para recuperar una ejecución."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "CSS Y Navegador Opcional"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-112",
+      "source": {
+        "startLine": 259,
+        "endLine": 259,
+        "sha256": "9ce286425d11733a8474aa52647c0bf24dd2e3397c033a55923fb9dbc1522a0f",
+        "text": "application conserva siempre status y reason: PASS si sus comprobaciones aplicables pasan, FAIL ante errores o checks fallidos, NOT VERIFIED si quedan checks pendientes/no comparables, y NOT RUN si no se pudo ejecutar el diagnóstico. execution COMPLETED indica que se ejecutó la recogida y el diagnóstico, no que application sea PASS ni que el componente esté confirmado."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "CSS Y Navegador Opcional"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-113",
+      "source": {
+        "startLine": 261,
+        "endLine": 261,
+        "sha256": "4ae06cfbd921a27e8e6472c550aff4b1a64b8dc30a08ada14c2f43b3e2d96b42",
+        "text": "La exploración tipográfica sobre la copia de Tooltip de test/15_octubre_2, Inter 5.3.0 y Chrome queda en [el resultado de calibración](.agents/skills/create-ds-from-figma/evals/results/tooltip-inter-calibration.json). Incluye hashes y ocho mediciones con caras cargadas: la diferencia de ancho de Body text es aproximadamente 1,20 px. No demuestra identidad con el archivo de fuente de Figma ni justifica ampliar tolerancias globales. Layout, métrica de texto y posición vectorial tienen constantes separadas y versionadas, conservadas en 1 px. Para TEXT, el margen es explícitamente provisional: un PASS geométrico necesita además un checkReviews específico geometry:PARTE con evidencia renderizada del caso antes de permitir measured/confirmed. Ninguna revisión rescata FAIL/NOT RUN. El modo calibrate del adaptador permite repetir la exploración con archivos autorizados."
+      },
+      "decision": "moved",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/tooling.md",
+        "section": "Procedencia de experimentos"
+      },
+      "reason": "Detalle operativo único conservado en su referencia por operación."
+    },
+    {
+      "id": "readme-114",
+      "source": {
+        "startLine": 263,
+        "endLine": 263,
+        "sha256": "d762eaf71b485994a93ea932ab0ebd38eed0eb77c2e4044db034546066125ca5",
+        "text": "El perfil real también mide 56 combinaciones de texto, tamaño y peso de Inter, con hashes de fuente, en dos contextos independientes de Chromium. Comprueba carga y repetibilidad en ese renderer; no tiene una referencia Figma equivalente ni calibra otras fuentes, plataformas o navegadores. No se infiere una tolerancia universal de este corpus."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Comparación Renderizada General"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-115",
+      "source": {
+        "startLine": 265,
+        "endLine": 265,
+        "sha256": "2c380764b446f509506e6655b766afc55b6229af48e324aaf30d9da56762a81b",
+        "text": "La recogida muestra viewport esperado/obtenido antes de enviar y tiene un timeout de 15 segundos. Una pestaña suspendida puede detener sus temporizadores: `node .agents/skills/create-ds-from-figma/scripts/verification-plan.mjs wait DIRECTORY CASE 20000` ofrece una espera externa acotada. Iníciala antes de solicitar otra recogida; ignora recibos existentes y no publica. Los diagnósticos de viewport incorrecto se conservan solo mediante collect({diagnostic:true}) y no sirven como evidencia publicable."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Recogida Acotada Y Cierre"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-116",
+      "source": {
+        "startLine": 267,
+        "endLine": 267,
+        "sha256": "55463cf6c14af3d291fbd03bcd84aade0f721fb13d4c7fd0c300981de74cb14f",
+        "text": "`node .agents/skills/create-ds-from-figma/scripts/verification-plan.mjs close . METADATA MANIFEST` comprueba evidencias publicadas de todos los casos fidelity/behavior sin modificar el proyecto ni abrir un navegador. MANIFEST tiene schemaVersion 1 y cases [{caseId, artifacts, checkReviews?}]; usa los objetos de publish con sus hashes, sin transcribir medidas. Devuelve failures, pending y stale por separado y state failed, pending, measured o confirmed. Solo confirmed con evidencia vigente devuelve complete=true y código 0; un candidato medido no es una importación terminada. No sustituye los checks estáticos/manuales ni prueba por sí mismo fidelidad visual. Se mantienen las tolerancias actuales, pendientes de calibración con recursos correctos. El formato completo está en [el contrato de fichas](.agents/skills/create-ds-from-figma/references/component-metadata.md)."
+      },
+      "decision": "consolidated",
+      "destination": {
+        "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+        "section": "Recogida Acotada Y Cierre"
+      },
+      "reason": "El contrato completo ya existe en el apartado indicado; se elimina la segunda redacción del README."
+    },
+    {
+      "id": "readme-117",
+      "source": {
+        "startLine": 269,
+        "endLine": 269,
+        "sha256": "d22a1cb909a8bf00e299bd871392ed299b5b547f5a78bf39a238e6f775f2aa14",
+        "text": "## No negociable"
+      },
+      "decision": "retained",
+      "destination": {
+        "file": "README.md",
+        "section": "Estructura y contratos"
+      },
+      "reason": "Se conserva el propósito, inicio rápido o resumen humano; los contratos detallados se enlazan."
+    },
+    {
+      "id": "readme-118",
+      "source": {
+        "startLine": 271,
+        "endLine": 276,
+        "sha256": "bb7abcedd040fbaa1650d110a40809660e295b785d805a7a63bbe8abb817a234",
+        "text": "- El repo empieza sin componentes importados\n- Sin Tailwind, Storybook ni CI; verificaciones locales, sin instalar hooks ni pipelines\n- Cada ficha en `design-system/components/<Nombre>/` contiene solo `metadata.json` y `usage.md`; el código vive en `src/components/<Nombre>/`\n- Si falta información esencial o un componente anidado local, informa `DS_GAP`; no inventes un sustituto\n- `design-system/inventory.json` solo registra componentes implementados y pantallas con su composición declarada\n- No resumir tokens a color/spacing/type"
+      },
+      "decision": "retained",
+      "destination": {
+        "file": "README.md",
+        "section": "Estructura y contratos"
+      },
+      "reason": "Se conserva el propósito, inicio rápido o resumen humano; los contratos detallados se enlazan."
+    },
+    {
+      "id": "readme-119",
+      "source": {
+        "startLine": 278,
+        "endLine": 278,
+        "sha256": "c754942144548077510c04b0e919a20d11d98ec8c0ade92212b0027c148d799f",
+        "text": "## Cierre y evaluación de instrucciones"
+      },
+      "decision": "retained",
+      "destination": {
+        "file": "README.md",
+        "section": "Verificar"
+      },
+      "reason": "Se conserva el propósito, inicio rápido o resumen humano; los contratos detallados se enlazan."
+    },
+    {
+      "id": "readme-120",
+      "source": {
+        "startLine": 280,
+        "endLine": 280,
+        "sha256": "88b2b5592aa2e78607eaa36f9616b250f0349a166814c22de353d8d3d849f87a",
+        "text": "`npm run verify:all -- kit` agrupa pruebas completas (incluido Chromium), enlaces estrictos, validación estructural de los casos de routing y comprobación de punteros y cobertura del plan de lectura (`read:guidance --check`). Los perfiles `import` y `screen` agrupan comprobaciones del DS con un alcance explícito; `--dry-run` muestra comandos y efectos sin ejecutarlos. No publican, no registran revisiones y no acreditan por sí solos una entrega visual. Consulta [perfiles, efectos y evaluación de routing](.agents/workflows/verify-and-evaluate.md)."
+      },
+      "decision": "retained",
+      "destination": {
+        "file": "README.md",
+        "section": "Verificar"
+      },
+      "reason": "Se conserva el propósito, inicio rápido o resumen humano; los contratos detallados se enlazan."
+    },
+    {
+      "id": "readme-121",
+      "source": {
+        "startLine": 282,
+        "endLine": 282,
+        "sha256": "9714968073ab7d18c3f3606c4e6f1d0de743ec1e3b733d91bed77c701dab1475",
+        "text": "`npm run eval:routing -- --check` solo valida fixtures. `--prompts` prepara la evaluación sin respuestas esperadas y `--results FILE` puntúa una ejecución real conservada, con hashes del catálogo y casos. Las tres skills auxiliares y la principal tienen casos de activación, exclusión y límite; esto no sustituye las regresiones de navegador ni demuestra comportamiento de ejecución."
+      },
+      "decision": "retained",
+      "destination": {
+        "file": "README.md",
+        "section": "Verificar"
+      },
+      "reason": "Se conserva el propósito, inicio rápido o resumen humano; los contratos detallados se enlazan."
+    },
+    {
+      "id": "readme-122",
+      "source": {
+        "startLine": 284,
+        "endLine": 289,
+        "sha256": "5c08f0f038d143959299cf8b48d77da99442f124de0b82ef7871be944a36a352",
+        "text": "Las skills seleccionan secciones mediante `npm run read:guidance -- FASE`; no\nrequieren cargar todas las referencias completas. --stats permite medir bytes\ny palabras para escenarios explícitos. El [índice de evaluaciones](.agents/evals/README.md)\nsepara resultados globales e históricos por skill. Las puntuaciones de routing\nson pruebas de humo con catálogo suministrado, no evidencia de discovery real.\n"
+      },
+      "decision": "retained",
+      "destination": {
+        "file": "README.md",
+        "section": "Verificar"
+      },
+      "reason": "Se conserva el propósito, inicio rápido o resumen humano; los contratos detallados se enlazan."
+    }
+  ]
+}

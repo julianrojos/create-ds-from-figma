@@ -20,6 +20,8 @@ A standalone request to validate UI is read-only with respect to DS documentatio
 
 Write correspondence entries only within an authorized component import/update, or when the user explicitly asks to record the validation results. Keep edits within that authorization; permission to record a result does not authorize implementation fixes. A temporary verification harness may be used as described below and must leave the user's files unchanged after review. The sections below describe checks and proposed corrections; apply permanent changes only when their scope is authorized.
 
+Contrato transversal: [INV-PREWRITE, INV-DIAGNOSE, INV-STATUS e INV-DELIVERY](../../../AGENTS.md#invariantes-de-proceso).
+
 ## Stop conditions and result boundaries
 
 - Without an implementation, return to identifying/planning; do not import a component.
@@ -63,7 +65,10 @@ Write correspondence entries only within an authorized component import/update, 
    application diagnostics, native-state/color limits, delegation and stale records.
 3. Execute the static commands listed above and complete the manual checks.
    Before temporary diagnosis, read import-diagnose with applicable features
-   from the same plan; missing execution remains NOT RUN.
+   from the same plan; missing execution remains NOT RUN. After execution, read
+   import-diagnose-results and add --with composition when output includes composition
+   checks/actions, before interpreting, correcting or retrying. The flag selects
+   documentation; --diagnose runs composition automatically.
 4. Run `npm run read:guidance -- validate-render` before opening the browser.
    Add approximate/modes/float/color/native-states with repeated `--with` only
    for observed applicable facts. See [rendered checks](references/rendered-checks.md).

@@ -14,7 +14,7 @@ const nestedReadmePath = path.join(repoRoot, ".agents/skills/create-ds-from-figm
 const referenceDir = path.join(repoRoot, ".agents/skills/create-ds-from-figma/references");
 const formatReferences = ["component-metadata.md", "figma-evidence.md", "relationships.md", "tokens.md"];
 const phaseReferences = ["import-preanalysis.md", "import-implementation.md", "import-verification.md"];
-const expectedReferences = [...formatReferences, ...phaseReferences].sort();
+const expectedReferences = [...formatReferences, ...phaseReferences, "tooling.md"].sort();
 const readReference = (name) => readFileSync(path.join(referenceDir, name), "utf8");
 
 test("verification stays local without an automatic pipeline or local-only import prerequisites", () => {

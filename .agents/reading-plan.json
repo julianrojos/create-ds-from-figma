@@ -12,15 +12,16 @@
     "float": "Observed FLOAT serialization is needed/undecided",
     "first": "First import or incomplete initial scaffold",
     "next": "Existing scaffold, next component",
-    "text": "Captured TEXT nodes, including hidden text",
+    "text": "Captured subtree contains TEXT nodes, including hidden nodes and descendants of instances; known before API/code.",
     "native-states": "A case declares checked/disabled native assertions",
-    "resources": "Observed fonts/images require authorized sourcing, registration, configuration or loading review",
+    "resources": "Snapshot contains observed IMAGE paints (including hidden) or observed fonts/images require authorized sourcing, registration, configuration or loading review; decide before metadata/code.",
     "color": "Explicit solid-paint color mappings are compared",
-    "composition": "Composition diagnostics are present or need interpretation",
+    "composition": "Observed diagnostic output has composition checks or REVIEW_COMPOSITION_DIAGNOSTICS/RETRY_COMPOSITION_DIAGNOSTICS actions; read after execution, before interpreting or retrying.",
     "recovery": "Capture/serialization/infrastructure recovery is being investigated",
     "styles": "Applied-style provenance is inspected",
     "evidence": "Validation of an imported Figma component and its persisted evidence",
-    "approximate": "At least one measured literal has an approximate translation"
+    "approximate": "At least one measured literal has an approximate translation",
+    "external-bindings": "Captured bindings reference a variable from a remote library; establish from snapshot/inventory before preparing metadata."
   },
   "phases": {
     "import-intake": {
@@ -140,6 +141,10 @@
         {
           "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
           "section": "Captura auditable de Figma"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+          "section": "Verificación Y Comparación"
         }
       ]
     },
@@ -181,11 +186,19 @@
         },
         {
           "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
-          "section": "Verificación Y Comparación"
+          "section": "Propuesta de clasificación"
         },
         {
-          "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
-          "section": "Propuesta de clasificación"
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Clasificación de variantes"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Correspondencias candidatas"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Criterios de clasificación"
         }
       ]
     },
@@ -372,6 +385,68 @@
           "when": [
             "delegation"
           ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Bindings externos",
+          "when": [
+            "external-bindings"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Literales medidos"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Literales tipográficos",
+          "when": [
+            "text"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Registro de fuentes del plan",
+          "when": [
+            "text",
+            "resources"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Registro de imágenes del plan",
+          "when": [
+            "resources"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Archivos y carga del plan"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Cobertura tipográfica del plan",
+          "when": [
+            "text"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Configuración de casos"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Casos de contenido alternativo",
+          "when": [
+            "text"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "CSS intrínseco al materializar",
+          "when": [
+            "text"
+          ]
         }
       ]
     },
@@ -391,10 +466,6 @@
         },
         {
           "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
-          "section": "CSS Y Navegador Opcional"
-        },
-        {
-          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
           "section": "Auditoría De Color E Informe",
           "when": [
             "color"
@@ -405,27 +476,6 @@
           "section": "Estados Nativos Configurados",
           "when": [
             "native-states"
-          ]
-        },
-        {
-          "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
-          "section": "Diagnóstico Experimental De Composición",
-          "when": [
-            "composition"
-          ]
-        },
-        {
-          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
-          "section": "Fallos técnicos de composición",
-          "when": [
-            "composition"
-          ]
-        },
-        {
-          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
-          "section": "Diagnóstico experimental de composición",
-          "when": [
-            "composition"
           ]
         },
         {
@@ -457,6 +507,14 @@
         {
           "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
           "section": "Puertos de recogida"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+          "section": "Preparar el diagnóstico"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Interpretar el informe de bindings"
         }
       ]
     },
@@ -485,6 +543,14 @@
         {
           "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
           "section": "Publicación y revisión"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Contrato de confirmación"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Vigencia de correspondencias"
         }
       ]
     },
@@ -615,6 +681,79 @@
         {
           "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
           "section": "Rendimiento del análisis"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/tooling.md",
+          "section": "Ejecutar pruebas y mutaciones"
+        }
+      ]
+    },
+    "import-diagnose-results": {
+      "sections": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+          "section": "Interpretar el diagnóstico"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "CSS Y Navegador Opcional"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+          "section": "Diagnóstico Experimental De Composición",
+          "when": [
+            "composition"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Fallos técnicos de composición",
+          "when": [
+            "composition"
+          ]
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Diagnóstico experimental de composición",
+          "when": [
+            "composition"
+          ]
+        }
+      ]
+    },
+    "import-browser-adapter": {
+      "sections": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Adaptador externo y calibración"
+        }
+      ]
+    },
+    "tooling-vectors": {
+      "sections": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/tooling.md",
+          "section": "Operaciones auxiliares del kit"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/tooling.md",
+          "section": "Exportar vectores originales"
+        }
+      ]
+    },
+    "tooling-pixels": {
+      "sections": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/tooling.md",
+          "section": "Residuo de píxeles experimental"
+        }
+      ]
+    },
+    "kit-history": {
+      "sections": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/tooling.md",
+          "section": "Procedencia de experimentos"
         }
       ]
     }
@@ -636,6 +775,7 @@
         "import-tokens",
         "import-code",
         "import-diagnose",
+        "import-diagnose-results",
         "import-close"
       ],
       "features": [
@@ -661,6 +801,7 @@
         "import-tokens",
         "import-code",
         "import-diagnose",
+        "import-diagnose-results",
         "import-close"
       ],
       "features": [
@@ -681,6 +822,7 @@
         "import-tokens",
         "import-code",
         "import-diagnose",
+        "import-diagnose-results",
         "import-close"
       ],
       "features": [

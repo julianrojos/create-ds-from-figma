@@ -21,7 +21,7 @@ salida inválida o ejecución ausente no se convierte en PASS.
 
 | Perfil | Checks | Efectos |
 | --- | --- | --- |
-| kit | Suite completa unitaria/Chromium, documentación estricta, estructura de fixtures de routing y comprobación de punteros y cobertura del plan de lectura | Código de tests, servidores, navegador, temporales y test-results |
+| kit | Suite completa unitaria/Chromium, documentación estricta, estructura de fixtures de routing/comportamiento y comprobación de punteros y cobertura del plan de lectura | Código de tests, servidores, navegador, temporales y test-results |
 | import | DS, props, bindings, diagnóstico por cada ficha y gate de importaciones actuales | Lectura del proyecto, navegador y servidores; diagnóstico ejecuta el componente y usa temporales |
 | screen | DS, props, bindings; diagnóstico de componentes solo si se suministran fichas | Lectura; con fichas también navegador/servidores/código de componentes y temporales |
 
@@ -129,3 +129,52 @@ results y counts derivados (PASS/FAIL/NOT_RUN/ADVISORY). El cierre usa ese JSON,
 recalcula contadores y rechaza versiones, registros o recuentos incoherentes;
 no extrae REPORT de la consola humana. La salida humana conserva su política
 informativa de exit code. Un fallo de ejecución JSON devuelve error y exit 1.
+
+## Preparación e interpretación del diagnóstico
+
+Lee import-diagnose antes de ejecutar el componente: efectos, permisos, preflight,
+casos y bloqueos. Después de recibir la salida original, usa:
+
+```sh
+npm run read:guidance -- --diagnosis RESULTADO.json
+```
+
+Selecciona import-diagnose-results y activa composition a partir de contadores,
+resultados o acciones presentes en esa salida, antes de corregir, reintentar o
+informar conclusiones. También puede leerse la fase con --with composition cuando
+esos hechos ya se conocen. --diagnose evalúa composición automáticamente; el flag
+de lectura no activa ni desactiva el motor. Sin salida válida no se presumen
+contratos inaplicables. Adaptador externo/calibración se consultan explícitamente
+en import-browser-adapter; SVG y píxeles en tooling-vectors/tooling-pixels.
+
+## Evaluaciones de comportamiento
+
+El [contrato de comportamiento](../evals/behavior/contract.md) define cuatro casos,
+obligaciones/prohibiciones declarativas y trazas con herramientas, operaciones,
+salidas originales y árbol antes/después. El repo prepara fixtures y puntúa runs;
+no invoca modelos. La preparación escribe exclusivamente en directorios temporales.
+
+```sh
+npm run eval:behavior -- --check
+npm run eval:behavior -- --results TRACE.json
+node .agents/scripts/behavior-session.mjs begin essential-resource
+```
+
+Los comandos read/exec/finish del registrador se describen en el contrato. No
+edites el proyecto evaluado fuera del registrador. Una operación de escritura
+prohibida falla incluso si se revierte; evidencia incompleta sin infracción
+demostrada queda NOT VERIFIED. FAIL tiene prioridad sobre completitud insuficiente.
+Las trazas no autentican procedencia, herramientas omitidas ni revisión visual.
+Los controles sintéticos son tests del puntuador; no se presentan como conducta
+observada del agente. kit comprueba su estructura junto con los fixtures de routing.
+
+En evaluaciones de comportamiento, query files/guidance/static del registrador
+cubre exploración, lectura por fases y las APIs de checks del kit sin npm ni
+scripts del proyecto. Usa esas operaciones explícitas para consultar el fixture;
+un comando opaco sigue sin establecer efectos ni permitir PASS. El detalle y
+las formas de invocación están en el contrato de comportamiento enlazado arriba.
+
+En import-code, text incluye TEXT ocultos y descendientes de instancias;
+resources incluye IMAGE ocultos y external-bindings depende de variables remotas
+capturadas. Resuelve esos hechos antes de omitir detalle. Integridad del snapshot
+se lee en import-capture; el informe estático de bindings en import-diagnose.

@@ -1,0 +1,785 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-23T07:52:12.597Z",
+  "sourceInstructionHash": "d8f96d1a3383a395592405f577388396f0fa4fb3dac57621bcd9dd61eafeb218",
+  "scope": "Manual section-by-section audit. Original texts remain in the immutable archived instruction snapshot. Conditions depend on captured facts available before preparing metadata/code. This audit does not certify semantic equivalence or typical agent costs.",
+  "records": [
+    {
+      "phase": "import-api",
+      "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+      "section": "API y estilos",
+      "sourceSha256": "591ede4ada5b8fdcbe375e743c122eb2b4a05896880970de95a55ff18ad0f1c6",
+      "sourceBytes": 2029,
+      "decision": "retained",
+      "reason": "Required for all imports reaching this phase: scope, metadata identity, correspondence candidates, project consistency or concrete case coverage.",
+      "destinations": [
+        {
+          "phase": "import-api",
+          "section": "API y estilos",
+          "when": []
+        }
+      ]
+    },
+    {
+      "phase": "import-api",
+      "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+      "section": "Resto De La Ficha",
+      "sourceSha256": "bbb0fa790b9208eebeb088286b508273f7cc6264ca9dc3f2a3ebfcd295e713a3",
+      "sourceBytes": 1100,
+      "decision": "retained",
+      "reason": "Required for all imports reaching this phase: scope, metadata identity, correspondence candidates, project consistency or concrete case coverage.",
+      "destinations": [
+        {
+          "phase": "import-api",
+          "section": "Resto De La Ficha",
+          "when": []
+        }
+      ]
+    },
+    {
+      "phase": "import-api",
+      "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+      "section": "Estilos y segmentos",
+      "sourceSha256": "9b8d3e2020212c79a2c5fc66e77bea65e09eba2213b3662ffd0997161343d1db",
+      "sourceBytes": 3538,
+      "decision": "retained",
+      "reason": "Required for all imports reaching this phase: scope, metadata identity, correspondence candidates, project consistency or concrete case coverage.",
+      "destinations": [
+        {
+          "phase": "import-api",
+          "section": "Estilos y segmentos",
+          "when": []
+        }
+      ]
+    },
+    {
+      "phase": "import-api",
+      "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+      "section": "Props nativas y vocabulario",
+      "sourceSha256": "2ca16e49fabb7f1ac877907a5f27d2506eb1320e4c8dcb5e9ac75d03b2deffaa",
+      "sourceBytes": 977,
+      "decision": "retained",
+      "reason": "Required for all imports reaching this phase: scope, metadata identity, correspondence candidates, project consistency or concrete case coverage.",
+      "destinations": [
+        {
+          "phase": "import-api",
+          "section": "Props nativas y vocabulario",
+          "when": []
+        }
+      ]
+    },
+    {
+      "phase": "import-api",
+      "file": ".agents/skills/create-ds-from-figma/references/relationships.md",
+      "section": "Formato de relaciones Figma",
+      "sourceSha256": "54090ea1993575307a8e05967f107af82c2082dc3d4db4e91583c3ca8bdc239c",
+      "sourceBytes": 4609,
+      "decision": "retained",
+      "reason": "Required for all imports reaching this phase: scope, metadata identity, correspondence candidates, project consistency or concrete case coverage.",
+      "destinations": [
+        {
+          "phase": "import-api",
+          "section": "Formato de relaciones Figma",
+          "when": []
+        }
+      ]
+    },
+    {
+      "phase": "import-api",
+      "file": ".agents/skills/create-ds-from-figma/references/relationships.md",
+      "section": "Forma de un componente con anidados",
+      "sourceSha256": "5b1bc160714afdf3a5c685de4a0ff8f8b454eda583a9e96cb5ef5026331fb50f",
+      "sourceBytes": 1163,
+      "decision": "retained",
+      "reason": "Condition already depends on observed capture, inventory or authorized operation.",
+      "destinations": [
+        {
+          "phase": "import-api",
+          "section": "Forma de un componente con anidados",
+          "when": [
+            "nested"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "import-api",
+      "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+      "section": "Delegación de instancias",
+      "sourceSha256": "cf725c137aee056147e533338738583c12c86108c42f1d92077b19e53691de84",
+      "sourceBytes": 2149,
+      "decision": "retained",
+      "reason": "Condition already depends on observed capture, inventory or authorized operation.",
+      "destinations": [
+        {
+          "phase": "import-api",
+          "section": "Delegación de instancias",
+          "when": [
+            "delegation"
+          ]
+        },
+        {
+          "phase": "import-code",
+          "section": "Delegación de instancias",
+          "when": [
+            "delegation"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "import-api",
+      "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+      "section": "Verificación Y Comparación",
+      "sourceSha256": "2474eb2c0a0e43072817b4b23dc51222c76a37fa60f82745bbf5ddf6f8b78c4c",
+      "sourceBytes": 5842,
+      "decision": "moved",
+      "reason": "Validate snapshot integrity before consuming it for API design; always read in import-capture.",
+      "destinations": [
+        {
+          "phase": "import-capture",
+          "section": "Verificación Y Comparación",
+          "when": []
+        }
+      ]
+    },
+    {
+      "phase": "import-api",
+      "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+      "section": "Propuesta de clasificación",
+      "sourceSha256": "3993d57d82a0d249223a297fb74b4cf541a9850f56cdbc0fe76e069a09e5dab5",
+      "sourceBytes": 423,
+      "decision": "retained",
+      "reason": "Required for all imports reaching this phase: scope, metadata identity, correspondence candidates, project consistency or concrete case coverage.",
+      "destinations": [
+        {
+          "phase": "import-api",
+          "section": "Propuesta de clasificación",
+          "when": []
+        }
+      ]
+    },
+    {
+      "phase": "import-api",
+      "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+      "section": "Clasificación de variantes",
+      "sourceSha256": "3e77b4d07af48ae658551c9d071d355cbf280e6a8effa35d6c56759fb3fee4c1",
+      "sourceBytes": 1010,
+      "decision": "retained",
+      "reason": "Required for all imports reaching this phase: scope, metadata identity, correspondence candidates, project consistency or concrete case coverage.",
+      "destinations": [
+        {
+          "phase": "import-api",
+          "section": "Clasificación de variantes",
+          "when": []
+        }
+      ]
+    },
+    {
+      "phase": "import-api",
+      "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+      "section": "Correspondencias candidatas",
+      "sourceSha256": "4b0998d80cebe9d31884256ce14ecb0b459186ca5b7d8faef4a865da039bf20d",
+      "sourceBytes": 1386,
+      "decision": "retained",
+      "reason": "Required for all imports reaching this phase: scope, metadata identity, correspondence candidates, project consistency or concrete case coverage.",
+      "destinations": [
+        {
+          "phase": "import-api",
+          "section": "Correspondencias candidatas",
+          "when": []
+        }
+      ]
+    },
+    {
+      "phase": "import-api",
+      "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+      "section": "Vigencia de correspondencias",
+      "sourceSha256": "f8f366a8a10c26cca2d187840332aec26bef8a23407eb56411e7111dbbd8cb6a",
+      "sourceBytes": 1292,
+      "decision": "moved",
+      "reason": "Currency and revision checks belong to closure; candidate correspondence rules remain in API and reuse restrictions remain in intake.",
+      "destinations": [
+        {
+          "phase": "import-close",
+          "section": "Vigencia de correspondencias",
+          "when": []
+        }
+      ]
+    },
+    {
+      "phase": "import-api",
+      "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+      "section": "Criterios de clasificación",
+      "sourceSha256": "a49f23d6ed8412042c56f5884ae62470537dceb0132f9ae645862afbf98f12fb",
+      "sourceBytes": 1007,
+      "decision": "retained",
+      "reason": "Required for all imports reaching this phase: scope, metadata identity, correspondence candidates, project consistency or concrete case coverage.",
+      "destinations": [
+        {
+          "phase": "import-api",
+          "section": "Criterios de clasificación",
+          "when": []
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/import-implementation.md",
+      "section": "Recursos y plantillas",
+      "sourceSha256": "e916f797c2d8c636c441973ed00fccac4de5b8ce25b7c862a7bd99dce7341c46",
+      "sourceBytes": 2689,
+      "decision": "retained",
+      "reason": "Required for all imports reaching this phase: scope, metadata identity, correspondence candidates, project consistency or concrete case coverage.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Recursos y plantillas",
+          "when": []
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/import-implementation.md",
+      "section": "Inventario (obligatorio al incluir)",
+      "sourceSha256": "43426ff723d057c3f9a4b85f68f4dbf94dae4563211b1a330217c011b070e61a",
+      "sourceBytes": 397,
+      "decision": "retained",
+      "reason": "Required for all imports reaching this phase: scope, metadata identity, correspondence candidates, project consistency or concrete case coverage.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Inventario (obligatorio al incluir)",
+          "when": []
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/import-implementation.md",
+      "section": "Prohibido",
+      "sourceSha256": "61800ec930c0d0cfc74e4b2302237841239264fa69f5e21f2cea6258dc2eae05",
+      "sourceBytes": 988,
+      "decision": "retained",
+      "reason": "Required for all imports reaching this phase: scope, metadata identity, correspondence candidates, project consistency or concrete case coverage.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Prohibido",
+          "when": []
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+      "section": "Evidencia de la ficha",
+      "sourceSha256": "483317cbd1fef6188859a4068c12d4f417a8e1dc1be442e7a2b5624f7b9061ac",
+      "sourceBytes": 1288,
+      "decision": "retained",
+      "reason": "Required for all imports reaching this phase: scope, metadata identity, correspondence candidates, project consistency or concrete case coverage.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Evidencia de la ficha",
+          "when": []
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+      "section": "Partes",
+      "sourceSha256": "5f9852611e03a7e11e161074839543350e2f2c73f8b7980bb4b0413f818e0758",
+      "sourceBytes": 1169,
+      "decision": "retained",
+      "reason": "Required for all imports reaching this phase: scope, metadata identity, correspondence candidates, project consistency or concrete case coverage.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Partes",
+          "when": []
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+      "section": "Bindings y literales",
+      "sourceSha256": "1a2cddd9a1b7594250dfe3e2589f32643c868cceece37891de51b2d8d7cb8027",
+      "sourceBytes": 6352,
+      "decision": "split",
+      "reason": "Shared schema stays mandatory; captured TEXT/IMAGE/remote-binding facts select detailed contracts before writing. Static binding report interpretation moves to diagnosis before running checks.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Bindings y literales",
+          "when": []
+        },
+        {
+          "phase": "import-code",
+          "section": "Bindings externos",
+          "when": [
+            "external-bindings"
+          ]
+        },
+        {
+          "phase": "import-code",
+          "section": "Literales medidos",
+          "when": []
+        },
+        {
+          "phase": "import-code",
+          "section": "Literales tipográficos",
+          "when": [
+            "text"
+          ]
+        },
+        {
+          "phase": "import-diagnose",
+          "section": "Interpretar el informe de bindings",
+          "when": []
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+      "section": "Recursos Y Casos Renderizados",
+      "sourceSha256": "0fb100eddeaf70c03b5c909c8ebe9d6916909b4eb2b6dfc65a664a80b1c40e67",
+      "sourceBytes": 6912,
+      "decision": "split",
+      "reason": "Shared schema stays mandatory; captured TEXT/IMAGE/remote-binding facts select detailed contracts before writing. Static binding report interpretation moves to diagnosis before running checks.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Recursos Y Casos Renderizados",
+          "when": []
+        },
+        {
+          "phase": "import-code",
+          "section": "Registro de fuentes del plan",
+          "when": [
+            "text",
+            "resources"
+          ]
+        },
+        {
+          "phase": "import-code",
+          "section": "Registro de imágenes del plan",
+          "when": [
+            "resources"
+          ]
+        },
+        {
+          "phase": "import-code",
+          "section": "Archivos y carga del plan",
+          "when": []
+        },
+        {
+          "phase": "import-code",
+          "section": "Cobertura tipográfica del plan",
+          "when": [
+            "text"
+          ]
+        },
+        {
+          "phase": "import-code",
+          "section": "Configuración de casos",
+          "when": []
+        },
+        {
+          "phase": "import-code",
+          "section": "Casos de contenido alternativo",
+          "when": [
+            "text"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+      "section": "Cobertura De Nodos",
+      "sourceSha256": "b0406ab1d1031dd4667520649beb864d14fa6e3cb0c0c8b13e67fa5b5d41dd74",
+      "sourceBytes": 1508,
+      "decision": "retained",
+      "reason": "Required for all imports reaching this phase: scope, metadata identity, correspondence candidates, project consistency or concrete case coverage.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Cobertura De Nodos",
+          "when": []
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+      "section": "Materializar decisiones",
+      "sourceSha256": "1ef4a22cab623da2926dc000b1257c6918f346870f6666daee13fc561d21e214",
+      "sourceBytes": 2629,
+      "decision": "split",
+      "reason": "Shared schema stays mandatory; captured TEXT/IMAGE/remote-binding facts select detailed contracts before writing. Static binding report interpretation moves to diagnosis before running checks.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Materializar decisiones",
+          "when": []
+        },
+        {
+          "phase": "import-code",
+          "section": "CSS intrínseco al materializar",
+          "when": [
+            "text"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/import-implementation.md",
+      "section": "Kit vacío",
+      "sourceSha256": "f8110e43c116a89fe1e48cc2608270f1c4dc0af6b619322c03ace2ebd57caabf",
+      "sourceBytes": 613,
+      "decision": "retained",
+      "reason": "Condition already depends on observed capture, inventory or authorized operation.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Kit vacío",
+          "when": [
+            "first"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/import-implementation.md",
+      "section": "Árbol generado",
+      "sourceSha256": "15d4d4624f4d25223581988f6ccd699b342bf59bcf4c3bccf86de636e607f79d",
+      "sourceBytes": 1997,
+      "decision": "retained",
+      "reason": "Condition already depends on observed capture, inventory or authorized operation.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Árbol generado",
+          "when": [
+            "first"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/import-implementation.md",
+      "section": "Primera vez (orden)",
+      "sourceSha256": "eb5859acee44e9ef8dab736c147ef8086cc76344dc2fb3fb464124fd52f8f6d5",
+      "sourceBytes": 2529,
+      "decision": "retained",
+      "reason": "Condition already depends on observed capture, inventory or authorized operation.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Primera vez (orden)",
+          "when": [
+            "first"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/import-implementation.md",
+      "section": "Siguiente componente",
+      "sourceSha256": "b435ab8fd14413858c416738c298bb2ae918801dbf934dc1fe67f5f1b1bcec62",
+      "sourceBytes": 1806,
+      "decision": "retained",
+      "reason": "Condition already depends on observed capture, inventory or authorized operation.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Siguiente componente",
+          "when": [
+            "next"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+      "section": "Dimensiones De Texto",
+      "sourceSha256": "07b3ca3cf6c1f94d42c3d6d468978141acc2c9c70910fdfd6b3abca8355ac384",
+      "sourceBytes": 3826,
+      "decision": "retained",
+      "reason": "Condition already depends on observed capture, inventory or authorized operation.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Dimensiones De Texto",
+          "when": [
+            "text"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+      "section": "Estados Nativos Configurados",
+      "sourceSha256": "bd48045d651e9d779a6803a3c1276734b526ae11ab0f5ad5328b0dd0acf36237",
+      "sourceBytes": 2557,
+      "decision": "retained",
+      "reason": "Condition already depends on observed capture, inventory or authorized operation.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Estados Nativos Configurados",
+          "when": [
+            "native-states"
+          ]
+        },
+        {
+          "phase": "import-diagnose",
+          "section": "Estados Nativos Configurados",
+          "when": [
+            "native-states"
+          ]
+        },
+        {
+          "phase": "validate-render",
+          "section": "Estados Nativos Configurados",
+          "when": [
+            "native-states"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+      "section": "Diagnóstico Y Registro De Recursos",
+      "sourceSha256": "364f4812b90f868dee519b5cb19a25d9215c32a3238530b018d17858dcc881f5",
+      "sourceBytes": 6070,
+      "decision": "retained",
+      "reason": "Condition already depends on observed capture, inventory or authorized operation.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Diagnóstico Y Registro De Recursos",
+          "when": [
+            "resources"
+          ]
+        },
+        {
+          "phase": "import-diagnose",
+          "section": "Diagnóstico Y Registro De Recursos",
+          "when": [
+            "resources"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+      "section": "Delegación de instancias",
+      "sourceSha256": "cf725c137aee056147e533338738583c12c86108c42f1d92077b19e53691de84",
+      "sourceBytes": 2149,
+      "decision": "retained",
+      "reason": "Condition already depends on observed capture, inventory or authorized operation.",
+      "destinations": [
+        {
+          "phase": "import-api",
+          "section": "Delegación de instancias",
+          "when": [
+            "delegation"
+          ]
+        },
+        {
+          "phase": "import-code",
+          "section": "Delegación de instancias",
+          "when": [
+            "delegation"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+      "section": "Persistencia de captura",
+      "sourceSha256": "dd0a304b5c1ed3b63f47e9c182e752b106df2d4c38d8ab8293c202a731d38797",
+      "sourceBytes": 682,
+      "decision": "retained",
+      "reason": "Required for all imports reaching this phase: scope, metadata identity, correspondence candidates, project consistency or concrete case coverage.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Persistencia de captura",
+          "when": []
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+      "section": "Cobertura original",
+      "sourceSha256": "b0a1e3fc8337f992e0fc2142594257aafc9d3f9ce556862a6c69432f5b78b517",
+      "sourceBytes": 392,
+      "decision": "retained",
+      "reason": "Required for all imports reaching this phase: scope, metadata identity, correspondence candidates, project consistency or concrete case coverage.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Cobertura original",
+          "when": []
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+      "section": "Diferencias delegadas",
+      "sourceSha256": "a76d18b10db2ce1c123bd44b369cdb81c2ea4358d932e49e649263d81e58f41a",
+      "sourceBytes": 1615,
+      "decision": "retained",
+      "reason": "Condition already depends on observed capture, inventory or authorized operation.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Diferencias delegadas",
+          "when": [
+            "delegation"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/import-implementation.md",
+      "section": "Dimensiones De Texto",
+      "sourceSha256": "e60d05532d79ba7466ccfa46a0b327185f19457d6c2d6396ea60f6d81488a47b",
+      "sourceBytes": 994,
+      "decision": "retained",
+      "reason": "Condition already depends on observed capture, inventory or authorized operation.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Dimensiones De Texto",
+          "when": [
+            "text"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+      "section": "Decisiones Y Cobertura",
+      "sourceSha256": "8cc52ba6e3a1321fa7833b60411af48189444621662a8d9fcf6202bf833fe10a",
+      "sourceBytes": 776,
+      "decision": "retained",
+      "reason": "Required for all imports reaching this phase: scope, metadata identity, correspondence candidates, project consistency or concrete case coverage.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Decisiones Y Cobertura",
+          "when": []
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+      "section": "Fuentes requeridas",
+      "sourceSha256": "c7d48baefdfd8869505084034496ca33cba1330f7ccd8b824e1ad133f863f548",
+      "sourceBytes": 332,
+      "decision": "retained",
+      "reason": "Condition already depends on observed capture, inventory or authorized operation.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Fuentes requeridas",
+          "when": [
+            "text",
+            "resources"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/import-implementation.md",
+      "section": "Implementación según el alcance permitido",
+      "sourceSha256": "a258dc92f49d5f16815fa32ac9ad35a515588d59f0ecee0487b0eebf20070db7",
+      "sourceBytes": 338,
+      "decision": "retained",
+      "reason": "Required for all imports reaching this phase: scope, metadata identity, correspondence candidates, project consistency or concrete case coverage.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Implementación según el alcance permitido",
+          "when": []
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+      "section": "Decisiones de API y traducciones",
+      "sourceSha256": "aebffcc589def0150da42a417eab634ba17433f28ae9ee5b1864a59ea812c5e0",
+      "sourceBytes": 801,
+      "decision": "retained",
+      "reason": "Required for all imports reaching this phase: scope, metadata identity, correspondence candidates, project consistency or concrete case coverage.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Decisiones de API y traducciones",
+          "when": []
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+      "section": "Dimensiones en la evidencia",
+      "sourceSha256": "865e5120cc92420c312e5a84a56b6f0209c9b525d7908fac81a60872b74cb9cf",
+      "sourceBytes": 2255,
+      "decision": "retained",
+      "reason": "Condition already depends on observed capture, inventory or authorized operation.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Dimensiones en la evidencia",
+          "when": [
+            "text"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "import-code",
+      "file": ".agents/skills/create-ds-from-figma/references/figma-evidence.md",
+      "section": "Tratamientos delegados",
+      "sourceSha256": "fd063d6b68abe4e040de24475aafd97002c3dc76abac6e93e9690020aa844ced",
+      "sourceBytes": 4813,
+      "decision": "retained",
+      "reason": "Condition already depends on observed capture, inventory or authorized operation.",
+      "destinations": [
+        {
+          "phase": "import-code",
+          "section": "Tratamientos delegados",
+          "when": [
+            "delegation"
+          ]
+        }
+      ]
+    }
+  ],
+  "metadataProsePreserved": true
+}

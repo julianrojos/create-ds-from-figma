@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { sectionRange, readGuidance, checkReadingPlan } from '../../scripts/read-guidance.mjs';
+import { sectionRange, readGuidance, checkReadingPlan, diagnosticReadingFeatures } from '../../scripts/read-guidance.mjs';
 
 test('section selection ignores headings inside fenced examples and bounds descendants explicitly', () => {
   const text = '# Top\n\n## Core\nalpha\n```md\n## Fake\n```\n### Child\nbeta\n## Next\ngamma\n';
@@ -110,3 +110,38 @@ test('disabled conditional files do not inflate the full-file comparison baselin
   assert.equal(minimum.stats.wholeReferencedFilesBytes, Buffer.byteLength(text));
   assert.ok(expanded.stats.wholeReferencedFilesBytes > minimum.stats.wholeReferencedFilesBytes);
 }));
+
+test('composition documentation is selected from actual post-diagnosis signals', () => {
+  const result = { status: 'NOT VERIFIED', complete: false, errors: [], nextActions: [], diagnosis: { mode: 'diagnostic', diagnostics: { compositionSummary: { PASS: 0, FAIL: 0, 'NOT RUN': 0, 'NOT COMPARABLE': 0 }, cases: [] } } };
+  assert.deepEqual(diagnosticReadingFeatures(result), []);
+  for (const key of ['PASS', 'FAIL', 'NOT RUN', 'NOT COMPARABLE']) {
+    const actual = structuredClone(result); actual.diagnosis.diagnostics.compositionSummary[key] = 1;
+    const flags = diagnosticReadingFeatures(actual);
+    assert.deepEqual(flags, ['composition']);
+    const selected = readGuidance(['import-diagnose-results'], flags);
+    assert.ok(selected.sections.some(s => s.section === 'Diagnóstico experimental de composición'));
+  }
+  const retry = structuredClone(result); retry.nextActions.push({ code: 'RETRY_COMPOSITION_DIAGNOSTICS' });
+  assert.deepEqual(diagnosticReadingFeatures(retry), ['composition']);
+  const collected = structuredClone(result); collected.diagnosis.diagnostics.cases.push({ composition: { checks: [] } });
+  assert.deepEqual(diagnosticReadingFeatures(collected), ['composition']);
+  assert.ok(!readGuidance(['import-diagnose']).sections.some(s => s.section === 'Diagnóstico experimental de composición'));
+});
+
+test('post-diagnosis selector rejects publication or malformed results without silently omitting contracts', () => {
+  assert.throws(() => diagnosticReadingFeatures({ status: 'PASS', complete: true }), /Expected/);
+  assert.throws(() => diagnosticReadingFeatures({ status: 'NOT VERIFIED', complete: false, errors: [], nextActions: [] }), /missing/);
+  assert.deepEqual(diagnosticReadingFeatures({ status: 'FAIL', complete: false, errors: ['preflight'], nextActions: [] }), []);
+});
+
+test('code phase selects typography and external bindings only from established observations',()=>{
+ const base=readGuidance(['import-code']),text=readGuidance(['import-code'],['text']),remote=readGuidance(['import-code'],['external-bindings']);
+ const titles=r=>r.sections.map(s=>s.section);
+ for(const title of ['Literales tipográficos','Registro de fuentes del plan','Cobertura tipográfica del plan','Casos de contenido alternativo','CSS intrínseco al materializar']) {assert.ok(!titles(base).includes(title));assert.ok(titles(text).includes(title));}
+ assert.ok(!titles(base).includes('Bindings externos'));assert.ok(titles(remote).includes('Bindings externos'));
+ for(const title of ['Archivos y carga del plan','Configuración de casos','Cobertura De Nodos','Literales medidos']) assert.ok(titles(base).includes(title));
+ assert.ok(titles(readGuidance(['import-code'],['resources'])).includes('Registro de imágenes del plan'));
+ const api=titles(readGuidance(['import-api']));assert.ok(!api.includes('Verificación Y Comparación'));
+ assert.ok(titles(readGuidance(['import-capture'])).includes('Verificación Y Comparación'));
+ assert.ok(titles(readGuidance(['import-diagnose'])).includes('Interpretar el informe de bindings'));
+});

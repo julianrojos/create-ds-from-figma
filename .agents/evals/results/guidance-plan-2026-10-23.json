@@ -1,0 +1,371 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-23T07:22:51.265Z",
+  "scope": "Illustrative fixed-condition documentation scenarios, not typical imports or model token costs. Current scenarios include output interpretation; reduced preparation does not waive a later required read. Before snapshot predates consolidation within this change, not the original unsectioned skill.",
+  "beforeCreatedAt": "2026-10-22T19:59:26.732Z",
+  "scenarios": {
+    "blocked-local": {
+      "before": {
+        "phases": [
+          "import-intake"
+        ],
+        "features": [
+          "nested"
+        ],
+        "stats": {
+          "selectedBytes": 17791,
+          "selectedWords": 2111,
+          "wholeReferencedFilesBytes": 28691
+        },
+        "sourceHash": "08d914a070de130f46eb467f8ce488eede572da49c7e9e83ed9891507e2c2994"
+      },
+      "after": {
+        "phases": [
+          "import-intake"
+        ],
+        "features": [
+          "nested"
+        ],
+        "stats": {
+          "selectedBytes": 18105,
+          "selectedWords": 2158,
+          "wholeReferencedFilesBytes": 29005
+        },
+        "sourceHash": "6a528d363454d370ccefad3a6a1eb52e0e40c6c4000ef209a1b0fea2b34d41d6"
+      }
+    },
+    "simple-first-import": {
+      "before": {
+        "phases": [
+          "import-intake",
+          "import-capture",
+          "import-api",
+          "import-tokens",
+          "import-code",
+          "import-diagnose",
+          "import-close"
+        ],
+        "features": [
+          "first",
+          "direct-mcp"
+        ],
+        "stats": {
+          "selectedBytes": 166302,
+          "selectedWords": 22778,
+          "wholeReferencedFilesBytes": 225544
+        },
+        "sourceHash": "7836547d3ab6aa6a0a9b7c8c8839e4cf4c2acdfe136a20a3214ed1b627121e2f"
+      },
+      "after": {
+        "phases": [
+          "import-intake",
+          "import-capture",
+          "import-api",
+          "import-tokens",
+          "import-code",
+          "import-diagnose",
+          "import-diagnose-results",
+          "import-close"
+        ],
+        "features": [
+          "first",
+          "direct-mcp"
+        ],
+        "stats": {
+          "selectedBytes": 152197,
+          "selectedWords": 20875,
+          "wholeReferencedFilesBytes": 212147
+        },
+        "sourceHash": "c8e599f533a0776cf6546779bdebb61a4429aeeeb7c9f6d6815e7819472a3911"
+      }
+    },
+    "validation-only": {
+      "before": {
+        "phases": [
+          "validate-static",
+          "validate-render",
+          "validate-visual"
+        ],
+        "features": [],
+        "stats": {
+          "selectedBytes": 23207,
+          "selectedWords": 3105,
+          "wholeReferencedFilesBytes": 40599
+        },
+        "sourceHash": "580c46b191e00a7de7ce6ce121f10d5dc0d45fc87cddc079cd945bc84b61c1ca"
+      },
+      "after": {
+        "phases": [
+          "validate-static",
+          "validate-render",
+          "validate-visual"
+        ],
+        "features": [],
+        "stats": {
+          "selectedBytes": 23207,
+          "selectedWords": 3105,
+          "wholeReferencedFilesBytes": 40120
+        },
+        "sourceHash": "9a555dd5c042a78f165ec7ed027daffbd60b57df36dcd60990135550ef35b979"
+      }
+    },
+    "text-first-import": {
+      "before": {
+        "phases": [
+          "import-intake",
+          "import-capture",
+          "import-api",
+          "import-tokens",
+          "import-code",
+          "import-diagnose",
+          "import-close"
+        ],
+        "features": [
+          "first",
+          "direct-mcp",
+          "text",
+          "resources",
+          "color",
+          "float"
+        ],
+        "stats": {
+          "selectedBytes": 186115,
+          "selectedWords": 25512,
+          "wholeReferencedFilesBytes": 225544
+        },
+        "sourceHash": "7836547d3ab6aa6a0a9b7c8c8839e4cf4c2acdfe136a20a3214ed1b627121e2f"
+      },
+      "after": {
+        "phases": [
+          "import-intake",
+          "import-capture",
+          "import-api",
+          "import-tokens",
+          "import-code",
+          "import-diagnose",
+          "import-diagnose-results",
+          "import-close"
+        ],
+        "features": [
+          "first",
+          "direct-mcp",
+          "text",
+          "resources",
+          "color",
+          "float"
+        ],
+        "stats": {
+          "selectedBytes": 172010,
+          "selectedWords": 23609,
+          "wholeReferencedFilesBytes": 212147
+        },
+        "sourceHash": "c8e599f533a0776cf6546779bdebb61a4429aeeeb7c9f6d6815e7819472a3911"
+      }
+    },
+    "delegated-multimode-import": {
+      "before": {
+        "phases": [
+          "import-intake",
+          "import-capture",
+          "import-api",
+          "import-tokens",
+          "import-code",
+          "import-diagnose",
+          "import-close"
+        ],
+        "features": [
+          "next",
+          "direct-mcp",
+          "text",
+          "resources",
+          "color",
+          "float",
+          "modes",
+          "nested",
+          "delegation",
+          "native-states",
+          "composition"
+        ],
+        "stats": {
+          "selectedBytes": 202809,
+          "selectedWords": 27849,
+          "wholeReferencedFilesBytes": 225544
+        },
+        "sourceHash": "7836547d3ab6aa6a0a9b7c8c8839e4cf4c2acdfe136a20a3214ed1b627121e2f"
+      },
+      "after": {
+        "phases": [
+          "import-intake",
+          "import-capture",
+          "import-api",
+          "import-tokens",
+          "import-code",
+          "import-diagnose",
+          "import-diagnose-results",
+          "import-close"
+        ],
+        "features": [
+          "next",
+          "direct-mcp",
+          "text",
+          "resources",
+          "color",
+          "float",
+          "modes",
+          "nested",
+          "delegation",
+          "native-states",
+          "composition"
+        ],
+        "stats": {
+          "selectedBytes": 187589,
+          "selectedWords": 25794,
+          "wholeReferencedFilesBytes": 212147
+        },
+        "sourceHash": "c8e599f533a0776cf6546779bdebb61a4429aeeeb7c9f6d6815e7819472a3911"
+      }
+    },
+    "imported-validation": {
+      "before": {
+        "phases": [
+          "validate-static",
+          "validate-render",
+          "validate-visual"
+        ],
+        "features": [
+          "evidence",
+          "resources",
+          "styles",
+          "modes",
+          "float",
+          "approximate",
+          "color",
+          "native-states"
+        ],
+        "stats": {
+          "selectedBytes": 51416,
+          "selectedWords": 6977,
+          "wholeReferencedFilesBytes": 160746
+        },
+        "sourceHash": "580c46b191e00a7de7ce6ce121f10d5dc0d45fc87cddc079cd945bc84b61c1ca"
+      },
+      "after": {
+        "phases": [
+          "validate-static",
+          "validate-render",
+          "validate-visual"
+        ],
+        "features": [
+          "evidence",
+          "resources",
+          "styles",
+          "modes",
+          "float",
+          "approximate",
+          "color",
+          "native-states"
+        ],
+        "stats": {
+          "selectedBytes": 50937,
+          "selectedWords": 6904,
+          "wholeReferencedFilesBytes": 160826
+        },
+        "sourceHash": "9a555dd5c042a78f165ec7ed027daffbd60b57df36dcd60990135550ef35b979"
+      }
+    }
+  },
+  "phases": {
+    "import-diagnose": {
+      "before": {
+        "phases": [
+          "import-diagnose"
+        ],
+        "features": [],
+        "stats": {
+          "selectedBytes": 39254,
+          "selectedWords": 5359,
+          "wholeReferencedFilesBytes": 147343
+        },
+        "sourceHash": "5e69773a209d682e4aeb959f1a98c1188333024bc6c687354fd879006460297d"
+      },
+      "after": {
+        "phases": [
+          "import-diagnose"
+        ],
+        "features": [],
+        "stats": {
+          "selectedBytes": 18453,
+          "selectedWords": 2563,
+          "wholeReferencedFilesBytes": 133946
+        },
+        "sourceHash": "4d98f9cd806069f70119b4fb2481dcb30bfad45e2346a0c25186a7b0af41a24f"
+      }
+    },
+    "import-code": {
+      "before": {
+        "phases": [
+          "import-code"
+        ],
+        "features": [],
+        "stats": {
+          "selectedBytes": 26934,
+          "selectedWords": 3716,
+          "wholeReferencedFilesBytes": 181205
+        },
+        "sourceHash": "521f8f3e72f029c911df42dd7f0c4195a002df50234439fdb9fa0e2921e13bbb"
+      },
+      "after": {
+        "phases": [
+          "import-code"
+        ],
+        "features": [],
+        "stats": {
+          "selectedBytes": 26934,
+          "selectedWords": 3716,
+          "wholeReferencedFilesBytes": 182078
+        },
+        "sourceHash": "f37419bd40aa24498960c4f8c74868cf701b7b397f7bfff2b5cebecf750f8a5a"
+      }
+    },
+    "import-api": {
+      "before": {
+        "phases": [
+          "import-api"
+        ],
+        "features": [],
+        "stats": {
+          "selectedBytes": 25147,
+          "selectedWords": 3629,
+          "wholeReferencedFilesBytes": 171331
+        },
+        "sourceHash": "08d1b4767e810c616f3c04a37ec30f547966c5e1c546cc5d8b86e0af2fee3aa7"
+      },
+      "after": {
+        "phases": [
+          "import-api"
+        ],
+        "features": [],
+        "stats": {
+          "selectedBytes": 23218,
+          "selectedWords": 3367,
+          "wholeReferencedFilesBytes": 172204
+        },
+        "sourceHash": "bb5ebef4ba158743ff9f86670d95f603c3a9fd21a6ed151a2538e7a08814e358"
+      }
+    },
+    "import-diagnose-results": {
+      "after": {
+        "phases": [
+          "import-diagnose-results"
+        ],
+        "features": [],
+        "stats": {
+          "selectedBytes": 5863,
+          "selectedWords": 776,
+          "wholeReferencedFilesBytes": 104941
+        },
+        "sourceHash": "1d48cc22b43f462d17560c44fb8292ce87300b90e328f30f5d78227fc699e663"
+      }
+    }
+  }
+}

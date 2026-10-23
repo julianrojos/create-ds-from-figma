@@ -29,6 +29,24 @@ export function sectionRange(text, title, children = false) {
   return { start: item.start, end: next?.start ?? text.length };
 }
 
+// Output-derived conditions are selected after execution, never guessed before measuring.
+export function diagnosticReadingFeatures(result) {
+  if (!result || !['FAIL', 'NOT VERIFIED'].includes(result.status) || result.complete !== false || !Array.isArray(result.errors) || !Array.isArray(result.nextActions)) throw new Error('Expected a finalize:import --diagnose result');
+  if (!result.diagnosis) {
+    if (result.status !== 'FAIL') throw new Error('Diagnostic execution evidence missing');
+    return [];
+  }
+  if (result.diagnosis.mode !== 'diagnostic') throw new Error('Expected diagnostic mode');
+  const diagnostics = result.diagnosis.diagnostics;
+  const summary = diagnostics?.compositionSummary;
+  if (summary && ['PASS','FAIL','NOT RUN','NOT COMPARABLE'].some(key => !Number.isSafeInteger(summary[key]) || summary[key] < 0)) throw new Error('Invalid composition counters');
+  if (diagnostics?.cases && !Array.isArray(diagnostics.cases)) throw new Error('Invalid diagnostic cases');
+  const hasChecks = summary && Object.values(summary).some(value => value > 0);
+  const hasResults = diagnostics?.cases?.some(c => c?.composition);
+  const hasAction = result.nextActions.some(a => ['REVIEW_COMPOSITION_DIAGNOSTICS','RETRY_COMPOSITION_DIAGNOSTICS'].includes(a?.code));
+  return hasChecks || hasResults || hasAction ? ['composition'] : [];
+}
+
 export function loadReadingPlan(root = kitRoot) {
   const plan = JSON.parse(readFileSync(path.join(root, '.agents/reading-plan.json'), 'utf8'));
   if (plan.schemaVersion !== 2 || !plan.phases || !plan.scenarios) throw new Error('Invalid reading plan');
@@ -125,12 +143,15 @@ export function checkReadingPlan(root = kitRoot) {
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
     const args = process.argv.slice(2);
-    if (args.length === 1 && args[0] === '--help') console.log('Usage: npm run read:guidance -- PHASE [--with FEATURE ...] [--stats]\n       npm run read:guidance -- --scenario NAME [--stats]\n       npm run read:guidance -- --check\nReads only named sections; --stats emits byte/word counts without content. No writes/network/code execution. See .agents/reading-plan.json for names and conditions.');
+    if (args.length === 1 && args[0] === '--help') console.log('Usage: npm run read:guidance -- PHASE [--with FEATURE ...] [--stats]\n       npm run read:guidance -- --scenario NAME [--stats]\n       npm run read:guidance -- --diagnosis RESULT.json [--stats]\n       npm run read:guidance -- --check\nReads only named sections; --stats emits byte/word counts without content. No writes/network/code execution. See .agents/reading-plan.json for names and conditions.');
     else if (args.length === 1 && args[0] === '--check') console.log(JSON.stringify(checkReadingPlan(), null, 2));
     else {
       const plan = loadReadingPlan();
       let phases, features = [], stats = false, i;
-      if (args[0] === '--scenario') {
+      if (args[0] === '--diagnosis') {
+        if (!args[1]) throw new Error('Missing diagnostic JSON file');
+        phases = ['import-diagnose-results']; features = diagnosticReadingFeatures(JSON.parse(readFileSync(args[1], 'utf8'))); i = 2;
+      } else if (args[0] === '--scenario') {
         const scenario = plan.scenarios[args[1]];
         if (!scenario) throw new Error('Unknown scenario');
         phases = scenario.phases; features = [...scenario.features]; i = 2;

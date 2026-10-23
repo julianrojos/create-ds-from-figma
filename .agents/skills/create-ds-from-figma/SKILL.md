@@ -16,6 +16,8 @@ Importa o actualiza un componente en este repo. Sigue `AGENTS.md`; esta es la
 única skill canónica de importación. Las referencias contienen el detalle de
 cada fase, sin ser workflows independientes.
 
+Contrato transversal: [INV-PREWRITE, INV-DIAGNOSE, INV-STATUS e INV-DELIVERY](../../../AGENTS.md#invariantes-de-proceso).
+
 ## Bloqueos antes de escribir
 
 - Preanaliza antes de crear scaffold, tokens, ficha, código o registros. Durante
@@ -62,16 +64,18 @@ los bloqueos de esta skill o de AGENTS.md.
 | --- | --- | --- |
 | Actualización solicitada de una pieza existente | import-intake | update |
 | Antes de capturar | import-capture | direct-mcp o bridge; figma-execute si ese es el sobre |
-| Al clasificar API/estilos | import-api | nested y delegation cuando existan |
+| Al clasificar API/estilos, tras verificar el snapshot | import-api | nested y delegation cuando existan |
 | Al planificar/persistir tokens | import-tokens | float, modes según el inventario |
-| Antes de ficha/TSX | import-code | first o next; text, resources, native-states, delegation cuando apliquen |
+| Antes de ficha/TSX | import-code | first o next; text, resources, native-states, delegation y external-bindings cuando apliquen |
 | Antes de abrir la vista manual o revisar una configuración explícita | import-preview | No autoriza ejecutar configuración; revisar permisos antes de --approve-config |
-| Antes de medir/revisar diferencias | import-diagnose | color, composition, resources, native-states; recovery solo ante incidencias |
+| Antes de medir | import-diagnose | color, resources, native-states; recovery solo ante incidencias |
+| Después de medir, antes de interpretar/corregir/reintentar | import-diagnose-results | composition si la salida contiene checks o acciones de composición |
+| Antes de usar el adaptador externo o calibración | import-browser-adapter | Uso explícito, con herramientas/orígenes autorizados |
 | Antes de publicar/revisar/cerrar | import-close | No releer apartados ya retenidos sin cambios |
 
 Los fragmentos se extraen de [preanálisis](references/import-preanalysis.md),
 [implementación](references/import-implementation.md), [verificación](references/import-verification.md)
-y los contratos enlazados abajo. Para investigar rendimiento del kit, lee `kit-performance`; no es una fase de importación ni exige ejecutar benchmarks rutinarios. `--stats` mide bytes/palabras sin cargar su contenido.
+y los contratos enlazados abajo. Antes de exportar SVG lee tooling-vectors; antes de comparar píxeles lee tooling-pixels, según [operaciones auxiliares](references/tooling.md). Para investigar rendimiento del kit, lee `kit-performance`; no es una fase de importación ni exige ejecutar benchmarks rutinarios. `--stats` mide bytes/palabras sin cargar su contenido.
 
 1. Inspecciona tipo y estructura con `get_metadata`. Resuelve set completo o
    `mainComponent`, según corresponda, y el file de origen. Aplica «Pantallas»
@@ -101,7 +105,7 @@ Lee los apartados de import-code antes de escribir; el detalle está en
 [implementación y scaffold](references/import-implementation.md). Contiene el árbol exacto, plantillas, dimensiones de texto, tokens,
 inventario y pasos separados para primera importación y siguiente componente.
 Antes de preparar la ficha y el TSX aplica text/resources/native-states/delegation
-según lo observado; no leas el diagnóstico experimental si no lo estás usando.
+según lo observado; añade external-bindings si el snapshot usa variables remotas. text incluye nodos ocultos y descendientes de instancias; resources incluye pinturas IMAGE ocultas. Si se desconoce su presencia, resuélvela antes de omitir un apartado. El esquema compartido de recursos y casos siempre se lee. Lee el detalle de composición después de observar sus checks/acciones; el flag solo selecciona documentación, no activa ni desactiva el diagnóstico.
 Aplica `.agents/rules/design-system.md` al leer o modificar el DS o `src/`.
 
 - Persiste la captura antes de metadata; conserva los snapshots históricos en
@@ -122,7 +126,7 @@ Aplica `.agents/rules/design-system.md` al leer o modificar el DS o `src/`.
 
 ## Diagnóstico, revisión y entrega
 
-Lee import-diagnose antes de medir e import-close antes de cerrar; conserva sus contratos de versiones, fuentes,
+Lee import-diagnose antes de medir, import-diagnose-results al recibir la salida e import-close antes de cerrar; conserva sus contratos de versiones, fuentes,
 estados, colores, delegación, composición y caducidad. Sigue también
 `.agents/skills/validate-ds/SKILL.md` para la comparación renderizada independiente.
 

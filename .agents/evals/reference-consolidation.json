@@ -1,0 +1,466 @@
+{
+  "schemaVersion": 1,
+  "source": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+  "sourceSha256": "1000c6521131cdf876e3eafd308f3cf15a802d05ab5adc29a983a0777eb4be7a",
+  "scope": "Manual semantic consolidation map; archived source is data, not operational instructions. No automated equivalence claim.",
+  "records": [
+    {
+      "id": 0,
+      "sourceText": "# Diagnóstico y cierre de la importación",
+      "sha256": "5a55caa232b0be5b53de4ff33f596c622bbee958ac6e42c64ec2dad5e29bba84",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+          "section": "Diagnóstico y cierre de la importación"
+        }
+      ],
+      "decision": "retained-or-moved"
+    },
+    {
+      "id": 1,
+      "sourceText": "Detalle de la fase indicada en la skill canónica; no es un flujo independiente.",
+      "sha256": "4814e2ee526923f263bb3ee3996ef839a8ac4ee3f6b91799364e127839edb835",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+          "section": "Diagnóstico y cierre de la importación"
+        }
+      ],
+      "decision": "retained-or-moved"
+    },
+    {
+      "id": 2,
+      "sourceText": "Contenido: Recursos Y Casos; Diagnóstico Experimental De Composición.",
+      "sha256": "2cb45b465aa4a8a07282916752f9dfe9113634136189715204687671b48b0ba7",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+          "section": "Diagnóstico y cierre de la importación"
+        }
+      ],
+      "decision": "retained-or-moved"
+    },
+    {
+      "id": 3,
+      "sourceText": "Durante el bucle renderizado revisa también color:PARTE:PROPIEDAD: solo contrasta mappings explícitos de una pintura sólida con un destino CSS inequívoco, resolviendo alias del snapshot en los modos del caso. Un PASS de color calculado no demuestra tinta visible, máscaras ni consumo interno delegado; conserva las revisiones exigidas. Usa report de finalize:import/verify:imports para el resumen final de cobertura exacta, decisiones declaradas y obligaciones; no inventes cifras ni aprobación humana. El report de --diagnose es temporal y no revalida confirmaciones publicadas.",
+      "sha256": "8d40a14e0080280d3ca6b471c0e210072764d2edd6c98cbf15ea41b9aedc9608",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Auditoría De Color E Informe"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 4,
+      "sourceText": "En casos con checked/disabled nativos configurados por props, declara estados con activation real y verification { kind: \"native\", selector, property: \"checked\" | \"disabled\", value: boolean }. El selector debe identificar un único control propio y name coincide con property. --diagnose/--collect leen el estado DOM original, no lo fuerzan ni dan por válidas las props. No borres estados para permitir la recogida. Otros estados requieren harness explícito del navegador; no inventes eventos. Consulta RESOLVE_STATE_VERIFICATION y conserva FAIL/NOT RUN como bloqueos. Ver la referencia de metadata para límites y caducidad.",
+      "sha256": "87d336ee3fbc7f401d9ed9f520e6a460cb8a79137685216a193e090ac8d418a6",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Estados Nativos Configurados"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 5,
+      "sourceText": "Toda importación usa captura v2 con absoluteBoundingBox/absoluteTransform y verification.geometryPolicy=mapped-layout-v1. No completes hechos geométricos a mano ni migres capturas v1: recaptura. Antes de confirmar, usa verification-plan.mjs compare con la medición v2 del caso y revisa los checks; el informe v4 deriva renderChecks. FAIL/NOT RUN y fuentes esenciales pendientes bloquean confirmed. Cada NOT COMPARABLE de fidelidad necesita checkReviews específico con evidencia del mismo caso, sin cambiar su resultado numérico. El informe final debe separar conformidad estática de cobertura visual: casos confirmados, pendientes, registros fallidos y no establecidos, más motivos de no comparabilidad. No presentes una importación visual como terminada solo porque verify-ds devuelve PASS.",
+      "sha256": "9b160f0afcce612f21219bc7aa91f91d1f36db4d8eb896269765462327901e14",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Comparación Renderizada General"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 6,
+      "sourceText": "El diagnóstico compare admite BASELINE_BODY opcional para invariantes behavior explícitas. Para confirmed, publica todas las mediciones behavior asociadas por baseline y pásalas como behaviors: [{ caseId, artifact }] en REVIEW; report deriva sus resultados y exige todos los checks en PASS. No rescates behavior no comparable con texto libre ni confirmes variantes nuevas por probar contenido alternativo. Revisa position y geometry por separado: la forma no comparable no exime de una posición incorrecta. La versión del comparador, no la redacción de reason/scope, gobierna la caducidad de sus reglas. measurementVersion identifica por separado las reglas del productor en cuerpo/recibo; si quedó antigua, recoge de nuevo sin reescribir el original. Una obligación no comparable/no ejecutada mantiene candidate/NOT VERIFIED, no demuestra un defecto de diseño.",
+      "sha256": "44cf6bb177c9f53147161878766b31ff2d19952d356f546179144c7f02e4bef7",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Contrato de confirmación"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Posición Parcial Y Comportamiento"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 7,
+      "sourceText": "## Recursos Y Casos",
+      "sha256": "c7faf70ee9911ef9c0420a04f310f0b996e9e25377af7bdb7d974ba1f3f831b1",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+          "section": "Recursos Y Casos"
+        }
+      ],
+      "decision": "retained-or-moved"
+    },
+    {
+      "id": 8,
+      "sourceText": "Contabiliza cada nodo del subárbol fidelity: parte mapeada, agrupación con regla comprobable, delegación validada de internos de instancia o pendiente explícito en verification.nodeCoverage. Los contenedores también cuentan; ni nombre de capa ni visible=false autorizan exclusión automática. Aplica las condiciones de `references/component-metadata.md`. Una limitación no permite confirmar.",
+      "sha256": "869b7fb2085148091077aa5e94360cc8c82e3d3003561b938bc0ce26ff66b5a1",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Cobertura De Nodos"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 9,
+      "sourceText": "Tras generar App.tsx ejecuta también `verification-plan.mjs diagnose .` y abre diagnosticsUrl de la vista para comprobar sus literales mediante CSS.supports. Separa esos fallos de app de los del componente; no entregues una demo inválida aunque el componente esté medido. El cierre y los informes recalculan la identidad de las declaraciones literales del componente y exigen los resultados originales del navegador. Propiedades custom/var()/env() y expresiones dinámicas no se declaran validadas por ese diagnóstico.",
+      "sha256": "945151d945f71f9cae58500e609187c27d7e403495013ddfb61cdc9729f25803",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "CSS Y Navegador Opcional"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 10,
+      "sourceText": "Opcionalmente usa `verification-browser.mjs ROOT METADATA ABSOLUTE_PLAYWRIGHT_MODULE BROWSER_EXECUTABLE` con herramientas ya instaladas/revisadas. El adaptador de importación no instala dependencias y es independiente del perfil de pruebas real obligatorio del kit. No inventa activaciones ni genera confirmed; publica evidencia solo dentro del alcance autorizado. El modo calibrate permite explorar fuentes WOFF2 explícitas con hashes, sin cambiar tolerancias por conveniencia ni afirmar igualdad binaria con Figma.",
+      "sha256": "0bc4ec7923c687c47008f4c3eb544b0e87724e8079ba33a89775bde50742dfea",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Adaptador externo y calibración"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 11,
+      "sourceText": "El margen TEXT de 1 px es provisional, no una calibración universal. Cada geometry:PARTE de texto en PASS necesita además checkReviews específico con revisión renderizada y artefactos del mismo caso para permitir measured/confirmed. El juicio general no basta y ninguna revisión rescata FAIL/NOT RUN. La repetibilidad de fuentes en un navegador no prueba fidelidad contra Figma.",
+      "sha256": "4fec0efb4de3b3cddcfdab82228b3677d97fd48b4fa597e56e382b4b03f85d55",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Comparación Renderizada General"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 12,
+      "sourceText": "En diagnóstico CSS usa los estados contextualizados, no solo supported: @supports inactivo no implica error y una extensión ajena no soportada queda NOT COMPARABLE hasta revisar fallback/motor. Los números inline constantes usan unidades React; las expresiones dinámicas siguen pendientes de revisión. El cierre conserva mediciones ausentes ante fallo estático, pero no ejecuta comparaciones inseguras ni declara vigentes las ya aportadas.",
+      "sha256": "768ecc06997e7bf3a09688579fe6f889f104ac4340c8b14cd5417e32209d326b",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "CSS Y Navegador Opcional"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 13,
+      "sourceText": "El adaptador rechaza una salida ocupada antes de arrancar y conserva el cierre estructurado si falla el preflight (salida 1, sin navegador). Distingue ese fallo de un bloqueo de infraestructura (salida 2, execution con fase/motivo). No interpretes execution COMPLETED como confirmed; consulta siempre closure y el diagnóstico de app.",
+      "sha256": "8ab7fcba1a9ece59274de6be3f41c76f596c6951b4a753784245fde96be5ffd5",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "CSS Y Navegador Opcional"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 14,
+      "sourceText": "Una reserva abandonada no se elimina automáticamente: usa inspect-lock DIRECTORY para diagnosticar sin escribir y reintenta en una salida nueva. No deduzcas identidad del propietario ni permiso para borrar a partir del PID. Conserva la carpeta anterior y sus evidencias; también los resultados sin lock impiden reutilizar una salida no vacía.",
+      "sha256": "50993c90f2e688eda9f14a85702895e691b0c062edcdcd4cd946873e80da099e",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "CSS Y Navegador Opcional"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 15,
+      "sourceText": "apply es el paso de publicación de la ficha: tras planificar desde requirements, prepara código/CSS, tokens, relaciones y usage para esa propuesta; apply la valida en memoria contra el DS antes de reemplazar metadata.json. Un error deja el archivo intacto. Esto no confirma renderizado. confirmed exige informe v4 con huella semántica del caso, medida original del navegador y captura PNG Figma tipadas y retenidas, no cualquier archivo del proyecto.",
+      "sha256": "1175c97dbb11476168d7491bfa65f079eed26eb835c2e8549be4ac09fc7d280b",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Materializar decisiones"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 16,
+      "sourceText": "Antes de declarar terminada la importación, usa el gate integrado de finalización descrito abajo. Para cerrar un componente con un manifiesto individual también puedes ejecutar `node .agents/skills/create-ds-from-figma/scripts/verification-plan.mjs close . METADATA MANIFEST` según el contrato de metadata leído desde la skill canónica: evidencias publicadas de todos los casos fidelity/behavior y confirmaciones vigentes. Solo confirmed/complete=true permite terminar; measured, pending o failed requieren informar qué falta o corregir lo demostrado. No hay excepción libre ni promoción automática. Sin navegador o recursos conserva la importación pendiente, sin inventar evidencia. Las tolerancias actuales no quedan calibradas por ejecutar el comando.",
+      "sha256": "e9b5aef06f5fc50420c45678d83e2395346602dc2ba47205dc5ad6e84555194a",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Recogida Acotada Y Cierre"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 17,
+      "sourceText": "Como gate final local del repositorio ejecuta también `npm run verify:imports`. Lee las confirmaciones persistidas que referencia usage.md, sin manifiesto temporal y sin volver a medir geometría. Cruza inventario, mapa y fichas; rechaza resúmenes ausentes, casos de fidelidad vacíos, candidatos y confirmaciones caducadas. Incluye el comportamiento obligatorio y los recursos esenciales mediante la revalidación existente. Diagnostica los literales de la demo en una página en blanco del Chromium fijado del kit, independientemente de errores del componente. Prepara ese runtime con `npm run test:browser:setup` si falta; NOT RUN bloquea la entrega. No confundir este diagnóstico de sintaxis con ejecución de la demo o fidelidad visual. No declara terminado nada ni escribe confirmaciones automáticamente. No hay CI ni hooks configurados: ejecuta el comando explícitamente y comunica su resultado, sin afirmar que Git bloquea la entrega.",
+      "sha256": "09aa71128d2aabfe96ba3fc3d04d09161c0788cdef512c857e45ddb39229fca4",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": "AGENTS.md",
+          "section": "Invariantes de proceso"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 18,
+      "sourceText": "La demo se detecta por index.html en la raíz o entradas App/app/main/index en src (JS/TS/JSX/TSX y formas de módulo); el diagnóstico cubre los literales de src, sin exigir que el componente de demostración se llame App. Revisa application.signals y el motivo de NOT APPLICABLE si usas una estructura diferente. No incluyas el usage.md que va a escribirse entre las entradas examinadas, tampoco como input adicional de la revisión: la finalización rechaza esa dependencia circular antes de publicar informes.",
+      "sha256": "ac5a64e0bcfcb4fe1ddbc969429f3afd95faf9e0fd76ca17c6212e5d686189c1",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Dependencias de confirmación"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "CSS Y Navegador Opcional"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 19,
+      "sourceText": "La recogida de finalize:import elige un puerto libre automáticamente; añade `--collect --port 5189` o `--diagnose --port 5189` si necesitas fijarlo. El puerto explícito ocupado produce NOT RUN, sin conectarse al servidor ajeno. Consulta collection.preview o diagnosis.preview para el puerto y URL efectivos; la vista se detiene al finalizar el adaptador. El puerto no se admite en --reviews ni --check. La CLI directa de verification-preview acepta 0 (o ningún puerto) para asignación automática y mantiene abierta la vista hasta detenerla.",
+      "sha256": "6d24541d8c9074924c021390fa349902f01c0aa41a0352db09ac71fbef01105e",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Puertos de recogida"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 20,
+      "sourceText": "**Bucle obligatorio de implementación:** después del primer código/CSS permitido y tras cada corrección visual, ejecuta `npm run finalize:import -- ROOT METADATA --diagnose` antes de presentar el resultado. Examina diagnosis.diagnostics.cases, resources, warnings y nextActions: corrige defectos demostrados y vuelve a medir. No interpretes el nombre de una variante como geometría: usa su snapshot y las cajas renderizadas. Comprueba las dimensiones efectivas de cada parte, no solo el tamaño de la raíz; revisa bordes parciales y diferencias AABB. Una fuente pendiente puede afectar anchos y posiciones dependientes del texto; las diferencias numéricas no identifican por sí solas la causa. No ensanches tolerancias, cambies el snapshot ni sustituyas recursos para obtener PASS. Sin navegador, declara NOT RUN/BLOCKED y no presentes la importación como terminada.",
+      "sha256": "a9840a01e0475ee425bfce9b622679e104f7f18a1254c2e4f8d10d023baf7a56",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": "AGENTS.md",
+          "section": "Invariantes de proceso"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 21,
+      "sourceText": "--diagnose ejecuta el código del componente con el runtime fijado, inicia una vista temporal y conserva cuerpos originales, recibos, capturas y comparaciones solo en un directorio temporal nuevo. No publica artefactos en el DS, no modifica fichas/usage ni registra revisiones. Los recursos esenciales pendientes siguen en FAIL; comparar provisionalmente no los resuelve. La salida diagnosis mantiene mode=diagnostic, manifest.cases vacío, complete=false y no alcanza PASS de entrega, ni siquiera si todos los checks numéricos pasan. REVIEW_RENDERED_DIFFERENCES identifica casos/checks a revisar sin atribuir automáticamente la causa al CSS. Tras resolver recursos, --collect y --reviews siguen siendo los pasos de publicación y confirmación; no combines estos modos.",
+      "sha256": "347dcdb655c4a6f79a6d0142daf49f5083a7e54ad6d819c7daf4b7c8719f318d",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Diagnóstico temporal"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 22,
+      "sourceText": "Ruta integrada: `npm run finalize:import -- ROOT METADATA --collect` recoge/publica con el runtime fijado y pasa el gate; nunca inventa revisiones. Si faltan fuentes o imágenes esenciales, pide su origen autorizado antes de recoger, sin deducir paquetes del nombre ni sustituir imágenes. Tras comparar los artefactos, `npm run finalize:import -- ROOT METADATA --reviews REVIEW_FILE` registra schemaVersion 1 y cases [{caseId, review}], una revisión explícita por caso fidelity con el contrato de report. Deriva/persiste informes y hashes, revalida y actualiza atómicamente solo el JSON de correspondencias, conservando la prosa, y pasa el gate completo. No combina recogida y revisión de artefactos nuevos. `--check` comprueba sin escribir. Los avisos de bordes parciales y tamaños AABB no comparables son diagnósticos para revisar, no excepciones a FAIL ni pruebas de forma.",
+      "sha256": "c350f3ff851cf5b2386d8da7df0bd6e78ee993016192fc0df81f2b268d915a94",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Finalización integrada"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 23,
+      "sourceText": "La vista muestra viewport esperado/obtenido y acota cada intento. Para esperar desde fuera, inicia `node .agents/skills/create-ds-from-figma/scripts/verification-plan.mjs wait DIRECTORY CASE 20000` antes de abrir el caso o pedir otra recogida: solo observa recibos nuevos y su timeout no depende de la página. Diagnostica visibilidad, montaje, fuentes o viewport al agotarse; un diagnóstico con viewport incorrecto no es evidencia publicable.",
+      "sha256": "b197cdc483f5e4b935a9da75cd5a0897473846eefd789729abaa3499c11ad334",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Recogida Acotada Y Cierre"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 24,
+      "sourceText": "Tras una recogida real y con escritura autorizada, publica cuerpo y recibo con `node .agents/skills/create-ds-from-figma/scripts/verification-plan.mjs publish . METADATA CASE RECEIPT`; usa el artefacto devuelto en REVIEW sin transcribir valores. El PNG requiere export node-bounds y escala explícita y decodificación íntegra; sus dimensiones reales se derivan y deben quedar a ≤1 px del tamaño capturado del nodo por la escala declarada (tolerancia, no una regla de redondeo de Figma); sin tamaño legible, la comparación queda NOT VERIFIED. publish y report exigen el CSS mapeado también fuera de src/. La caducidad incluye conservadoramente fuentes locales, tokens, relaciones y archivos de dependencias/configuración. Estas comprobaciones no autentican la captura ni generan el juicio visual PASS.",
+      "sha256": "0eb2d05005462811b3feec2bbb0a2935304f9c419763d748a43771a3c61bbbd7",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Mediciones originales"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Publicación y revisión"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 25,
+      "sourceText": "Los cambios de verification (recursos, fuentes, casos y tratamientos) también cuentan como otros cambios observados del preanálisis, junto con evidence: no se reescriben al reutilizar ni en una sustitución limitada a otra dependencia sin autorización. Cambiar un plan o informe no prueba por sí solo que Figma haya cambiado.",
+      "sha256": "b6ceb3afdffde07a7bda66c804ea9e5f33778eba85d169c7d8c37e9d37f535f1",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-preanalysis.md",
+          "section": "Decisión antes de escribir"
+        }
+      ],
+      "decision": "retained-or-moved"
+    },
+    {
+      "id": 26,
+      "sourceText": "Genera requisitos con `node .agents/skills/create-ds-from-figma/scripts/verification-plan.mjs requirements SNAPSHOT`; escribe solo las decisiones del contrato y combínalas con `node .agents/skills/create-ds-from-figma/scripts/verification-plan.mjs apply . METADATA DECISIONS`. No copies hechos ni repitas fuentes por nodo. usage.md usa un único bloque JSON por caseId; confirmed exige informe renderizado durable, configuración exacta y hashes vigentes. Los recibos de medidas no habilitan confirmed.",
+      "sha256": "1d2787b509b0feb6d444520b171916da6d8073492d6fb40b11edb9f6ac1141ce",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Materializar decisiones"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 27,
+      "sourceText": "En inspect revisa también configuration/configurationWarnings: DECLARED enlaza el archivo registrado con @font-face y descriptores coincidentes en stylesheets/imports CSS incondicionales o imports/reexports estáticos desde el componente, incluido CSS de paquetes resolubles sin ejecutar su código. No prueba selección ni carga. Imports dinámicos, condiciones CSS, cualquier import con ? (incluidos workers y @import), efectos secundarios de paquetes JS y resoluciones no soportadas siguen NOT VERIFIED. El resolvedor de exports solo acredita un destino único estable entre las condiciones no fijadas: no asumas Node require, un modo de compilación ni style universal, ni sortees una exclusión buscando el archivo. El gate conserva este diagnóstico también en warnings con prefijo de componente, sin convertirlo en confirmación ni rescatar fuentes esenciales pendientes; completa siempre la comprobación renderizada. css.weight solicita un peso concreto (cadena numérica de 1 a 1000, normal o bold), nunca un rango ni una expresión relativa; el rango solo describe la cara disponible. Respeta targets de nextActions para identificar cada ficha al agrupar acciones iguales.",
+      "sha256": "0b6ee78082481042ad042381a381df8633030e48dfed935438a8434a159edd34",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Diagnóstico Y Registro De Recursos"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 28,
+      "sourceText": "Con evidence y los arrays fonts/assets/cases de la ficha en preparación, usa `node .agents/skills/create-ds-from-figma/scripts/verification-resources.mjs inspect ROOT METADATA` sin escribir. Dentro de la importación autorizada, registra el archivo que el usuario haya aprobado con `node .agents/skills/create-ds-from-figma/scripts/verification-resources.mjs register ROOT METADATA font FONT_ID SOURCE_PATH` o `node .agents/skills/create-ds-from-figma/scripts/verification-resources.mjs register ROOT METADATA image IMAGE_HASH SOURCE_PATH`. Solo escribe source existente y calcula su hash; agrupa todas las apariciones de la imagen en esa ficha. No crea CSS ni edita stylesheets. Una sustitución de ruta/hash exige --replace explícito, nunca lo añadas para sortear un conflicto sin autorización. Registrado no es configurado ni cargado: revisa @font-face/uso real y compruébalo en el navegador por separado. Respeta los nextActions compartidos del diagnóstico/gate/finalización: comandos son argv con argumentos pendientes, no shell ni prueba de autorización. No copies fuentes del runtime de tests al proyecto. El formato de metadata no cambia.",
+      "sha256": "7336293a572690105246c34a8e3da91c447501d70564c5584726589e6e328206",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Diagnóstico Y Registro De Recursos"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 29,
+      "sourceText": "Antes del TSX, completa también `metadata.verification` según el contrato de metadata leído desde la skill canónica: recursos autorizados con hashes, CSS global, casos de contenido Figma exacto y contenido alternativo admitido. No inventes paquetes de fuente; una carencia esencial sigue siendo DS_GAP. Tras implementar, ejecuta `node .agents/checks/verify-render-plan.mjs .` (integrado en verify-ds) y usa `node .agents/skills/create-ds-from-figma/scripts/verification-preview.mjs . design-system/components/Nombre/metadata.json 5174` sin cambiar App.tsx. Separa el recibo de medidas de la valoración visual; revisa fuentes reales, modos, estados y contenido, y detén el servidor al terminar.",
+      "sha256": "3df71f533ea54db02f154fd5b2f7dc205ba821bacc824af8b766f1e22d679713",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Recursos Y Casos Renderizados"
+        },
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Vista manual y activación"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 30,
+      "sourceText": "## Diagnóstico Experimental De Composición",
+      "sha256": "29265c096e7c43b7689819a1e48fdbd823b2df49a8da1da4e8d975f939f5ce6c",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/import-verification.md",
+          "section": "Diagnóstico Experimental De Composición"
+        }
+      ],
+      "decision": "retained-or-moved"
+    },
+    {
+      "id": 31,
+      "sourceText": "Un timeout de captura o fallo técnico de guardado/restauración también produce NOT RUN y reintento. No lo confundas con una abstención conocida del modelo: conserva los motivos y artefactos parciales; si falla la restauración, los checks de ese grupo no acreditan PASS.",
+      "sha256": "1da4eb64c1a341f31d30cfb54c3d62a8ba59dd4ac652523a42318531f00d69ac",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Fallos técnicos de composición"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 32,
+      "sourceText": "Si compositionSummary contiene NOT RUN, --diagnose falla y RETRY_COMPOSITION_DIAGNOSTICS conserva caso/check/motivo técnico: resuelve el error y repite con los permisos necesarios, sin tratarlo como diferencia visual. NOT COMPARABLE es abstención, no reintento obligatorio. nonOpaque cuenta píxeles sin tinta opaca; las regiones excluidas con tinta opaca cuentan como indeterminate. temporary-read permite leer los artefactos existentes, sin escribir ni lanzar navegador; las acciones solo declaran requisitos, no conceden autorización.",
+      "sha256": "3a216a5121b86bad7cc6525750bc470d3d6d017a6b4a7e0bd3d7bf26cc9c4f4d",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Diagnóstico experimental de composición"
+        }
+      ],
+      "decision": "consolidated"
+    },
+    {
+      "id": 33,
+      "sourceText": "Revisa diagnostics.compositionSummary y cases[].composition en --diagnose: la tinta aislada/compuesta puede detectar un trazo tapado aunque la geometría pase. REVIEW_COMPOSITION_DIAGNOSTICS requiere examinar las capturas temporales y el balance de píxeles antes de corregir. Solo compara formas hoja hermanas inequívocas, con orden fuente legible, aislamiento estable y tinta opaca distinguible; texto, ambigüedad, filtros y translucidez no se fuerzan a PASS. Un PASS no acredita máscaras/mezclas de origen no capturadas ni fidelidad general. Esta salida no se publica ni sustituye checkReviews o la revisión visual real; no afirmes haber visto un borde por pasar geometría o composición.\n",
+      "sha256": "f85a5391503941969eaea5d13b7065eb5c39322cec367186016d3d626faedc26",
+      "review": "Contract definitions consolidated in metadata; process invariants owned by AGENTS.md. Unique scope clauses retained in this procedure or preanalysis.",
+      "destinations": [
+        {
+          "file": ".agents/skills/create-ds-from-figma/references/component-metadata.md",
+          "section": "Diagnóstico experimental de composición"
+        }
+      ],
+      "decision": "consolidated"
+    }
+  ]
+}
