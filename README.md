@@ -43,7 +43,7 @@ Cada ficha generada contiene solo `metadata.json` y `usage.md`; el código vive 
 
 ## Verificar
 
-Para validar el kit necesitas Node >=22.12.0 y preparar una vez el runtime aislado de navegador; repite la preparación si cambia su lock:
+Node >=22.12.0 es requisito para importar, verificar y validar el kit (`package.json` declara `engines` y `.nvmrc` fija la línea 22). Una shell sin el perfil de `nvm`, `fnm`, `volta` o `asdf` no lo encuentra aunque esté instalado: cárgalo antes de concluir que falta. Para validar el kit, además, prepara una vez el runtime aislado de navegador; repite la preparación si cambia su lock:
 
 ```sh
 npm install

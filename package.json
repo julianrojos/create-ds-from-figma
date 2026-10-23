@@ -1,6 +1,7 @@
 {
   "private": true,
   "type": "module",
+  "engines": { "node": ">=22.12.0" },
   "scripts": {
     "test": "node .agents/scripts/test-kit.mjs all",
     "test:unit": "node .agents/scripts/test-kit.mjs unit",
