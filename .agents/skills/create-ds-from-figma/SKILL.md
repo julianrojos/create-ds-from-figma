@@ -20,6 +20,14 @@ Contrato transversal: [INV-PREWRITE, INV-DIAGNOSE, INV-STATUS e INV-DELIVERY](..
 
 ## Bloqueos antes de escribir
 
+- Comprueba primero el entorno: todo el flujo (captura, tokens, `verify:imports`,
+  `finalize:import`) requiere Node >=22.12.0. Un `node -v` fallido no prueba
+  que falte: una shell sin perfil no carga `nvm`, `fnm`, `volta` ni `asdf`.
+  Carga el perfil del gestor o busca en rutas habituales (`command -v node`,
+  `/opt/homebrew/bin`, `/usr/local/bin`, `~/.nvm/versions/node`) sin instalar
+  nada sin permiso. Si no hay Node >=22.12.0 tras eso: `BLOCKED`, sin escribir
+  el proyecto ni sustituir las herramientas por escritura manual; indica al
+  usuario que lo instale o te dé su ruta, con la versión encontrada.
 - Preanaliza antes de crear scaffold, tokens, ficha, código o registros. Durante
   esa fase, guarda capturas e inventario únicamente fuera del proyecto.
 - Sin transporte autorizado, captura válida, variables verificables, información
