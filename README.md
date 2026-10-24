@@ -39,6 +39,10 @@ Para el siguiente componente, proporciona otra URL. Repetir una URL no autoriza 
 
 Los contratos completos viven en las referencias de [tokens](.agents/skills/create-ds-from-figma/references/tokens.md), [relaciones](.agents/skills/create-ds-from-figma/references/relationships.md), [captura Figma](.agents/skills/create-ds-from-figma/references/figma-evidence.md) y [ficha y verificación renderizada](.agents/skills/create-ds-from-figma/references/component-metadata.md). Las [operaciones auxiliares](.agents/skills/create-ds-from-figma/references/tooling.md) describen exportación SVG, diagnóstico experimental de píxeles, mutaciones y experimentos históricos.
 
+Las capturas fragmentadas admiten `maxChunks` en CONFIG (256 por defecto, rango 1..4096); el bridge del componente admite `--max-chunks N`. Los fallos conservan el detalle del servicio y el offset; el bridge retiene las respuestas originales en temporales y el cliente directo lo hace con `--keep-failed`. Reintenta en una sesión nueva, sin mezclar fragmentos. Las pruebas sintéticas cubren capturas de más de 128 fragmentos; no acreditan por sí solas una conexión real con Figma.
+
+Comprobación manual del bridge de Codex, 2026-10-24: captura real de 1.699.273 caracteres en 142 fragmentos, 181 nodos y cero incidencias, validada con SHA-256. Los datos y respuestas quedaron exclusivamente en temporales; este resultado no valida el cliente directo contra Figma, OpenCode ni la fidelidad visual de una importación.
+
 Cada ficha generada contiene solo `metadata.json` y `usage.md`; el código vive en `src/components/<Nombre>/`. El inventario registra únicamente implementaciones existentes. Se conserva un JSON por colección Figma y `tokens.css` se genera, no se edita a mano. El kit mantiene verificaciones locales, sin Tailwind, Storybook, CI ni hooks de Git; las [restricciones de implementación](.agents/skills/create-ds-from-figma/references/import-implementation.md#prohibido) concretan el alcance.
 
 ## Verificar

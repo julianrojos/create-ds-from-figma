@@ -373,7 +373,11 @@ test('generated bridge transfers real tool envelopes through shell stdin, withou
   try {
     await new AsyncFunction('tools', 'text', bridgeCode(script, 'FILE', '1:1'))(tools, r => reports.push(r));
     assert.ok(received.length > 1);
-    for (const chunk of received) assert.deepEqual(JSON.parse(readFileSync(path.join(directory, `${chunk.offset}.json`), 'utf8')), chunk);
+    for (const chunk of received) {
+      assert.deepEqual(JSON.parse(readFileSync(path.join(directory, `${chunk.offset}.json`), 'utf8')), chunk);
+      const raw = JSON.parse(readFileSync(path.join(directory, `response-${chunk.offset}.json`), 'utf8'));
+      assert.deepEqual(JSON.parse(raw.content[0].text), chunk);
+    }
     assert.equal(reports[0].persistedInProject, false);
     const firstDirectory = directory;
     await new AsyncFunction('tools', 'text', bridgeCode(script, 'FILE', '1:1'))(tools, () => {});

@@ -17,6 +17,16 @@ const fixture = path.resolve('.agents/checks/tests/fixtures/capture-mcp-server.m
 const config = mode => ({ transport: { type: 'stdio', command: process.execPath, args: [fixture, mode || 'normal'] },
   tool: { name: 'execute_design', codeArgument: 'javascript', fileKeyArgument: 'designFile' } });
 
+test('actual MCP transport captures and validates more than 128 chunks with configured budget', async () => {
+  const result = await captureFromMcp({ ...config('huge'), chunkSize: 12000, maxChunks: 256 }, 'FILE', '1:1', { approvedConnection: true });
+  try {
+    assert.ok(result.chunks > 128); assert.ok(result.total > 1536000);
+    const chunks = Array.from({ length: result.chunks }, (_, i) => JSON.parse(readFileSync(path.join(result.directory, `${i * 12000}.json`))));
+    assert.deepEqual(captureProblems(assembleChunks(chunks)), []);
+  } finally { rmSync(result.directory, { recursive: true, force: true }); }
+  for (const maxChunks of [0, 4097, 1.5]) assert.throws(() => mcpConfiguration({ ...config(), maxChunks }), /maxChunks/);
+});
+
 test('portable CLI transfers a full capture through an actual stdio MCP server in one call', async () => {
   const directory = mkdtempSync(path.join(os.tmpdir(), 'mcp-cli-test-'));
   let session;

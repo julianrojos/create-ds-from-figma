@@ -16,7 +16,7 @@ export function captureServer(mode = 'normal') {
     if (mode === 'error') return { isError: true, content: [{ type: 'text', text: 'Tool unavailable' }] };
     if (codeOnly && 'designFile' in request.params.arguments) throw new Error('Unexpected file argument');
     const root = { id: '1:1', type: 'COMPONENT', name: 'Example', children: [], componentPropertyDefinitions: {} };
-    const text = { id: '1:2', type: 'TEXT', name: 'Text', parent: root, characters: "Quotes '\"; $(exit 99)\\n".repeat(mode === 'wrapped-large' ? 12000 : 2000),
+    const text = { id: '1:2', type: 'TEXT', name: 'Text', parent: root, characters: "Quotes '\"; $(exit 99)\\n".repeat(mode === 'huge' ? 40000 : mode === 'wrapped-large' ? 12000 : 2000),
       getStyledTextSegments: () => [] };
     root.children.push(text);
     const figma = { skipInvisibleInstanceChildren: true, fileKey: mode === 'wrong-file' ? 'OTHER' : mode === 'unknown-file' ? undefined : 'FILE', getNodeByIdAsync: async id => id === root.id ? root : text,

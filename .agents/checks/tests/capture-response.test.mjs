@@ -50,3 +50,48 @@ test('wrapped chunks keep continuity checks and never merge changed captures', a
     stage: async () => { staged++; } }), /Capture changed/);
   assert.equal(staged, 1);
 });
+
+test('fragment validation, continuity and staging failures retain progress and the original cause', async () => {
+  for (const kind of ['truncated', 'changed', 'stage']) {
+    let calls = 0;
+    const recorded = [], staged = [], writeError = new Error('Disk full');
+    await assert.rejects(captureViaBridge({ fileKey: 'FILE', nodeId: '1:1', getCode: async () => '',
+      runFigma: async () => {
+        const offset = calls++;
+        return message({ transportVersion: 1, offset, total: 3, checksum: kind === 'changed' && offset === 1 ? 'changed' : 'stable',
+          payload: kind === 'truncated' && offset === 1 ? '' : 'x' });
+      },
+      recordResponse: async raw => recorded.push(raw),
+      stage: async c => { if (kind === 'stage' && c.offset === 1) throw writeError; staged.push(c.offset); },
+    }), error => {
+      assert.match(error.message, /Capture offset 1, received 1 chunks of 3 characters:/);
+      assert.match(error.message, kind === 'truncated' ? /Invalid or truncated/ : kind === 'changed' ? /Capture changed.*NEW temporary session/ : /Disk full/);
+      assert.ok(error.cause instanceof Error);
+      if (kind === 'stage') assert.equal(error.cause, writeError);
+      return true;
+    });
+    assert.equal(calls, 2);
+    assert.equal(recorded.length, 2);
+    assert.deepEqual(staged, [0]);
+  }
+});
+
+test('large captures cross 128 chunks with an explicit bounded budget; failures preserve server detail and offset', async () => {
+  let offset = 0;
+  const staged = [];
+  const run = maxChunks => captureViaBridge({ fileKey: 'FILE', nodeId: '1:1', maxChunks,
+    getCode: async next => { offset = next; return ''; },
+    runFigma: async () => message({ transportVersion: 1, offset, total: 1700000, checksum: 'stable', payload: 'x'.repeat(Math.min(12000, 1700000 - offset)) }),
+    stage: async c => staged.push(c.offset) });
+  const result = await run(256);
+  assert.equal(result.chunks.length, 142);
+  assert.equal(result.total, 1700000);
+  await assert.rejects(run(128), /128.*1536000 of 1700000.*NEW session/);
+  for (const invalid of [0, -1, 4097, 1.5, NaN]) await assert.rejects(run(invalid), /maxChunks/);
+  let recorded;
+  const failure = { isError: true, content: [{ type: 'text', text: 'Plugin execution timed out' }] };
+  await assert.rejects(captureViaBridge({ fileKey: 'FILE', nodeId: '1:1', getCode: async () => '',
+    runFigma: async () => failure, stage: async () => assert.fail('must not stage an error'),
+    recordResponse: async raw => { recorded = raw; } }), /offset 0.*received 0 chunks.*timed out/);
+  assert.equal(recorded, failure);
+});

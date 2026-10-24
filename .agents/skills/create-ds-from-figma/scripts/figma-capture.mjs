@@ -35,8 +35,9 @@ export function persistCapture(root, capture) {
 async function main() {
   const [command, ...args] = process.argv.slice(2);
   if (command === 'bridge') {
+    if (![2, 4].includes(args.length) || (args.length === 4 && args[2] !== '--max-chunks')) throw new Error('Use bridge FILE_KEY NODE_ID [--max-chunks N]');
     captureCode(args[0], args[1]);
-    process.stdout.write(bridgeCode(fileURLToPath(import.meta.url), args[0], args[1]) + '\n');
+    process.stdout.write(bridgeCode(fileURLToPath(import.meta.url), args[0], args[1], { maxChunks: args.length === 4 ? Number(args[3]) : 256 }) + '\n');
   } else if (command === 'session') console.log(mkdtempSync(path.join(os.tmpdir(), 'figma-capture-')));
   else if (command === 'capture') {
     const flags = args.slice(3);
@@ -78,7 +79,7 @@ async function main() {
     const sections = ['nodes', 'observations', 'variants', 'collections', 'variables', 'styles', 'coverage'];
     console.log(JSON.stringify({ sameCapture: snapshots[0].hash === snapshots[1].hash, changedSections: sections.filter(k => canonicalJson(before[k]) !== canonicalJson(after[k])),
       note: 'Divergence between captures, not proof of a Figma revision or an import error.' }, null, 2));
-  } else throw new Error('Use capture FILE_KEY NODE_ID CONFIG --approve-connection [--keep-failed], bridge/code FILE_KEY NODE_ID [OFFSET], session, stage DIRECTORY, validate-session DIRECTORY, save ROOT, propose/dimensions SNAPSHOT, or compare BEFORE AFTER');
+  } else throw new Error('Use capture FILE_KEY NODE_ID CONFIG --approve-connection [--keep-failed], bridge FILE_KEY NODE_ID [--max-chunks N], code FILE_KEY NODE_ID [OFFSET], session, stage DIRECTORY, validate-session DIRECTORY, save ROOT, propose/dimensions SNAPSHOT, or compare BEFORE AFTER');
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
