@@ -75,6 +75,12 @@ export function serializationProblems(record, data, label) {
   return { errors, decisions };
 }
 
+// External decisions belong to this project, not to the source library or an individual component.
+export function externalSerializationProblems(entries, externals) {
+  const variables = Object.fromEntries([...externals].map(variable => [variable.id, variable]));
+  return serializationProblems({ serialization: entries === undefined ? {} : entries }, { variables }, 'figma-state.json externalSerialization');
+}
+
 /**
  * variables  Map<variableId, { type, valuesByMode }> for every local variable
  * decisions  Map<variableId, css> already validated

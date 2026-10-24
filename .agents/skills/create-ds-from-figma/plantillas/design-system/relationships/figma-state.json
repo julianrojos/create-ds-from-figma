@@ -46,6 +46,7 @@
       }
     },
     "notes": [
+      "externalSerialization optionally holds shared project decisions { css, source } keyed by external FLOAT variable ID, using the same format as local serialization. IDs must be registered in mapped metadata.externalVariables; this is not a declaration about the remote library. Missing decisions remain pending and cannot be consumed. Changed decisions invalidate affected cases.",
       "aliasModes optionally maps local collection IDs to exact mode names explicitly authorized for resolving cross-collection alias values. It does not select the runtime CSS mode; modeScopes remains independent. Changing a recorded choice requires an explicit migration. Same-collection aliases always use their own mode.",
       "Ignore keys that start with _ when reading runtime state.",
       "tokenPrefix is null only before the first import. The first import writes the prefix (default ds, or the one the user requested) and the flow does not change it afterwards without an explicit migration. Every local cssName starts with --<tokenPrefix>-; a cssName already assigned to a variable ID is never recalculated, even if Figma renames the variable or its collection.",
@@ -68,6 +69,7 @@
   "fileKey": "",
   "tokenPrefix": null,
   "aliasModes": {},
+  "externalSerialization": {},
   "collections": {},
   "variables": {},
   "components": {}

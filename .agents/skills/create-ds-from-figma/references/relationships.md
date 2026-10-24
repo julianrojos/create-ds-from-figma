@@ -1,5 +1,7 @@
 # Formato de relaciones Figma
 
+`figma-state.json.externalSerialization` es un objeto opcional por ID de variable externa FLOAT, vacío por defecto. Cada entrada `{ css, source }` usa el contrato de serialización de tokens locales y expresa una decisión compartida de este proyecto. El ID debe existir como FLOAT en `externalVariables` de una ficha mapeada; no se crean variables locales para representar la biblioteca. Generador y verificador rechazan decisiones inválidas y valores contradictorios entre fichas. Los hashes semánticos incluyen las decisiones de las variables capturadas que afectan al caso; cambiarlas exige revalidar sus confirmaciones.
+
 El estado admite `aliasModes: { "<ID de colección local>": "<nombre exacto de modo>" }`, opcional y vacío inicialmente. Registra solo decisiones explícitas del usuario para resolver valores de alias entre colecciones. No cambia el modo activo del navegador ni los ámbitos CSS; estos siguen en `modeScopes`. El mapa de componentes no duplica estas decisiones. Los alias de la misma colección conservan su propio modo. El inventario verifica los valores resueltos contra la decisión guardada; las decisiones de colecciones conservadas ausentes del siguiente inventario no se borran. Cambiar una elección existente exige una migración explícita.
 
 Consulta esta referencia durante el preanálisis de anidados y antes de escribir `figma-state.json` o `figma-code-map.json`. Las condiciones de identidad, bloqueo y actualización están en `../SKILL.md`.

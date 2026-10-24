@@ -98,6 +98,7 @@ export function caseInputs(root, metadata, configuration, style, options = {}) {
     associatedBehavior: configuration.kind === 'fidelity' ? list(metadata.verification?.cases).filter(c => c.kind === 'behavior' && c.baseline === configuration.id) : [],
     mappedCode: entries[0][1].code,
     componentState: state.components?.[metadata.name], collectionState,
+    externalSerialization: Object.fromEntries(Object.entries(state.externalSerialization || {}).filter(([id]) => usedIds.has(id))),
     externalVariables: list(metadata.externalVariables).filter(v => usedIds.has(v.id)),
   };
   const seeds = [metadata.code.path, metadata.evidence.snapshot, mappedStyle, ...list(metadata.verification?.stylesheets), ...list(metadata.verification?.inputs),

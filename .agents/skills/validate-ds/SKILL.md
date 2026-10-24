@@ -10,6 +10,8 @@ description: >-
 
 # Validate Design System Compliance
 
+External FLOAT bindings require a valid project decision in `figma-state.json.externalSerialization[variableId]` and its exact generated CSS declaration. Missing decisions block consumption; checking does not authorize choosing units. Changing the decision invalidates affected confirmations.
+
 Validate implemented UI against the existing DS. Follow `AGENTS.md` and the
 applicable DS rules. Routing, permission boundaries and output remain here;
 read only the applicable sections selected by `.agents/reading-plan.json`.

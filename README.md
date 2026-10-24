@@ -43,6 +43,8 @@ Las capturas fragmentadas admiten `maxChunks` en CONFIG (256 por defecto, rango 
 
 Comprobación manual del bridge de Codex, 2026-10-24: captura real de 1.699.273 caracteres en 142 fragmentos, 181 nodos y cero incidencias, validada con SHA-256. Los datos y respuestas quedaron exclusivamente en temporales; este resultado no valida el cliente directo contra Figma, OpenCode ni la fidelidad visual de una importación.
 
+Los bindings externos FLOAT admiten unidades explícitas en `figma-state.json.externalSerialization`, compartidas por ID de variable. Requieren evidencia o decisión expresa del usuario; no se presupone px. Cambiar una decisión caduca las confirmaciones afectadas. La decisión pertenece al proyecto y no modifica ni representa la biblioteca de origen.
+
 Cada ficha generada contiene solo `metadata.json` y `usage.md`; el código vive en `src/components/<Nombre>/`. El inventario registra únicamente implementaciones existentes. Se conserva un JSON por colección Figma y `tokens.css` se genera, no se edita a mano. El kit mantiene verificaciones locales, sin Tailwind, Storybook, CI ni hooks de Git; las [restricciones de implementación](.agents/skills/create-ds-from-figma/references/import-implementation.md#prohibido) concretan el alcance.
 
 ## Verificar

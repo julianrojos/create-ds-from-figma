@@ -9,8 +9,11 @@ const collector = '.agents/skills/create-ds-from-figma/scripts/lib/capture-inven
 runMutations({
   root: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..'), name: 'inventory',
   scope: 'Targeted inventory, token preservation and nested-identity regressions; not exhaustive mutation coverage or live Figma validation.',
-  tests: ['.agents/checks/tests/variable-inventory.test.mjs', '.agents/checks/tests/figma-reference.test.mjs'],
+  tests: ['.agents/checks/tests/variable-inventory.test.mjs', '.agents/checks/tests/figma-reference.test.mjs', '.agents/checks/tests/tokens-css.test.mjs'],
   mutants: [
+    ['.agents/checks/lib/tokens-css.mjs', 'ignore-external-float-decision', 'const css = externalDecisions.decisions.get(variable.id);', 'const css = undefined;'],
+    ['.agents/checks/lib/tokens-css.mjs', 'default-external-float-to-px', 'const css = externalDecisions.decisions.get(variable.id);', 'const css = externalDecisions.decisions.get(variable.id) || { kind: "unit", unit: "px" };'],
+    ['.agents/checks/lib/serialization.mjs', 'ignore-unknown-external-decision', 'return serializationProblems({ serialization: entries === undefined ? {} : entries }, { variables },', 'return serializationProblems({ serialization: {} }, { variables },'],
     [inventory, 'ignore-explicit-alias-mode', ': selected ? [resolve(target, selected.modeId, next)]', ': false ? [resolve(target, selected.modeId, next)]'],
     [tokens, 'discard-alias-mode-decision', 'next.aliasModes = { ...state.aliasModes, ...aliasModes };', 'next.aliasModes = {};'],
     [collector, 'unordered-variable-ids', 'variableIds: [...c.variableIds].sort()', 'variableIds: [...c.variableIds]'],

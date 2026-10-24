@@ -10,6 +10,8 @@ description: >-
 
 # Map Figma to Code
 
+Las variables externas FLOAT se serializan mediante decisiones del proyecto en `figma-state.json.externalSerialization`, por ID. Consulta el registro sin modificarlo; el mapeo no autoriza elegir unidades y una decisión cambiada caduca las evidencias afectadas.
+
 Las decisiones opcionales `figma-state.json.aliasModes` no seleccionan el modo CSS activo ni prueban el color renderizado; no las cambies al consultar el mapeo.
 
 ## Goal

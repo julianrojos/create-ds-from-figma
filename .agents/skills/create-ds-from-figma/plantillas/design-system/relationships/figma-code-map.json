@@ -1,5 +1,6 @@
 {
   "_schema": {
+    "externalSerialization": "External FLOAT decisions are shared by variable ID in figma-state.json.externalSerialization, never stored in this map or attributed to the remote library.",
     "key": "<FILE_KEY>:<COMPONENT_OR_SET_NODE_ID>",
     "entry": {
       "name": "<Nombre>",

@@ -109,6 +109,8 @@ y los contratos enlazados abajo. Antes de exportar SVG lee tooling-vectors; ante
 
 ## Implementación permitida
 
+Para bindings externos FLOAT, registra la decisión compartida `{ css, source }` en `figma-state.json.externalSerialization[variableId]` según la referencia de tokens. Sin decisión respaldada por evidencia o criterio expreso del usuario no se consumen; no inventes unidades ni variables locales sustitutas.
+
 Lee los apartados de import-code antes de escribir; el detalle está en
 [implementación y scaffold](references/import-implementation.md). Contiene el árbol exacto, plantillas, dimensiones de texto, tokens,
 inventario y pasos separados para primera importación y siguiente componente.

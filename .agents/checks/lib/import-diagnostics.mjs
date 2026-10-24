@@ -50,6 +50,7 @@ export function importDiagnostics(root, { metadataPath } = {}) {
       if (identified.length) nextActions.push({ code: 'RESOLVE_FLOAT_SERIALIZATION', targets: [target], resources: identified.map(v => v.id),
         variables: identified, component, consumption: tokens.consumption,
         prerequisites: ['Inspect each identified binding, literal style reference and alias chain. Record css serialization and its observed binding evidence or an explicit user decision in figma-state.json.',
+          'For an external FLOAT, use the shared project registry externalSerialization[variableId] = { css, source }; retain the sourced resolved snapshot in metadata.externalVariables.',
           'Do not default to px, infer units from names or manufacture binding evidence. If evidence is missing, capture first. Alias-only variables inherit their targets.',
           'After recording valid decisions, regenerate tokens.css and rerun verification; generate-token-json save does not choose serializations.'],
         permissions: ['project-read'], command: null });

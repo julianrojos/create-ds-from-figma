@@ -375,6 +375,27 @@ test("an external-only component does not require a fictitious local collection"
   assert.deepEqual(verify(root).errors, []);
 });
 
+test('external FLOAT bindings require a project decision and its exact generated declaration', () => {
+  const root = withExampleComponent(), metadataPath = 'design-system/components/ExampleComponent/metadata.json';
+  const metadata = read(root, metadataPath), id = 'VariableID:external-radius';
+  metadata.bindings = [{ part: 'root', variant: 'Size=Small', node: 'FILE:1:3', figmaProperty: 'cornerRadius',
+    cssProperty: 'border-radius', cssSelector: '.root', variableId: id }];
+  metadata.externalVariables = [{ id, cssName: '--external-radius', type: 'FLOAT', value: 4, source: 'FILE:1:3' }];
+  recordBinding(root, metadata, 'cornerRadius', id, 'FLOAT');
+  write(root, metadataPath, metadata);
+  write(root, 'src/components/ExampleComponent/ExampleComponent.module.css', '.root { border-radius: var(--external-radius); }');
+  regenerate(root);
+  assert.ok(verify(root).errors.some(e => e.includes('external FLOAT snapshot without a serialization decision')));
+  const statePath = 'design-system/relationships/figma-state.json', state = read(root, statePath);
+  state.externalSerialization = { [id]: { css: { kind: 'unit', unit: 'px' }, source: { type: 'bindings', evidence: [{ node: 'FILE:1:3', figmaProperty: 'cornerRadius' }] } } };
+  write(root, statePath, state); regenerate(root);
+  assert.deepEqual(verify(root).errors, []);
+  write(root, 'src/styles/tokens.css', readFileSync(path.join(root, 'src/styles/tokens.css'), 'utf8').replace('--external-radius: 4px', '--external-radius: 5px'));
+  assert.ok(verify(root).errors.some(e => e.includes('differs from its external serialization decision')));
+  state.externalSerialization.unknown = state.externalSerialization[id]; write(root, statePath, state);
+  assert.ok(verify(root).errors.some(e => e.includes('not a variable')));
+});
+
 test("parts require mapped Figma nodes and matching TSX and CSS markers", () => {
   const root = withExampleComponent();
   const relative = "design-system/components/ExampleComponent/metadata.json";

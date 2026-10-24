@@ -69,6 +69,28 @@ test('examined inputs exclude unrelated sources/collections and include installa
   for (const file of ['src/Nested.tsx', 'design-system/tokens/Colors.json']) assert.ok(!files.includes(file), file);
 });
 
+test('external serialization decisions invalidate affected case hashes only', t => {
+  const { root, metadataPath } = createPreviewProject();
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const m = JSON.parse(readFileSync(path.join(root, metadataPath))), c = m.verification.cases[0];
+  const capture = JSON.parse(readFileSync(path.join(root, m.evidence.snapshot))).capture;
+  capture.variables.push({ id: 'external-radius', name: 'Radius', type: 'FLOAT', collectionId: 'EXT', valuesByMode: { D: 4 } });
+  capture.collections.push({ id: 'EXT', name: 'External', defaultModeId: 'D', modes: [{ modeId: 'D', name: 'Default' }], variableIds: ['external-radius'] });
+  m.evidence = { ...m.evidence, ...persistCapture(root, capture) };
+  const statePath = path.join(root, 'design-system/relationships/figma-state.json'), state = JSON.parse(readFileSync(statePath));
+  const initial = caseInputs(root, m, c).metadataHash;
+  state.externalSerialization = { other: { css: { kind: 'unitless' }, source: { type: 'user' } } };
+  writeFileSync(statePath, JSON.stringify(state));
+  assert.equal(caseInputs(root, m, c).metadataHash, initial);
+  state.externalSerialization['external-radius'] = { css: { kind: 'unit', unit: 'px' }, source: { type: 'user' } };
+  writeFileSync(statePath, JSON.stringify(state));
+  const decided = caseInputs(root, m, c).metadataHash;
+  assert.notEqual(decided, initial);
+  state.externalSerialization['external-radius'].css.unit = 'rem';
+  writeFileSync(statePath, JSON.stringify(state));
+  assert.notEqual(caseInputs(root, m, c).metadataHash, decided);
+});
+
 test('fractional Figma bounds accept floor, round and ceil exports without assuming one rounding rule', t => {
   const { root, metadataPath } = createPreviewProject();
   t.after(() => rmSync(root, { recursive: true, force: true }));

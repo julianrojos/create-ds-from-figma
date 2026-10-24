@@ -222,7 +222,7 @@ Registra cada variable observada en `metadata.json.bindings` como `{ observation
 
 #### Bindings externos
 
-Para un binding directo a una variable de otra librería, añade en `externalVariables` una instantánea `{ id, cssName, type, value, source }`: `id` es el ID externo observado, `value` su valor resuelto en el modo base, `source` es una ref de nodo local que la usa y `cssName` se declara en `tokens.css`. No la registres como variable local. Si no puedes obtener el ID o el valor resuelto, `DS_GAP`; no inventes un token. El validador avisa de la instantánea, comprueba su valor base y el informe la identifica por ID; los cambios de modo externos todavía requieren revisión manual.
+Para un binding directo a una variable de otra librería, añade en `externalVariables` una instantánea `{ id, cssName, type, value, source }`: `id` es el ID externo observado, `value` su valor resuelto en el modo base, `source` es una ref de nodo local que la usa y `cssName` se declara en `tokens.css`. No la registres como variable local. Si no puedes obtener el ID o el valor resuelto, `DS_GAP`; no inventes un token. Para FLOAT, la decisión explícita `{ css, source }` se registra por ID en `figma-state.json.externalSerialization`, compartida entre fichas y con evidencia o criterio expreso del usuario. La ficha no redefine esa decisión; sin ella no se emite ni consume el token. El validador avisa de la instantánea, comprueba su valor base y el informe la identifica por ID; los cambios de modo externos todavía requieren revisión manual.
 
 #### Literales medidos
 

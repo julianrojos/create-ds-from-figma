@@ -19,6 +19,18 @@ function fixture(t) {
   return { ...f, read, write, metadata, snapshotPath };
 }
 
+test('external FLOAT consumers request a project serialization and clear the action only with a valid decision', t => {
+  const f = fixture(t), id = 'external-radius';
+  f.metadata.externalVariables = [{ id, type: 'FLOAT', value: 6, cssName: '--lib-radius', source: 'FILE:1:3' }];
+  f.metadata.bindings = [{ variableId: id, node: 'FILE:1:3', figmaProperty: 'cornerRadius' }];
+  f.write(f.metadataPath, f.metadata);
+  assert.deepEqual(importDiagnostics(f.root).nextActions.find(a => a.code === 'RESOLVE_FLOAT_SERIALIZATION').resources, [id]);
+  const statePath = 'design-system/relationships/figma-state.json', state = f.read(statePath);
+  state.externalSerialization = { [id]: { css: { kind: 'unit', unit: 'px' }, source: { type: 'user' } } };
+  f.write(statePath, state);
+  assert.ok(!importDiagnostics(f.root).nextActions.some(a => a.code === 'RESOLVE_FLOAT_SERIALIZATION'));
+});
+
 test('snapshot failures distinguish empty, incompatible, corrupt and unreadable, also with a cache', t => {
   const f = fixture(t), initial = f.read(f.snapshotPath), evidenceSession = createEvidenceSession(f.root);
   for (const options of [{}, { evidenceSession }]) {

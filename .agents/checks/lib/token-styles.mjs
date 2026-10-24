@@ -4,7 +4,7 @@ import valueParser from 'postcss-value-parser';
 import { localDependencies } from './local-dependencies.mjs';
 import { projectFile } from './render-plan.mjs';
 import { inlineTokenUsage, tokenReferences } from './style-token-usage.mjs';
-import { createFloatResolver, serializationProblems } from './serialization.mjs';
+import { createFloatResolver, externalSerializationProblems, serializationProblems } from './serialization.mjs';
 
 export function verifyTokenStyles(root, metadata, { dependencySession } = {}) {
   const state = JSON.parse(readFileSync(projectFile(root, 'design-system/relationships/figma-state.json'), 'utf8'));
@@ -34,7 +34,21 @@ export function verifyTokenStyles(root, metadata, { dependencySession } = {}) {
       }
     }
   }
-  for (const variable of metadata.externalVariables || []) if (variableIds.has(variable.id) && variable.cssName) required.add(variable.cssName);
+  const externals = metadata.externalVariables || [];
+  const externalIds = new Set(externals.map(v => v.id));
+  const externalDecisions = externalSerializationProblems(Object.fromEntries(Object.entries(state.externalSerialization || {}).filter(([id]) => externalIds.has(id))), externals);
+  warnings.push(...externalDecisions.errors.map(error => `Serialization analysis incomplete: ${error}`));
+  for (const [id, css] of externalDecisions.decisions) decisions.set(id, css);
+  for (const variable of externals) {
+    if (variables.has(variable.id)) continue;
+    variables.set(variable.id, { ...variable, name: variable.cssName, file: 'external', origin: 'external' });
+    if (variableIds.has(variable.id) && variable.cssName) {
+      required.add(variable.cssName);
+      for (const binding of metadata.bindings.filter(b => b.variableId === variable.id)) references.push({
+        cssName: variable.cssName, kind: 'binding', variableId: variable.id, node: binding.node, figmaProperty: binding.figmaProperty,
+      });
+    }
+  }
   const prefix = `--${state.tokenPrefix || 'ds'}-`;
   for (const file of loaded.files.filter(f => f.endsWith('.css'))) {
     const css = postcss.parse(readFileSync(projectFile(root, file), 'utf8'));
@@ -89,7 +103,9 @@ export function verifyTokenStyles(root, metadata, { dependencySession } = {}) {
   for (const reference of references) follow(reference.cssName, reference);
   const pendingFloats = [...variables.values()].filter(v => v.type === 'FLOAT' && resolveFloat(v.id).status === 'pending').map(v => ({
     id: v.id, name: v.name, cssName: v.cssName, collectionId: v.collectionId, file: v.file,
-    references: [...(consumed.get(v.id)?.values() || [])], decision: 'Record an evidence-backed css serialization and source in figma-state.json; alias-only variables inherit their targets.' }));
+    references: [...(consumed.get(v.id)?.values() || [])], decision: v.origin === 'external'
+      ? 'Record an evidence-backed project decision { css, source } in figma-state.json.externalSerialization for this external variable ID.'
+      : 'Record an evidence-backed css serialization and source in figma-state.json; alias-only variables inherit their targets.' }));
   const missing = [...required].filter(name => !defined.has(name)).sort();
   return { errors: missing.map(name => `Token ${name} has no definition in CSS loaded by the verification view`),
     warnings, required: [...required].sort(), stylesheets: loaded.files.filter(f => f.endsWith('.css')), pendingFloats,

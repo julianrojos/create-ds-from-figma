@@ -10,6 +10,8 @@ description: >-
 
 # Find Component
 
+External FLOAT bindings use project decisions in `figma-state.json.externalSerialization`, keyed by variable ID. Lookup is read-only: do not add units or decisions. Changed decisions invalidate affected case evidence.
+
 Las decisiones opcionales `figma-state.json.aliasModes` resuelven valores entre colecciones, no prueban el modo CSS activo ni la fidelidad de un componente. No las cambies durante una consulta de reutilización.
 
 ## Goal

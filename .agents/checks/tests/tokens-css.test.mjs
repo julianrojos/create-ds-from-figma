@@ -111,6 +111,30 @@ test("external snapshots are written sorted and deduplicated, and external FLOAT
   assert.match(warnings[0], /external: --lib-gap/);
 });
 
+test('external FLOAT decisions are shared by ID, explicit, validated and never default to px', () => {
+  const externals = [
+    { id: 'radius', cssName: '--lib-radius', type: 'FLOAT', value: 6 },
+    { id: 'weight', cssName: '--lib-weight', type: 'FLOAT', value: 500 },
+    { id: 'alpha', cssName: '--lib-alpha', type: 'FLOAT', value: 50 },
+  ];
+  const externalSerialization = {
+    radius: { css: { kind: 'unit', unit: 'px' }, source: { type: 'bindings', evidence: [{ node: 'FILE:1:3', figmaProperty: 'cornerRadius' }] } },
+    weight: { css: { kind: 'unitless' }, source: { type: 'user' } },
+    alpha: { css: { kind: 'scale', factor: 0.01, unit: '' }, source: { type: 'user' } },
+  };
+  const render = decisions => renderTokensCss({ collections: [], externals: [...externals, externals[0]], externalSerialization: decisions });
+  const result = render(externalSerialization);
+  assert.deepEqual(result.errors, []);
+  for (const declaration of ['--lib-radius: 6px;', '--lib-weight: 500;', '--lib-alpha: 0.5;']) assert.ok(result.css.includes(declaration));
+  assert.equal(result.css.match(/--lib-radius:/g).length, 1);
+  assert.doesNotMatch(render({}).css, /--lib-radius:/);
+  for (const decisions of [null, [], { missing: externalSerialization.radius }, { radius: { css: { kind: 'unit', unit: 'garbage' }, source: { type: 'user' } } }, { radius: { css: { kind: 'unitless' } } }]) {
+    const bad = render(decisions); assert.ok(bad.errors.length); assert.equal(bad.css, '');
+  }
+  const conflict = renderTokensCss({ collections: [], externals: [...externals, { ...externals[0], value: 8 }], externalSerialization });
+  assert.ok(conflict.errors.some(e => e.includes('conflicting snapshots')));
+});
+
 test("conflicting external snapshots and names fail instead of selecting one", () => {
   const sameId = renderTokensCss({ collections: [], externals: [
     { id: "e1", cssName: "--lib-ink", type: "COLOR", value: "#000000" },

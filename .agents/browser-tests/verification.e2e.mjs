@@ -21,6 +21,7 @@ import { diagnoseComposition } from '../skills/create-ds-from-figma/scripts/lib/
 import { compositionFixture } from '../checks/tests/fixtures/composition-fixture.mjs';
 import { diagnosisActions } from '../checks/lib/diagnosis-actions.mjs';
 import { createDelegationProject } from '../checks/tests/fixtures/delegation-project.mjs';
+import { renderTokensCss } from '../checks/lib/tokens-css.mjs';
 
 const runtime = browserRuntime();
 const playwright = await import(pathToFileURL(path.join(runtime, 'node_modules/playwright/index.mjs')).href);
@@ -28,6 +29,27 @@ const executablePath = playwright.chromium.executablePath();
 if (!existsSync(executablePath)) throw new Error('Locked Chromium binary missing. Run npm run test:browser:setup. The real-browser regression is required, not skipped.');
 const output = path.join(repoRoot, 'test-results/browser');
 mkdirSync(output, { recursive: true });
+
+test('generated external FLOAT tokens retain explicit units, unitless values and scaling in real Chromium', async () => {
+  const result = renderTokensCss({ collections: [], externals: [
+    { id: 'radius', type: 'FLOAT', value: 6, cssName: '--lib-radius' },
+    { id: 'weight', type: 'FLOAT', value: 500, cssName: '--lib-weight' },
+    { id: 'opacity', type: 'FLOAT', value: 50, cssName: '--lib-opacity' },
+  ], externalSerialization: {
+    radius: { css: { kind: 'unit', unit: 'px' }, source: { type: 'user' } },
+    weight: { css: { kind: 'unitless' }, source: { type: 'user' } },
+    opacity: { css: { kind: 'scale', factor: 0.01, unit: '' }, source: { type: 'user' } },
+  } });
+  assert.deepEqual(result.errors, []);
+  const browser = await playwright.chromium.launch({ executablePath, headless: true });
+  try {
+    const page = await browser.newPage();
+    await page.setContent(`<style>${result.css} #sample{border-radius:var(--lib-radius);font-weight:var(--lib-weight);opacity:var(--lib-opacity)}</style><div id="sample">Synthetic sample</div>`);
+    assert.deepEqual(await page.locator('#sample').evaluate(node => {
+      const style = getComputedStyle(node); return { radius: style.borderTopLeftRadius, weight: style.fontWeight, opacity: style.opacity };
+    }), { radius: '6px', weight: '500', opacity: '0.5' });
+  } finally { await browser.close(); }
+});
 
 test('computed color audit detects a cascade error with correct geometry and uses raw Figma paint instead of the declared CSS literal', async t => {
   const { root, metadataPath } = createPreviewProject({ runtimeModules: path.join(runtime, 'node_modules') });

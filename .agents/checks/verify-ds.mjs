@@ -9,7 +9,7 @@ import { assessTokenPrefix, customPropertyDeclarations } from "./lib/design-syst
 import { modeDeclarationProblems, modeScopeProblems } from "./lib/mode-scopes.mjs";
 import { GENERATOR_COMMAND, firstDifference, generateTokensCss } from "./lib/tokens-css.mjs";
 import { bindingTypeProblem } from "./lib/property-types.mjs";
-import { createFloatResolver, floatAliasProblems, isLocalAliasVariable, serializationProblems, serializeNumber } from "./lib/serialization.mjs";
+import { createFloatResolver, externalSerializationProblems, floatAliasProblems, isLocalAliasVariable, serializationProblems, serializeNumber } from "./lib/serialization.mjs";
 import { isPortableTokenFileName, tokenFileKey } from "./lib/token-file-name.mjs";
 import { verifyFigmaEvidence } from './verify-figma-evidence.mjs';
 import { verifyRenderPlans } from './verify-render-plan.mjs';
@@ -831,7 +831,10 @@ export function verify(root, { metadataOverrides, visualSummaries = new Map(), d
       cssNameOwners.set(variable.cssName, variable.id);
       const declaration = baseDeclarations.get(variable.cssName);
       if (variable.type === "FLOAT") {
-        if (declaration !== undefined) fail(`${label}: ${variable.cssName} is declared without a serialization decision; external FLOAT snapshots are not written yet`);
+        const checked = externalSerializationProblems(state.externalSerialization, [variable]);
+        const css = checked.decisions.get(variable.id);
+        if (!css && declaration !== undefined) fail(`${label}: ${variable.cssName} is declared without a serialization decision`);
+        if (css && declaration !== serializeNumber(variable.value, css)) fail(`${label}: ${variable.cssName} differs from its external serialization decision`);
       } else if (declaration === undefined) fail(`${label}: missing base declaration ${variable.cssName}`);
       else if (variable.type === "COLOR" && declaration.toUpperCase() !== variable.value.toUpperCase()) {
         fail(`${label}: base color differs from resolved snapshot`);
@@ -844,13 +847,15 @@ export function verify(root, { metadataOverrides, visualSummaries = new Map(), d
       warn(`${label}: external variable ${variable.id} uses a resolved snapshot`);
     }
   }
+  const externalDecisions = externalSerializationProblems(state.externalSerialization, externalVariables.values());
+  for (const error of externalDecisions.errors) fail(error);
   for (const binding of bindingRecords) {
     const variable = localVariables.get(binding.variableId) || externalVariables.get(binding.variableId);
     if (!variable) fail(`${binding.label}: variableId ${binding.variableId} is missing from token inventory`);
     else if (bindingTypeProblem(binding.cssProperty, variable.type)) {
       fail(`${binding.label}: ${bindingTypeProblem(binding.cssProperty, variable.type)} (variable ${binding.variableId})`);
     }
-    else if (externalVariables.get(binding.variableId)?.type === "FLOAT") {
+    else if (externalVariables.get(binding.variableId)?.type === "FLOAT" && !externalDecisions.decisions.has(binding.variableId)) {
       fail(`${binding.label}: ${externalVariables.get(binding.variableId).cssName} is an external FLOAT snapshot without a serialization decision, so it cannot be consumed yet`);
     }
     else if (localVariables.has(binding.variableId) && localVariables.get(binding.variableId).type === "FLOAT" &&

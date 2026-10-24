@@ -6,7 +6,7 @@ import path from "node:path";
 import { aliasCycleProblems } from "./alias-cycles.mjs";
 import { isValidCssName } from "./css-name.mjs";
 import { modeScopeProblems } from "./mode-scopes.mjs";
-import { createFloatResolver, floatAliasProblems, isLocalAliasVariable, serializationProblems, serializeNumber } from "./serialization.mjs";
+import { createFloatResolver, externalSerializationProblems, floatAliasProblems, isLocalAliasVariable, serializationProblems, serializeNumber } from "./serialization.mjs";
 
 export const TOKENS_CSS_PATH = "src/styles/tokens.css";
 export const GENERATOR_COMMAND = "node .agents/skills/create-ds-from-figma/scripts/generate-tokens-css.mjs";
@@ -33,7 +33,7 @@ export function cssString(value) {
  * externals    [{ id, cssName, type, value }]  resolved snapshots recorded in the component sheets
  * Returns { css, errors, warnings }. Nothing is guessed: a FLOAT without a serialization decision is not written.
  */
-export function renderTokensCss({ collections, externals = [] }) {
+export function renderTokensCss({ collections, externals = [], externalSerialization }) {
   const errors = [];
   const warnings = [];
   const sorted = [...collections].sort((a, b) => byCodePoint(a.file, b.file));
@@ -79,6 +79,8 @@ export function renderTokensCss({ collections, externals = [] }) {
     if (owner && owner !== variable.id) errors.push(`external cssName ${variable.cssName} conflicts with variable ${owner}`);
     else cssNameOwners.set(variable.cssName, variable.id);
   }
+  const externalDecisions = externalSerializationProblems(externalSerialization, externalById.values());
+  errors.push(...externalDecisions.errors);
   if (errors.length) return { css: "", errors, warnings };
   const resolveFloat = createFloatResolver({ variables, decisions });
   errors.push(...floatAliasProblems({ variables, resolveFloat }));
@@ -128,7 +130,10 @@ export function renderTokensCss({ collections, externals = [] }) {
   const external = [];
   for (const variable of [...externalById.values()].sort((a, b) => byCodePoint(a.cssName, b.cssName))) {
     if (variable.type === "FLOAT") {
-      pending.push(`external: ${variable.cssName}`);
+      const css = externalDecisions.decisions.get(variable.id);
+      const value = css ? serializeNumber(variable.value, css) : undefined;
+      if (value === undefined) pending.push(`external: ${variable.cssName}`);
+      else external.push(`  ${variable.cssName}: ${value};`);
       continue;
     }
     const value = direct(variable.type, variable.value, { ...variable, file: "external" });
@@ -251,7 +256,7 @@ export function generateTokensCss(root) {
     }
   }
   if (errors.length) return { css: "", errors, warnings: [] };
-  const rendered = renderTokensCss({ collections, externals });
+  const rendered = renderTokensCss({ collections, externals, externalSerialization: state.externalSerialization });
   return rendered;
 }
 
