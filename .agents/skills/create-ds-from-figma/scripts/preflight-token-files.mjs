@@ -34,7 +34,9 @@ try {
   const input = inventory ? { collections: inventoryCollections(inventory.inventory), ...(prefixIndex < 0 ? {} : { tokenPrefix: args[prefixIndex + 1] }) } : JSON.parse(readFileSync(0, "utf8"));
   if (!isObject(input) || !Array.isArray(input.collections)) throw new Error("input must be an object with a collections list");
   const state = existsSync(statePath) ? readJson(statePath) : {};
-  if (inventory && state.fileKey && state.fileKey !== inventory.inventory.source.fileKey) throw new Error('Inventory file origin differs from project');
+  if (inventory && state.fileKey && state.fileKey !== inventory.inventory.source.fileKey) {
+    throw new Error(`Inventory file origin ${JSON.stringify(inventory.inventory.source.fileKey)} differs from project file origin ${JSON.stringify(state.fileKey)}. The token state format supports a single source Figma file. Check that you are using the intended branch and project; do not manually change fileKey to force the import.`);
+  }
   const stateCollections = state.collections ?? {};
   if (!isObject(stateCollections)) throw new Error("figma-state.json: collections must be an ID-keyed object");
   const map = existsSync(mapPath) ? readJson(mapPath) : {};

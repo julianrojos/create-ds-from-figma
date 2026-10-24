@@ -182,6 +182,18 @@ test('preflight accepts explicit inventory without stdin and rejects wrong proje
   assert.equal(plan.inventory.hash, readInventory(file).hash); assert.equal(plan.tokenPrefix.value, 'ds');
   assert.ok(plan.variables.base); assert.equal(Object.keys(plan.variables).length, 4);
   for (const flags of [['--inventory'], ['--unknown', file], ['--inventory', file, '--inventory', file]]) assert.equal(invoke('preflight-token-files', [root, ...flags]).status, 1);
+  const statePath = path.join(root, 'design-system/relationships/figma-state.json');
+  mkdirSync(path.dirname(statePath), { recursive: true });
+  const originalState = JSON.stringify({ fileKey: 'OTHER_PROJECT_FILE' });
+  writeFileSync(statePath, originalState);
+  const mismatch = invoke('preflight-token-files', [root, '--inventory', file]);
+  assert.equal(mismatch.status, 1);
+  assert.match(mismatch.stderr, /Inventory file origin "FILE" differs from project file origin "OTHER_PROJECT_FILE"/);
+  assert.match(mismatch.stderr, /single source Figma file/);
+  assert.match(mismatch.stderr, /intended branch and project/);
+  assert.match(mismatch.stderr, /do not manually change fileKey/);
+  assert.doesNotMatch(mismatch.stderr, /uncommitted|previous import/i);
+  assert.equal(readFileSync(statePath, 'utf8'), originalState);
 });
 
 test('token JSON planning is read-only; explicit save writes facts, leaves mode/serialization decisions pending and validates inventory', async t => {
