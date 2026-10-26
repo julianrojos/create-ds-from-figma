@@ -54,12 +54,16 @@ try {
     }
   }
   const mapEntries = Object.entries(isObject(map) ? map : {}).filter(([key, entry]) => !key.startsWith("_") && isObject(entry));
+  const componentDirectories = existsSync(componentsDir) ? readdirSync(componentsDir, { withFileTypes: true }).filter(item => item.isDirectory()) : [];
+  const componentContents = componentDirectories.map(item => ({ name: item.name, entries: readdirSync(path.join(componentsDir, item.name), { withFileTypes: true }) }));
+  const emptyDirectories = componentContents.filter(item => item.entries.length === 0);
+  if (emptyDirectories.length) throw new Error(`Empty component directories: ${emptyDirectories.map(item => `design-system/components/${item.name}/`).join(', ')}. Empty folders are not evidence of an imported component. Inspect them and remove only confirmed empty directories if unused, or restore missing component files from a trusted copy. This preflight never deletes directories; do not invent tokenPrefix to bypass this diagnostic.`);
+  const metadataOnlyDirectories = componentContents.filter(item => item.entries.length === 1 && item.entries[0].isFile() && item.entries[0].name === '.DS_Store');
+  if (metadataOnlyDirectories.length) throw new Error(`Component directories contain only .DS_Store: ${metadataOnlyDirectories.map(item => `design-system/components/${item.name}/`).join(', ')}. They are not literally empty; the regular .DS_Store file alone is not evidence of an imported component. Inspect the residual file and decide whether to retain it, clean up explicitly or restore component files from a trusted copy. This preflight never deletes files or directories; do not invent tokenPrefix to bypass this diagnostic.`);
   const importedComponents = new Set([
     ...mapEntries.map(([key, entry]) => entry.name || key),
     ...Object.keys(isObject(state.components) ? state.components : {}),
-    ...(existsSync(componentsDir)
-      ? readdirSync(componentsDir, { withFileTypes: true }).filter((item) => item.isDirectory()).map((item) => item.name)
-      : []),
+    ...componentDirectories.map(item => item.name),
   ]);
 
   const requested = input.tokenPrefix;

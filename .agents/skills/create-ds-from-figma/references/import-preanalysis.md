@@ -14,6 +14,10 @@ La falta de `design-system/inventory.json` no cambia el modo: diagnostícala com
 
 ## Preanálisis antes de escribir
 
+Si el preflight identifica carpetas de componentes vacías, conserva el bloqueo e inspecciona las rutas indicadas. Una carpeta vacía no prueba una importación ni justifica inventar tokenPrefix. Decide si restaurar archivos originales o eliminar solo directorios comprobados vacíos y sin uso; el preflight no borra nada ni autoriza limpiezas recursivas.
+
+Una carpeta que contiene únicamente un archivo regular `.DS_Store` recibe un diagnóstico distinto: no está literalmente vacía, pero esos metadatos de Finder no prueban una importación. Conserva el archivo y decide explícitamente si retenerlo, limpiar o restaurar el componente. No se ignoran otros archivos ocultos, contenido real, enlaces simbólicos ni directorios con ese nombre. El preflight no elimina ningún archivo o directorio.
+
 Si un alias entre colecciones locales tiene varios valores posibles, pregunta qué modo usar para resolver esos valores. Solo con autorización explícita usa `generate-token-json.mjs plan/save --inventory INVENTORY --alias-modes PATH` y registra la elección en `figma-state.json.aliasModes`. No fija un modo CSS, no sustituye `modeScopes` ni cambia los alias de la misma colección. Una dependencia remota ambigua sigue bloqueada.
 
 No crees el árbol, tokens, fichas, código ni registros durante este preanálisis. Reutiliza sus resultados al implementar; no repitas llamadas a Figma salvo que falte información o los datos hayan cambiado.

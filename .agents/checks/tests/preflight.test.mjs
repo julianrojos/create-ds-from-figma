@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { after, test } from "node:test";
@@ -44,6 +44,70 @@ test("a blank project proposes the default prefix and names every variable", () 
     diagnostics: { missingRegistered: [], registeredIdsNotInInput: [] },
   });
   assert.equal(JSON.parse(readFileSync(path.join(root, statePath), "utf8")).tokenPrefix, null, "the preflight never writes the state");
+});
+
+test('empty component folders produce a specific read-only diagnostic, not a request to invent a prefix', () => {
+  for (const prefix of [null, 'ds']) {
+    const root = project({ [statePath]: state({ tokenPrefix: prefix }) });
+    const directory = path.join(root, 'design-system/components/Example');
+    mkdirSync(directory, { recursive: true });
+    const before = readFileSync(path.join(root, statePath), 'utf8');
+    const result = run(root, { collections: [] });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /Empty component directories: design-system\/components\/Example\//);
+    assert.match(result.stderr, /never deletes directories/);
+    assert.ok(!result.stderr.includes(MISSING_PREFIX_MESSAGE));
+    assert.equal(readFileSync(path.join(root, statePath), 'utf8'), before);
+    writeFileSync(path.join(directory, 'keep.txt'), 'still exists');
+    assert.equal(readFileSync(path.join(directory, 'keep.txt'), 'utf8'), 'still exists');
+  }
+});
+
+test('a regular .DS_Store alone receives a specific diagnostic and is preserved, not called an empty folder', () => {
+  for (const prefix of [null, 'ds']) {
+    const root = project({ [statePath]: state({ tokenPrefix: prefix }), 'design-system/components/Example/.DS_Store': 'Finder metadata' });
+    const directory = path.join(root, 'design-system/components/Example');
+    const before = readFileSync(path.join(root, statePath));
+    const result = run(root, { collections: [] });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /Component directories contain only \.DS_Store: design-system\/components\/Example\//);
+    assert.match(result.stderr, /not literally empty/);
+    assert.match(result.stderr, /never deletes files or directories/);
+    assert.ok(!result.stderr.includes(MISSING_PREFIX_MESSAGE));
+    assert.deepEqual(readdirSync(directory), ['.DS_Store']);
+    assert.equal(readFileSync(path.join(directory, '.DS_Store'), 'utf8'), 'Finder metadata');
+    assert.deepEqual(readFileSync(path.join(root, statePath)), before);
+  }
+});
+
+test('other hidden files and real content beside .DS_Store are never ignored', () => {
+  for (const name of ['usage.md', '.keep']) for (const prefix of [null, 'ds']) {
+    const root = project({ [statePath]: state({ tokenPrefix: prefix }), 'design-system/components/Example/.DS_Store': 'Finder metadata',
+      [`design-system/components/Example/${name}`]: 'Retained content' });
+    const result = run(root, { collections: [] });
+    assert.equal(result.status, prefix === null ? 1 : 0, result.stderr);
+    if (prefix === null) assert.ok(result.stderr.includes(MISSING_PREFIX_MESSAGE));
+    assert.ok(!result.stderr.includes('contain only .DS_Store'));
+    assert.equal(readFileSync(path.join(root, 'design-system/components/Example', name), 'utf8'), 'Retained content');
+  }
+});
+
+test('a directory or symbolic link named .DS_Store is not classified as a regular metadata file', () => {
+  for (const type of ['directory', 'symlink']) {
+    const root = project({ [statePath]: state() });
+    const directory = path.join(root, 'design-system/components/Example');
+    mkdirSync(directory, { recursive: true });
+    if (type === 'directory') mkdirSync(path.join(directory, '.DS_Store'));
+    else {
+      writeFileSync(path.join(root, 'retained.txt'), 'Retained content');
+      symlinkSync(path.join(root, 'retained.txt'), path.join(directory, '.DS_Store'));
+    }
+    const result = run(root, { collections: [] });
+    assert.equal(result.status, 1);
+    assert.ok(result.stderr.includes(MISSING_PREFIX_MESSAGE));
+    assert.ok(!result.stderr.includes('contain only .DS_Store'));
+    assert.deepEqual(readdirSync(directory), ['.DS_Store']);
+  }
 });
 
 test("a requested prefix is used for a new design system and validated", () => {
