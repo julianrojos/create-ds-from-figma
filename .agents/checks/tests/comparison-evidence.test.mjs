@@ -135,3 +135,14 @@ test('configuration metadata fingerprint ignores prose and unrelated cases, but 
   m.verification.cases[1].props.initial = 'W';
   m.measuredLiterals[0].value = '999px'; assert.notEqual(hash(), initial);
 });
+
+test('behavior input fingerprint depends on its selected measurement reference configuration', t => {
+  const { root, metadataPath } = createPreviewProject();
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const m = JSON.parse(readFileSync(path.join(root, metadataPath))), c = m.verification.cases[1], reference = m.verification.cases[2];
+  c.measurementBaseline = reference.id;
+  const hash = () => caseInputs(root, m, c).metadataHash;
+  const original = hash();
+  reference.props.initial = 'Another visible reference';
+  assert.notEqual(hash(), original);
+});

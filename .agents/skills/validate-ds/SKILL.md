@@ -45,6 +45,12 @@ Contrato transversal: [INV-PREWRITE, INV-DIAGNOSE, INV-STATUS e INV-DELIVERY](..
 | Visual comparison | Exact Figma refs and retained case artifacts | Position/shape, typography, colors/assets and specific reviews checked separately |
 | Report | Results from performed checks | Original output categories, current evidence and explicit pending items; no implicit writes |
 
+For optional text hidden in fidelity, a behavior may name a visible sibling
+behavior as `measurementBaseline`. Both must retain the same fidelity `baseline`
+and context, and both original measurements remain mandatory. No reference chains
+or hidden boxes establish dimensional relations; use the selected reference body
+when running `compare` manually. All required behavior checks must still PASS.
+
 ## Read
 
 - `.agents/checks/token-usage.md`

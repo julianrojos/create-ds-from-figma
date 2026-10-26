@@ -81,7 +81,7 @@ export function closeVerification(root, metadataPath, manifest, context = {}) {
       const measured = measurements.get(configuration.id);
       if (!measured) continue;
       const record = manifest.cases.find(r => r.caseId === configuration.id);
-      const checks = renderedChecks(root, metadata, configuration, measured.artifacts, { ...options, baselineMeasurement: measurements.get(configuration.baseline)?.body });
+      const checks = renderedChecks(root, metadata, configuration, measured.artifacts, { ...options, baselineMeasurement: measurements.get(configuration.measurementBaseline ?? configuration.baseline)?.body });
       const diagnostics = renderDiagnostics(checks);
       result.cases.push({ caseId: configuration.id, checks, diagnostics });
       result.warnings.push(...diagnostics.map(d => `${configuration.id} ${d.checkId}: ${d.reason} Delta width=${d.delta.width}px, height=${d.delta.height}px`));

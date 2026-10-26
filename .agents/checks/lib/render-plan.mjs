@@ -5,6 +5,7 @@ import { textDimensionRequirements } from './figma-dimensions.mjs';
 import { nodeCoverage } from './node-coverage.mjs';
 import { concreteFontWeight } from './font-weight.mjs';
 import { nativeStateProblem } from './native-state.mjs';
+import { behaviorBaseline } from './behavior-baseline.mjs';
 
 const object = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const text = v => typeof v === 'string' && v.trim().length > 0;
@@ -145,6 +146,7 @@ export function verifyRenderPlan(root, metadata, capture, { delegations = [], re
     const nodes = subtree(capture, c.figmaRef || '');
     for (const [ref, value] of Object.entries(c.content || {})) if (!nodes.has(ref.slice(capture.source.fileKey.length + 1)) || !ref.startsWith(`${capture.source.fileKey}:`) || typeof value !== 'string' || !capture.nodes.some(n => `${capture.source.fileKey}:${n.id}` === ref && n.type === 'TEXT')) errors.push(`${label}: content needs text and a TEXT ref inside the examined variant`);
     if (c.kind === 'fidelity') {
+      if (c.measurementBaseline !== undefined) errors.push(`${label}: measurementBaseline is only supported on behavior cases`);
       covered.add(c.figmaRef);
       for (const n of capture.nodes.filter(n => nodes.has(n.id) && n.type === 'TEXT' && typeof n.properties.characters === 'string')) {
         if (c.content?.[`${capture.source.fileKey}:${n.id}`] !== n.properties.characters) errors.push(`${label}: fidelity content differs from captured text ${n.id}`);
@@ -166,8 +168,8 @@ export function verifyRenderPlan(root, metadata, capture, { delegations = [], re
   const exercised = new Set();
   for (const c of cases.values()) {
     if (c.kind !== 'behavior') continue;
-    const base = cases.get(c.baseline);
-    if (!base || base.kind !== 'fidelity' || base.figmaRef !== c.figmaRef || !equal(c.viewport, base.viewport) || !equal(c.modes, base.modes) || !equal(c.environment, base.environment) || !equal(c.states, base.states)) errors.push(`${c.id}: behavior baseline must be a fidelity case with the same ref and environment`);
+    const base = behaviorBaseline(metadata, c);
+    if (!base) errors.push(`${c.id}: behavior baseline must associate a fidelity case with the same ref and environment; measurementBaseline must reference another behavior of that fidelity case without chains`);
     for (const e of Array.isArray(c.expectations) ? c.expectations : []) {
       if (e && ['contained', 'anchored', 'centered'].includes(e.kind)) {
         const variantKeys = Object.keys(metadata.parts?.root?.nodes || {}).filter(key => metadata.parts.root.nodes[key] === c.figmaRef);
@@ -183,7 +185,7 @@ export function verifyRenderPlan(root, metadata, capture, { delegations = [], re
       }
       const requirement = requirements.dimensions.find(d => d.observation === e?.observation && d.behavior === 'content');
       if (!requirement || e.kind !== 'intrinsic-size' || !text(e.part) || !Object.values(metadata.parts?.[e.part]?.nodes || {}).includes(requirement.node) || e.axis !== requirement.field || !subtree(capture, c.figmaRef).has(requirement.node.slice(capture.source.fileKey.length + 1))) { errors.push(`${c.id}: intrinsic-size expectation needs a captured content dimension, axis and its mapped text part`); continue; }
-      if (base && c.content?.[requirement.node] !== undefined && c.content[requirement.node] !== base.content?.[requirement.node]) exercised.add(requirement.observation);
+      if (base && typeof base.content?.[requirement.node] === 'string' && c.content?.[requirement.node] !== undefined && c.content[requirement.node] !== base.content[requirement.node]) exercised.add(requirement.observation);
       else errors.push(`${c.id}: intrinsic-size case must vary the content of the examined text node`);
       if (Object.keys(e).some(key => !['kind', 'observation', 'axis', 'part', 'relation', 'reason'].includes(key)) || e.relation !== undefined && (!['grow', 'shrink', 'equal', 'change'].includes(e.relation) || !text(e.reason))) errors.push(`${c.id}: dimensional relation must be explicit, supported and justified`);
     }

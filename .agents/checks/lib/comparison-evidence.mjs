@@ -11,6 +11,7 @@ import { collectCssDiagnostics, compareCssDiagnostics } from './css-diagnostics.
 import { delegationDifferences, delegationFacts } from './delegation-differences.mjs';
 import { mappedComponentsOf, mappedDelegations } from '../verify-figma-evidence.mjs';
 import { evidenceSessionFor } from './evidence-session.mjs';
+import { behaviorBaseline } from './behavior-baseline.mjs';
 
 const text = v => typeof v === 'string' && v.trim().length > 0;
 const object = v => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -84,7 +85,7 @@ export function caseInputs(root, metadata, configuration, style, options = {}) {
     return [c.id, { file: record.file, modeScopes: record.modeScopes,
       serialization: Object.fromEntries(Object.entries(record.serialization || {}).filter(([id]) => usedIds.has(id))) }];
   }));
-  const semantic = { snapshotHash: metadata.evidence.hash, configuration, code: metadata.code, parts, classification, delegated, delegatedInputs,
+  const semantic = { snapshotHash: metadata.evidence.hash, configuration, measurementBaseline: configuration.kind === 'behavior' ? behaviorBaseline(metadata, configuration) ?? null : null, code: metadata.code, parts, classification, delegated, delegatedInputs,
     bindings: list(metadata.bindings).filter(b => refs.has(b.node)).map(omitProse),
     literals: list(metadata.measuredLiterals).filter(l => refs.has(l.source)).map(omitProse),
     dimensions: list(metadata.evidence?.textDimensions).filter(d => observations.has(d.observation)).map(omitProse),

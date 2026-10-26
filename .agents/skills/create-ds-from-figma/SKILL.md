@@ -128,6 +128,11 @@ Aplica `.agents/rules/design-system.md` al leer o modificar el DS o `src/`.
   Nunca lo edites a mano ni resumas en tres buckets.
 - Prepara dimensiones, recursos, casos, decisiones y correspondencias candidatas;
   usa `apply` con el resto del DS coherente. No presentes candidatas como confirmadas.
+- Para texto opcional inicialmente oculto, conserva su ausencia en fidelity.
+  Un behavior puede revelar el texto con una expectativa propia y servir como
+  `measurementBaseline` de otro behavior con contenido alternativo. Ambos conservan
+  el mismo `baseline` fidelity y son obligatorios; no se permiten cadenas ni usar
+  cajas ocultas como referencia visible. Lee el contrato de casos antes de declararlo.
 - Reutiliza anidados `mapped`. Conserva ficha y mapa en una sustitución limitada;
   la autorización para esa dependencia no permite reparar el scaffold.
 - Registra solo piezas implementadas. La ficha contiene solo metadata y usage;

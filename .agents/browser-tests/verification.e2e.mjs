@@ -30,6 +30,47 @@ if (!existsSync(executablePath)) throw new Error('Locked Chromium binary missing
 const output = path.join(repoRoot, 'test-results/browser');
 mkdirSync(output, { recursive: true });
 
+test('initially hidden optional text uses a visible behavior reference in real Chromium without skipping dimensions', async t => {
+  const { root, metadataPath } = createPreviewProject({ runtimeModules: path.join(runtime, 'node_modules') });
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const file = path.join(root, metadataPath), metadata = JSON.parse(readFileSync(file));
+  const original = JSON.parse(readFileSync(path.join(root, metadata.evidence.snapshot))).capture;
+  original.nodes[1].properties.visible = false;
+  original.nodes[1].properties.componentPropertyReferences = { visible: 'Show helper' };
+  Object.assign(metadata.evidence, persistCapture(root, componentCapture({ seeds: original.nodes, rootNodeId: original.source.rootNodeId })));
+  const fidelity = metadata.verification.cases[0];
+  fidelity.props.show = false;
+  const reference = { ...structuredClone(fidelity), id: 'visible-reference', kind: 'behavior', baseline: fidelity.id,
+    props: { initial: 'F', show: true }, expectations: [{ kind: 'contained', part: 'initial', container: 'root', inset: 0, reason: 'Visible optional helper stays inside its container.' }] };
+  for (const c of metadata.verification.cases.filter(c => c.kind === 'behavior')) {
+    c.props.show = true;
+    c.measurementBaseline = reference.id;
+  }
+  metadata.verification.cases.push(reference); // Reference deliberately follows its consumers.
+  writeFileSync(file, JSON.stringify(metadata));
+  writeFileSync(path.join(root, 'src/PreviewGlyph.tsx'), `import styles from './PreviewGlyph.module.css';
+    export function PreviewGlyph({ initial, show }) { return <span data-ds-part="root" className={styles.root}><span hidden={!show} data-ds-part="initial" className={styles.initial}>{initial}</span></span>; }`);
+  const css = readFileSync(path.join(root, 'src/PreviewGlyph.module.css'), 'utf8');
+  writeFileSync(path.join(root, 'src/PreviewGlyph.module.css'), css + '\n.root{box-sizing:border-box}');
+  const run = async () => {
+    const result = await finalizeImport(root, metadataPath, { diagnose: true, browserOptions: { executablePath } });
+    if (result.diagnosis?.directory) t.after(() => rmSync(result.diagnosis.directory, { recursive: true, force: true }));
+    assert.equal(result.diagnosis?.execution.status, 'COMPLETED', JSON.stringify(result));
+    return result.diagnosis.diagnostics.cases;
+  };
+  const good = await run();
+  assert.equal(good[0].checks.find(c => c.id === 'geometry:initial')?.status, 'PASS');
+  for (const c of good.filter(c => c.kind === 'behavior')) {
+    const checks = c.checks.filter(c => c.id.startsWith('behavior:'));
+    assert.ok(checks.length);
+    assert.ok(checks.every(c => c.status === 'PASS'), JSON.stringify(c));
+  }
+  writeFileSync(path.join(root, 'src/base.css'), readFileSync(path.join(root, 'src/base.css'), 'utf8') + '\n[data-ds-part="initial"]{display:inline-block;width:12px !important}');
+  const broken = await run();
+  assert.ok(broken.some(c => c.checks.some(check => check.id.startsWith('behavior:') && check.axis === 'width' && check.status === 'FAIL')), JSON.stringify(broken));
+  assert.equal(existsSync(path.join(root, 'design-system/verification')), false);
+});
+
 test('generated external FLOAT tokens retain explicit units, unitless values and scaling in real Chromium', async () => {
   const result = renderTokensCss({ collections: [], externals: [
     { id: 'radius', type: 'FLOAT', value: 6, cssName: '--lib-radius' },

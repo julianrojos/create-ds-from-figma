@@ -193,7 +193,7 @@ export async function runBrowserVerification(root, metadataPath, { playwright, e
           for (const c of metadata.verification.cases) {
             const measured = measurements.get(c.id);
             if (measured) validateMeasurementInputs(root, JSON.parse(readFileSync(measured.receipt, 'utf8')), metadata, c, { evidenceSession });
-            const comparison = compareRendered(capture, metadata, c, measured?.body, { baselineMeasurement: measurements.get(c.baseline)?.body, mappedComponents: mappedDelegations(root, metadata, { evidenceSession }) });
+            const comparison = compareRendered(capture, metadata, c, measured?.body, { baselineMeasurement: measurements.get(c.measurementBaseline ?? c.baseline)?.body, mappedComponents: mappedDelegations(root, metadata, { evidenceSession }) });
             diagnostics.cases.push({ caseId: c.id, kind: c.kind, ...(measured ? { file: measured.file, receipt: measured.receipt } : {}), ...comparison, diagnostics: renderDiagnostics(comparison),
               ...(compositions.has(c.id) ? { composition: compositions.get(c.id) } : {}) });
           }

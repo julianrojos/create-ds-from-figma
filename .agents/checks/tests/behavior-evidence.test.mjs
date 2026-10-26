@@ -7,6 +7,7 @@ import { renderedArtifacts, renderedBehaviors, syntheticTypographyReviews } from
 import { comparisonReport } from '../../skills/create-ds-from-figma/scripts/verification-plan.mjs';
 import { verifyCorrespondences } from '../lib/correspondences.mjs';
 import { sha256 } from '../lib/render-plan.mjs';
+import { closeVerification } from '../lib/verification-closure.mjs';
 
 function fixture(t) {
   const { root, metadataPath } = createPreviewProject();
@@ -23,7 +24,7 @@ function fixture(t) {
     const markdown = '## Figma to code correspondences\n\n```json\n' + JSON.stringify({ schemaVersion: 1, correspondences: [{ caseId: configuration.id, status: 'confirmed', evidence: { path: file, sha256: sha256(bytes) } }] }) + '\n```';
     return verifyCorrespondences(root, metadata, markdown, markdown.split('\n').map((line, i) => i === 0 ? line : ''), { metadataPath });
   };
-  return { root, metadata, configuration, review, produce, check };
+  return { root, metadataPath, metadata, configuration, review, produce, check };
 }
 
 test('confirmation requires every associated behavior measurement and all mandatory checks in PASS', t => {
@@ -51,6 +52,46 @@ test('unsupported required behavior cannot be rescued by the general visual revi
   f.review.artifacts = renderedArtifacts(f.root, f.metadata, f.configuration);
   f.review.behaviors = renderedBehaviors(f.root, f.metadata, f.configuration);
   assert.throws(f.produce, /Required behavior blocked: .* NOT COMPARABLE; confirmation pending \(NOT VERIFIED\), not a demonstrated visual defect/);
+});
+
+test('visible behavior reference is mandatory, order independent and revalidated with its dependent case', t => {
+  const f = fixture(t), cases = f.metadata.verification.cases;
+  const reference = { ...structuredClone(cases[0]), id: 'visible-reference', kind: 'behavior', baseline: cases[0].id,
+    props: { initial: 'F', show: true }, expectations: [{ kind: 'contained', part: 'initial', container: 'root', inset: 0, reason: 'Optional visible text must stay inside its root.' }] };
+  for (const c of cases.filter(c => c.kind === 'behavior')) c.measurementBaseline = reference.id;
+  cases.push(reference);
+  f.review.artifacts = renderedArtifacts(f.root, f.metadata, f.configuration);
+  f.review.behaviors = cases.filter(c => c.kind === 'behavior').map(c => ({ caseId: c.id,
+    artifact: renderedArtifacts(f.root, f.metadata, c, { mutateBody: body => {
+      if (c.id === reference.id) body.parts.initial.elements[0].rect.width = 16;
+    } })[0] }));
+  const report = f.produce();
+  assert.equal(f.check(report).current[0].status, 'confirmed');
+  writeFileSync(path.join(f.root, f.metadataPath), JSON.stringify(f.metadata));
+  const manifest = { schemaVersion: 1, cases: [
+    { caseId: f.configuration.id, artifacts: report.artifacts, checkReviews: f.review.checkReviews },
+    ...f.review.behaviors.map(c => ({ caseId: c.caseId, artifacts: [c.artifact] })),
+  ] };
+  const closed = closeVerification(f.root, f.metadataPath, manifest);
+  assert.deepEqual(closed.failures, []);
+  assert.deepEqual(closed.pending, []);
+  assert.equal(closed.cases.find(c => c.caseId === cases[1].id).checks.checks.find(c => c.axis === 'width').expected, 16);
+  const incomplete = closeVerification(f.root, f.metadataPath, { ...manifest, cases: manifest.cases.filter(c => c.caseId !== reference.id) });
+  assert.ok(incomplete.pending.some(c => c.caseId === reference.id));
+  assert.ok(incomplete.cases.some(c => c.checks.checks.some(check => check.id.startsWith('behavior:') && check.status === 'NOT RUN')));
+  report.behaviors.reverse();
+  assert.equal(f.check(report).current[0].status, 'confirmed');
+  const removed = structuredClone(report);
+  removed.behaviors = removed.behaviors.filter(c => c.caseId !== reference.id);
+  assert.ok(f.check(removed).errors.some(e => e.includes('baseline evidence is missing')));
+  const original = structuredClone(reference.props);
+  reference.props.show = false;
+  const stale = f.check(report);
+  assert.deepEqual(stale.errors, []);
+  assert.equal(stale.current[0].status, 'candidate');
+  reference.props = original;
+  f.review.behaviors = f.review.behaviors.filter(c => c.caseId !== reference.id);
+  assert.throws(f.produce, /Every associated behavior/);
 });
 
 test('behavior plan edits/additions/removals and comparator versions stale confirmations without hiding corruption', t => {

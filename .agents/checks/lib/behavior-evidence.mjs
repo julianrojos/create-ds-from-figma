@@ -21,12 +21,18 @@ export function deriveBehaviorEvidence(root, metadata, baseline, artifacts, deci
   const cases = casesFor(metadata, baseline);
   if (!Array.isArray(decisions) || decisions.length !== cases.length || new Set(decisions.map(d => d?.caseId)).size !== decisions.length || decisions.some(d => !cases.some(c => c.id === d?.caseId))) throw new Error('Every associated behavior case needs exactly one published browser artifact');
   const body = baselineBody(root, artifacts);
-  return cases.map(configuration => {
+  const prepared = cases.map(configuration => {
     const decision = decisions.find(d => d.caseId === configuration.id);
     if (Object.keys(decision).some(k => !['caseId', 'artifact'].includes(k)) || decision.artifact?.kind !== 'browser-measurement') throw new Error('Behavior evidence accepts only caseId and a browser-measurement artifact');
     const artifact = readArtifact(root, decision.artifact, metadata, configuration, { ...options, derive: true });
+    return { configuration, artifact };
+  });
+  return prepared.map(({ configuration, artifact }) => {
+    const related = prepared.find(p => p.configuration.id === configuration.measurementBaseline);
+    if (configuration.measurementBaseline !== undefined && !related) throw new Error('Required measurement baseline evidence is missing');
+    const reference = related ? readBody(root, related.artifact) : body;
     const inputs = caseInputs(root, metadata, configuration, undefined, options);
-    const renderChecks = renderedChecks(root, metadata, configuration, [artifact], { ...options, baselineMeasurement: body });
+    const renderChecks = renderedChecks(root, metadata, configuration, [artifact], { ...options, baselineMeasurement: reference });
     requirePassed(renderChecks);
     return { caseId: configuration.id, configuration: structuredClone(configuration), metadataHash: inputs.metadataHash,
       files: inputs.files.map(file => ({ path: file, sha256: sha256(readFileSync(projectFile(root, file))) })), artifact, renderChecks };
@@ -64,7 +70,14 @@ export function verifyBehaviorEvidence(root, metadata, historical, report, optio
       catch (error) { if (error instanceof StaleEvidenceError || error instanceof UnverifiedEvidenceError) localStale.push(error.message); else throw error; }
     }
     if (!localStale.length) {
-      const result = renderedChecks(root, metadata, current, [record.artifact], { ...options, baselineMeasurement: base });
+      let reference = base;
+      if (current.measurementBaseline !== undefined) {
+        const related = report.behaviors.find(r => r.caseId === current.measurementBaseline);
+        if (!related) throw new Error('Required measurement baseline evidence is missing');
+        readArtifact(root, related.artifact, historical, related.configuration, { ...options, checkCurrentInputs: false });
+        reference = readBody(root, related.artifact);
+      }
+      const result = renderedChecks(root, metadata, current, [record.artifact], { ...options, baselineMeasurement: reference });
       if (canonicalJson(renderResultFacts(result)) !== canonicalJson(renderResultFacts(record.renderChecks))) throw new Error('Recorded behavior checks differ from recomputed measurements');
       requirePassed(result);
     }

@@ -16,10 +16,16 @@ const composition = '.agents/checks/lib/composition-diagnostics.mjs';
 const nativeState = '.agents/checks/lib/native-state.mjs';
 const colorComparison = '.agents/checks/lib/color-comparison.mjs';
 const report = '.agents/checks/lib/import-report.mjs';
+const behaviorBaseline = '.agents/checks/lib/behavior-baseline.mjs';
 runMutations({ root, name: 'diagnosis',
-  tests: ['.agents/checks/tests/color-comparison.test.mjs', '.agents/checks/tests/import-report.test.mjs', '.agents/checks/tests/native-state.test.mjs', '.agents/checks/tests/render-comparison.test.mjs', '.agents/checks/tests/diagnosis-actions.test.mjs', '.agents/checks/tests/verification-resources.test.mjs', '.agents/checks/tests/vector-export.test.mjs', '.agents/checks/tests/pixel-residual.test.mjs', '.agents/checks/tests/svg-safety.test.mjs', '.agents/checks/tests/composition-diagnostics.test.mjs'],
-  scope: 'Targeted absence, next-action, image-provenance, vector-export, SVG-safety, pixel-residual and experimental composition regressions, not exhaustive mutation coverage or real Figma fidelity.',
+  tests: ['.agents/checks/tests/behavior-comparison.test.mjs', '.agents/checks/tests/behavior-evidence.test.mjs', '.agents/checks/tests/render-plan.test.mjs', '.agents/checks/tests/color-comparison.test.mjs', '.agents/checks/tests/import-report.test.mjs', '.agents/checks/tests/native-state.test.mjs', '.agents/checks/tests/render-comparison.test.mjs', '.agents/checks/tests/diagnosis-actions.test.mjs', '.agents/checks/tests/verification-resources.test.mjs', '.agents/checks/tests/vector-export.test.mjs', '.agents/checks/tests/pixel-residual.test.mjs', '.agents/checks/tests/svg-safety.test.mjs', '.agents/checks/tests/composition-diagnostics.test.mjs'],
+  scope: 'Targeted absence, behavior-reference, next-action, image-provenance, vector-export, SVG-safety, pixel-residual and experimental composition regressions, not exhaustive mutation coverage or real Figma fidelity.',
   mutants: [
+    [behaviorBaseline, 'behavior-reference-chains', 'reference.measurementBaseline !== undefined ||', 'false ||'],
+    [behaviorBaseline, 'behavior-reference-other-fidelity', 'reference.baseline !== fidelity.id ||', 'false ||'],
+    [behaviorBaseline, 'behavior-reference-wrong-kind', "reference.kind !== 'behavior' ||", 'false ||'],
+    ['.agents/checks/lib/render-plan.mjs', 'behavior-reference-missing-content', "typeof base.content?.[requirement.node] === 'string' &&", ''],
+    ['.agents/checks/lib/behavior-comparison.mjs', 'behavior-hidden-baseline-passes', "if (!prior.element) { add(id, 'NOT COMPARABLE'", "if (!prior.element) { add(id, 'PASS'"],
     [colorComparison, 'color-drops-revealed-behavior-part', "if (hidden && configuration.kind !== 'behavior')", 'if (hidden)'],
     [colorComparison, 'color-guesses-hidden-reveal-mechanism', 'if (hidden && (reason = revealProblem(scope, node)))', 'if (false)'],
     [colorComparison, 'color-assumes-missing-behavior-visibility', 'if (records.some(record => record.hidden) && part.elements[0].geometry?.visible !== true)', 'if (false)'],

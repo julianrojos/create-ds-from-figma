@@ -85,6 +85,27 @@ test('intrinsic-size expectations cannot substitute the container for the mapped
   assert.ok(verifyRenderPlan(f.root, f.metadata, f.capture).errors.some(e => e.includes('mapped text part')));
 });
 
+test('alternate content can use a visible behavior reference while preserving its fidelity association', t => {
+  const f = fixture(t), [fidelity, alternate] = f.metadata.verification.cases;
+  const reference = { ...structuredClone(fidelity), id: 'visible-helper', kind: 'behavior', baseline: fidelity.id,
+    props: { initial: 'F', show: true }, expectations: [{ kind: 'contained', part: 'initial', container: 'root', inset: 0, reason: 'Visible optional text remains contained.' }] };
+  alternate.measurementBaseline = reference.id;
+  alternate.props.show = true;
+  f.metadata.verification.cases.push(reference);
+  assert.deepEqual(verifyRenderPlan(f.root, f.metadata, f.capture).errors, []);
+  reference.content['FILE:1:4'] = alternate.content['FILE:1:4'];
+  assert.ok(verifyRenderPlan(f.root, f.metadata, f.capture).errors.some(e => e.includes('vary the content')));
+  reference.content['FILE:1:4'] = 'F';
+  delete reference.content['FILE:1:4'];
+  assert.ok(verifyRenderPlan(f.root, f.metadata, f.capture).errors.some(e => e.includes('vary the content')));
+  reference.content['FILE:1:4'] = 'F';
+  reference.measurementBaseline = alternate.id;
+  assert.ok(verifyRenderPlan(f.root, f.metadata, f.capture).errors.some(e => e.includes('without chains')));
+  delete reference.measurementBaseline;
+  fidelity.measurementBaseline = reference.id;
+  assert.ok(verifyRenderPlan(f.root, f.metadata, f.capture).errors.some(e => e.includes('only supported on behavior')));
+});
+
 test('behavior invariants require explicit mapped participants, valid parameters and justified relations', t => {
   const f = fixture(t), behavior = f.metadata.verification.cases[1];
   f.metadata.parts.root = { nodes: { 'Size=Small': 'FILE:1:3' } };

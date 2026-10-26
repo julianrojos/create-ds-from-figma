@@ -1,4 +1,5 @@
 import { canonicalJson } from './figma-evidence.mjs';
+import { behaviorBaseline } from './behavior-baseline.mjs';
 
 const rect = r => r && ['x', 'y', 'width', 'height'].every(k => Number.isFinite(r[k])) && r.width >= 0 && r.height >= 0;
 const context = c => Object.fromEntries(['figmaRef', 'modes', 'viewport', 'environment', 'states'].map(k => [k, c?.[k] ?? null]));
@@ -6,7 +7,7 @@ const context = c => Object.fromEntries(['figmaRef', 'modes', 'viewport', 'envir
 export function compareBehavior(metadata, configuration, measurement, baselineMeasurement, tolerance, add) {
   const expectations = configuration.expectations || [];
   if (!expectations.length) { add('behavior:coverage', 'NOT COMPARABLE', 'No explicit behavior invariant was declared.'); return; }
-  const base = metadata.verification?.cases?.find(c => c.id === configuration.baseline && c.kind === 'fidelity');
+  const base = behaviorBaseline(metadata, configuration);
   const keys = Object.entries(metadata.parts?.root?.nodes || {}).filter(([, ref]) => ref === configuration.figmaRef).map(([key]) => key);
   const readPart = (name, body, c, allowAffineCenter = false) => {
     const refs = [...new Set(keys.map(key => metadata.parts?.[name]?.nodes?.[key]).filter(Boolean))];
@@ -26,7 +27,7 @@ export function compareBehavior(metadata, configuration, measurement, baselineMe
   for (const [index, expectation] of expectations.entries()) {
     const id = `behavior:${index}:${expectation?.kind}`;
     if (!measurement) { add(id, 'NOT RUN', 'No behavior measurement.'); continue; }
-    if (!base || canonicalJson(context(base)) !== canonicalJson(context(configuration))) { add(id, 'NOT COMPARABLE', 'Behavior needs a fidelity baseline with the same source and environment.'); continue; }
+    if (!base || canonicalJson(context(base)) !== canonicalJson(context(configuration))) { add(id, 'NOT COMPARABLE', 'Behavior needs a valid fidelity association and measurement baseline with the same source and environment, without reference chains.'); continue; }
     const actual = readPart(expectation?.part, measurement, configuration, expectation?.kind === 'centered');
     if (!actual.element) { add(id, actual.status, actual.reason); continue; }
     const box = actual.element.rect;

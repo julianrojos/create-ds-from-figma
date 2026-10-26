@@ -141,8 +141,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       validateBrowserMeasurement(body, metadata, configuration);
       let baselineMeasurement;
       if (baselinePath) {
-        const baseline = metadata.verification.cases.find(c => c.id === configuration.baseline && c.kind === 'fidelity');
-        if (configuration.kind !== 'behavior' || !baseline) throw new Error('Baseline body requires a behavior case with a fidelity baseline');
+        const baseline = metadata.verification.cases.find(c => c.id === (configuration.measurementBaseline ?? configuration.baseline));
+        if (configuration.kind !== 'behavior' || !baseline) throw new Error('Baseline body requires the declared measurement reference of a behavior case');
         baselineMeasurement = JSON.parse(readFileSync(baselinePath, 'utf8'));
         validateBrowserMeasurement(baselineMeasurement, metadata, baseline);
       }

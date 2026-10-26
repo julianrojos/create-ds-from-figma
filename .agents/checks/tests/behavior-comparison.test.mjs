@@ -98,3 +98,42 @@ test('missing measurements and transformed or hidden invariant parts are never s
   f.measurement.parts.label.elements[0].geometry.visible = false;
   assert.equal(f.compare().summary.FAIL, 3);
 });
+
+test('hidden fidelity text needs a separately visible behavior reference, never its hidden box', () => {
+  const f = fixture(), fidelity = f.metadata.verification.cases[0];
+  const visible = { ...structuredClone(fidelity), id: 'revealed', kind: 'behavior', baseline: fidelity.id,
+    props: { text: 'W', show: true }, expectations: [{ kind: 'contained', part: 'label', container: 'root', inset: 0, reason: 'Visible helper stays inside the component.' }] };
+  f.metadata.verification.cases.push(visible);
+  f.baselineMeasurement.parts.label.elements[0].geometry.visible = false;
+  f.current.expectations = [f.current.expectations[2]];
+  assert.equal(f.compare().checks[0].status, 'NOT COMPARABLE');
+  const reference = structuredClone(f.baselineMeasurement);
+  reference.configuration = structuredClone(visible);
+  reference.parts.label.elements[0].geometry.visible = true;
+  f.current.measurementBaseline = visible.id;
+  const compare = () => compareRendered(f.capture, f.metadata, f.current, f.measurement, { baselineMeasurement: reference });
+  assert.equal(compare().checks[0].status, 'PASS');
+  reference.parts.label.elements[0].rect.width = 40;
+  assert.equal(compare().checks[0].status, 'FAIL');
+  reference.parts.label.elements[0].rect.width = 20;
+  reference.parts.label.elements[0].geometry.visible = false;
+  assert.equal(compare().checks[0].status, 'NOT COMPARABLE');
+  reference.parts.label.elements[0].geometry.visible = true;
+  reference.configuration.content['FILE:1:3'] = 'another';
+  assert.equal(compare().checks[0].status, 'NOT COMPARABLE');
+});
+
+test('measurement references cannot be chained, self-referential or borrowed from another fidelity or context', () => {
+  for (const mutate of [
+    (r, c) => c.measurementBaseline = c.id,
+    r => r.measurementBaseline = 'source',
+    r => r.baseline = 'another-source',
+    r => r.viewport.width++,
+    r => r.kind = 'fidelity',
+  ]) {
+    const f = fixture(), reference = { ...structuredClone(f.current), id: 'revealed' };
+    f.metadata.verification.cases.push(reference); f.current.measurementBaseline = reference.id;
+    mutate(reference, f.current);
+    assert.ok(f.compare().checks.every(c => c.status === 'NOT COMPARABLE'));
+  }
+});
