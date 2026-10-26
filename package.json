@@ -8,6 +8,7 @@
     "test:resources:mutations": "node .agents/scripts/mutate-resources.mjs",
     "test:inventory:mutations": "node .agents/scripts/mutate-inventory.mjs",
     "test:diagnosis:mutations": "node .agents/scripts/mutate-diagnosis.mjs",
+    "test:interactions:mutations": "node .agents/scripts/mutate-interactions.mjs",
     "test:delegation:mutations": "node .agents/scripts/mutate-delegation.mjs",
     "test:imports:mutations": "node .agents/scripts/mutate-import-diagnostics.mjs",
     "test:browser": "node .agents/scripts/test-kit.mjs browser",
