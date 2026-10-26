@@ -1,11 +1,13 @@
 export function nativeStateProblem(state) {
   const check = state?.verification;
   if (check === undefined) return null;
+  const native = check?.kind === 'native' && ['checked', 'disabled'].includes(check.property) && state.name === check.property;
+  const pseudo = check?.kind === 'pseudo' && (state.name === 'hover' && check.property === 'hover' || state.name === 'focus' && ['focus', 'focus-visible'].includes(check.property) || state.name === 'focus-visible' && check.property === 'focus-visible');
   if (!check || typeof check !== 'object' || Array.isArray(check) ||
       Object.keys(check).some(key => !['kind', 'selector', 'property', 'value'].includes(key)) ||
-      check.kind !== 'native' || !['checked', 'disabled'].includes(check.property) || state.name !== check.property ||
+      !native && !pseudo ||
       typeof check.value !== 'boolean' || typeof check.selector !== 'string' || !check.selector.trim() || check.selector.length > 256) {
-    return 'Native state verification requires kind=native, a scoped selector, matching checked/disabled name/property and a boolean value';
+    return 'State verification requires a scoped selector and boolean value: native checked/disabled with matching name/property, or pseudo hover/focus/focus-visible (focus may assert focus-visible)';
   }
   return null;
 }
@@ -21,8 +23,16 @@ export function readNativeState(root, state) {
   } catch {
     return { ...result, status: 'NOT RUN', reason: 'Invalid native state selector.' };
   }
-  if (matches.length !== 1) return { ...result, status: matches.length ? 'NOT RUN' : 'FAIL', count: matches.length, reason: 'Native state needs exactly one element owned by this component root.' };
+  if (matches.length !== 1) return { ...result, status: matches.length || check.kind === 'pseudo' ? 'NOT RUN' : 'FAIL', count: matches.length, reason: 'State assertion needs exactly one element owned by this component root.' };
   const element = matches[0], tag = element.tagName;
+  if (check.kind === 'pseudo') {
+    try {
+      const measured = element.matches(':' + check.property);
+      return { ...result, measured, count: 1, status: measured === check.value ? 'PASS' : 'FAIL', reason: 'Observed browser pseudoclass at collection time, not proof of activation history or appearance.' };
+    } catch {
+      return { ...result, status: 'NOT RUN', reason: 'Browser pseudoclass could not be read.' };
+    }
+  }
   if (check.property === 'checked' && !(tag === 'INPUT' && ['checkbox', 'radio'].includes(element.type)) ||
       check.property === 'disabled' && !['INPUT', 'BUTTON', 'SELECT', 'TEXTAREA', 'FIELDSET', 'OPTGROUP', 'OPTION'].includes(tag)) {
     return { ...result, status: 'FAIL', reason: 'Selected element does not support this native state; ARIA and classes are not substitutes.' };

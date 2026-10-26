@@ -6,6 +6,7 @@ import { nodeCoverage } from './node-coverage.mjs';
 import { concreteFontWeight } from './font-weight.mjs';
 import { nativeStateProblem } from './native-state.mjs';
 import { behaviorBaseline } from './behavior-baseline.mjs';
+import { browserActionsProblem } from './browser-actions.mjs';
 
 const object = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const text = v => typeof v === 'string' && v.trim().length > 0;
@@ -141,6 +142,8 @@ export function verifyRenderPlan(root, metadata, capture, { delegations = [], re
       }
     }
     if (!Array.isArray(c.expectations)) errors.push(`${label}: expectations must be an array`);
+    const actionProblem = browserActionsProblem(c.actions);
+    if (actionProblem) errors.push(`${label}: ${actionProblem}`);
     for (const [collection, modes] of expectedModes) if (!modes.has(c.modes?.[collection])) errors.push(`${label}: active captured mode required for ${collection}`);
     for (const collection of Object.keys(c.modes || {})) if (!expectedModes.has(collection)) errors.push(`${label}: unknown collection ${collection}`);
     const nodes = subtree(capture, c.figmaRef || '');

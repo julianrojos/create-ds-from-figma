@@ -22,6 +22,7 @@ import { compositionFixture } from '../checks/tests/fixtures/composition-fixture
 import { diagnosisActions } from '../checks/lib/diagnosis-actions.mjs';
 import { createDelegationProject } from '../checks/tests/fixtures/delegation-project.mjs';
 import { renderTokensCss } from '../checks/lib/tokens-css.mjs';
+import { activateBrowserCase, collectBrowserCase } from '../skills/create-ds-from-figma/scripts/lib/browser-actions.mjs';
 
 const runtime = browserRuntime();
 const playwright = await import(pathToFileURL(path.join(runtime, 'node_modules/playwright/index.mjs')).href);
@@ -174,6 +175,77 @@ test('native state assertions collect configured states and detect ignored props
   writeFileSync(file, JSON.stringify(metadata));
   const unsupported = await run();
   assert.equal(unsupported.execution.status, 'PARTIAL'); assert.equal(unsupported.blocked.length, metadata.verification.cases.length);
+});
+
+test('real pointer and keyboard actions are asserted independently in fidelity and required behavior', async t => {
+  const { root, metadataPath } = createPreviewProject({ runtimeModules: path.join(runtime, 'node_modules') });
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const file = path.join(root, metadataPath), metadata = JSON.parse(readFileSync(file));
+  writeFileSync(path.join(root, 'src/PreviewGlyph.tsx'), `import styles from './PreviewGlyph.module.css';
+    export function PreviewGlyph({ initial }: { initial: string }) { return <button type="button" data-ds-part="root" className={styles.root}><span data-ds-part="initial" className={styles.initial}>{initial}</span></button>; }`);
+  const run = async (property, actions, selector = 'button') => {
+    const name = property === 'focus-visible' ? 'focus' : property;
+    metadata.states = [{ name, control: 'internal' }];
+    for (const c of metadata.verification.cases) {
+      c.actions = actions;
+      c.states = [{ name, activation: 'Explicit real input followed by an independent DOM assertion.', verification: { kind: 'pseudo', selector, property, value: true } }];
+    }
+    writeFileSync(file, JSON.stringify(metadata));
+    const result = await runBrowserVerification(root, metadataPath, { playwright, executablePath, diagnostic: true });
+    t.after(() => rmSync(result.directory, { recursive: true, force: true }));
+    assert.equal(result.execution.status, 'COMPLETED', JSON.stringify(result));
+    return result.diagnostics.cases.map(c => c.checks.find(check => check.id === `state:${name}`)?.status);
+  };
+  assert.deepEqual(await run('hover', []), ['FAIL', 'FAIL', 'FAIL'], 'No hover action cannot turn a false reading into PASS.');
+  assert.deepEqual(await run('hover', [{ kind: 'hover', selector: 'button' }]), ['PASS', 'PASS', 'PASS']);
+  assert.deepEqual(await run('focus-visible', [{ kind: 'press', key: 'Tab' }]), ['PASS', 'PASS', 'PASS']);
+  assert.deepEqual(await run('focus-visible', [{ kind: 'click', selector: 'button' }]), ['FAIL', 'FAIL', 'FAIL'], 'A button clicked by a pointer is not keyboard-focus-visible in the locked Chromium.');
+  assert.deepEqual(await run('focus', [{ kind: 'click', selector: 'button' }]), ['PASS', 'PASS', 'PASS']);
+  assert.deepEqual(await run('hover', [{ kind: 'hover', selector: 'button' }], 'button, span'), ['NOT RUN', 'NOT RUN', 'NOT RUN']);
+  assert.deepEqual(await run('hover', [{ kind: 'hover', selector: 'button' }], '.absent'), ['NOT RUN', 'NOT RUN', 'NOT RUN']);
+  assert.equal(existsSync(path.join(root, 'design-system/verification')), false);
+});
+
+test('interactive collection has a host deadline independent of the page collection promise', async () => {
+  const browser = await playwright.chromium.launch({ executablePath, headless: true });
+  try {
+    for (const recorded of [true, false]) {
+      const page = await browser.newPage();
+      const html = `<div id="component"><button data-ds-part="root">Probe</button></div><script>
+        window.__dsVerification = { status: 'awaiting-interaction', collect: () => {
+          window.__dsVerification.status = '${recorded ? 'recorded' : 'collecting'}';
+          return new Promise(() => {});
+        } };
+      </script>`;
+      let guard;
+      try {
+        const collection = Promise.race([
+          collectBrowserCase(page, 'data:text/html,' + encodeURIComponent(html), { states: [{ verification: { kind: 'pseudo' } }] }, 1000),
+          new Promise((_, reject) => { guard = setTimeout(() => reject(new Error('Test safety deadline: browser collection did not settle')), 5000); }),
+        ]);
+        if (recorded) {
+          await collection;
+          assert.equal(await page.evaluate(() => window.__dsVerification.status), 'recorded');
+          assert.equal(page.isClosed(), false);
+        } else {
+          await assert.rejects(collection, /timed out.*host deadline/);
+          if (!page.isClosed()) await page.waitForEvent('close', { timeout: 2000 });
+          assert.equal(page.isClosed(), true);
+        }
+      } finally { clearTimeout(guard); await page.close(); }
+    }
+  } finally { await browser.close(); }
+});
+
+test('browser action selectors cannot target another component or nested delegated controls', async () => {
+  const browser = await playwright.chromium.launch({ executablePath, headless: true });
+  try {
+    const page = await browser.newPage();
+    await page.setContent('<button id="outside">Outside</button><div id="component"><div data-ds-part="root"><button id="owned">Owned</button><div data-ds-part="root"><button id="nested">Nested</button></div></div></div>');
+    for (const selector of ['#outside', '#nested']) await assert.rejects(activateBrowserCase(page, { actions: [{ kind: 'click', selector }] }, 1000), /exactly one target owned/);
+    await activateBrowserCase(page, { actions: [{ kind: 'click', selector: 'button' }] }, 1000);
+    assert.equal(await page.evaluate(() => document.activeElement.id), 'owned');
+  } finally { await browser.close(); }
 });
 
 test('real native probes read effective disabled, enforce ownership and support keyboard state changes', async () => {

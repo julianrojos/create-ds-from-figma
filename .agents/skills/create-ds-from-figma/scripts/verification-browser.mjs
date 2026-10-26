@@ -17,6 +17,7 @@ import { diagnoseComposition, prepareComposition } from './lib/composition-brows
 import { COMPOSITION_SCALE } from '../../../checks/lib/composition-diagnostics.mjs';
 import { mappedDelegations } from '../../../checks/verify-figma-evidence.mjs';
 import { createEvidenceSession } from '../../../checks/lib/evidence-session.mjs';
+import { collectBrowserCase } from './lib/browser-actions.mjs';
 
 export function inspectRunReservation(directory) {
   directory = path.resolve(directory);
@@ -147,12 +148,11 @@ export async function runBrowserVerification(root, metadataPath, { playwright, e
         browser = await playwright.chromium.launch({ headless: true, ...(executablePath ? { executablePath } : {}), timeout: timeoutMs });
         execution.phase = 'collection';
         for (const c of metadata.verification.cases) {
-          if (c.states.some(s => s.verification?.kind !== 'native')) { blocked.push({ caseId: c.id, status: 'NOT RUN', reason: 'Activate states through the environment browser; this adapter only supports declared native state assertions, not inferred interaction paths.' }); continue; }
+          if (c.states.some(s => !['native', 'pseudo'].includes(s.verification?.kind))) { blocked.push({ caseId: c.id, status: 'NOT RUN', reason: 'Declare a supported native or pseudo state assertion and explicit browser actions; activation prose alone cannot establish the state.' }); continue; }
           const context = await browser.newContext({ viewport: c.viewport, deviceScaleFactor: 1 });
           try {
             const page = await context.newPage();
-            await page.goto(preview.urls.find(u => u.id === c.id).url, { timeout: timeoutMs });
-            await page.waitForFunction(() => ['recorded', 'diagnostic-recorded', 'failed'].includes(window.__dsVerification?.status), undefined, { timeout: timeoutMs });
+            await collectBrowserCase(page, preview.urls.find(u => u.id === c.id).url, c, timeoutMs);
             const state = await page.evaluate(() => ({ status: window.__dsVerification.status, receipt: window.__dsVerification.receipt, error: window.__dsVerification.error }));
             if (state.status !== 'recorded') throw new Error(state.error || 'Collection did not produce an exact viewport measurement');
             const receipt = state.receipt.file.replace(/\.json$/, '.receipt.json');
@@ -175,7 +175,7 @@ export async function runBrowserVerification(root, metadataPath, { playwright, e
                 try {
                   compositionContext.setDefaultTimeout(timeoutMs);
                   const sample = await compositionContext.newPage();
-                  await sample.goto(preview.urls.find(u => u.id === c.id).url, { timeout: timeoutMs });
+                  await collectBrowserCase(sample, preview.urls.find(u => u.id === c.id).url, c, timeoutMs);
                   await sample.waitForFunction(() => window.__dsVerification?.status === 'recorded', undefined, { timeout: timeoutMs });
                   compositions.set(c.id, await diagnoseComposition(sample, capture, metadata, c, { directory }));
                 } catch (error) {

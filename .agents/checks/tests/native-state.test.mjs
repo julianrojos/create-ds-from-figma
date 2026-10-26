@@ -12,6 +12,7 @@ import { caseInputs } from '../lib/comparison-evidence.mjs';
 import { diagnosisActions } from '../lib/diagnosis-actions.mjs';
 
 const declared = (property = 'checked', value = true) => ({ name: property, activation: 'Configured through the native prop.', verification: { kind: 'native', selector: 'input', property, value } });
+const pseudo = (property = 'hover', value = true) => ({ name: property === 'focus-visible' ? 'focus' : property, activation: 'Activate the recorded real browser action.', verification: { kind: 'pseudo', selector: 'button', property, value } });
 const compare = (state, records) => {
   const checks = []; compareNativeStates({ states: [state] }, records === undefined ? undefined : { nativeStates: records }, (id, status, reason, detail) => checks.push({ id, status, reason, ...detail })); return checks;
 };
@@ -55,6 +56,9 @@ test('render plan validates native declarations and rejects duplicate state name
   const metadata = JSON.parse(readFileSync(path.join(root, metadataPath))), { capture } = JSON.parse(readFileSync(path.join(root, metadata.evidence.snapshot)));
   for (const c of metadata.verification.cases) c.states = [declared()];
   assert.deepEqual(verifyRenderPlan(root, metadata, capture).errors, []);
+  metadata.verification.cases[0].actions = [{ kind: 'focus', selector: 'input' }];
+  assert.ok(verifyRenderPlan(root, metadata, capture).errors.some(e => e.includes('Unsupported browser action')));
+  delete metadata.verification.cases[0].actions;
   metadata.verification.cases[0].states.push(declared());
   assert.ok(verifyRenderPlan(root, metadata, capture).errors.some(e => /unique/.test(e)));
   for (const c of metadata.verification.cases) c.states = [{ ...declared(), verification: { kind: 'native', property: 'checked', value: 'true', selector: 'input' } }];
@@ -67,6 +71,9 @@ test('confirmation rechecks original native readings and semantic hashes include
   for (const c of metadata.verification.cases) c.states = [declared()];
   const configuration = metadata.verification.cases[0];
   const before = caseInputs(root, metadata, configuration).metadataHash;
+  configuration.actions = [{ kind: 'press', key: 'Tab' }];
+  assert.notEqual(caseInputs(root, metadata, configuration).metadataHash, before);
+  delete configuration.actions;
   configuration.states[0].verification.value = false;
   assert.notEqual(caseInputs(root, metadata, configuration).metadataHash, before);
   configuration.states[0].verification.value = true;
@@ -87,4 +94,47 @@ test('confirmation rechecks original native readings and semantic hashes include
 test('missing native execution has its own next action even for fidelity-only cases', () => {
   const actions = diagnosisActions('.', 'metadata.json', [{ caseId: 'source', kind: 'fidelity', checks: [{ id: 'state:checked', status: 'NOT RUN', reason: 'Ambiguous target.' }] }]);
   assert.ok(actions.some(a => a.code === 'RESOLVE_STATE_VERIFICATION' && a.cases[0].caseId === 'source' && a.command === null));
+});
+
+test('pseudo assertions are explicit browser readings, never an action result or a declared PASS', () => {
+  for (const property of ['hover', 'focus', 'focus-visible']) {
+    const state = pseudo(property);
+    assert.equal(nativeStateProblem(state), null);
+    const record = { name: state.name, property, expected: true, measured: false, count: 1, status: 'FAIL' };
+    assert.equal(compare(state, [record])[0].status, 'FAIL');
+    assert.equal(compare(state, [{ ...record, measured: true, status: 'PASS' }])[0].status, 'PASS');
+    assert.equal(compare(state, [{ ...record, status: 'PASS' }])[0].status, 'NOT RUN');
+    assert.equal(compare(state, [])[0].status, 'NOT RUN');
+  }
+  for (const state of [pseudo('active'), { ...pseudo(), name: 'checked' }, { ...pseudo(), verification: { ...pseudo().verification, kind: 'native' } }]) assert.ok(nativeStateProblem(state));
+});
+
+test('pseudo probe reads exact pseudoclasses and treats absent, ambiguous or unreadable targets as NOT RUN', () => {
+  const button = { matches: selector => selector === ':focus', closest: () => root };
+  const root = { matches: () => false, querySelectorAll: () => [button] };
+  assert.equal(readNativeState(root, pseudo('focus')).status, 'PASS');
+  assert.equal(readNativeState(root, pseudo('focus-visible')).status, 'FAIL');
+  assert.equal(readNativeState(root, pseudo('hover', false)).status, 'PASS');
+  root.querySelectorAll = () => [];
+  assert.equal(readNativeState(root, pseudo()).status, 'NOT RUN');
+  root.querySelectorAll = () => [button, button];
+  assert.equal(readNativeState(root, pseudo()).status, 'NOT RUN');
+  root.querySelectorAll = () => [button]; button.matches = () => { throw new Error('Unavailable'); };
+  assert.equal(readNativeState(root, pseudo()).status, 'NOT RUN');
+});
+
+test('a rendered review cannot rescue a false pseudo reading in required behavior', t => {
+  const { root, metadataPath } = createPreviewProject();
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const metadata = JSON.parse(readFileSync(path.join(root, metadataPath)));
+  for (const c of metadata.verification.cases) { c.states = [pseudo()]; c.actions = [{ kind: 'hover', selector: 'button' }]; }
+  const source = metadata.verification.cases[0];
+  const artifact = (c, measured) => renderedArtifacts(root, metadata, c, { mutateBody: body => {
+    body.nativeStates = [{ name: 'hover', property: 'hover', expected: true, measured, count: 1, status: measured ? 'PASS' : 'FAIL' }];
+  } });
+  const review = { result: 'PASS', comparison: { method: 'agent-rendered-review', reason: 'Synthetic schema fixture, not genuine interaction evidence.' },
+    figmaRevision: { id: null, reason: 'Synthetic.' }, codeRevision: { id: null, reason: 'Synthetic.' },
+    checkReviews: syntheticTypographyReviews(root, metadata, source), artifacts: artifact(source, true),
+    behaviors: metadata.verification.cases.filter(c => c.kind === 'behavior').map(c => ({ caseId: c.id, artifact: artifact(c, false)[0] })) };
+  assert.throws(() => comparisonReport(root, metadata, source.id, review, undefined, metadataPath), /Required behavior blocked: state:hover FAIL/);
 });

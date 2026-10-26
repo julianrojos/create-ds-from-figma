@@ -153,6 +153,9 @@ estados, colores, delegación, composición y caducidad. Sigue también
    `npm run finalize:import -- ROOT METADATA --diagnose`. Revisa casos, recursos,
    advertencias, composición y `nextActions`; corrige defectos demostrados y repite.
    Diagnostica también los literales de la aplicación. Sin navegador: `NOT RUN/BLOCKED`.
+   Para hover/foco declara las acciones reales del caso y una comprobación
+   `verification.kind=pseudo` sobre el consumidor inequívoco. No retires estados
+   de behavior ni conviertas una acción ejecutada en PASS: cuenta la lectura original.
 3. El diagnóstico ejecuta código y escribe solo temporales; nunca confirma ni
    publica. No cambies tolerancias, recursos ni snapshot para conseguir PASS.
 4. Con publicación autorizada, `npm run finalize:import -- ROOT METADATA --collect`

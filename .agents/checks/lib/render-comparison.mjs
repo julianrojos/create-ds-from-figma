@@ -9,7 +9,7 @@ import { compareColors } from './color-comparison.mjs';
 export const GEOMETRY_TOLERANCE = 1;
 export const TEXT_METRIC_TOLERANCE = 1;
 export const VECTOR_POSITION_TOLERANCE = 1;
-export const COMPARATOR_VERSION = 'render-comparator-v23';
+export const COMPARATOR_VERSION = 'render-comparator-v24';
 const matrix = m => Array.isArray(m) && m.length === 2 && m.every(row => Array.isArray(row) && row.length === 3 && row.every(Number.isFinite));
 const translationOnly = m => matrix(m) && Math.abs(m[0][0] - 1) < 1e-8 && Math.abs(m[1][1] - 1) < 1e-8 && Math.abs(m[0][1]) < 1e-8 && Math.abs(m[1][0]) < 1e-8;
 const invertible = m => matrix(m) && Math.abs(m[0][0] * m[1][1] - m[0][1] * m[1][0]) > 1e-8;

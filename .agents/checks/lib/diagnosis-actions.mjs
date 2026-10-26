@@ -15,7 +15,7 @@ export function diagnosisActions(root, metadataPath, diagnosticCases = []) {
   return [
     ...(pendingStates.length ? [{ code: 'RESOLVE_STATE_VERIFICATION', targets: [metadataPath], cases: pendingStates,
       permissions: ['project-read'], command: null,
-      reason: 'Inspect the declared state, scoped target and actual activation path. Native checked/disabled assertions must read the real control. Unsupported activations require an explicit environment-browser harness, not removal of the state or guessed events. No command is authorized automatically.' }] : []),
+      reason: 'Inspect the declared state, scoped target and original DOM reading. Native checked/disabled assertions read the real control; pseudo hover/focus/focus-visible assertions read the exact browser pseudoclass after explicit pointer/keyboard actions. An action is not proof of the state. Unsupported paths need an environment-browser harness, not removed states or guessed events. No command is authorized automatically.' }] : []),
     ...delegationNextActions(metadataPath, diagnosticCases.flatMap(c => c.checks.filter(check => check.delegation).map(check => ({ ...check.delegation, reason: check.reason })))),
     ...(unrunCompositions.length ? [{ code: 'RETRY_COMPOSITION_DIAGNOSTICS', targets: [metadataPath], cases: unrunCompositions,
       permissions: ['project-read', 'browser-execution', 'temporary-write'],
