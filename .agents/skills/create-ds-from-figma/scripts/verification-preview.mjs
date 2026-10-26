@@ -116,7 +116,7 @@ async function collect(signal, diagnostic) {
     const elements = queryPart(root, name);
     parts[name] = { count: elements.length, elements: elements.map(element => {
       const style = getComputedStyle(element), rect = element.getBoundingClientRect();
-      const properties = new Set(['width', 'height', 'font-family', 'font-size', 'font-weight', 'font-style', 'line-height', 'letter-spacing', 'text-align', 'overflow']);
+      const properties = new Set(['width', 'height', 'font-family', 'font-size', 'font-weight', 'font-style', 'line-height', 'letter-spacing', 'text-align', 'overflow', 'opacity', 'fill-opacity', 'stroke-opacity']);
       for (const r of [...data.literals, ...data.bindings].filter(r => r.part === name)) properties.add(r.cssProperty);
       return { text: element.textContent, className: element.className, geometry: geometry(element), rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
         computed: Object.fromEntries([...properties].map(p => [p, style.getPropertyValue(p).trim()])) };

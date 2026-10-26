@@ -2,6 +2,7 @@ import { renderedExpectation } from './render-values.mjs';
 
 export const COLOR_CHANNEL_TOLERANCE = 1;
 export const COLOR_ALPHA_TOLERANCE = 0.005;
+const CAPTURE_COLOR_EPSILON = 1e-7;
 const properties = new Set(['color', 'background-color', 'border-top-color', 'border-right-color', 'border-bottom-color', 'border-left-color', 'outline-color', 'fill', 'stroke']);
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 
@@ -74,6 +75,15 @@ function revealProblem(scope, node) {
   return null;
 }
 
+function reflectedVariableAlpha(paint, observation, color) {
+  // Figma resolves a COLOR binding into paint RGB/opacity; these are not two alpha factors.
+  return observation.kind === 'binding' && paint.boundVariables?.color?.type === 'VARIABLE_ALIAS' &&
+    paint.boundVariables.color.id === observation.variableId && object(color) &&
+    ['r', 'g', 'b'].every(channel => Number.isFinite(paint.color?.[channel]) && Number.isFinite(color[channel]) &&
+      Math.abs(paint.color[channel] - color[channel]) <= CAPTURE_COLOR_EPSILON) &&
+    Number.isFinite(color.a) && Math.abs(paint.opacity - color.a) <= CAPTURE_COLOR_EPSILON;
+}
+
 export function compareColors(capture, metadata, configuration, measurement, scope, add) {
   const keys = Object.entries(metadata.parts?.root?.nodes || {}).filter(([, ref]) => ref === configuration.figmaRef).map(([key]) => key);
   const observations = new Map(capture.observations.map(o => [o.id, o])), variables = new Map(capture.variables.map(v => [v.id, v]));
@@ -98,7 +108,7 @@ export function compareColors(capture, metadata, configuration, measurement, sco
   }
   for (const [id, records] of groups) {
     const { record } = records[0], detail = { part: record.part, property: record.cssProperty, observations: records.map(r => r.observation.id).sort() };
-    let reason, expected, resolutions = [];
+    let reason, expected, resolutions = [], reflectedAlpha = false;
     for (const { record, observation, node, hidden } of records) {
       const refs = [...new Set(keys.map(key => metadata.parts?.[record.part]?.nodes?.[key]).filter(Boolean))];
       if (refs.length !== 1 || refs[0] !== `${capture.source.fileKey}:${node.id}` || scope.visible(node.id) === null) { reason = 'Color needs an unambiguous mapped source node with readable visibility.'; break; }
@@ -106,9 +116,14 @@ export function compareColors(capture, metadata, configuration, measurement, sco
       if (!properties.has(record.cssProperty)) { reason = 'The declared CSS destination is not a supported single-color paint property; a supplier variable does not prove consumption.'; break; }
       const source = paintOf(node, observation.field);
       if (!source.paint) { reason = source.reason; break; }
-      if (source.paint.opacity !== undefined && source.paint.opacity !== 1) { reason = 'Paint opacity can be implemented through color alpha or separate opacity, for bindings and literals alike; its decomposition is not inferred.'; break; }
       const resolved = observation.kind === 'binding' ? capturedColor(capture, scope, configuration, node, observation.variableId) : { color: source.paint.color };
       if (!resolved.color) { reason = resolved.reason; break; }
+      if (source.paint.opacity !== undefined && source.paint.opacity !== 1) {
+        if (!reflectedVariableAlpha(source.paint, observation, resolved.color)) {
+          reason = 'Paint opacity is not an unambiguous reflection of its bound variable alpha; separate opacity, literals and differing source modes need a specific rendered review.'; break;
+        }
+        reflectedAlpha = true;
+      }
       const value = renderedExpectation('color', resolved.color);
       const rgba = value.comparable && parseComputedColor(value.css);
       if (!rgba) { reason = 'The source paint does not establish a finite sRGB color.'; break; }
@@ -121,6 +136,13 @@ export function compareColors(capture, metadata, configuration, measurement, sco
     if (!part || !Array.isArray(part.elements) || part.count !== part.elements.length) { add(id, 'NOT RUN', 'Computed-color part measurement is missing or malformed.', detail); continue; }
     if (part.count !== 1) { add(id, part.count ? 'NOT COMPARABLE' : 'FAIL', 'Computed color needs one mapped DOM element.', detail); continue; }
     if (records.some(record => record.hidden) && part.elements[0].geometry?.visible !== true) { add(id, 'NOT RUN', 'The behavior paint needs an original readable visible-element measurement.', detail); continue; }
+    if (reflectedAlpha || expected[3] !== 1) {
+      const opacityProperties = ['opacity', ...(['fill', 'stroke'].includes(record.cssProperty) ? [`${record.cssProperty}-opacity`] : [])];
+      const opacities = opacityProperties.map(property => part.elements[0].computed?.[property]);
+      if (opacities.some(opacity => typeof opacity !== 'string' || !opacity.trim())) { add(id, 'NOT RUN', 'Bound alpha requires original computed element and applicable SVG paint opacity.', detail); continue; }
+      if (opacities.some(opacity => Number(opacity) !== 1)) { add(id, 'NOT COMPARABLE', 'Bound alpha is compared inside the CSS color only when element and applicable SVG paint opacity are one; separate opacity composition is not inferred.', detail); continue; }
+      if (reflectedAlpha) detail.alphaSource = 'bound-variable-reflected-in-paint';
+    }
     const css = part.elements[0].computed?.[record.cssProperty];
     if (typeof css !== 'string' || !css.trim()) { add(id, 'NOT RUN', 'Declared computed color property was not recorded.', detail); continue; }
     const measured = parseComputedColor(css);

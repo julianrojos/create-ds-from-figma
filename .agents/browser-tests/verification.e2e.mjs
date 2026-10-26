@@ -127,6 +127,45 @@ test('computed color audit detects a cascade error with correct geometry and use
   assert.equal(existsSync(path.join(root, 'design-system/verification')), false);
 });
 
+test('bound variable alpha is measured once in real Chromium; lost, doubled and separate opacity never pass', async t => {
+  const { root, metadataPath } = createPreviewProject({ runtimeModules: path.join(runtime, 'node_modules') });
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const file = path.join(root, metadataPath), metadata = JSON.parse(readFileSync(file));
+  const original = JSON.parse(readFileSync(path.join(root, metadata.evidence.snapshot))).capture;
+  original.nodes[0].properties.fills = [{ type: 'SOLID', color: { r: 0, g: 0, b: 0 }, opacity: 0.08,
+    boundVariables: { color: { type: 'VARIABLE_ALIAS', id: 'color-id' } } }];
+  const capture = componentCapture({ seeds: original.nodes, rootNodeId: original.source.rootNodeId,
+    collections: [{ id: 'COL', name: 'Colors', defaultModeId: 'Default', modes: [{ modeId: 'Default', name: 'Default' }] }],
+    variables: [{ id: 'color-id', name: 'foreground', type: 'COLOR', collectionId: 'COL', valuesByMode: { Default: { r: 0, g: 0, b: 0, a: 0.08 } } }] });
+  Object.assign(metadata.evidence, persistCapture(root, capture));
+  const observation = capture.observations.find(o => o.node === '1:2' && o.kind === 'binding');
+  metadata.bindings.push({ observation: observation.id, node: 'FILE:1:2', variableId: 'color-id', figmaProperty: observation.field,
+    part: 'root', variant: 'default', cssSelector: '.root', cssProperty: 'background-color', cssVariable: '--ds-color-id' });
+  metadata.verification.stylesheets.push('src/styles/tokens.css');
+  for (const c of metadata.verification.cases) c.modes = { COL: 'Default' };
+  writeFileSync(file, JSON.stringify(metadata));
+  const base = readFileSync(path.join(root, 'src/base.css'), 'utf8');
+  const run = async (color, opacity = 1) => {
+    writeFileSync(path.join(root, 'src/base.css'), base + `\n[data-ds-part="root"]{background-color:${color};opacity:${opacity}}`);
+    const result = await finalizeImport(root, metadataPath, { diagnose: true, browserOptions: { executablePath } });
+    if (result.diagnosis?.directory) t.after(() => rmSync(result.diagnosis.directory, { recursive: true, force: true }));
+    assert.equal(result.diagnosis?.execution.status, 'COMPLETED', JSON.stringify(result));
+    const cases = result.diagnosis.diagnostics.cases;
+    assert.ok(cases.some(c => c.kind === 'behavior'));
+    return cases.map(c => c.checks.find(check => check.id === 'color:root:background-color'));
+  };
+  const correct = await run('rgba(0,0,0,.08)');
+  assert.ok(correct.every(c => c?.status === 'PASS'), JSON.stringify(correct));
+  assert.ok(correct.every(c => c.expected[3] === 0.08));
+  for (const color of ['rgb(0,0,0)', 'rgba(0,0,0,.0064)']) {
+    const wrong = await run(color);
+    assert.ok(wrong.every(c => c?.status === 'FAIL'), JSON.stringify(wrong));
+  }
+  const separate = await run('rgba(0,0,0,.08)', 0.08);
+  assert.ok(separate.every(c => c?.status === 'NOT COMPARABLE'), JSON.stringify(separate));
+  assert.equal(existsSync(path.join(root, 'design-system/verification')), false);
+});
+
 test('native state assertions collect configured states and detect ignored props without publishing diagnostics', async t => {
   const { root, metadataPath } = createPreviewProject({ runtimeModules: path.join(runtime, 'node_modules') });
   t.after(() => rmSync(root, { recursive: true, force: true }));

@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { compareColors, parseComputedColor } from '../lib/color-comparison.mjs';
-import { assertConfirmationChecks } from '../lib/render-comparison.mjs';
+import { assertConfirmationChecks, checkSummary, COMPARATOR_VERSION } from '../lib/render-comparison.mjs';
+import { requirePassed } from '../lib/behavior-evidence.mjs';
 import { componentCapture } from './fixtures/component-capture.mjs';
 import { createPreviewProject } from './fixtures/preview-project.mjs';
 import { persistCapture } from '../../skills/create-ds-from-figma/scripts/figma-capture.mjs';
@@ -9,6 +10,8 @@ import { comparisonReport } from '../../skills/create-ds-from-figma/scripts/veri
 import { renderedArtifacts, syntheticTypographyReviews } from './fixtures/rendered-artifacts.mjs';
 import { readFileSync, rmSync } from 'node:fs';
 import path from 'node:path';
+
+const versioned = checks => ({ policy: 'mapped-layout-v1', comparatorVersion: COMPARATOR_VERSION, checks, summary: checkSummary(checks) });
 
 function fixture() {
   const capture = componentCapture({ rootNodeId: '1:2', seeds: [{ id: '1:2', parentId: null, type: 'COMPONENT', name: 'Color fixture', children: [],
@@ -73,6 +76,89 @@ test('zero or fractional bound paint opacity requires a specific review, never a
   f.node.properties.fills[0].opacity = 1;
   f.measurement.parts.root.elements[0].computed['background-color'] = 'rgb(255, 0, 0)';
   assert.equal(f.checks()[0].status, 'PASS');
+});
+
+test('resolved variable alpha reflected in the paint is compared once, including required behavior', () => {
+  for (const alpha of [0, 0.08, 0.5]) for (const kind of ['fidelity', 'behavior']) {
+    const f = fixture(); f.configuration.kind = kind;
+    f.capture.variables[1].valuesByMode.light.a = alpha;
+    f.node.properties.fills[0].opacity = alpha;
+    const computed = f.measurement.parts.root.elements[0].computed;
+    computed.opacity = '1';
+    computed['background-color'] = `rgba(255, 0, 0, ${alpha})`;
+    let checks = f.checks();
+    assert.equal(checks[0].status, 'PASS');
+    assert.equal(checks[0].expected[3], alpha);
+    assert.equal(checks[0].alphaSource, 'bound-variable-reflected-in-paint');
+    assert.doesNotThrow(() => requirePassed(versioned(checks)));
+    computed['background-color'] = 'rgb(255, 0, 0)';
+    assert.equal(f.checks()[0].status, 'FAIL', 'lost alpha is not an opaque-color PASS');
+    if (alpha > 0) {
+      computed['background-color'] = `rgba(255, 0, 0, ${alpha * alpha})`;
+      checks = f.checks();
+      assert.equal(checks[0].status, 'FAIL', 'variable alpha and reflected paint opacity must not multiply');
+      assert.throws(() => assertConfirmationChecks(versioned(checks), [], []), /Confirmation blocked: color:root:background-color FAIL/);
+      assert.throws(() => requirePassed(versioned(checks)), /Required behavior blocked: color:root:background-color FAIL/);
+    }
+  }
+});
+
+test('reflected alpha requires the original binding, resolved RGB, readable alpha and unit CSS opacity', () => {
+  const make = () => {
+    const f = fixture(); f.capture.variables[1].valuesByMode.light.a = 0.5;
+    f.node.properties.fills[0].opacity = 0.5;
+    Object.assign(f.measurement.parts.root.elements[0].computed, { opacity: '1', 'background-color': 'rgba(255, 0, 0, 0.5)' });
+    return f;
+  };
+  for (const change of [
+    f => { delete f.node.properties.fills[0].boundVariables; },
+    f => { f.node.properties.fills[0].boundVariables.color.id = 'other'; },
+    f => { f.node.properties.fills[0].color.g = 1; },
+    f => { f.node.properties.fills[0].opacity = 0.4; },
+    f => { delete f.capture.variables[1].valuesByMode.light.a; },
+    f => { f.configuration.modes.palette = 'dark'; },
+  ]) { const f = make(); change(f); assert.equal(f.checks()[0].status, 'NOT COMPARABLE'); }
+  for (const opacity of ['0.5', '0', 'invalid']) {
+    const f = make(); f.measurement.parts.root.elements[0].computed.opacity = opacity;
+    assert.equal(f.checks()[0].status, 'NOT COMPARABLE', 'separate opacity must not silently double alpha');
+    assert.throws(() => requirePassed(versioned(f.checks())), /Required behavior blocked:.*NOT COMPARABLE/);
+  }
+  const f = make(); delete f.measurement.parts.root.elements[0].computed.opacity;
+  assert.equal(f.checks()[0].status, 'NOT RUN');
+  assert.throws(() => requirePassed(versioned(f.checks())), /Required behavior blocked:.*NOT RUN/);
+  f.measurement.parts.root.elements[0].computed.opacity = '';
+  assert.equal(f.checks()[0].status, 'NOT RUN');
+  f.measurement.parts.root.elements[0].computed.opacity = '1';
+  f.node.properties.fills[0].opacity = 0.500000001;
+  assert.equal(f.checks()[0].status, 'PASS', 'captured floating-point precision does not add another alpha factor');
+  const paint = f.node.properties.fills[0];
+  f.node.properties.strokes = [paint];
+  f.capture.observations.find(o => o.kind === 'binding').field = 'strokes[0].color';
+  f.metadata.bindings[0].cssProperty = 'border-top-color';
+  f.measurement.parts.root.elements[0].computed['border-top-color'] = 'rgba(255, 0, 0, 0.5)';
+  assert.equal(f.checks()[0].status, 'PASS', 'the rule is not specific to fills or backgrounds');
+  for (const property of ['fill', 'stroke']) {
+    f.metadata.bindings[0].cssProperty = property;
+    const computed = f.measurement.parts.root.elements[0].computed;
+    computed[property] = 'rgba(255, 0, 0, 0.5)';
+    assert.equal(f.checks()[0].status, 'NOT RUN');
+    computed[`${property}-opacity`] = '1';
+    assert.equal(f.checks()[0].status, 'PASS');
+    computed[`${property}-opacity`] = '0.5';
+    assert.equal(f.checks()[0].status, 'NOT COMPARABLE', 'SVG paint opacity must not double the variable alpha');
+  }
+});
+
+test('a mode changing an opaque variable to transparent still requires original unit CSS opacity', () => {
+  const f = fixture();
+  f.node.properties.fills[0].opacity = 1;
+  f.capture.variables[1].valuesByMode.dark = { r: 1, g: 0, b: 0, a: 0.5 };
+  f.configuration.modes.palette = 'dark';
+  const computed = f.measurement.parts.root.elements[0].computed;
+  computed['background-color'] = 'rgba(255, 0, 0, 0.5)';
+  assert.equal(f.checks()[0].status, 'NOT RUN');
+  computed.opacity = '1'; assert.equal(f.checks()[0].status, 'PASS');
+  computed.opacity = '0.5'; assert.equal(f.checks()[0].status, 'NOT COMPARABLE');
 });
 
 test('ambiguous, unsupported and unreadable colors never become a guessed PASS', () => {

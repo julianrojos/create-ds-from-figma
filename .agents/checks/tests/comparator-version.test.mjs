@@ -33,6 +33,7 @@ const versions = {
     'render-comparator-v22': '2231bd9ddf036a7ef90844e86bd55472ecbbdca2c7252bdaf5956d18d8b76120',
     'render-comparator-v23': 'a3ac129d9133612aff547c7cec998f69fdd9f3c3f8f4ad27e1f56ca04cb5911c',
     'render-comparator-v24': 'b372ebe8566a0f9b84ab5e104084974ae0f1f14a2d4bd85497499cb6849cddad',
+    'render-comparator-v25': '501ad3ee2189f7e0873f8b8fb4261495b810c60b785658a11f7cb80dfab3b1af',
   },
   measurement: {
     'measurement-rules-v1': 'c5fc3f91d47851f0db30839789f3dbbf18c3eae6aee8c936342c6a2e93462a99',
@@ -41,6 +42,7 @@ const versions = {
     'measurement-rules-v4': 'fd2f922ee2e2e606ef21276e177b7f599178b05330b23a4a86a8d9b33a83f9e4',
     'measurement-rules-v5': 'b5303c7ed0781e9aac159a9e585ee3b361a4907050346778258c595f3c8b87db',
     'measurement-rules-v6': 'b6b0c6125a5cb5b186cf0fc464c89cea5bff11bd8bfad6be52c8a77cdb62ab9e',
+    'measurement-rules-v7': 'f3f0b375996789f04e5c7e3b8cc7b9f15bf7dc3fe68e0f511a03409eac81f7a7',
   },
 };
 const altered = (entries, suffix, before, after) => {

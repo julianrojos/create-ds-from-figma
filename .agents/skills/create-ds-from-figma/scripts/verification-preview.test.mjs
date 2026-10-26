@@ -45,7 +45,7 @@ test('generated collector scopes parts to the outer component and excludes neste
   const context = { React: { createElement() {} }, createRoot: () => ({ render() {} }), exports: { Example() {} }, URL, TextEncoder,
     location: { href: `http://127.0.0.1/?case=${verification.cases[0].id}` }, window: { addEventListener() {} }, setTimeout, clearTimeout, AbortController,
     document: { getElementById: id => id === 'component' ? target : null, fonts: { ready: Promise.resolve() }, addEventListener() {} },
-    requestAnimationFrame: callback => callback(), getComputedStyle: () => ({ getPropertyValue: () => '' }),
+    requestAnimationFrame: callback => callback(), getComputedStyle: () => ({ getPropertyValue: property => ['opacity', 'fill-opacity', 'stroke-opacity'].includes(property) ? '1' : '' }),
     innerWidth: 640, innerHeight: 480, devicePixelRatio: 1, crypto: webcrypto, console: { error() {} },
     fetch: async (_url, request) => { bodies.push(JSON.parse(new TextDecoder().decode(request.body))); return { ok: true, json: async () => ({ sha256: sha256(request.body), bytes: request.body.length }) }; },
   };
@@ -60,6 +60,9 @@ test('generated collector scopes parts to the outer component and excludes neste
   assert.equal(bodies.at(-1).parts.root.elements[0].geometry.axisAligned, true);
   assert.equal(bodies.at(-1).parts.root.elements[0].geometry.affine2d, true);
   assert.equal(bodies.at(-1).parts.root.count, 1);
+  assert.equal(bodies.at(-1).parts.root.elements[0].computed.opacity, '1');
+  assert.equal(bodies.at(-1).parts.root.elements[0].computed['fill-opacity'], '1');
+  assert.equal(bodies.at(-1).parts.root.elements[0].computed['stroke-opacity'], '1');
   assert.deepEqual(bodies.at(-1).parts.initial.elements.map(e => e.text), ['F']);
   context.getComputedStyle = element => ({ getPropertyValue: property => property === 'transform' && element.part === 'initial' ? 'matrix(0.707,0.707,-0.707,0.707,0,0)' : '' });
   await context.window.__dsVerification.collect();
