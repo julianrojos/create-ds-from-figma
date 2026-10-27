@@ -83,6 +83,9 @@ when running `compare` manually. All required behavior checks must still PASS.
    Follow exact variantClassification and recorded modeScopes; activate states
    through actual control paths. Validate each part's marker and CSS class on
    the same DOM element. Check intrinsic dimensions with admitted alternate content.
+   For compact CSS bindings, also match the recorded selector context against that
+   element in the actual case. A conditional written-identity PASS does not prove
+   that its classes, sibling relationships or native states exist in the DOM.
 5. Verify every binding's expected value independently from the rendered element,
    resolving aliases with each collection's active mode and recorded serialization.
    Do not compare two values read from the same potentially overridden element.

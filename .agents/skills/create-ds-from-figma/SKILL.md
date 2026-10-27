@@ -128,6 +128,10 @@ Aplica `.agents/rules/design-system.md` al leer o modificar el DS o `src/`.
   Nunca lo edites a mano ni resumas en tres buckets.
 - Prepara dimensiones, recursos, casos, decisiones y correspondencias candidatas;
   usa `apply` con el resto del DS coherente. No presentes candidatas como confirmadas.
+- Factoriza los estilos comunes y expresa solo las diferencias por tono y estado;
+  no copies todas las declaraciones por variante para satisfacer un check estático.
+  Conserva el mapeo de cada observación y comprueba las combinaciones declaradas
+  con estados nativos reales. Un análisis CSS no evaluado no obliga a duplicar CSS.
 - Para texto opcional inicialmente oculto, conserva su ausencia en fidelity.
   Un behavior puede revelar el texto con una expectativa propia y servir como
   `measurementBaseline` de otro behavior con contenido alternativo. Ambos conservan

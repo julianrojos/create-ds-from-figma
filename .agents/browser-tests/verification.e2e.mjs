@@ -4,6 +4,9 @@ import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { test } from 'node:test';
+import postcss from 'postcss';
+import { bindingCascade } from '../checks/lib/binding-cascade.mjs';
+import { compactCss, compactCases, compactTokens, escapedCssCases } from '../checks/tests/fixtures/compact-control.mjs';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { createServer } from 'node:net';
@@ -30,6 +33,73 @@ const executablePath = playwright.chromium.executablePath();
 if (!existsSync(executablePath)) throw new Error('Locked Chromium binary missing. Run npm run test:browser:setup. The real-browser regression is required, not skipped.');
 const output = path.join(repoRoot, 'test-results/browser');
 mkdirSync(output, { recursive: true });
+
+test('compact binding cascade agrees with native Chromium states and detects a wrong combination priority', async () => {
+  const browser = await playwright.chromium.launch({ executablePath, headless: true });
+  try {
+    const page = await browser.newPage();
+    const colors = {
+      '--example-surface': 'rgb(10, 20, 30)', '--example-hover': 'rgb(40, 50, 60)',
+      '--example-selected': 'rgb(70, 80, 90)', '--example-disabled': 'rgb(100, 110, 120)',
+      '--example-magic': 'rgb(130, 140, 150)',
+    };
+    const resolve = (css, c) => bindingCascade(postcss.parse(css), c.selector, 'background-color', '.disc',
+      new Set(Object.values(compactTokens)), (a, b) => a === b || a === 'background' || a === 'all');
+    const render = async (css, c) => {
+      await page.setContent(`<style>${css}</style><style>:root{${Object.entries(colors).map(([k, v]) => `${k}:${v}`).join(';')}}
+        .input,.disc{width:24px;height:24px;display:inline-block}</style>
+        <div class="root ${c.magic ? 'magic' : ''}"><input type="checkbox" class="input" ${c.checked ? 'checked' : ''} ${c.disabled ? 'disabled' : ''}><span class="disc"></span></div>`, { waitUntil: 'networkidle' });
+      if (c.hover) await page.locator('.input').hover();
+      else await page.mouse.move(500, 400);
+      assert.equal(await page.locator(c.selector).count(), 1, c.selector);
+      return page.locator('.disc').evaluate(node => getComputedStyle(node).backgroundColor);
+    };
+    for (const c of compactCases) {
+      assert.equal(await render(compactCss, c), colors[c.expected]);
+      assert.equal(resolve(compactCss, c).token, c.expected);
+    }
+    const c = compactCases.find(c => c.id === 'selected-hover');
+    const broken = compactCss + '\n.input:hover + .disc{--control-paint:var(--example-hover)}';
+    assert.equal(await render(broken, c), colors[compactTokens.hover]);
+    assert.notEqual(resolve(broken, c).token, c.expected);
+    assert.ok(resolve(compactCss, { selector: '.input + .disc' }).reason);
+    const imported = '@import url("data:text/css,.disc%7B--control-paint%3Avar(--example-hover)%20!important%7D");' + compactCss;
+    const idle = compactCases.find(c => c.id === 'idle');
+    assert.equal(await render(imported, idle), colors[compactTokens.hover]);
+    assert.match(resolve(imported, idle).reason, /@import dependencies not evaluated/);
+    for (const escaped of escapedCssCases) {
+      assert.equal(await render(escaped.css, idle), colors[compactTokens.hover], escaped.id);
+      assert.match(resolve(escaped.css, idle).reason, /Escaped CSS syntax not evaluated/, escaped.id);
+    }
+  } finally { await browser.close(); }
+});
+
+test('binding selector relationships and negations agree with Chromium without assuming a closed ancestor tree', async () => {
+  const browser = await playwright.chromium.launch({ executablePath, headless: true });
+  try {
+    const page = await browser.newPage();
+    const base = '.disc{background-color:var(--example-surface)}';
+    const cases = [
+      { rule: '.input .disc', context: '.input + .disc', html: '<div class="input"></div><span class="disc"></span>', expected: 'idle' },
+      { rule: '.input > .disc', context: '.input + .disc', html: '<div class="input"></div><span class="disc"></span>', expected: 'idle' },
+      { rule: '.input + .disc', context: '.input > .disc', html: '<div class="input"><span class="disc"></span></div>', expected: 'idle' },
+      { rule: '.magic .disc', context: '.root:not(.magic) > .input + .disc', html: '<section class="magic"><div class="root"><div class="input"></div><span class="disc"></span></div></section>', expected: 'hover' },
+      { rule: '.disc:not(.magic)', context: '.disc.magic', html: '<span class="disc magic"></span>', expected: 'idle', proven: true },
+      { rule: '.disc:not(.magic)', context: '.disc:not(.magic)', html: '<span class="disc"></span>', expected: 'hover', proven: true },
+    ];
+    for (const c of cases) {
+      const css = base + `${c.rule}{background-color:var(--example-hover)}`;
+      await page.setContent(`<style>:root{--example-surface:rgb(10,20,30);--example-hover:rgb(40,50,60)}${css}</style>${c.html}`);
+      assert.equal(await page.locator(c.context).count(), 1, c.context);
+      const painted = await page.locator('.disc').evaluate(node => getComputedStyle(node).backgroundColor);
+      assert.equal(painted, c.expected === 'idle' ? 'rgb(10, 20, 30)' : 'rgb(40, 50, 60)', c.context);
+      const result = bindingCascade(postcss.parse(css), c.context, 'background-color', '.disc',
+        new Set(Object.values(compactTokens)), (a, b) => a === b || a === 'background' || a === 'all');
+      if (c.proven) assert.equal(result.token, compactTokens[c.expected], c.context);
+      else assert.ok(result.reason, c.context);
+    }
+  } finally { await browser.close(); }
+});
 
 test('initially hidden optional text uses a visible behavior reference in real Chromium without skipping dimensions', async t => {
   const { root, metadataPath } = createPreviewProject({ runtimeModules: path.join(runtime, 'node_modules') });

@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import postcss from "postcss";
 import selectorParser from "postcss-selector-parser";
+import { bindingCascade, bindingSyntaxProblem } from './lib/binding-cascade.mjs';
 
 const readJson = (root, relative) => JSON.parse(readFileSync(path.join(root, relative), "utf8"));
 const directClass = /^(?:\.[A-Za-z_][\w-]*)+$/;
@@ -128,6 +129,7 @@ export function report(root, componentName) {
   for (const entry of Object.values(map).filter((item) => item?.name && (!componentName || item.name === componentName))) {
     const metadata = readJson(root, entry.designSystem.metadata);
     const css = postcss.parse(readFileSync(path.join(root, entry.code.style), "utf8"));
+    const syntaxProblem = bindingSyntaxProblem(css);
     const localCustomProperties = new Set();
     css.walkDecls((decl) => {
       if (decl.prop.startsWith("--")) localCustomProperties.add(decl.prop);
@@ -149,7 +151,35 @@ export function report(root, componentName) {
           advisories.push({ ...result, status: "ADVISORY", type: "advisory",
             reason: `binds ${names.get(record.variableId)} from the primitive collection ${localCollections.get(record.variableId)} directly; Figma's binding is mirrored, so this only suggests checking whether a semantic variable exists for the role` });
         }
+        if (syntaxProblem) {
+          results.push({ ...result, status: 'NOT_RUN', writtenStatus: 'NOT_RUN', reason: syntaxProblem });
+          continue;
+        }
         const found = declaration(css, record.cssSelector, record.cssProperty, metadata.parts?.[record.part]?.selector);
+        const alias = directVar.exec(found.value || '')?.[1];
+        if (type === 'binding' && (!directClass.test(record.cssSelector) ||
+            found.reason && localCustomProperties.size > 0 ||
+            alias && localCustomProperties.has(alias) && alias !== names.get(record.variableId))) {
+          const expected = names.get(record.variableId);
+          if (!expected || !definedNames.has(expected)) {
+            results.push({ ...result, status: 'FAIL', writtenStatus: 'FAIL', reason: `variable ${record.variableId} has no defined CSS custom property` });
+            continue;
+          }
+          const resolved = bindingCascade(css, record.cssSelector, record.cssProperty,
+            metadata.parts?.[record.part]?.selector, definedNames, mayAffect);
+          if (resolved.reason) {
+            results.push({ ...result, status: 'NOT_RUN', writtenStatus: 'NOT_RUN', reason: resolved.reason });
+          } else {
+            const matches = resolved.token === expected;
+            for (const resolvedDeclaration of resolved.declarations) covered.add(`${resolvedDeclaration.selector}\u0000${resolvedDeclaration.property}`);
+            results.push({ ...result, status: matches ? record.modeOverride ? 'NOT_RUN' : 'PASS' : 'FAIL',
+              writtenStatus: matches ? 'PASS' : 'FAIL', expected: `var(${expected})`, actual: `var(${resolved.token})`,
+              chain: resolved.chain, declarations: resolved.declarations,
+              scope: 'Written token identity under the recorded selector context; DOM applicability and paint require rendered verification.',
+              ...(record.modeOverride ? { reason: 'forced Figma mode not evaluated' } : {}) });
+          }
+          continue;
+        }
         if (found.reason) {
           results.push({ ...result, status: "NOT_RUN", writtenStatus: "NOT_RUN", reason: found.reason });
           continue;

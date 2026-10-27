@@ -6,6 +6,7 @@
 
 - `node .agents/checks/verify-ds.mjs` passes, including the comparison of `src/styles/tokens.css` with the generated output. Its structural PASS alone does not complete this manual check; review pending-variable and mode warnings too.
 - Each binding and measured literal has matching written identity in `verify-bindings.mjs`; its static limits are reviewed as required by `.agents/skills/validate-ds/SKILL.md`.
+- Compact bindings may resolve same-element local variable chains under an explicit selector context, including supported native-state combinations. Verify that context on the actual painted part; a static PASS establishes neither DOM applicability nor visible paint. Common styles need not be duplicated per Figma variant.
 - Browser `getComputedStyle` matches independently derived expectations for each applicable binding, variant, state and combination of collection modes, following `.agents/skills/validate-ds/SKILL.md`. Expectations use the recorded FLOAT serialization and each alias target's own active collection mode, not a custom property read from the same component element.
 - The rendered review records how the decided mode scopes were activated and how overlapping scopes affected the cascade. Static mode-block checks do not prove effective browser values.
 - Literals used where Figma has no variable binding are observed and recorded in `measuredLiterals`; approximate translations pass their applicable computed or contextual comparison, not just written CSS identity.
@@ -24,7 +25,9 @@
 ## NOT RUN
 
 - A binding uses a selector, CSS construct or forced Figma mode the analyser does not support. Keep it in the report for manual review; do not count it as PASS.
-- The component stylesheet redefines a bound custom property or contains another declaration that may affect the bound property; static analysis cannot prove the effective value.
+- Escaped syntax in the component stylesheet prevents direct and local-chain written-identity proofs. Do not treat escaped property/token names as unrelated declarations or an escaped import as absent; use rendered review. Standalone comments are not syntax for this restriction.
+- A descendant selector could match an unspecified outer ancestor, or relevant media/layer/keyframe rules cannot be resolved. This is missing static proof, not evidence that the component CSS is wrong; native-state and computed-value checks remain required.
+- The component stylesheet redefines a project token, or a relevant declaration/variable chain cannot be resolved within the supported selector context. Unknown conditions and inherited local values are not proof of absence or a PASS.
 - Browser computed-style comparison was not performed or lacks a measured mode, unit or state; do not promote a static PASS to overall conformance.
 - A required code-value correspondence, mode scope or serialization decision remains unresolved. Unused pending variables are listed as NOT VERIFIED, never as verified merely because the structural check passes.
 - An approximate literal lacks its applicable computed or contextual comparison, or an external mode lacks fresh Figma evidence.

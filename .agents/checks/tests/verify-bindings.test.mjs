@@ -6,6 +6,7 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { report, structuredReport } from "../verify-bindings.mjs";
+import { compactCss, compactCases, compactTokens, escapedCssCases } from './fixtures/compact-control.mjs';
 
 const roots = [];
 const write = (root, relative, data) => {
@@ -46,11 +47,73 @@ const fixture = () => {
 
 test.after(() => roots.forEach((root) => rmSync(root, { recursive: true, force: true })));
 
-test("exact direct bindings pass, wrong token fails, hover stays not evaluated", () => {
+test("exact direct bindings and an explicit hover context pass, wrong token fails", () => {
   const results = report(fixture());
   assert.deepEqual(results.map(({ component, status }) => `${component}:${status}`),
-    ["ExampleComponent:PASS", "ExampleComponent:PASS", "SecondExampleComponent:FAIL", "SecondExampleComponent:NOT_RUN"]);
+    ["ExampleComponent:PASS", "ExampleComponent:PASS", "SecondExampleComponent:FAIL", "SecondExampleComponent:PASS"]);
   assert.equal(results[2].expected, "var(--example-surface)");
+});
+
+test('compact bindings resolve native combinations and local tone variables without duplicating declarations', () => {
+  const root = fixture(), relative = 'design-system/components/ExampleComponent/metadata.json';
+  write(root, 'src/styles/tokens.css', `:root{${Object.values(compactTokens).map(name => `${name}:red`).join(';')}}`);
+  write(root, 'design-system/tokens/Color.json', { variables: Object.fromEntries(Object.entries(compactTokens).map(([id, cssName]) => [id, { id, cssName }])) });
+  const metadata = { parts: { disc: { selector: '.disc' } }, bindings: compactCases.map(c => ({
+    part: 'disc', variant: c.id, cssSelector: c.selector, cssProperty: 'background-color',
+    variableId: Object.keys(compactTokens).find(id => compactTokens[id] === c.expected),
+  })) };
+  write(root, relative, metadata);
+  write(root, 'src/components/ExampleComponent/ExampleComponent.module.css', compactCss);
+  const bindings = () => report(root, 'ExampleComponent').filter(r => r.type === 'binding');
+  assert.ok(bindings().every(r => r.status === 'PASS'), JSON.stringify(bindings()));
+  assert.ok(bindings().every(r => r.scope.includes('DOM applicability')));
+  write(root, 'src/components/ExampleComponent/ExampleComponent.module.css', compactCss + '\n.input:hover + .disc{--control-paint:var(--example-hover)}');
+  const broken = bindings().find(r => r.variant === 'selected-hover');
+  assert.equal(broken.status, 'FAIL');
+  assert.equal(broken.actual, 'var(--example-hover)');
+  write(root, 'src/components/ExampleComponent/ExampleComponent.module.css', compactCss.replace('--example-magic', '--example-selected'));
+  assert.equal(bindings().find(r => r.variant === 'magic').status, 'FAIL');
+  metadata.bindings[0].cssSelector = '.input + .disc';
+  write(root, relative, metadata);
+  assert.equal(bindings()[0].status, 'NOT_RUN');
+});
+
+test('a local alias on a direct part is resolved, but forced modes and undefined tokens are not approved', () => {
+  const root = fixture(), file = 'design-system/components/ExampleComponent/metadata.json';
+  const metadata = JSON.parse(readFileSync(path.join(root, file)));
+  metadata.bindings = [metadata.bindings[0]];
+  write(root, file, metadata);
+  write(root, 'src/components/ExampleComponent/ExampleComponent.module.css', '.root{--local:var(--example-surface);background-color:var(--local)}');
+  assert.equal(report(root, 'ExampleComponent')[0].status, 'PASS');
+  write(root, 'src/components/ExampleComponent/ExampleComponent.module.css', '@import "./theme.css";.root{--local:var(--example-surface);background-color:var(--local)}');
+  assert.equal(report(root, 'ExampleComponent')[0].status, 'NOT_RUN');
+  assert.match(report(root, 'ExampleComponent')[0].reason, /@import dependencies not evaluated/);
+  write(root, 'src/components/ExampleComponent/ExampleComponent.module.css', '.root{--local:var(--example-surface);background-color:var(--local)}');
+  metadata.bindings[0].cssSelector = '.root.active';
+  write(root, file, metadata);
+  assert.equal(report(root, 'ExampleComponent')[0].status, 'PASS');
+  metadata.bindings[0].modeOverride = { collectionId: 'Color', modeName: 'Dark' };
+  write(root, file, metadata);
+  assert.equal(report(root, 'ExampleComponent')[0].status, 'NOT_RUN');
+  metadata.bindings[0].variableId = 'nonexistent';
+  write(root, file, metadata);
+  assert.equal(report(root, 'ExampleComponent')[0].status, 'FAIL');
+});
+
+test('escaped syntax cannot bypass either the direct or local-chain binding report', () => {
+  const root = fixture(), file = 'src/components/ExampleComponent/ExampleComponent.module.css';
+  for (const c of escapedCssCases) {
+    for (const direct of [false, true]) {
+      let css = c.css.replaceAll('.disc', '.root');
+      if (direct) css = css.replace('background-color:var(--local)', 'background-color:var(--example-surface)');
+      write(root, file, css);
+      const result = report(root, 'ExampleComponent')[0];
+      assert.equal(result.status, 'NOT_RUN', `${c.id}, direct=${direct}`);
+      assert.match(result.reason, /Escaped CSS syntax not evaluated/);
+    }
+  }
+  write(root, file, String.raw`.root{/* back\67round-color:red */background-color:var(--example-surface)}`);
+  assert.equal(report(root, 'ExampleComponent')[0].status, 'PASS');
 });
 
 test("measured literals are exact and unrecorded literals are findings", () => {
