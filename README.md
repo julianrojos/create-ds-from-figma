@@ -22,6 +22,8 @@ El preanálisis resuelve variantes, todas las colecciones locales y componentes 
 
 Para el siguiente componente, proporciona otra URL. Repetir una URL no autoriza una actualización general. Las pantallas se construyen cuando existen los componentes necesarios. El [procedimiento de implementación](.agents/skills/create-ds-from-figma/references/import-implementation.md) describe el árbol generado y la integración con el manifiesto existente.
 
+Antes de actualizar un componente existente, puedes generar un [informe de actualización de solo lectura](.agents/skills/create-ds-from-figma/references/import-preanalysis.md#actualización-solicitada) con `report-component-update.mjs`: muestra diferencias, vigencia de evidencia y consumidores identificados; no aplica cambios ni acredita fidelidad visual.
+
 ## Estructura y contratos
 
 | Ruta | Contenido |
