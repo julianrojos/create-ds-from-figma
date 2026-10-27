@@ -13,6 +13,7 @@ import { createServer } from 'node:net';
 import { browserRuntime, repoRoot } from '../scripts/test-kit.mjs';
 import { classify as classifyClosureCheck } from '../scripts/verify-all.mjs';
 import { createPreviewProject } from '../checks/tests/fixtures/preview-project.mjs';
+import { standardRemovalProject } from '../checks/tests/fixtures/standard-removal-project.mjs';
 import { runBrowserVerification, browserVerificationExitCode } from '../skills/create-ds-from-figma/scripts/verification-browser.mjs';
 import { renderRequirements, sha256 } from '../checks/lib/render-plan.mjs';
 import { componentCapture } from '../checks/tests/fixtures/component-capture.mjs';
@@ -23,6 +24,7 @@ import { finalizeImport } from '../skills/create-ds-from-figma/scripts/finalize-
 import { diagnoseComposition } from '../skills/create-ds-from-figma/scripts/lib/composition-browser.mjs';
 import { compositionFixture } from '../checks/tests/fixtures/composition-fixture.mjs';
 import { diagnosisActions } from '../checks/lib/diagnosis-actions.mjs';
+import { planRemoval, archiveRemoval, restoreRemoval } from '../checks/lib/component-removal.mjs';
 import { createDelegationProject } from '../checks/tests/fixtures/delegation-project.mjs';
 import { renderTokensCss } from '../checks/lib/tokens-css.mjs';
 import { activateBrowserCase, collectBrowserCase } from '../skills/create-ds-from-figma/scripts/lib/browser-actions.mjs';
@@ -33,6 +35,30 @@ const executablePath = playwright.chromium.executablePath();
 if (!existsSync(executablePath)) throw new Error('Locked Chromium binary missing. Run npm run test:browser:setup. The real-browser regression is required, not skipped.');
 const output = path.join(repoRoot, 'test-results/browser');
 mkdirSync(output, { recursive: true });
+
+test('recoverable component removal with its standard barrel runs the real import gate without approving historical evidence', async () => {
+  const fixture = standardRemovalProject(createPreviewProject());
+  const archives = mkdtempSync(path.join(os.tmpdir(), 'browser-removal-'));
+  try {
+    mkdirSync(path.join(fixture.root, '.agents'));
+    writeFileSync(path.join(fixture.root, '.agents/prop-vocabulary.json'), readFileSync(path.join(repoRoot, '.agents/prop-vocabulary.json')));
+    const original = readFileSync(path.join(fixture.root, fixture.metadataPath));
+    const gate = root => verifyImports(root, { applicationOptions: { playwright, executablePath } });
+    const plan = planRemoval(fixture.root, fixture.metadataPath);
+    const result = await archiveRemoval(fixture.root, plan, { archiveRoot: archives, approved: true, verifyGate: gate });
+    assert.equal(result.validation.imports.status, 'PASS', JSON.stringify(result.validation));
+    assert.equal(result.delivery, 'AUTOMATED_CHECKS_PASSED');
+    assert.ok(!existsSync(path.join(fixture.root, fixture.barrel)));
+    assert.ok(existsSync(path.join(fixture.root, 'design-system/tokens/Colors.json')));
+    const restored = await restoreRemoval(fixture.root, result.archive, { approved: true, verifyGate: gate });
+    assert.deepEqual(readFileSync(path.join(fixture.root, fixture.metadataPath)), original);
+    assert.equal(readFileSync(path.join(fixture.root, fixture.barrel), 'utf8'), 'export { PreviewGlyph } from "./PreviewGlyph";\n');
+    assert.notEqual(restored.validation.status, 'PASS', 'The fixture has no confirmed fidelity; restoration must not manufacture it');
+  } finally {
+    rmSync(fixture.root, { recursive: true, force: true });
+    rmSync(archives, { recursive: true, force: true });
+  }
+});
 
 test('compact binding cascade agrees with native Chromium states and detects a wrong combination priority', async () => {
   const browser = await playwright.chromium.launch({ executablePath, headless: true });
