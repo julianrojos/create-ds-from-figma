@@ -1,7 +1,8 @@
 import { mkdtempSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { verify, markdownProse } from '../../../checks/verify-ds.mjs';
+import { verify } from '../../../checks/verify-ds.mjs';
+import { markdownProse } from '../../../checks/lib/markdown-prose.mjs';
 import { verifyImports } from '../../../checks/verify-imports.mjs';
 import { readCorrespondences, verifyCorrespondences } from '../../../checks/lib/correspondences.mjs';
 import { projectFile } from '../../../checks/lib/render-plan.mjs';

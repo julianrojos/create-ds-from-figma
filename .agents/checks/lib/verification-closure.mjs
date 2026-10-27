@@ -11,7 +11,7 @@ import { mappedComponentsOf } from '../verify-figma-evidence.mjs';
 import { verifyIntrinsicCss } from './intrinsic-css.mjs';
 import { verifyTokenStyles } from './token-styles.mjs';
 import { verifyCorrespondences } from './correspondences.mjs';
-import { markdownProse } from '../verify-ds.mjs';
+import { markdownProse } from './markdown-prose.mjs';
 import { collectCssDiagnostics } from './css-diagnostics.mjs';
 import { renderDiagnostics } from './render-diagnostics.mjs';
 import { evidenceSessionFor } from './evidence-session.mjs';

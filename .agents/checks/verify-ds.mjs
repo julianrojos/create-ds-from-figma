@@ -17,6 +17,7 @@ import { verifyCorrespondences, correspondenceSummary } from './lib/corresponden
 import { evidenceSessionFor } from './lib/evidence-session.mjs';
 import { createDependencySession } from './lib/local-dependencies.mjs';
 import { caseNodes } from './lib/render-comparison.mjs';
+import { markdownProse } from './lib/markdown-prose.mjs';
 
 const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 const isText = (value) => typeof value === "string" && value.trim().length > 0;
@@ -57,30 +58,6 @@ function placeholderPaths(value, trail = "metadata") {
   if (Array.isArray(value)) return value.flatMap((item, index) => placeholderPaths(item, `${trail}[${index}]`));
   if (isObject(value)) return Object.entries(value).flatMap(([key, item]) => placeholderPaths(item, `${trail}.${key}`));
   return [];
-}
-// The prose of a markdown file: HTML comments, fenced blocks (``` or ~~~), indented blocks and code spans are blanked,
-// keeping line numbers, because code may show <Component /> freely.
-export function markdownProse(markdown, { keepInlineCode = false } = {}) {
-  const lines = markdown.replace(/<!--[\s\S]*?-->/g, (comment) => comment.replace(/[^\n]/g, "")).split("\n");
-  let fence = null;
-  let previousBlankOrCode = true;
-  return lines.map((line) => {
-    if (fence) {
-      const close = line.match(/^ {0,3}(`{3,}|~{3,})\s*$/);
-      if (close && close[1][0] === fence[0] && close[1].length >= fence.length) fence = null;
-      previousBlankOrCode = true;
-      return "";
-    }
-    const open = line.match(/^ {0,3}(`{3,}|~{3,})/);
-    if (open) {
-      fence = open[1];
-      previousBlankOrCode = true;
-      return "";
-    }
-    if (/^(?: {4}|\t)/.test(line) && previousBlankOrCode && line.trim()) return "";
-    previousBlankOrCode = !line.trim();
-    return keepInlineCode ? line : line.replace(/(`+)(?:(?!\1).)+?\1/g, "");
-  });
 }
 function usagePlaceholders(markdown) {
   const found = [];
