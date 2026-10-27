@@ -24,6 +24,8 @@ Para el siguiente componente, proporciona otra URL. Repetir una URL no autoriza 
 
 Antes de actualizar un componente existente, puedes generar un [informe de actualización de solo lectura](.agents/skills/create-ds-from-figma/references/import-preanalysis.md#actualización-solicitada) con `report-component-update.mjs`: muestra diferencias, vigencia de evidencia y consumidores identificados; no aplica cambios ni acredita fidelidad visual.
 
+Para retirar un componente, sigue el [procedimiento de retirada recuperable](.agents/workflows/inspect-component-removal.md): informe de solo lectura, plan revisable, archivado con respaldo externo y restauración sin sobrescribir cambios posteriores. Cada ejecución requiere autorización sobre su plan; los recursos compartidos y la evidencia histórica se conservan.
+
 ## Estructura y contratos
 
 | Ruta | Contenido |
@@ -31,7 +33,7 @@ Antes de actualizar un componente existente, puedes generar un [informe de actua
 | [AGENTS.md](AGENTS.md) | Restricciones y obligaciones generales |
 | [.agents/skills/](.agents/skills/) | Importación, búsqueda, mapeo y validación del DS |
 | [.agents/rules/](.agents/rules/) | Reglas de código, composición y accesibilidad |
-| [.agents/workflows/](.agents/workflows/) | Construcción de pantallas y cierre por perfiles |
+| [.agents/workflows/](.agents/workflows/) | Pantallas, cierre por perfiles e inspección de retiradas |
 | [.agents/checks/](.agents/checks/) | Verificadores y checks manuales |
 | [.agents/checks/tests/](.agents/checks/tests/) | Regresiones y fixtures sintéticos |
 | [.agents/evals/](.agents/evals/) | Casos, procedimientos y resultados de evaluación de instrucciones |
