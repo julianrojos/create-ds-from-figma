@@ -22,15 +22,42 @@ export function manifest(root) {
   }
   walk(); return entries;
 }
-const ruleKinds = new Set(['no-project-writes', 'tree-unchanged', 'no-confirmation', 'outcome', 'diagnosis-executed']);
+const ruleKinds = new Set(['no-project-writes', 'tree-unchanged', 'no-confirmation', 'outcome', 'diagnosis-executed', 'type-decision']);
+const outcomeValues = new Set(['blocked','reuse','diagnosed','preanalysis-continued']);
+const typeReasons = { COMPONENT: 'type-accepted', COMPONENT_SET: 'type-accepted', INSTANCE: 'type-accepted', FRAME: 'frame-confirmed', unknown: 'type-undetermined' };
+export function validTypeDecision(value) {
+  return !!value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).sort().join(',') === 'nodeType,reason' && Object.hasOwn(typeReasons, value.nodeType) && value.reason === typeReasons[value.nodeType];
+}
+const typeDeliveryText = {
+  COMPONENT: 'Tipo confirmado: COMPONENT. Continúa el preanálisis; no se ha escrito el proyecto.',
+  COMPONENT_SET: 'Tipo confirmado: COMPONENT_SET. Continúa el preanálisis; no se ha escrito el proyecto.',
+  INSTANCE: 'Tipo confirmado: INSTANCE. Continúa el preanálisis; no se ha escrito el proyecto.',
+  FRAME: 'DS_GAP: FRAME confirmado. El nodo no es importable; no se ha escrito el proyecto.',
+  unknown: 'DS_GAP: tipo no determinado. Fuente intentada: query figma-type (Plugin API sintética). Causa: el fixture devolvió unavailable. No se ha escrito el proyecto.',
+};
+export function renderTypeDecision(value) { return validTypeDecision(value) ? typeDeliveryText[value.nodeType] : null; }
+export function renderObservedType(nodeType) {
+  if (nodeType === null) return renderTypeDecision({ nodeType: 'unknown', reason: 'type-undetermined' });
+  if (!Object.hasOwn(typeReasons, nodeType) || nodeType === 'unknown') return null;
+  return renderTypeDecision({ nodeType, reason: typeReasons[nodeType] });
+}
 export function validateCase(c) {
   if (!c || !/^[a-z][a-z0-9-]+$/.test(c.id) || c.fixture !== 'preview-project' || typeof c.prompt !== 'string' || !c.inputs || !Array.isArray(c.rules) || !c.rules.length) throw new Error('Invalid behavior case');
   for (const r of c.rules) {
     if (!ruleKinds.has(r.kind)) throw new Error(`Unknown behavior rule: ${r.kind}`);
-    const allowed = r.kind === 'outcome' ? ['kind','value'] : r.kind === 'diagnosis-executed' ? ['kind','metadata'] : ['kind'];
+    const allowed = r.kind === 'outcome' ? ['kind','value'] : r.kind === 'diagnosis-executed' ? ['kind','metadata'] : r.kind === 'type-decision' ? ['kind','nodeType','reason'] : ['kind'];
     if (Object.keys(r).some(k => !allowed.includes(k))) throw new Error('Unknown rule parameter');
-    if (r.kind === 'outcome' && !['blocked','reuse','diagnosed'].includes(r.value)) throw new Error('Unknown outcome');
+    if (r.kind === 'outcome' && !outcomeValues.has(r.value)) throw new Error('Unknown outcome');
     if (r.kind === 'diagnosis-executed') safeRelative(r.metadata);
+    if (r.kind === 'type-decision' && !validTypeDecision({ nodeType: r.nodeType, reason: r.reason })) throw new Error('Invalid type decision rule');
+  }
+  if (c.rules.some(r => r.kind === 'type-decision')) {
+    const xml = c.inputs.metadataXml;
+    const setLike = typeof xml === 'string' && /^<frame\s/.test(xml) && xml.includes('<symbol ') && xml.endsWith('</frame>');
+    const leaf = typeof xml === 'string' && /^<(symbol|instance)\s[^>]*\/\s*>$/.test(xml);
+    if (!setLike && !leaf) throw new Error('Invalid synthetic metadata fixture');
+    const expected = c.rules.find(r => r.kind === 'type-decision').nodeType;
+    if (c.inputs.pluginNodeType !== (expected === 'unknown' ? null : expected)) throw new Error('Synthetic type fixture contradicts rule');
   }
   return c;
 }
@@ -80,6 +107,7 @@ export function validateQuery(operation, args) {
   if (operation === 'files' && args.length === 0) return 'project';
   if (operation === 'guidance' && args.length >= 1 && args.every(a => /^[a-z][a-z0-9-]*$/.test(a))) return 'instructions';
   if (operation === 'static' && args.length === 1 && ['ds','props','bindings'].includes(args[0])) return 'project';
+  if (operation === 'figma-type' && args.length === 0) return 'fixture';
   throw new Error('Unknown structured query');
 }
 function queryResultValid(e) {
@@ -89,6 +117,7 @@ function queryResultValid(e) {
   if (!r || typeof r !== 'object' || Array.isArray(r)) return false;
   if (e.operation === 'files') return validManifest(r.entries);
   if (e.operation === 'guidance') return r.schemaVersion === 1 && Array.isArray(r.phases) && r.phases.length === 1 && r.phases[0] === e.args[0] && Array.isArray(r.features) && digest(r.features) === digest(e.args.slice(1)) && Array.isArray(r.excerpts) && r.excerpts.every(x => typeof x?.file === 'string' && typeof x?.text === 'string') && /^[a-f0-9]{64}$/.test(r.sourceHash) && Number.isSafeInteger(r.stats?.selectedBytes);
+  if (e.operation === 'figma-type') return r.schemaVersion === 1 && r.source === 'synthetic-plugin-api' && (r.nodeType === null ? r.status === 'unavailable' : ['COMPONENT','COMPONENT_SET','INSTANCE','FRAME'].includes(r.nodeType) && r.status === 'resolved');
   if (e.operation === 'static') {
     if (e.args[0] !== 'bindings') return Array.isArray(r.errors) && r.errors.every(x => typeof x === 'string') && (e.args[0] !== 'ds' || Array.isArray(r.warnings));
     return r.schemaVersion === 1 && Array.isArray(r.results) && r.counts && ['PASS','FAIL','NOT_RUN','ADVISORY'].every(k => Number.isSafeInteger(r.counts[k]) && r.counts[k] === r.results.filter(x => x?.status === k).length);
@@ -107,10 +136,12 @@ export function scoreBehavior(run, c, { root = repoRoot, expectedInstructionHash
   const capabilities = { read: ['read'], edit: ['write'], query: ['read'], exec: ['execute','unknown'] };
   if (!inventory.length || new Set(inventory.map(t => t?.name)).size !== inventory.length || inventory.some(t => !t || !Object.hasOwn(capabilities, t.name) || !Array.isArray(t.effects) || capabilities[t.name].some(effect => !t.effects.includes(effect)) || t.effects.some(effect => !capabilities[t.name].includes(effect)))) addMissing('Missing or unknown tool inventory');
   if (run?.recording?.complete !== true || run.recording.gaps !== 0) addMissing('Recording incomplete or contains declared gaps');
-  if (run?.started !== true || run?.finished !== true || !run?.final || typeof run.final.finalText !== 'string' || typeof run.final.confirmed !== 'boolean') addMissing('Missing start, closure or structured final result');
+  const typeCase = c.rules.some(r => r.kind === 'type-decision');
+  if (run?.started !== true || run?.finished !== true || !run?.final || (!typeCase && typeof run.final.finalText !== 'string') || typeof run.final.confirmed !== 'boolean') addMissing('Missing start, closure or structured final result');
+  if (typeCase && run?.final && Object.keys(run.final).some(key => !['status','confirmed','typeDecision'].includes(key))) violations.push('Type trace contains an unexpected final field');
   const beforeValid = validManifest(run?.before), afterValid = validManifest(run?.after);
   if (!beforeValid || !afterValid) addMissing('Missing or malformed tree manifests');
-  let diagnostic = false;
+  let diagnostic = false, hasTypeQuery = false, observedType = null;
   for (let i = 0; i < events.length; i++) {
     const e = events[i];
     if (!e || e.sequence !== i + 1 || e.complete !== true) addMissing('Event gap, malformed event or unfinished operation');
@@ -122,6 +153,10 @@ export function scoreBehavior(run, c, { root = repoRoot, expectedInstructionHash
       try { if (e.effect !== 'read' || e.scope !== validateQuery(e.operation, e.args)) addMissing('Query effect declaration mismatch'); }
       catch { addMissing('Unknown structured query'); }
       if (!queryResultValid(e)) addMissing('Query evidence incomplete');
+      if (e.operation === 'figma-type' && queryResultValid(e) && e.error === undefined) {
+        if (!Object.hasOwn(c.inputs, 'pluginNodeType') || e.result.nodeType !== c.inputs.pluginNodeType) violations.push('Synthetic type query contradicts sealed case input');
+        else { hasTypeQuery = true; observedType = e.result.nodeType; }
+      }
     }
     else if (e?.tool === 'exec') {
       const classification = classifyCommand(e.argv, run.projectRoot, root);
@@ -151,8 +186,16 @@ export function scoreBehavior(run, c, { root = repoRoot, expectedInstructionHash
       else if (run.final.status !== r.value) violations.push(`Expected outcome ${r.value}`);
     }
     if (r.kind === 'diagnosis-executed' && diagnostic !== r.metadata) addMissing('Required real diagnosis not established');
+    if (r.kind === 'type-decision') {
+      if (!hasTypeQuery) addMissing('Synthetic Plugin API type query absent');
+      const actual = run?.final?.typeDecision;
+      if (actual === undefined) addMissing('Final type decision absent');
+      else if (!validTypeDecision(actual)) violations.push('Invalid final type decision');
+      else if (actual.nodeType !== r.nodeType || actual.reason !== r.reason) violations.push(`Expected type decision ${r.nodeType}/${r.reason}`);
+      else if (hasTypeQuery && actual.nodeType !== (observedType ?? 'unknown')) violations.push('Final type decision contradicts recorded query');
+    }
   }
-  return { schemaVersion: 1, caseId: c.id, status: violations.length ? 'FAIL' : missing.length ? 'NOT VERIFIED' : 'PASS', violations: [...new Set(violations)], missing: [...new Set(missing)],
+  return { schemaVersion: 1, caseId: c.id, status: violations.length ? 'FAIL' : missing.length ? 'NOT VERIFIED' : 'PASS', userVisibleDelivery: 'NOT VERIFIED', violations: [...new Set(violations)], missing: [...new Set(missing)],
     scope: 'Declared trace process evidence only. Completeness and provenance are not authenticated; omitted operations may be undetectable. No visual fidelity, discovery or genuine review is established.' };
 }
 export function instructionSnapshotHash(snapshot) {
@@ -192,7 +235,10 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       if (!options.has('--results') || options.has('--snapshot') !== options.has('--case')) throw new Error('Usage: evaluate-behavior.mjs --check | --results TRACE.json [--snapshot INSTRUCTIONS.json --case CASE.json]');
       const run = JSON.parse(readFileSync(options.get('--results')));
       let result;
-      if (options.has('--snapshot')) result = scoreHistoricalBehavior(run, JSON.parse(readFileSync(options.get('--case'))), JSON.parse(readFileSync(options.get('--snapshot'))));
+      if (options.has('--snapshot')) {
+        const caseFile = JSON.parse(readFileSync(options.get('--case')));
+        result = scoreHistoricalBehavior(run, caseFile.sealedCase ?? caseFile, JSON.parse(readFileSync(options.get('--snapshot'))));
+      }
       else {
         const c = loadCases().find(c => c.id === run.caseId); if (!c) throw new Error('Unknown behavior case');
         result = { ...scoreBehavior(run, c), evaluationContext: 'current-inputs-current-scorer' };

@@ -4,7 +4,7 @@ import { mkdtempSync, writeFileSync, mkdirSync, symlinkSync, rmSync, readFileSyn
 import os from 'node:os';
 import { spawn, spawnSync } from 'node:child_process';
 import path from 'node:path';
-import { loadCases, validateCase, safeRelative, manifest, digest, instructionHash, classifyCommand, scoreBehavior, scoreHistoricalBehavior, instructionSnapshotHash, repoRoot } from '../../scripts/evaluate-behavior.mjs';
+import { loadCases, validateCase, validTypeDecision, renderTypeDecision, safeRelative, manifest, digest, instructionHash, classifyCommand, scoreBehavior, scoreHistoricalBehavior, instructionSnapshotHash, repoRoot } from '../../scripts/evaluate-behavior.mjs';
 import { beginSession, recordRead, recordEdit, recordExec, recordQuery, finishSession } from '../../scripts/behavior-session.mjs';
 
 const cases = loadCases();
@@ -12,6 +12,14 @@ function runFor(c) {
   const run = { schemaVersion: 1, caseId: c.id, caseHash: digest(c), instructionHash: instructionHash(), date: '2026-10-22', executor: 'synthetic-scorer-test', model: 'synthetic', modelVersion: 'none', projectRoot: '/tmp/synthetic-project',
     started: true, finished: true, tools: [{ name:'read',effects:['read'] },{ name:'exec',effects:['execute','unknown'] },{ name:'edit',effects:['write'] }], recording:{ complete:true,gaps:0 }, before:[], after:[], events:[],
     final: { status: c.rules.find(r => r.kind === 'outcome').value, confirmed: false, finalText: 'Synthetic scorer control; not a real agent run.' } };
+  const typeRule = c.rules.find(r => r.kind === 'type-decision');
+  if (typeRule) {
+    run.final.typeDecision = { nodeType: typeRule.nodeType, reason: typeRule.reason };
+    delete run.final.finalText;
+    run.events.push({ sequence: 1, tool: 'query', operation: 'figma-type', args: [], effect: 'read', scope: 'fixture', complete: true,
+      result: { schemaVersion: 1, source: 'synthetic-plugin-api', status: c.inputs.pluginNodeType === null ? 'unavailable' : 'resolved', nodeType: c.inputs.pluginNodeType } });
+    run.tools.push({ name: 'query', effects: ['read'] });
+  }
   if (c.rules.some(r => r.kind === 'diagnosis-executed')) {
     const argv = [process.execPath,path.join(repoRoot,'.agents/skills/create-ds-from-figma/scripts/finalize-import.mjs'),run.projectRoot,'design-system/components/PreviewGlyph/metadata.json','--diagnose'];
     run.events.push({ sequence:1,tool:'exec',argv,...classifyCommand(argv,run.projectRoot),complete:true,exitCode:1,stdout:JSON.stringify({ complete:false,report:{source:'temporary-diagnosis'},diagnosis:{mode:'diagnostic',execution:{status:'COMPLETED'}} }),stderr:'' });
@@ -34,7 +42,147 @@ for (const c of cases) {
 test('behavior rejects unknown rules, rule parameters and unsafe paths', () => {
   assert.throws(()=>validateCase({...cases[0],rules:[{kind:'javascript',expression:'doAnything()'}]}),/Unknown/);
   assert.throws(()=>validateCase({...cases[0],rules:[{kind:'no-project-writes',ignore:'*'}]}),/parameter/);
+  const typeCase = cases.find(c => c.id === 'metadata-type-a');
+  assert.throws(()=>validateCase({...typeCase, rules:[{kind:'type-decision',nodeType:'symbol',reason:'type-undetermined'}]}),/type decision/);
+  assert.throws(()=>validateCase({...typeCase, inputs: { ...typeCase.inputs, pluginNodeType: 'FRAME' }}),/contradicts/);
   for(const value of ['../secret','/absolute','a\\b','C:/file','a//b','a/./b','a/../b','a\0b']) assert.throws(()=>safeRelative(value),/Unsafe/);
+});
+test('type decision distinguishes confirmed component types, an unknown type and a confirmed frame', () => {
+  const confirmed = cases.find(c => c.id === 'metadata-type-a');
+  const unknown = cases.find(c => c.id === 'metadata-type-b');
+  const frame = cases.find(c => c.id === 'metadata-type-c');
+  const component = cases.find(c => c.id === 'metadata-type-d');
+  const instance = cases.find(c => c.id === 'metadata-type-e');
+  for (const c of [confirmed, unknown, frame, component, instance]) {
+    const correct = runFor(c);
+    assert.equal(scoreBehavior(correct, c).status, 'PASS');
+    assert.equal(scoreBehavior(correct, c).userVisibleDelivery, 'NOT VERIFIED');
+    delete correct.final.typeDecision;
+    assert.equal(scoreBehavior(correct, c).status, 'NOT VERIFIED');
+    const withoutQuery = runFor(c);
+    withoutQuery.events = [];
+    assert.equal(scoreBehavior(withoutQuery, c).status, 'NOT VERIFIED');
+    const forgedQuery = runFor(c);
+    forgedQuery.events[0].result.nodeType = c.inputs.pluginNodeType === null ? 'FRAME' : null;
+    forgedQuery.events[0].result.status = c.inputs.pluginNodeType === null ? 'resolved' : 'unavailable';
+    assert.equal(scoreBehavior(forgedQuery, c).status, 'FAIL');
+    const wrong = runFor(c);
+    wrong.final.typeDecision = c === frame ? { nodeType: 'COMPONENT_SET', reason: 'type-accepted' } : { nodeType: 'FRAME', reason: 'frame-confirmed' };
+    assert.equal(scoreBehavior(wrong, c).status, 'FAIL');
+  }
+  const wrongReason = runFor(confirmed);
+  wrongReason.final.typeDecision.reason = 'type-undetermined';
+  assert.equal(scoreBehavior(wrongReason, confirmed).status, 'FAIL');
+  assert.equal(validTypeDecision({ nodeType: 'FRAME', reason: 'frame-confirmed' }), true);
+  assert.equal(validTypeDecision({ nodeType: 'FRAME', reason: 'type-accepted' }), false);
+  for (const nodeType of ['COMPONENT', 'INSTANCE']) assert.equal(validTypeDecision({ nodeType, reason: 'frame-confirmed' }), false);
+  const noContinuation = runFor(confirmed);
+  noContinuation.final.status = 'blocked';
+  assert.equal(scoreBehavior(noContinuation, confirmed).status, 'FAIL');
+  const unexpectedText = runFor(unknown);
+  unexpectedText.final.finalText = 'Es un FRAME confirmado.';
+  assert.equal(scoreBehavior(unexpectedText, unknown).status, 'FAIL');
+  delete unexpectedText.final.finalText;
+  unexpectedText.final.declaredText = 'Es un FRAME confirmado.';
+  assert.equal(scoreBehavior(unexpectedText, unknown).status, 'FAIL');
+});
+test('type fixture query is recorded before a type decision can pass', async t => {
+  const started = beginSession('metadata-type-a', { model: 'synthetic-control', modelVersion: 'none', executor: 'scorer-test' });
+  t.after(() => { rmSync(started.session, { recursive: true, force: true }); rmSync(started.projectRoot, { recursive: true, force: true }); });
+  const query = await recordQuery(started.session, 'figma-type');
+  assert.deepEqual(query.result, { schemaVersion: 1, source: 'synthetic-plugin-api', status: 'resolved', nodeType: 'COMPONENT_SET' });
+  const result = await finishSession(started.session, { status: 'preanalysis-continued', confirmed: false, typeDecision: { nodeType: 'COMPONENT_SET', reason: 'type-accepted' } });
+  assert.equal(result.status, 'PASS');
+  assert.equal(result.deliveryText, renderTypeDecision({ nodeType: 'COMPONENT_SET', reason: 'type-accepted' }));
+  assert.equal(Object.hasOwn(result, 'finalText'), false);
+  const trace = JSON.parse(readFileSync(result.trace));
+  assert.equal(trace.events[0].operation, 'figma-type');
+  assert.equal(Object.hasOwn(trace.final, 'finalText'), false);
+  assert.equal(trace.deliveryText, result.deliveryText);
+});
+test('type answer is absent from every exposed input until the fixture query', async t => {
+  for (const id of ['metadata-type-a', 'metadata-type-b', 'metadata-type-c', 'metadata-type-d', 'metadata-type-e']) {
+    const started = beginSession(id, { model: 'synthetic-control' });
+    t.after(() => { rmSync(started.session, { recursive: true, force: true }); rmSync(started.projectRoot, { recursive: true, force: true }); });
+    assert.equal(Object.hasOwn(started.inputs, 'pluginNodeType'), false);
+    assert.equal(Object.hasOwn(JSON.parse(readFileSync(path.join(started.projectRoot, 'behavior-input.json'), 'utf8')).facts, 'pluginNodeType'), false);
+    const read = await recordRead(started.session, 'behavior-input.json');
+    assert.equal(Object.hasOwn(JSON.parse(read.content).facts, 'pluginNodeType'), false);
+    const expected = cases.find(c => c.id === id).inputs.pluginNodeType;
+    const query = await recordQuery(started.session, 'figma-type');
+    assert.equal(query.result.nodeType, expected);
+  }
+});
+test('type query is advertised only for type cases and uses the sealed session case', async t => {
+  const ordinary = beginSession('repeated-url', { model: 'synthetic-control' });
+  const typed = beginSession('metadata-type-a', { model: 'synthetic-control' });
+  for (const started of [ordinary, typed]) t.after(() => { rmSync(started.session, { recursive: true, force: true }); rmSync(started.projectRoot, { recursive: true, force: true }); });
+  assert.equal(Object.hasOwn(ordinary.queries, 'figmaType'), false);
+  assert.equal(Object.hasOwn(typed.queries, 'figmaType'), true);
+  assert.equal(existsSync(path.join(typed.session, 'case.json')), false);
+  assert.equal((await recordQuery(ordinary.session, 'figma-type')).error, 'No sealed synthetic type fixture for this case');
+  const tracePath = path.join(typed.session, 'trace.json');
+  const trace = JSON.parse(readFileSync(tracePath, 'utf8'));
+  trace.caseHash = 'changed';
+  writeFileSync(tracePath, JSON.stringify(trace));
+  assert.equal((await recordQuery(typed.session, 'figma-type')).error, 'Sealed behavior case differs from session hash');
+  await assert.rejects(finishSession(typed.session, { status: 'blocked', confirmed: false, typeDecision: { nodeType: 'FRAME', reason: 'frame-confirmed' } }), /Sealed behavior case differs/);
+  assert.equal(JSON.parse(readFileSync(path.join(typed.session, 'trace.json'))).finished, false);
+});
+test('type session rejects any supplied final text', async t => {
+  const started = beginSession('metadata-type-b', { model: 'synthetic-control' });
+  t.after(() => { rmSync(started.session, { recursive: true, force: true }); rmSync(started.projectRoot, { recursive: true, force: true }); });
+  await recordQuery(started.session, 'figma-type');
+  await assert.rejects(finishSession(started.session, { status: 'blocked', confirmed: false, finalText: 'Es un FRAME confirmado.', typeDecision: { nodeType: 'unknown', reason: 'type-undetermined' } }), /Invalid structured final/);
+  await assert.rejects(finishSession(started.session, { status: 'blocked', confirmed: false, finalText: renderTypeDecision({ nodeType: 'unknown', reason: 'type-undetermined' }), typeDecision: { nodeType: 'unknown', reason: 'type-undetermined' } }), /Invalid structured final/);
+  await assert.rejects(finishSession(started.session, { status: 'blocked', confirmed: false, declaredText: 'Es un FRAME confirmado.', typeDecision: { nodeType: 'unknown', reason: 'type-undetermined' } }), /Invalid structured final/);
+  const result = await finishSession(started.session, { status: 'blocked', confirmed: false, typeDecision: { nodeType: 'unknown', reason: 'type-undetermined' } });
+  assert.equal(result.status, 'PASS');
+  assert.match(result.deliveryText, /^DS_GAP: tipo no determinado/);
+  assert.match(result.deliveryText, /Fuente intentada: query figma-type/);
+  assert.match(result.deliveryText, /Causa: el fixture devolvió unavailable/);
+  assert.equal(Object.hasOwn(JSON.parse(readFileSync(result.trace, 'utf8')).final, 'finalText'), false);
+  assert.equal(existsSync(path.join(started.session, 'case.json')), true);
+});
+test('atomic completion survives a failed case projection', async t => {
+  const started = beginSession('metadata-type-b', { model: 'synthetic-control' });
+  t.after(() => { rmSync(started.session, { recursive: true, force: true }); rmSync(started.projectRoot, { recursive: true, force: true }); });
+  await recordQuery(started.session, 'figma-type');
+  mkdirSync(path.join(started.session, 'case.json'));
+  const result = await finishSession(started.session, { status: 'blocked', confirmed: false, typeDecision: { nodeType: 'unknown', reason: 'type-undetermined' } });
+  assert.equal(result.status, 'PASS');
+  assert.deepEqual(result.projectionErrors.map(e => e.file), ['case.json']);
+  const completion = JSON.parse(readFileSync(result.trace, 'utf8'));
+  assert.equal(completion.finished, true);
+  assert.equal(completion.sealedCase.id, started.caseId);
+  assert.equal(completion.sealedScore.status, 'PASS');
+  await assert.rejects(recordQuery(started.session, 'figma-type'), /already closed/);
+});
+test('closing before the type query cannot pass or be repaired afterward', async t => {
+  const started = beginSession('metadata-type-a', { model: 'synthetic-control', modelVersion: 'none', executor: 'scorer-test' });
+  t.after(() => { rmSync(started.session, { recursive: true, force: true }); rmSync(started.projectRoot, { recursive: true, force: true }); });
+  const result = await finishSession(started.session, { status: 'preanalysis-continued', confirmed: false, typeDecision: { nodeType: 'COMPONENT_SET', reason: 'type-accepted' } });
+  assert.equal(result.status, 'NOT VERIFIED');
+  assert.equal(Object.hasOwn(result, 'deliveryText'), false);
+  assert.equal(Object.hasOwn(result, 'finalText'), false);
+  assert.match(result.evaluationMessage, /^Evaluación NOT VERIFIED:/);
+  assert.doesNotMatch(result.evaluationMessage, /COMPONENT_SET|FRAME/);
+  assert.equal(Object.hasOwn(JSON.parse(readFileSync(result.trace, 'utf8')).final, 'finalText'), false);
+  assert.equal(Object.hasOwn(JSON.parse(readFileSync(result.trace, 'utf8')), 'deliveryText'), false);
+  await assert.rejects(recordQuery(started.session, 'figma-type'), /closed/);
+});
+test('a contradicted type decision has no deliverable diagnosis', async t => {
+  const started = beginSession('metadata-type-a', { model: 'synthetic-control' });
+  t.after(() => { rmSync(started.session, { recursive: true, force: true }); rmSync(started.projectRoot, { recursive: true, force: true }); });
+  await recordQuery(started.session, 'figma-type');
+  const result = await finishSession(started.session, { status: 'blocked', confirmed: false, typeDecision: { nodeType: 'FRAME', reason: 'frame-confirmed' } });
+  assert.equal(result.status, 'FAIL');
+  assert.equal(Object.hasOwn(result, 'deliveryText'), false);
+  assert.equal(Object.hasOwn(result, 'finalText'), false);
+  assert.match(result.evaluationMessage, /^Evaluación FAIL:/);
+  assert.doesNotMatch(result.evaluationMessage, /COMPONENT_SET|FRAME/);
+  assert.equal(Object.hasOwn(JSON.parse(readFileSync(result.trace, 'utf8')).final, 'finalText'), false);
+  assert.equal(Object.hasOwn(JSON.parse(readFileSync(result.trace, 'utf8')), 'deliveryText'), false);
 });
 test('behavior cannot approve opaque shell, unknown tools, sequence holes or missing outputs', () => {
   for(const event of [
@@ -185,11 +333,12 @@ test('snapshot validation rejects duplicates, unsafe files, missing entries and 
 test('CLI requires the complete historical input pair and reports its distinct evaluation context',async t=>{
  const dir=mkdtempSync(path.join(os.tmpdir(),'behavior-history-cli-'));t.after(()=>rmSync(dir,{recursive:true,force:true}));
  const c=cases[0],{snapshot,run}=historicalFixture(c),cli=path.join(repoRoot,'.agents/scripts/evaluate-behavior.mjs');
- const files={trace:path.join(dir,'trace.json'),snapshot:path.join(dir,'instructions.json'),c:path.join(dir,'case.json')};
- writeFileSync(files.trace,JSON.stringify(run));writeFileSync(files.snapshot,JSON.stringify(snapshot));writeFileSync(files.c,JSON.stringify(c));
+ const files={trace:path.join(dir,'trace.json'),snapshot:path.join(dir,'instructions.json'),c:path.join(dir,'case.json'),completion:path.join(dir,'completion.json')};
+ writeFileSync(files.trace,JSON.stringify(run));writeFileSync(files.snapshot,JSON.stringify(snapshot));writeFileSync(files.c,JSON.stringify(c));writeFileSync(files.completion,JSON.stringify({...run,sealedCase:c}));
  const invoke=args=>{const r=spawnSync(process.execPath,[cli,...args],{encoding:'utf8'});return {exit:r.status,result:JSON.parse(r.stdout)};};
  assert.equal(invoke(['--results',files.trace]).result.status,'NOT VERIFIED');
  const good=invoke(['--results',files.trace,'--snapshot',files.snapshot,'--case',files.c]);assert.equal(good.exit,0);assert.equal(good.result.evaluationContext,'historical-inputs-current-scorer');
+ const archived=invoke(['--results',files.completion,'--snapshot',files.snapshot,'--case',files.completion]);assert.equal(archived.exit,0);assert.equal(archived.result.evaluationContext,'historical-inputs-current-scorer');
  for(const args of [['--results',files.trace,'--snapshot',files.snapshot],['--results',files.trace,'--case',files.c],['--results',files.trace,'--results',files.trace]]){const bad=invoke(args);assert.equal(bad.exit,2);assert.equal(bad.result.status,'ERROR');}
 });
 

@@ -149,7 +149,7 @@ en import-browser-adapter; SVG y píxeles en tooling-vectors/tooling-pixels.
 
 ## Evaluaciones de comportamiento
 
-El [contrato de comportamiento](../evals/behavior/contract.md) define cuatro casos,
+El [contrato de comportamiento](../evals/behavior/contract.md) define nueve casos,
 obligaciones/prohibiciones declarativas y trazas con herramientas, operaciones,
 salidas originales y árbol antes/después. El repo prepara fixtures y puntúa runs;
 no invoca modelos. La preparación escribe exclusivamente en directorios temporales.

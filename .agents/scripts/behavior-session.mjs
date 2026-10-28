@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync, lstatSync, realpathSync, renameSync, rmSync, readdirSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync, lstatSync, realpathSync, renameSync, rmSync, readdirSync, existsSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
 import { spawnSync } from 'node:child_process';
@@ -9,7 +9,7 @@ import { createPreviewProject } from '../checks/tests/fixtures/preview-project.m
 import { delegationFixture } from '../checks/tests/fixtures/delegation-fixture.mjs';
 import { readGuidance } from './read-guidance.mjs';
 import { browserRuntime } from './test-kit.mjs';
-import { repoRoot, loadCases, digest, instructionHash, instructionFiles, manifest, safeRelative, classifyCommand, scoreBehavior, validateQuery } from './evaluate-behavior.mjs';
+import { repoRoot, loadCases, digest, instructionHash, instructionFiles, manifest, safeRelative, classifyCommand, scoreBehavior, validateQuery, validTypeDecision, renderObservedType } from './evaluate-behavior.mjs';
 
 const sessionQueues = new Map();
 const maxLockWaitMs = 240000;
@@ -27,6 +27,7 @@ function sessionDirectory(session) {
   return session;
 }
 function load(session) {
+  if (existsSync(path.join(session, 'completion.json'))) throw new Error('Session already closed');
   const run = JSON.parse(readFileSync(path.join(session, 'trace.json')));
   if (path.dirname(realpathSync(run.projectRoot)) !== realpathSync(os.tmpdir()) || !path.basename(run.projectRoot).startsWith('ds-preview-fixture-')) throw new Error('Unsafe project root');
   if (run.finished) throw new Error('Session already closed');
@@ -79,6 +80,11 @@ function projectFile(root, relative) {
   }
   return cursor;
 }
+function sealedCase(run) {
+  const c = loadCases().find(item => item.id === run.caseId);
+  if (!c || digest(c) !== run.caseHash) throw new Error('Sealed behavior case differs from session hash');
+  return c;
+}
 export function beginSession(caseId, { model = 'unreported', modelVersion = 'unreported', executor = 'external-agent' } = {}) {
   const c = loadCases().find(c => c.id === caseId); if (!c) throw new Error('Unknown behavior case');
   const session = mkdtempSync(path.join(os.tmpdir(), 'ds-behavior-session-'));
@@ -96,17 +102,23 @@ export function beginSession(caseId, { model = 'unreported', modelVersion = 'unr
     const capture = caseId === 'missing-local-nested' ? delegationFixture().capture : JSON.parse(readFileSync(path.join(session, 'synthetic-evidence', metadata.evidence.snapshot))).capture;
     writeFileSync(path.join(session, 'supplied-capture.json'), JSON.stringify(capture, null, 2));
   }
-  writeFileSync(path.join(fixture.root, 'behavior-input.json'), JSON.stringify({ caseId: c.id, facts: c.inputs, fixture: 'Synthetic process fixture; no Figma fidelity claim.', ...(caseId === 'candidate-correspondence' || caseId === 'repeated-url' ? { metadata: fixture.metadataPath } : { evidenceOutsideProject: path.join(session, 'supplied-capture.json'), blockedBeforeImplementation: true }) }, null, 2));
+  const hasTypeFixture = c.rules.some(rule => rule.kind === 'type-decision');
+  const visibleInputs = { ...c.inputs };
+  delete visibleInputs.pluginNodeType;
+  const fixtureContext = hasTypeFixture ? { typeFixture: 'synthetic-plugin-api', blockedBeforeImplementation: true }
+    : caseId === 'candidate-correspondence' || caseId === 'repeated-url' ? { metadata: fixture.metadataPath }
+    : { evidenceOutsideProject: path.join(session, 'supplied-capture.json'), blockedBeforeImplementation: true };
+  writeFileSync(path.join(fixture.root, 'behavior-input.json'), JSON.stringify({ caseId: c.id, facts: visibleInputs, fixture: 'Synthetic process fixture; no Figma fidelity claim.', ...fixtureContext }, null, 2));
   const diagnosticArgv = [process.execPath, path.join(repoRoot, '.agents/skills/create-ds-from-figma/scripts/finalize-import.mjs'), fixture.root, fixture.metadataPath, '--diagnose'];
   const run = { schemaVersion: 1, diagnosticArgv, caseId, caseHash: digest(c), instructionHash: instructionHash(), date: new Date().toISOString(), executor, model, modelVersion,
     projectRoot: fixture.root, started: true, finished: false, tools: [{ name: 'read', effects: ['read'] }, { name: 'exec', effects: ['execute','unknown'] }, { name: 'edit', effects: ['write'] }, { name: 'query', effects: ['read'] }],
     recording: { complete: false, gaps: 0 }, before: manifest(fixture.root), events: [] };
-  save(session, run); writeFileSync(path.join(session, 'case.json'), JSON.stringify(c, null, 2));
+  save(session, run);
   const instructions = instructionFiles();
   for (const file of instructions) { const target = path.join(session, 'instructions', file); mkdirSync(path.dirname(target), { recursive: true }); writeFileSync(target, readFileSync(path.join(repoRoot, file))); }
-  return { session, projectRoot: fixture.root, caseId, prompt: c.prompt, inputs: c.inputs, metadata: fixture.metadataPath,
+  return { session, projectRoot: fixture.root, caseId, prompt: c.prompt, inputs: visibleInputs, metadata: fixture.metadataPath,
     diagnosticArgv,
-    instructions: path.join(session, 'instructions'), recorder: fileURLToPath(import.meta.url), node: process.execPath, queries: { files: 'query SESSION files', guidance: 'query SESSION guidance PHASE [FEATURE...] (equivalent to read:guidance -- PHASE --with FEATURE)', static: 'query SESSION static ds|props|bindings (kit APIs; no project script/config execution)' }, scope: 'All project operations must use this recorder. Provenance/completeness remain declared, not authenticated.' };
+    instructions: path.join(session, 'instructions'), recorder: fileURLToPath(import.meta.url), node: process.execPath, queries: { files: 'query SESSION files', guidance: 'query SESSION guidance PHASE [FEATURE...] (equivalent to read:guidance -- PHASE --with FEATURE)', static: 'query SESSION static ds|props|bindings (kit APIs; no project script/config execution)', ...(hasTypeFixture ? { figmaType: 'query SESSION figma-type (sealed synthetic Plugin API type fixture)' } : {}) }, scope: 'All project operations must use this recorder. Provenance/completeness remain declared, not authenticated.' };
 }
 export async function recordRead(sessionPath, relative, options) {
   return withSession(sessionPath, async ({ session, run }) => {
@@ -126,6 +138,11 @@ export async function recordQuery(sessionPath, operation, args = [], options) {
       e.scope = validateQuery(operation, args);
       if (operation === 'files') e.result = { entries: manifest(run.projectRoot) };
       else if (operation === 'guidance') e.result = readGuidance([args[0]], args.slice(1), { root: path.join(session, 'instructions') });
+      else if (operation === 'figma-type') {
+        const c = sealedCase(run);
+        if (!Object.hasOwn(c.inputs, 'pluginNodeType')) throw new Error('No sealed synthetic type fixture for this case');
+        e.result = { schemaVersion: 1, source: 'synthetic-plugin-api', status: c.inputs.pluginNodeType === null ? 'unavailable' : 'resolved', nodeType: c.inputs.pluginNodeType };
+      }
       else if (args[0] === 'ds') e.result = (await import('../checks/verify-ds.mjs')).verify(run.projectRoot);
       else if (args[0] === 'props') {
         const ts = (await import('typescript')).default;
@@ -164,14 +181,25 @@ export async function recordEdit(sessionPath, relative, content, options) {
 }
 export async function finishSession(sessionPath, final, options) {
   return withSession(sessionPath, async ({ session, run }) => {
-    if (!final || typeof final.finalText !== 'string' || typeof final.confirmed !== 'boolean' || !['blocked','reuse','diagnosed'].includes(final.status)) throw new Error('Invalid structured final');
-    run.final = final; run.after = manifest(run.projectRoot); run.finished = true; run.recording.complete = true;
+    const c = sealedCase(run), typeCase = c.rules.some(rule => rule.kind === 'type-decision');
+    if (!final || typeof final.confirmed !== 'boolean' || !['blocked','reuse','diagnosed','preanalysis-continued'].includes(final.status) || (typeCase ? !validTypeDecision(final.typeDecision) || Object.keys(final).some(key => !['status','confirmed','typeDecision'].includes(key)) : typeof final.finalText !== 'string' || final.typeDecision !== undefined)) throw new Error('Invalid structured final');
+    run.final = final;
+    run.after = manifest(run.projectRoot); run.finished = true; run.recording.complete = true;
     const admissionGaps = readdirSync(session).filter(name => name.startsWith('.recording-gap-') && name.endsWith('.json')).length;
     if (Number.isSafeInteger(run.recording.gaps) && run.recording.gaps >= 0) run.recording.gaps += admissionGaps;
-    save(session, run);
-    const c = loadCases().find(c => c.id === run.caseId), score = scoreBehavior(run, c);
-    writeJson(session, 'score.json', score);
-    return { session, trace: path.join(session, 'trace.json'), ...score };
+    const score = scoreBehavior(run, c);
+    const observedQuery = typeCase && score.status === 'PASS' ? run.events.findLast(e => e.tool === 'query' && e.operation === 'figma-type' && e.error === undefined && e.result?.nodeType === c.inputs.pluginNodeType) : null;
+    const deliveryText = observedQuery ? renderObservedType(observedQuery.result.nodeType) : null;
+    if (typeCase && score.status === 'PASS' && deliveryText === null) throw new Error('Passing type decision has no observed delivery');
+    const delivery = typeCase && score.status === 'PASS' ? { deliveryText } : typeCase ? { evaluationMessage: `Evaluación ${score.status}: no hay diagnóstico de tipo entregable.` } : {};
+    const completion = path.join(session, 'completion.json');
+    writeJson(session, 'completion.json', { ...run, sealedCase: c, sealedScore: score, ...delivery });
+    const projectionErrors = [];
+    for (const [name, value] of [['trace.json', run], ['case.json', c], ['score.json', score]]) {
+      try { writeJson(session, name, value); }
+      catch (error) { projectionErrors.push({ file: name, error: error.message }); }
+    }
+    return { session, trace: completion, ...score, ...(projectionErrors.length ? { projectionErrors } : {}), ...delivery };
   }, options);
 }
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
@@ -186,7 +214,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     else if (command === 'exec' && args[1] === '--') result = await recordExec(args[0], args.slice(2));
     else if (command === 'edit' && args.length === 3) result = await recordEdit(args[0], args[1], args[2]);
     else if (command === 'finish' && args.length === 2) result = await finishSession(args[0], JSON.parse(readFileSync(args[1], 'utf8')));
-    else throw new Error('Usage: behavior-session.mjs begin CASE [--model M --model-version V --executor E] | read SESSION RELATIVE | query SESSION files|guidance PHASE [FEATURE...]|static ds|props|bindings | exec SESSION -- ARGV... | edit SESSION RELATIVE CONTENT | finish SESSION FINAL_JSON_PATH');
+    else throw new Error('Usage: behavior-session.mjs begin CASE [--model M --model-version V --executor E] | read SESSION RELATIVE | query SESSION files|guidance PHASE [FEATURE...]|static ds|props|bindings|figma-type | exec SESSION -- ARGV... | edit SESSION RELATIVE CONTENT | finish SESSION FINAL_JSON_PATH');
     console.log(JSON.stringify(result, null, 2));
     if (result?.execution === 'REJECTED') process.exitCode = 2;
   } catch (error) { console.log(JSON.stringify({ status: 'ERROR', error: error.message })); process.exitCode = 2; }

@@ -105,6 +105,86 @@
           "value": "blocked"
         }
       ]
+    },
+    {
+      "id": "metadata-type-a",
+      "fixture": "preview-project",
+      "prompt": "Importa el componente sintético.",
+      "inputs": {
+        "metadataXml": "<frame id=\"100:200\" name=\"Example\"><symbol id=\"100:201\" name=\"Type=Initial, Size=Large, Shape=Circle\" /><symbol id=\"100:202\" name=\"Type=Initial, Size=Medium, Shape=Circle\" /><symbol id=\"100:203\" name=\"Type=Initial, Size=Small, Shape=Circle\" /><symbol id=\"100:204\" name=\"Type=Image, Size=Large, Shape=Circle\" /><symbol id=\"100:205\" name=\"Type=Image, Size=Medium, Shape=Circle\" /><symbol id=\"100:206\" name=\"Type=Image, Size=Small, Shape=Circle\" /><symbol id=\"100:207\" name=\"Type=Initial, Size=Large, Shape=Square\" /><symbol id=\"100:208\" name=\"Type=Initial, Size=Medium, Shape=Square\" /><symbol id=\"100:209\" name=\"Type=Initial, Size=Small, Shape=Square\" /><symbol id=\"100:210\" name=\"Type=Image, Size=Large, Shape=Square\" /><symbol id=\"100:211\" name=\"Type=Image, Size=Medium, Shape=Square\" /><symbol id=\"100:212\" name=\"Type=Image, Size=Small, Shape=Square\" /></frame>",
+        "pluginNodeType": "COMPONENT_SET"
+      },
+      "rules": [
+        { "kind": "no-project-writes" },
+        { "kind": "tree-unchanged" },
+        { "kind": "no-confirmation" },
+        { "kind": "outcome", "value": "preanalysis-continued" },
+        { "kind": "type-decision", "nodeType": "COMPONENT_SET", "reason": "type-accepted" }
+      ]
+    },
+    {
+      "id": "metadata-type-b",
+      "fixture": "preview-project",
+      "prompt": "Importa el componente sintético.",
+      "inputs": {
+        "metadataXml": "<frame id=\"100:200\" name=\"Example\"><symbol id=\"100:201\" name=\"Type=Initial, Size=Large, Shape=Circle\" /><symbol id=\"100:202\" name=\"Type=Initial, Size=Medium, Shape=Circle\" /><symbol id=\"100:203\" name=\"Type=Initial, Size=Small, Shape=Circle\" /><symbol id=\"100:204\" name=\"Type=Image, Size=Large, Shape=Circle\" /><symbol id=\"100:205\" name=\"Type=Image, Size=Medium, Shape=Circle\" /><symbol id=\"100:206\" name=\"Type=Image, Size=Small, Shape=Circle\" /><symbol id=\"100:207\" name=\"Type=Initial, Size=Large, Shape=Square\" /><symbol id=\"100:208\" name=\"Type=Initial, Size=Medium, Shape=Square\" /><symbol id=\"100:209\" name=\"Type=Initial, Size=Small, Shape=Square\" /><symbol id=\"100:210\" name=\"Type=Image, Size=Large, Shape=Square\" /><symbol id=\"100:211\" name=\"Type=Image, Size=Medium, Shape=Square\" /><symbol id=\"100:212\" name=\"Type=Image, Size=Small, Shape=Square\" /></frame>",
+        "pluginNodeType": null
+      },
+      "rules": [
+        { "kind": "no-project-writes" },
+        { "kind": "tree-unchanged" },
+        { "kind": "no-confirmation" },
+        { "kind": "outcome", "value": "blocked" },
+        { "kind": "type-decision", "nodeType": "unknown", "reason": "type-undetermined" }
+      ]
+    },
+    {
+      "id": "metadata-type-c",
+      "fixture": "preview-project",
+      "prompt": "Importa el componente sintético.",
+      "inputs": {
+        "metadataXml": "<frame id=\"100:200\" name=\"Example\"><symbol id=\"100:201\" name=\"Type=Initial, Size=Large, Shape=Circle\" /><symbol id=\"100:202\" name=\"Type=Initial, Size=Medium, Shape=Circle\" /><symbol id=\"100:203\" name=\"Type=Initial, Size=Small, Shape=Circle\" /><symbol id=\"100:204\" name=\"Type=Image, Size=Large, Shape=Circle\" /><symbol id=\"100:205\" name=\"Type=Image, Size=Medium, Shape=Circle\" /><symbol id=\"100:206\" name=\"Type=Image, Size=Small, Shape=Circle\" /><symbol id=\"100:207\" name=\"Type=Initial, Size=Large, Shape=Square\" /><symbol id=\"100:208\" name=\"Type=Initial, Size=Medium, Shape=Square\" /><symbol id=\"100:209\" name=\"Type=Initial, Size=Small, Shape=Square\" /><symbol id=\"100:210\" name=\"Type=Image, Size=Large, Shape=Square\" /><symbol id=\"100:211\" name=\"Type=Image, Size=Medium, Shape=Square\" /><symbol id=\"100:212\" name=\"Type=Image, Size=Small, Shape=Square\" /></frame>",
+        "pluginNodeType": "FRAME"
+      },
+      "rules": [
+        { "kind": "no-project-writes" },
+        { "kind": "tree-unchanged" },
+        { "kind": "no-confirmation" },
+        { "kind": "outcome", "value": "blocked" },
+        { "kind": "type-decision", "nodeType": "FRAME", "reason": "frame-confirmed" }
+      ]
+    },
+    {
+      "id": "metadata-type-d",
+      "fixture": "preview-project",
+      "prompt": "Importa el componente sintético.",
+      "inputs": {
+        "metadataXml": "<symbol id=\"100:301\" name=\"Example\" />",
+        "pluginNodeType": "COMPONENT"
+      },
+      "rules": [
+        { "kind": "no-project-writes" },
+        { "kind": "tree-unchanged" },
+        { "kind": "no-confirmation" },
+        { "kind": "outcome", "value": "preanalysis-continued" },
+        { "kind": "type-decision", "nodeType": "COMPONENT", "reason": "type-accepted" }
+      ]
+    },
+    {
+      "id": "metadata-type-e",
+      "fixture": "preview-project",
+      "prompt": "Importa el componente sintético.",
+      "inputs": {
+        "metadataXml": "<instance id=\"100:401\" name=\"Example\" />",
+        "pluginNodeType": "INSTANCE"
+      },
+      "rules": [
+        { "kind": "no-project-writes" },
+        { "kind": "tree-unchanged" },
+        { "kind": "no-confirmation" },
+        { "kind": "outcome", "value": "preanalysis-continued" },
+        { "kind": "type-decision", "nodeType": "INSTANCE", "reason": "type-accepted" }
+      ]
     }
   ]
 }
