@@ -4,7 +4,7 @@ description: >-
   Import or explicitly update one Figma component in this DS repo.
   USE WHEN: "crea un DS"/"create a design system", a Figma URL alone (including
   repeated URLs), or an explicit component/set/variant/instance import or update.
-  Inspect the node type first. A "crea un DS" request pointing to a frame stays
+  Inspect the node type first. A "crea un DS" request pointing to a confirmed frame stays
   in this flow: report DS_GAP without writing or switching workflows.
   DO NOT USE WHEN: explicitly building a screen from a frame, or editing existing
   UI without a component import/update request.
@@ -85,9 +85,15 @@ Los fragmentos se extraen de [preanálisis](references/import-preanalysis.md),
 [implementación](references/import-implementation.md), [verificación](references/import-verification.md)
 y los contratos enlazados abajo. Antes de exportar SVG lee tooling-vectors; antes de comparar píxeles lee tooling-pixels, según [operaciones auxiliares](references/tooling.md). Para investigar rendimiento del kit, lee `kit-performance`; no es una fase de importación ni exige ejecutar benchmarks rutinarios. `--stats` mide bytes/palabras sin cargar su contenido.
 
-1. Inspecciona tipo y estructura con `get_metadata`. Resuelve set completo o
-   `mainComponent`, según corresponda, y el file de origen. Aplica «Pantallas»
-   si resulta ser un frame; una instancia raíz remota necesita su URL de origen.
+1. Usa `get_metadata` para localizar el nodo y explorar su estructura; sus etiquetas
+   XML (`<frame>`, `<symbol>`, `<instance>`) no acreditan `node.type` de Plugin API.
+   Confirma el tipo real con `use_figma` o el colector antes de decidir si es un
+   componente, set, variante, instancia o frame. `get_design_context` puede
+   señalar una discrepancia, pero el código que genera no acredita el tipo.
+   Resuelve set completo o `mainComponent`, según corresponda, y el file de
+   origen. Aplica «Pantallas» solo ante `FRAME` confirmado. Si no puedes confirmar
+   el tipo, informa `DS_GAP` con motivo «tipo no determinado» y no escribas;
+   una instancia raíz remota necesita su URL de origen.
 2. Consulta [tokens](references/tokens.md) mediante la fase import-tokens. Captura **todas** las colecciones,
    variables y modos del file con `figma-inventory.mjs`, sin transcripción.
    Ejecuta `node .agents/skills/create-ds-from-figma/scripts/preflight-token-files.mjs . --inventory INVENTORY`,
