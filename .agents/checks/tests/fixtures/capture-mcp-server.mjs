@@ -22,6 +22,11 @@ export function captureServer(mode = 'normal') {
     const figma = { skipInvisibleInstanceChildren: true, fileKey: mode === 'wrong-file' ? 'OTHER' : mode === 'unknown-file' ? undefined : 'FILE', getNodeByIdAsync: async id => id === root.id ? root : text,
       variables: { getLocalVariableCollectionsAsync: async () => [] } };
     if (mode === 'inventory' || mode === 'wrapped-inventory') Object.assign(figma, inventoryMock());
+    if (mode === 'wrapped-images') {
+      const bytes = Buffer.concat([Buffer.from('89504e470d0a1a0a', 'hex'), Buffer.alloc(27000, 5)]);
+      figma.getImageByHash = () => ({ getBytesAsync: async () => new Uint8Array(bytes) });
+      figma.base64Encode = bytes => Buffer.from(bytes).toString('base64');
+    }
     if (mode === 'reference' || mode === 'wrapped-reference') {
       const png = new PNG({ width: 2, height: 3 }); png.data.fill(255);
       figma.getNodeByIdAsync = async () => ({ width: 2, height: 3, exportAsync: async () => PNG.sync.write(png) });

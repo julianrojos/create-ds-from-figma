@@ -6,6 +6,7 @@ import { caseNodes } from './render-comparison.mjs';
 import { essentialAssetGaps, essentialFontGaps } from './resource-gaps.mjs';
 import { fontConfigurations } from './font-configuration.mjs';
 import { concreteFontWeight } from './font-weight.mjs';
+import { authorizedRule, loadResourcePolicy, verifyResourceSource } from './resource-policy.mjs';
 
 export const RESOURCE_SCRIPT = '.agents/skills/create-ds-from-figma/scripts/verification-resources.mjs';
 const FINALIZER = '.agents/skills/create-ds-from-figma/scripts/finalize-import.mjs';
@@ -28,7 +29,7 @@ export function deduplicateNextActions(actions) {
 const targetActions = (metadataPath, actions) => actions.map(action => ({ ...action, targets: [metadataPath] }));
 
 // Wrap shared derivation without changing comparator inputs or classifying observed resources as essential.
-export function snapshotResources(capture) {
+export function snapshotResources(capture, { root } = {}) {
   const requirements = renderRequirements(capture), observations = new Map(capture.observations.map(o => [o.id, o]));
   const variants = requirements.variants.map(figmaRef => ({ figmaRef, nodes: caseNodes(capture, { figmaRef }).selected }));
   const describe = resource => {
@@ -48,6 +49,21 @@ export function snapshotResources(capture) {
   }
   const resources = [...requirements.fonts.map(font => describe({ kind: 'font', ...font })),
     ...[...images.values()].map(image => describe({ ...image, observations: unique(image.observations) }))];
+  const policyActions = [];
+  if (root) {
+    const policy = loadResourcePolicy(root);
+    for (const resource of resources) {
+      const request = { kind: resource.kind, identity: identity(resource), fileKey: capture.source.fileKey };
+      let rule;
+      try { rule = authorizedRule(policy, request); } catch { continue; }
+      const figma = rule.origin.kind === 'figma';
+      policyActions.push({ code: figma ? 'CAPTURE_FIGMA_IMAGE' : 'RESOLVE_POLICY_RESOURCE', resources: [resource.key], request,
+        prerequisites: ['Only acquire candidates required by the intended cases. Policy authorization does not grant environment or MCP connection permissions. Save the derived request programmatically in a temporary JSON file.'],
+        permissions: [figma ? 'figma-read' : rule.origin.kind === 'https' ? 'network' : 'project-read', 'temporary-write'],
+        command: { executable: 'node', args: [figma ? '.agents/skills/create-ds-from-figma/scripts/figma-images.mjs' : '.agents/skills/create-ds-from-figma/scripts/resolve-resources.mjs', figma ? 'bridge' : 'resolve', root] },
+        requiredArguments: [{ name: 'requestPath', type: 'temporary-request-json', append: true }, ...(!figma ? [{ name: 'temporaryDirectory', type: 'external-temporary-directory', append: true }] : [])] });
+    }
+  }
   // Vector-like nodes are not resources to authorize but shapes geometry cannot certify: observed here so their original export is not forgotten.
   const vectors = capture.nodes.filter(node => VECTOR_TYPES.has(node.type)).map(node => ({ kind: 'vector', key: `vector:${capture.source.fileKey}:${node.id}`,
     node: `${capture.source.fileKey}:${node.id}`, name: node.name, type: node.type, visible: node.properties.visible !== false,
@@ -55,6 +71,7 @@ export function snapshotResources(capture) {
     representation: { status: 'UNDETERMINED', reason: 'Geometry checks cannot establish a vector shape; reproduce it from its original Figma SVG export or record an explicit approximation decision.' } }))
     .sort((a, b) => a.key < b.key ? -1 : a.key > b.key ? 1 : 0);
   const nextActions = [
+    ...policyActions,
     ...(resources.length ? [{ code: 'REVIEW_OBSERVED_RESOURCES', resources: resources.map(r => r.key),
       prerequisites: ['Decide which observed resources the intended implementation and cases will render; ask together for unresolved authorized sources.'],
       permissions: [], command: null, requiredArguments: [],
@@ -132,11 +149,12 @@ export function loadResourceMetadata(root, metadataPath) {
   return { file, bytes, metadata, snapshotFile, snapshotBytes, ...snapshot };
 }
 
-function registration(root, records) {
+function registration(root, records, request) {
   if (!records.length || records.some(record => record.source?.kind !== 'file')) return { status: 'PENDING', reason: 'Not all observed entries have registered source files.' };
   try {
     for (const record of records) {
       if (sha256(readFileSync(projectFile(root, record.source.path))) !== record.source.sha256) throw new Error('Registered source hash differs from file bytes');
+      verifyResourceSource(root, record.source, request);
     }
     return { status: 'REGISTERED', sources: [...new Map(records.map(record => [canonicalJson(record.source), record.source])).values()] };
   } catch (error) { return { status: 'INVALID', reason: error.message }; }
@@ -159,7 +177,6 @@ export function inspectResourceMetadata(root, metadataPath) {
 }
 
 export function describeResourceMetadata(root, metadataPath, { capture, hash, metadata }) {
-  const fonts = essentialFontGaps(capture, metadata), assets = essentialAssetGaps(capture, metadata);
   const configuration = fontConfigurations(root, metadata);
   const cases = metadata.verification.cases.map(c => ({ ...c, nodes: caseNodes(capture, c).selected }));
   const diagnostic = snapshotResources(capture);
@@ -170,20 +187,34 @@ export function describeResourceMetadata(root, metadataPath, { capture, hash, me
     const covered = resource.kind === 'font' ? records.length === 1 : records.length === resource.entries.length && new Set(records.map(a => `${a.observation}:${a.index}`)).size === resource.entries.length;
     return { ...resource, cases: { status: 'DECLARED', ids: cases.filter(c => nodeIds.some(id => c.nodes.has(id))).map(c => c.id) },
       css: resource.kind === 'font' && records[0]?.css ? { status: 'DECLARED', ...records[0].css } : { status: resource.kind === 'font' ? 'PENDING' : 'NOT APPLICABLE' },
-      registration: covered ? registration(root, records) : { status: 'PENDING', reason: 'Resource entries are missing or duplicated; complete their observed identities before registration.' },
+      registration: covered ? registration(root, records, { kind: resource.kind, identity: identity(resource), fileKey: capture.source.fileKey }) : { status: 'PENDING', reason: 'Resource entries are missing or duplicated; complete their observed identities before registration.' },
       ...(resource.kind === 'font' ? { configuration: configuration.configurations.find(c => c.id === resource.id) || resource.configuration } : {}) };
   }).map(resource => {
     if (resource.kind !== 'image') return resource;
     return { ...resource, provenance: resource.registration.status === 'REGISTERED' ? imageProvenance(root, resource.imageHash, resource.registration.sources)
       : { status: 'NOT APPLICABLE', reason: 'No registered source file to compare.' } };
   });
-  const nextActions = resourceNextActions(root, metadataPath, { fonts, assets });
-  nextActions.push(...fontConfigurationActions(root, metadataPath, configuration.configurations, metadata));
   const invalid = resources.filter(resource => resource.registration.status === 'INVALID');
+  const invalidFonts = new Map(invalid.filter(r => r.kind === 'font').map(r => [r.id, r.registration.reason]));
+  const invalidAssets = new Map(invalid.filter(r => r.kind === 'image').flatMap(r => r.entries.map(entry => [`${entry.observation}:${entry.index}`, r.registration.reason])));
+  // Feed invalid registrations through the existing visibility/case rules, without changing the actual metadata.
+  const effective = { ...metadata, verification: { ...metadata.verification,
+    fonts: metadata.verification.fonts.map(record => invalidFonts.has(record.id) ? { ...record, source: { kind: 'unresolved', reason: invalidFonts.get(record.id) } } : record),
+    assets: metadata.verification.assets.map(record => invalidAssets.has(`${record.observation}:${record.index}`) ? { ...record, source: { kind: 'unresolved', reason: invalidAssets.get(`${record.observation}:${record.index}`) } } : record),
+  } };
+  const renewalAction = 'Re-evaluate source bytes and current policy authorization, then explicitly register current provenance; a revoked rule requires a user decision, not a substitute file.';
+  const fonts = essentialFontGaps(capture, effective).map(gap => invalidFonts.has(gap.id) ? { ...gap, action: renewalAction } : gap);
+  const assets = essentialAssetGaps(capture, effective).map(gap => invalidAssets.has(`${gap.observation}:${gap.index}`) ? { ...gap, action: renewalAction } : gap);
+  // A failed existing registration needs revalidation, not a sourcePath-only registration that discards provenance.
+  const nextActions = resourceNextActions(root, metadataPath, {
+    fonts: fonts.filter(gap => !invalidFonts.has(gap.id)), assets: assets.filter(gap => !invalidAssets.has(`${gap.observation}:${gap.index}`)),
+  });
+  nextActions.push(...fontConfigurationActions(root, metadataPath, configuration.configurations, metadata));
   if (invalid.length) nextActions.push({ code: 'RECHECK_REGISTERED_SOURCES', resources: invalid.map(resource => resource.key), targets: [metadataPath],
-    prerequisites: ['Inspect missing files or changed bytes. Restoring the authorized file and explicitly replacing a registered source are different decisions; do not add --replace automatically.'],
+    issues: invalid.map(resource => ({ resource: resource.key, reason: resource.registration.reason })),
+    prerequisites: ['Inspect file bytes and current policy authorization. Re-evaluate a permitted source with the resolver and explicitly re-register its current provenance. A revoked or missing rule requires an explicit user decision; never widen the policy automatically. Restoring bytes and replacing a registered source are different decisions; do not add --replace automatically.'],
     permissions: ['project-read'], command: null, requiredArguments: [] });
   return { ...diagnostic, phase: 'metadata', snapshotHash: hash, resources,
     essentialGaps: { fonts, assets }, nextActions, configurationWarnings: configuration.warnings,
-    scope: 'Registration is checked against file bytes and supported font declarations are linked statically. Browser loading is not examined. Declared cases are affected subtrees, not proof of visibility or rendered use.' };
+    scope: 'Registration is checked against file bytes and current policy authorization; invalid essential sources remain gaps. Supported font declarations are linked statically. Browser loading is not examined. Declared cases are affected subtrees, not proof of visibility or rendered use.' };
 }

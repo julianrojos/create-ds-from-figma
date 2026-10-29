@@ -16,6 +16,8 @@ import { collectCssDiagnostics } from '../../../checks/lib/css-diagnostics.mjs';
 import { renderDiagnostics } from '../../../checks/lib/render-diagnostics.mjs';
 import { snapshotResources } from '../../../checks/lib/resource-diagnostics.mjs';
 import { evidenceSessionFor } from '../../../checks/lib/evidence-session.mjs';
+import { inspectResolution, readResolutionReceipts } from './resolve-resources.mjs';
+import { loadResourcePolicy } from '../../../checks/lib/resource-policy.mjs';
 
 const forbidden = (record, keys) => {
   if (!record || typeof record !== 'object' || Array.isArray(record) || Object.keys(record).some(k => !keys.includes(k))) throw new Error(`Decision accepts only ${keys.join(', ')}`);
@@ -123,10 +125,21 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     } else if (command === 'wait' && [2, 3].includes(args.length)) {
       const [directory, caseId, timeout] = args;
       console.log(JSON.stringify(await waitForMeasurement(directory, caseId, { timeoutMs: timeout === undefined ? 20000 : Number(timeout) }), null, 2));
-    } else if (command === 'requirements' && args.length === 1) {
+    } else if (command === 'requirements' && [1, 2, 3].includes(args.length)) {
       const snapshot = JSON.parse(readFileSync(args[0], 'utf8')), sealed = sealCapture(snapshot.capture);
       if (sealed.hash !== snapshot.hash) throw new Error('Snapshot hash mismatch');
-      const diagnostic = snapshotResources(snapshot.capture);
+      const diagnostic = snapshotResources(snapshot.capture, { root: args[1] });
+      if (args.length === 3) {
+        loadResourcePolicy(args[1]);
+        const receipts = readResolutionReceipts(args[2]);
+        for (const resource of diagnostic.resources) {
+          const request = { kind: resource.kind, identity: resource.kind === 'font' ? resource.id : resource.imageHash, fileKey: snapshot.capture.source.fileKey };
+          const matching = receipts.filter(({ receipt }) => receipt.request.kind === request.kind && receipt.request.identity === request.identity);
+          if (matching.length > 1) throw new Error(`Duplicate resource resolutions for ${resource.key}: ${matching.map(r => r.path).join(', ')}`);
+          if (matching.length) { inspectResolution(args[1], matching[0].path, request); resource.registration = { status: 'RESOLVED', receipt: matching[0].path }; }
+        }
+        diagnostic.nextActions = diagnostic.nextActions.filter(action => !['CAPTURE_FIGMA_IMAGE', 'RESOLVE_POLICY_RESOURCE'].includes(action.code) || !action.resources.every(key => diagnostic.resources.some(r => r.key === key && r.registration.status === 'RESOLVED')));
+      }
       console.log(JSON.stringify({ snapshotHash: snapshot.hash, ...renderRequirements(snapshot.capture), resources: diagnostic.resources, vectors: diagnostic.vectors, nextActions: diagnostic.nextActions, resourceScope: diagnostic.scope }, null, 2));
     } else if (command === 'compare' && [4, 5].includes(args.length)) {
       const [root, metadataPath, caseId, bodyPath, baselinePath] = args;

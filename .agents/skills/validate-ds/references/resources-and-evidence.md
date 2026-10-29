@@ -16,6 +16,11 @@ If an explicitly supplied sealed file-level inventory is available, `node .agent
 
 ## Resource Diagnostics
 
+Resource inspection must revalidate current policy authorization as well as file
+bytes. Revoked/stale provenance is INVALID, with RECHECK_REGISTERED_SOURCES issues;
+if the cases need the resource, it remains an essential gap. Inspection is read-only:
+re-evaluation and explicit registration belong to an authorized import/update.
+
 Composition screenshot, storage, decoding, unexpected browser and restoration errors are NOT RUN, not unsupported-condition abstentions. Retain their reasons and any partial artifacts; a group with failed restoration cannot retain passing checks. Explicit comparability/budget conditions remain NOT COMPARABLE. Follow the retry action without treating execution failure as a visual mismatch.
 
 Composition NOT RUN fails the temporary diagnosis and yields RETRY_COMPOSITION_DIAGNOSTICS with case/check/reason and a retry command, not a visual-difference claim. NOT COMPARABLE remains abstention. nonOpaque counts pixels without stable opaque ink; opaque pixels in excluded regions remain indeterminate. temporary-read means reading existing temporary artifacts only; retry requires project-read/browser-execution/temporary-write. Action permissions are informational prerequisites, never automatic authorization. None of these diagnostic changes affect published confirmations.

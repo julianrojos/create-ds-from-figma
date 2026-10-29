@@ -7,6 +7,7 @@ import { concreteFontWeight } from './font-weight.mjs';
 import { nativeStateProblem } from './native-state.mjs';
 import { behaviorBaseline } from './behavior-baseline.mjs';
 import { browserActionsProblem } from './browser-actions.mjs';
+import { loadResourcePolicy, verifyResourceSource } from './resource-policy.mjs';
 
 const object = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const text = v => typeof v === 'string' && v.trim().length > 0;
@@ -65,6 +66,7 @@ function subtree(capture, ref) {
 
 export function verifyRenderPlan(root, metadata, capture, { delegations = [], reserved = [] } = {}) {
   const errors = [], warnings = [], requirements = renderRequirements(capture), plan = metadata.verification;
+  try { loadResourcePolicy(root); } catch (error) { errors.push(`Resource policy: ${error.message}`); }
   if (!object(plan) || plan.schemaVersion !== 1) return { errors: ['verification schemaVersion 1 is required'], warnings, requirements };
   if (plan.geometryPolicy !== 'mapped-layout-v1') errors.push('verification.geometryPolicy must be mapped-layout-v1');
   if (plan.nodeCoverage !== undefined && !Array.isArray(plan.nodeCoverage)) errors.push('verification.nodeCoverage must be an array');
@@ -87,6 +89,8 @@ export function verifyRenderPlan(root, metadata, capture, { delegations = [], re
       if (label === 'fonts' && Object.keys(record).some(k => !['id', 'css', 'source'].includes(k))) errors.push(`${label}[${i}]: font facts are derived; record only id, css and source`);
       if (record.source?.kind === 'file') {
         checkFile(record.source, `${label}[${i}]`);
+        try { verifyResourceSource(root, record.source, { kind: label === 'fonts' ? 'font' : 'image', identity: label === 'fonts' ? requirement.id : requirement.imageHash, fileKey: capture.source.fileKey }); }
+        catch (error) { errors.push(`${label}[${i}]: ${error.message}`); }
         if (label === 'assets' && !text(requirement.imageHash)) errors.push(`${label}[${i}]: missing captured image hash requires unresolved source, not an invented asset mapping`);
       }
       else if (record.source?.kind === 'unresolved' && text(record.source.reason)) warnings.push(`${label}[${i}]: resource loading NOT VERIFIED: ${record.source.reason}`);

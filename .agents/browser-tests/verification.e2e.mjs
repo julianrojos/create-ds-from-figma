@@ -30,6 +30,17 @@ import { renderTokensCss } from '../checks/lib/tokens-css.mjs';
 import { activateBrowserCase, collectBrowserCase } from '../skills/create-ds-from-figma/scripts/lib/browser-actions.mjs';
 
 const runtime = browserRuntime();
+test('documented Inter policy pin matches the locked font bytes, package version and license', () => {
+  const template = JSON.parse(readFileSync(path.join(repoRoot, 'resource-policy.example.json')));
+  assert.deepEqual(template.rules, [], 'portable template must not authorize a kit fixture');
+  const documentation = readFileSync(path.join(repoRoot, '.agents/workflows/resource-policy.md'), 'utf8');
+  const rule = JSON.parse(documentation.match(/<!-- inter-fixture-example -->\s*```json\n([\s\S]*?)\n```/)[1]);
+  assert.ok(rule.id.startsWith('fixture-only-'));
+  const pkg = JSON.parse(readFileSync(path.join(runtime, 'node_modules/@fontsource/inter/package.json')));
+  assert.equal(rule.sha256, sha256(readFileSync(path.join(repoRoot, rule.origin.path))));
+  assert.equal(rule.version, `${pkg.name}@${pkg.version}`);
+  assert.equal(rule.license, pkg.license);
+});
 const playwright = await import(pathToFileURL(path.join(runtime, 'node_modules/playwright/index.mjs')).href);
 const executablePath = playwright.chromium.executablePath();
 if (!existsSync(executablePath)) throw new Error('Locked Chromium binary missing. Run npm run test:browser:setup. The real-browser regression is required, not skipped.');

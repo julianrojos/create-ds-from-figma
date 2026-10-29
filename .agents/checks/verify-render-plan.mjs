@@ -8,9 +8,11 @@ import { verifyTokenStyles } from './lib/token-styles.mjs';
 import { createDependencySession } from './lib/local-dependencies.mjs';
 import { collectCssDiagnostics } from './lib/css-diagnostics.mjs';
 import { evidenceSessionFor } from './lib/evidence-session.mjs';
+import { loadResourcePolicy } from './lib/resource-policy.mjs';
 
 export function verifyRenderPlans(root, { contexts, dependencySession, ...options } = {}) {
   const errors = [], warnings = [];
+  try { loadResourcePolicy(root); } catch (error) { return { errors: [`Resource policy: ${error.message}`], warnings }; }
   dependencySession ||= createDependencySession(root);
   const evidenceSession = evidenceSessionFor(root, options), context = { ...options, dependencySession, evidenceSession };
   if (!contexts) {

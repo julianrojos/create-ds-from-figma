@@ -85,6 +85,14 @@ Las pruebas stdio ejecutan el CLI con un servidor MCP real de prueba y una respu
 
 ## Adaptador Opcional
 
+Imágenes originales: `scripts/figma-images.mjs bridge ROOT REQUEST_JSON` y
+`capture ROOT REQUEST_JSON CONFIG --approve-connection` aplican la política antes
+de generar/ejecutar la captura. El sobre figma-image-v1 es independiente del
+snapshot: original getBytesAsync, fileKey, imageHash, byteLength y base64.
+Los fragmentos reutilizan el transporte y conservan respuestas MCP; resolve
+produce un recibo temporal sin escribir el proyecto. Contrato y límites:
+[política de recursos](../../../workflows/resource-policy.md).
+
 `node .agents/skills/create-ds-from-figma/scripts/figma-capture.mjs bridge FILE_KEY NODE_ID [--max-chunks N]` genera un adaptador para functions.exec de Codex. Úsalo solo si ese orquestador y sus herramientas existen, transfiriendo stdout programáticamente. No es requisito del contrato ni una vía disponible automáticamente en Claude Code. Usa el mismo núcleo, bloques de 12000 caracteres y sesiones exclusivas, sin transcripción del modelo; comparte el presupuesto predeterminado de 256 bloques y rango 1..4096. Conserva las respuestas originales, incluso la respuesta fallida, en response-OFFSET.json. A diferencia de capture, este adaptador conserva las sesiones fallidas y muestra su ruta para diagnóstico; elimina únicamente esa sesión cuando deje de ser necesaria. Un reintento es explícito y genera una sesión nueva; no se reanudan ni parchean sesiones parciales. scripts/lib/capture-bridge.mjs también acepta adaptadores runFigma/getCode/stage y maxChunks.
 
 El registro manual anterior solo acredita la vía figma_execute del entorno Codex y no conserva datos de diseño en el repo. No hay una validación reproducible del cliente MCP directo contra Figma real, de OpenCode ni de una conexión de Claude Code. Las pruebas automatizadas usan Figma simulado. Antes de declarar otra conexión verificada, comprueba su esquema y realiza una captura real de solo lectura, fuera del proyecto; registra fecha, herramienta, entorno, origen, versión del colector, hash, cobertura y limitaciones, sin secretos. Esa validación solo acredita la conexión probada, no todos los editores o servidores.

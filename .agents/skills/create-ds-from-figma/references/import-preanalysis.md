@@ -44,6 +44,16 @@ Un JSON registrado que falta y contenía variables no se reconstruye desde sus n
 
 ### Recursos esenciales
 
+Para imágenes originales de Figma autorizadas, usa las acciones CAPTURE_FIGMA_IMAGE
+del diagnóstico con ROOT y el transporte `scripts/figma-images.mjs`, según el
+contrato de resolución enlazado abajo. bridge/capture transfieren bytes originales
+sin transcripción; resolve produce el recibo para requirements y posterior
+publicación. No pidas al usuario exportarlos si el transporte permitido funciona.
+
+Antes de pedir recursos, aplica el [contrato de resolución](../../../workflows/resource-policy.md). Busca archivos existentes y reglas exactas. El resolvedor guarda originales y recibos solo en temporales fuera del proyecto. `requirements SNAPSHOT ROOT RECEIPTS_JSON` consume una lista de rutas de recibos sin descargar ni publicar; RESOLVED exige bytes, identidad y política vigentes. No determina esencialidad ni fidelidad. Una política cambiada requiere reevaluación con nueva resolución, pudiendo reutilizar bytes temporales comprobados. No persistas importaciones pendientes.
+
+Si sigue faltando un esencial, reúne recurso, variantes afectadas, causa (ausente, inaccesible o decisión pendiente) y opciones viables: configurar origen, aportar archivo o autorizar una sustitución. Mantén DS_GAP antes de código. No prometas conservar capturas temporales indefinidamente.
+
 6. Sobre la captura temporal, antes de escribir el proyecto, ejecuta `node .agents/skills/create-ds-from-figma/scripts/verification-plan.mjs requirements SNAPSHOT`. Usa resources/nextActions para reunir en una sola pregunta los orígenes autorizados necesarios para la implementación prevista. Son candidatos observados con nodos/variantes, no carencias esenciales: casos y descriptores CSS quedan pending hasta tener plan. No inventes pesos por el nombre de estilo ni exijas todos los candidatos ocultos. Si falta un recurso esencial para la implementación prevista, informa DS_GAP antes del TSX, sin elegir paquetes o imágenes por tu cuenta. No alteres fichas históricas en una ruta de reutilización.
    Los nodos vectoriales observados aparecen como `vectors`: reprodúcelos con su exportación SVG original (`scripts/figma-vectors.mjs`, acción `EXPORT_VECTOR_SOURCES`) en lugar de reconstruirlos con CSS; una aproximación exige aprobación y revisión visual.
 

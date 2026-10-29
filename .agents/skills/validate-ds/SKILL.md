@@ -28,8 +28,8 @@ Contrato transversal: [INV-PREWRITE, INV-DIAGNOSE, INV-STATUS e INV-DELIVERY](..
 
 - Without an implementation, return to identifying/planning; do not import a component.
 - Never invent Figma observations, token units/modes, state activation or visual approval.
-- Missing essential resources block a new import before code. A temporary diagnosis
-  of existing code does not authorize creating that blocked import.
+- Missing essential resources block a new import before code. A temporary diagnosis of existing code does not authorize creating that blocked import.
+- Validate policy provenance offline using the [resource contract](../../workflows/resource-policy.md). Standalone validation never downloads, publishes, registers or changes policy; stale authorization or changed bytes must be resolved in an authorized import/update.
 - No Figma/browser execution means NOT RUN and Overall NOT VERIFIED. Static PASS,
   a measurement receipt or transferred data cannot establish visual PASS.
 - Keep failed, stale, unsupported and unexecuted checks distinct. No review rescues

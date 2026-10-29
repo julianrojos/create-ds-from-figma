@@ -6,9 +6,11 @@ import { planInventoryTokens } from '../../../checks/lib/inventory-tokens.mjs';
 import { nestedInventory } from '../../../checks/lib/nested-inventory.mjs';
 import { snapshotResources } from '../../../checks/lib/resource-diagnostics.mjs';
 import { projectFile } from '../../../checks/lib/render-plan.mjs';
+import { loadResourcePolicy } from '../../../checks/lib/resource-policy.mjs';
 
 export function preanalyze(root, inventoryPath, snapshotPath) {
   const inventory = readInventory(inventoryPath), errors = [], nextActions = [];
+  try { loadResourcePolicy(root); } catch (error) { errors.push(`Resource policy: ${error.message}`); }
   let tokens, nested, resources;
   try {
     const plan = planInventoryTokens(root, inventoryPath);
@@ -23,7 +25,7 @@ export function preanalyze(root, inventoryPath, snapshotPath) {
     if (snapshot.capture?.source?.fileKey !== inventory.inventory.source.fileKey) throw new Error('Snapshot and inventory file origins differ');
     const mapPath = 'design-system/relationships/figma-code-map.json';
     const map = existsSync(path.join(root, mapPath)) ? JSON.parse(readFileSync(projectFile(root, mapPath), 'utf8')) : {};
-    nested = nestedInventory(snapshot, map); resources = snapshotResources(snapshot.capture);
+    nested = nestedInventory(snapshot, map); resources = snapshotResources(snapshot.capture, { root: errors.some(e => e.startsWith('Resource policy:')) ? undefined : root });
     for (const instance of nested.instances.filter(i => ['missing', 'unresolved'].includes(i.status))) {
       errors.push(`${instance.instance}: ${instance.reason}`);
       nextActions.push({ code: instance.status === 'missing' ? 'IMPORT_NESTED_COMPONENT' : 'RESOLVE_NESTED_IDENTITY', instance: instance.instance, refs: instance.refs, permissions: ['figma-read'], command: null });

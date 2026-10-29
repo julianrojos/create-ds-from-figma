@@ -13,6 +13,7 @@ import { importDiagnostics } from './lib/import-diagnostics.mjs';
 import { importReport, reportDocuments } from './lib/import-report.mjs';
 import { closureConformance, staleSummary } from './lib/closure-conformance.mjs';
 import { parseImportArgs } from './verify-closure.mjs';
+import { loadResourcePolicy } from './lib/resource-policy.mjs';
 
 const core = ['design-system/inventory.json', 'design-system/relationships/figma-code-map.json', 'design-system/relationships/figma-state.json'];
 const notApplicable = reason => ({ status: 'NOT APPLICABLE', reason });
@@ -32,6 +33,7 @@ export function assessImportSummaries(names, summaries) {
 export async function verifyImports(root, { applicationOptions, since } = {}) {
   root = path.resolve(root);
   const errors = [], warnings = [], summaries = new Map(), delegations = new Map();
+  try { loadResourcePolicy(root); } catch (error) { errors.push(`Resource policy: ${error.message}`); }
   let closure;
   try {
     closure = closureConformance(root, { since });
@@ -53,7 +55,7 @@ export async function verifyImports(root, { applicationOptions, since } = {}) {
       structure = notApplicable('Kit without a generated design system or application');
     } else {
       const result = verify(root, { visualSummaries: summaries, delegationSummaries: delegations });
-      errors.push(...result.errors); warnings.push(...result.warnings);
+      errors.push(...result.errors.filter(error => !errors.includes(error))); warnings.push(...result.warnings);
       const inventory = JSON.parse(readFileSync(path.join(root, core[0]), 'utf8'));
       if (!Array.isArray(inventory.components)) throw new Error('inventory.components must be an array');
       components = assessImportSummaries(inventory.components, summaries);

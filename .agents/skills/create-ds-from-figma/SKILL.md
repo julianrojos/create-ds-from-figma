@@ -36,6 +36,7 @@ Contrato transversal: [INV-PREWRITE, INV-DIAGNOSE, INV-STATUS e INV-DELIVERY](..
   el proyecto, aplica la excepción de scaffold y tokens del preanálisis:
   `App.tsx` válida y vacía, sin registrar el componente bloqueado.
 - Si faltan fuentes o imágenes esenciales, pide sus orígenes autorizados juntos.
+  Antes aplica la [política de recursos](../../workflows/resource-policy.md): recupera originales cubiertos por ella en temporales. Solo los esenciales que sigan sin resolver bloquean. Política inválida es error explícito. No concede permisos de red del entorno ni autoriza sustituciones.
   Sin interacción: `BLOCKED`, sin escribir. No instales sustitutos por su nombre.
 - `requirements` lista candidatos, no declara esencial todo recurso observado.
   `--diagnose` no autoriza implementar una importación bloqueada para medirla.
