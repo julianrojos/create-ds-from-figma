@@ -48,6 +48,10 @@ export function validDesignRequirements(value) {
   return value.codePath.startsWith('src/') && Object.keys(value).sort().join(',') === 'codePath,component,props';
 }
 export function validateCase(c) {
+  if (c?.setup !== undefined) {
+    const s = c.setup;
+    if (!s || typeof s !== 'object' || Array.isArray(s) || Object.keys(s).some(k => !['missingImage', 'evidenceOutsideProject', 'emptyResourcePolicy'].includes(k)) || ['missingImage', 'emptyResourcePolicy'].some(k => s[k] !== undefined && typeof s[k] !== 'boolean') || s.evidenceOutsideProject !== undefined && !['component', 'delegation'].includes(s.evidenceOutsideProject)) throw new Error('Invalid behavior fixture setup');
+  }
   if (!c || !/^[a-z][a-z0-9-]+$/.test(c.id) || c.fixture !== 'preview-project' || typeof c.prompt !== 'string' || !c.inputs || !Array.isArray(c.rules) || !c.rules.length) throw new Error('Invalid behavior case');
   for (const r of c.rules) {
     if (!ruleKinds.has(r.kind)) throw new Error(`Unknown behavior rule: ${r.kind}`);

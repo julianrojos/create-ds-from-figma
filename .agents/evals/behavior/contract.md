@@ -1,5 +1,11 @@
 # Evaluaciones de comportamiento: contrato v1
 
+Los casos pueden declarar `setup` con missingImage y emptyResourcePolicy booleanos
+y evidenceOutsideProject (`component` o `delegation`). El registrador aplica estos
+datos sellados del caso; no decide la preparación mediante listas de caseId. Un
+campo, tipo o valor desconocido se rechaza antes de preparar la sesión. Cambiar
+setup cambia el hash del caso y hace caducar resultados históricos.
+
 Diseño previo al puntuador. Alcance: obligaciones de proceso sobre fixtures sintéticos; no fidelidad, autenticación de procedencia ni discovery del runtime.
 
 El caso `nested-api-a` requiere contrastar requisitos de diseño sintéticos consultados mediante `design-requirements` con la API leída de la dependencia original. La regla `dependency-decision` declara `component` y `missingProp`; exige la solicitud estructurada de actualización correspondiente. El prompt, identificador y descriptor no dan la decisión esperada ni afirman que falte una prop. Los requisitos solo aparecen al consultar; el puntuador valida su coincidencia con el caso sellado y el hash del contenido leído contra el manifiesto inicial. El analizador estático de un archivo admite funciones y flechas, objetos inline, interfaces y herencia local, aliases e intersecciones locales, anotaciones FC/FunctionComponent y wrappers memo/forwardRef reconocidos por sus imports de React, y exports con alias. Tipos importados, genéricos no resueltos, uniones, índices y formas dinámicas quedan NOT VERIFIED; no se ejecuta código. Árbol intacto, ausencia de escrituras y bloqueo se puntúan por separado. Sigue siendo un contraste sintético no ciego: los archivos del caso son accesibles al agente y los registros no están autenticados. No demuestra discovery real, inferencia interna, generalización a APIs arbitrarias ni entrega del texto visible.

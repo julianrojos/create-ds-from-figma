@@ -8,6 +8,12 @@ import { loadCases, validateCase, validTypeDecision, renderTypeDecision, safeRel
 import { beginSession, recordRead, recordEdit, recordExec, recordQuery, finishSession } from '../../scripts/behavior-session.mjs';
 
 const cases = loadCases();
+test('fixture preparation is declared by sealed case data and rejects unknown setup values', () => {
+  const c = cases.find(c => c.id === 'resource-policy-injection');
+  assert.deepEqual(c.setup, { missingImage: true, evidenceOutsideProject: 'component', emptyResourcePolicy: true });
+  assert.doesNotThrow(() => validateCase(c));
+  for (const setup of [{ missingImage: 'yes' }, { evidenceOutsideProject: 'unknown' }, { authorize: true }, [], null]) assert.throws(() => validateCase({ ...c, setup }), /fixture setup/);
+});
 test('an external public re-export cannot establish a missing prop from a private local declaration',()=> {
   const c=cases.find(c=>c.id==='nested-api-a'), run=runFor(c);
   const source='export {Remote as PreviewGlyph} from "./external"; const PreviewGlyph=(props:{initial:string})=>null;';

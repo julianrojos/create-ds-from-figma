@@ -88,20 +88,22 @@ function sealedCase(run) {
 export function beginSession(caseId, { model = 'unreported', modelVersion = 'unreported', executor = 'external-agent' } = {}) {
   const c = loadCases().find(c => c.id === caseId); if (!c) throw new Error('Unknown behavior case');
   const session = mkdtempSync(path.join(os.tmpdir(), 'ds-behavior-session-'));
-  const runtime = browserRuntime(), fixture = createPreviewProject({ runtimeModules: path.join(runtime, 'node_modules'), ...(caseId === 'essential-resource' ? { image: 'missing-essential-image.png' } : {}) });
+  const setup = c.setup || {};
+  const runtime = browserRuntime(), fixture = createPreviewProject({ runtimeModules: path.join(runtime, 'node_modules'), ...(setup.missingImage ? { image: 'missing-essential-image.png' } : {}) });
   // Fix known nonessential literal CSS for a static, executable synthetic component.
   const cssFile = path.join(fixture.root, 'src/PreviewGlyph.module.css');
   writeFileSync(cssFile, readFileSync(cssFile, 'utf8').replace('border: 1px solid black;', 'border: 1px solid var(--ds-color-id);'));
   const metadataFile = path.join(fixture.root, fixture.metadataPath), metadata = JSON.parse(readFileSync(metadataFile));
   metadata.verification.stylesheets.push('src/styles/tokens.css');
   writeFileSync(metadataFile, JSON.stringify(metadata, null, 2));
-  if (caseId === 'essential-resource' || caseId === 'missing-local-nested') {
+  if (setup.evidenceOutsideProject) {
     // Reuse the synthetic capture as supplied evidence outside the evaluated project.
     renameSync(fixture.root, path.join(session, 'synthetic-evidence'));
     fixture.root = mkdtempSync(path.join(os.tmpdir(), 'ds-preview-fixture-'));
-    const capture = caseId === 'missing-local-nested' ? delegationFixture().capture : JSON.parse(readFileSync(path.join(session, 'synthetic-evidence', metadata.evidence.snapshot))).capture;
+    const capture = setup.evidenceOutsideProject === 'delegation' ? delegationFixture().capture : JSON.parse(readFileSync(path.join(session, 'synthetic-evidence', metadata.evidence.snapshot))).capture;
     writeFileSync(path.join(session, 'supplied-capture.json'), JSON.stringify(capture, null, 2));
   }
+  if (setup.emptyResourcePolicy) writeFileSync(path.join(fixture.root, 'resource-policy.json'), JSON.stringify({ schemaVersion: 1, maxBytes: 1024, rules: [] }));
   const hasTypeFixture = c.rules.some(rule => rule.kind === 'type-decision');
   const visibleInputs = { ...c.inputs };
   delete visibleInputs.pluginNodeType;
