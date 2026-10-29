@@ -938,6 +938,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const root = path.resolve(process.argv[2] || ".");
   const visualSummaries = new Map();
   const { errors, warnings } = verify(root, { visualSummaries });
+  const { staleSummary } = await import('./lib/closure-conformance.mjs');
+  const stale = staleSummary(warnings);
+  if (stale.length) console.warn(`STALE CONFIRMATIONS — run verify:imports to assess delivery: ${JSON.stringify(stale)}`);
   for (const warning of warnings) console.warn(`WARN ${warning}`);
   for (const error of errors) console.error(`FAIL ${error}`);
   console.log(`${errors.length ? "FAIL" : "PASS"}: ${errors.length} error(s), ${warnings.length} warning(s)`);

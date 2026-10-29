@@ -172,7 +172,7 @@ estados, colores, delegación, composición y caducidad. Sigue también
    publica mediciones originales. Después de compararlas realmente,
    `npm run finalize:import -- ROOT METADATA --reviews REVIEW_FILE` registra las
    revisiones explícitas. No combines recogida y revisión; no inventes aprobación.
-5. Ejecuta `npm run verify:imports` antes de entregar. Exige confirmaciones
+5. Ejecuta `npm run verify:imports` antes de entregar y cita su resultado en el mensaje final. FAIL o NOT_RUN impiden presentar el componente como importado o entregado. No entregues código huérfano: código, ficha, inventario y mapa deben ser coherentes al cerrar. Los estados intermedios no autorizan registrar implementaciones inexistentes. Exige confirmaciones
    persistidas vigentes y todos los behavior obligatorios en PASS. Fidelidad
    no comparable necesita revisión específica; ninguna revisión rescata FAIL/NOT RUN.
    Una medición o recibo, y `execution COMPLETED`, no son una importación terminada.

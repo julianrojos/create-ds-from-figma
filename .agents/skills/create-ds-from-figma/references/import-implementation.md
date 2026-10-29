@@ -37,7 +37,7 @@ Este repo es la fuente única de los recursos del agente. Los archivos que usa e
 
 `plantillas/` está en `.agents/skills/create-ds-from-figma/plantillas/`, junto a este documento. Si falta, detente e informa que este repo está incompleto. Contiene dos carpetas:
 
-- `plantillas/design-system/`: si aún no existe el scaffold, copia **sin editar** todo su contenido (`inventory.json` y `relationships/`) a `design-system/`. Si quedó parcial, añade solo lo que falte sin sobrescribir archivos existentes; reconstruye el inventario según la regla de reparación del preanálisis ya leído.
+- `plantillas/design-system/`: si aún no existe el scaffold, copia **sin editar** `inventory.json` y `relationships/` a `design-system/`. Si quedó parcial, añade solo lo que falte sin sobrescribir archivos existentes; reconstruye el inventario según la regla de reparación del preanálisis ya leído. La [plantilla de clasificación](../plantillas/design-system/component-classification.json) es opcional: cópiala a `design-system/component-classification.json` solo al necesitar clasificar un directorio auxiliar privado, completando su motivo. Si ya existe, conserva sus entradas. No clasifiques componentes públicos como auxiliares para silenciar hallazgos; la clasificación no acredita autorización. Su ausencia equivale a una lista vacía.
 - `plantillas/componentes/`: no se copia tal cual. Adapta sus fichas (`metadata.json` y `usage.md`) al crear `design-system/components/<Nombre>/`.
 
 Al trabajar en `src/` o `design-system/`, aplica `.agents/rules/design-system.md`. Registra las piezas implementadas solo en `design-system/inventory.json`.
@@ -48,6 +48,7 @@ Estos son los archivos que pertenecen al DS/app generado:
 
 ```text
 design-system/inventory.json
+design-system/component-classification.json ← opcional; solo para auxiliares privados
 design-system/relationships/figma-code-map.json
 design-system/relationships/figma-state.json
 design-system/figma/snapshots/<fileKey>/<root-id>/<SHA256>.json

@@ -10,11 +10,13 @@ export const help = `Usage: npm run verify:all -- kit [--dry-run]
 
 Profiles are explicit; changes are never inferred from Git.
 kit: full unit + real Chromium tests, strict documentation checks, routing/behavior fixture checks and complete reference-heading accounting.
-import: static DS/props/bindings checks, temporary diagnosis for each supplied component,
+import: component/token closure, static DS/props/bindings checks, temporary diagnosis for each supplied component,
         current persisted import gate. All changed components must be supplied.
-screen: static DS/props/bindings checks and temporary diagnosis for supplied components.
+screen: component/token closure, static DS/props/bindings checks and temporary diagnosis for supplied components.
         Rendered screen comparison, composition and accessibility remain manual.
 
+--since REV optionally compares auxiliary classifications against that explicit Git
+commit in UI profiles; an invalid revision fails. No default Git base is inferred.
 --metadata is project-relative and repeatable. No dependencies are installed.
 --dry-run prints the plan/effects without launching checks, project code or browsers.
 No collect/reviews/publication is supported. UI checks do not certify delivery.
@@ -34,7 +36,7 @@ export function parseArgs(args, { cwd = process.cwd(), toolsRoot = kitRoot } = {
   if (args.length === 1 && args[0] === '--help') return { help: true };
   const [profile, ...flags] = args;
   if (!['kit', 'import', 'screen'].includes(profile)) throw new Error(help);
-  let root, dryRun = false;
+  let root, since, dryRun = false;
   const metadata = [];
   for (let i = 0; i < flags.length; i++) {
     const flag = flags[i];
@@ -42,13 +44,15 @@ export function parseArgs(args, { cwd = process.cwd(), toolsRoot = kitRoot } = {
     else if (flag === '--root' && root === undefined) {
       root = flags[++i];
       if (!root || root.startsWith('--')) throw new Error('Missing --root value');
+    } else if (flag === '--since' && since === undefined && flags[i+1] && !flags[i+1].startsWith('-')) {
+      since = flags[++i];
     } else if (flag === '--metadata') {
       const value = flags[++i];
       if (!value || value.startsWith('--') || path.isAbsolute(value)) throw new Error('--metadata requires a project-relative path');
       metadata.push(value);
     } else throw new Error(`Unknown or repeated option: ${flag}`);
   }
-  if (profile === 'kit' && (root !== undefined || metadata.length)) throw new Error('kit checks this kit; --root/--metadata are UI-profile options');
+  if (profile === 'kit' && (root !== undefined || metadata.length || since !== undefined)) throw new Error('kit checks this kit; --root/--metadata/--since are UI-profile options');
   if (profile !== 'kit' && root === undefined) throw new Error('UI profiles require explicit --root');
   if (profile === 'import' && !metadata.length) throw new Error('import requires every changed --metadata path');
   root = realpathSync(path.resolve(profile === 'kit' ? toolsRoot : cwd, profile === 'kit' ? '.' : root));
@@ -63,7 +67,7 @@ export function parseArgs(args, { cwd = process.cwd(), toolsRoot = kitRoot } = {
     seen.add(relative);
     return relative;
   });
-  return { profile, root, metadata: normalized, dryRun };
+  return { profile, root, metadata: normalized, dryRun, ...(since !== undefined ? { since } : {}) };
 }
 
 export function makePlan(options, { toolsRoot = kitRoot } = {}) {
@@ -77,13 +81,14 @@ export function makePlan(options, { toolsRoot = kitRoot } = {}) {
     node('behavior-fixtures', '.agents/scripts/evaluate-behavior.mjs', ['--check'], ['kit-read; validates cases, not agent behavior']),
   ];
   return [
+    node('closure', '.agents/checks/verify-closure.mjs', [root, '--check', ...(options.since !== undefined ? ['--since', options.since] : [])], ['project-read', 'optional explicit Git baseline read']),
     node('structure', '.agents/checks/verify-ds.mjs', [root], ['project-read']),
     node('props', '.agents/checks/verify-props.mjs', [root], ['project-read']),
     node('bindings', '.agents/checks/verify-bindings.mjs', [root, '--json'], ['project-read'], { kind: 'bindings' }),
     ...metadata.map((file, index) => node(`diagnose:${index + 1}`, '.agents/skills/create-ds-from-figma/scripts/finalize-import.mjs', [root, file, '--diagnose'],
       ['execute project component code', 'browser-execution', 'local-server', 'temporary-write; project code may have its own effects'],
       { kind: 'diagnostic', requires: ['structure', 'props'], timeoutMs: 300_000 })),
-    ...(profile === 'import' ? [node('imports', '.agents/checks/verify-imports.mjs', [root], ['project-read', 'locked-browser-execution; no project code'])] : []),
+    ...(profile === 'import' ? [node('imports', '.agents/checks/verify-imports.mjs', [root, ...(options.since !== undefined ? ['--since', options.since] : [])], ['project-read', 'locked-browser-execution; no project code'])] : []),
   ];
 }
 

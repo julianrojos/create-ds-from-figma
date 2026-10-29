@@ -53,6 +53,10 @@ Cada ficha generada contiene solo `metadata.json` y `usage.md`; el código vive 
 
 ## Verificar
 
+El análisis HTML de los checks usa `parse5` como dependencia de desarrollo del kit, con `entities` como dependencia transitiva. Permite reconocer scripts y atributos reales sin ejecutar HTML ni JavaScript. Son herramientas de verificación: no se importan al código de la app generada y se conservan en las dependencias de desarrollo del repositorio.
+
+El [diagnóstico de cierre](.agents/checks/closure-conformance.md) detecta componentes huérfanos y variables `--ds-*` sin definición, y conserva como pendientes los ámbitos CSS no demostrados. `npm run verify:closure -- ROOT` permite consultarlo durante el desarrollo; `--check`, el gate de importación y los perfiles de UI exigen PASS. `--since REV` compara clasificaciones auxiliares contra una revisión Git explícita; sin revisión se informa solo del estado actual. Las confirmaciones caducadas se resumen al principio de la salida de los verificadores.
+
 Node >=22.12.0 es requisito para importar, verificar y validar el kit (`package.json` declara `engines` y `.nvmrc` fija la línea 22). Una shell sin el perfil de `nvm`, `fnm`, `volta` o `asdf` no lo encuentra aunque esté instalado: cárgalo antes de concluir que falta. Para validar el kit, además, prepara una vez el runtime aislado de navegador; repite la preparación si cambia su lock:
 
 ```sh

@@ -178,3 +178,4 @@ En import-code, text incluye TEXT ocultos y descendientes de instancias;
 resources incluye IMAGE ocultos y external-bindings depende de variables remotas
 capturadas. Resuelve esos hechos antes de omitir detalle. Integridad del snapshot
 se lee en import-capture; el informe estático de bindings en import-diagnose.
+Los perfiles de UI y `verify:imports` exigen el [diagnóstico de cierre](../checks/closure-conformance.md): huérfanos bidireccionales y tokens inexistentes son FAIL; ámbitos obligatorios sin demostrar son NOT_RUN y bloquean el cierre. La consulta de desarrollo no falla por hallazgos. El parámetro opcional `--since REV` compara clasificaciones auxiliares con una revisión explícita; no infiere una base Git. Las evaluaciones de comportamiento siguen siendo independientes: validar el nuevo caso de API insuficiente no demuestra una ejecución real del agente.

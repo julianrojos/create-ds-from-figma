@@ -72,7 +72,7 @@ when running `compare` manually. All required behavior checks must still PASS.
    The excerpts come from [resources and evidence](references/resources-and-evidence.md). It preserves snapshot/version contracts, resource and
    application diagnostics, native-state/color limits, delegation and stale records.
 3. Execute the static commands listed above and complete the manual checks.
-   Before temporary diagnosis, read import-diagnose with applicable features
+   Consult `npm run verify:closure -- ROOT` for orphan components, missing DS tokens and unresolved CSS availability. Required closure findings block delivery; a consultative exit 0 is not a PASS report. Before temporary diagnosis, read import-diagnose with applicable features
    from the same plan; missing execution remains NOT RUN. After execution, read
    import-diagnose-results and add --with composition when output includes composition
    checks/actions, before interpreting, correcting or retrying. The flag selects

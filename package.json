@@ -16,6 +16,7 @@
     "test:browser:setup": "node .agents/scripts/setup-browser-tests.mjs",
     "verify:docs": "node .agents/checks/verify-docs.mjs",
     "verify:imports": "node .agents/checks/verify-imports.mjs",
+    "verify:closure": "node .agents/checks/verify-closure.mjs",
     "finalize:import": "node .agents/skills/create-ds-from-figma/scripts/finalize-import.mjs",
     "verify:all": "node .agents/scripts/verify-all.mjs",
     "eval:routing": "node .agents/scripts/evaluate-routing.mjs",
@@ -24,6 +25,7 @@
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "1.32.1",
+    "parse5": "8.0.0",
     "pngjs": "7.0.0",
     "postcss": "8.5.28",
     "postcss-selector-parser": "7.1.6",

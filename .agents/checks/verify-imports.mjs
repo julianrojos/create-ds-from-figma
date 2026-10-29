@@ -11,6 +11,8 @@ import { fontConfigurations } from './lib/font-configuration.mjs';
 import { delegationNextActions } from './lib/delegation-differences.mjs';
 import { importDiagnostics } from './lib/import-diagnostics.mjs';
 import { importReport, reportDocuments } from './lib/import-report.mjs';
+import { closureConformance, staleSummary } from './lib/closure-conformance.mjs';
+import { parseImportArgs } from './verify-closure.mjs';
 
 const core = ['design-system/inventory.json', 'design-system/relationships/figma-code-map.json', 'design-system/relationships/figma-state.json'];
 const notApplicable = reason => ({ status: 'NOT APPLICABLE', reason });
@@ -27,9 +29,15 @@ export function assessImportSummaries(names, summaries) {
   });
 }
 
-export async function verifyImports(root, { applicationOptions } = {}) {
+export async function verifyImports(root, { applicationOptions, since } = {}) {
   root = path.resolve(root);
   const errors = [], warnings = [], summaries = new Map(), delegations = new Map();
+  let closure;
+  try {
+    closure = closureConformance(root, { since });
+    for (const finding of [...closure.components.findings, ...closure.tokens.findings].filter(f => f.status === 'FAIL')) errors.push(`Closure: ${finding.component || finding.file}: ${finding.token || ''} ${finding.reason}`);
+    if (closure.status === 'NOT_RUN') errors.push('Closure: required CSS availability checks remain NOT_RUN');
+  } catch (error) { closure = { status: 'FAIL', reason: error.message }; errors.push(`Closure: ${error.message}`); }
   let components = [], structure, application;
   try {
     if (!statSync(root).isDirectory()) throw new Error('Project root must be a directory');
@@ -87,13 +95,14 @@ export async function verifyImports(root, { applicationOptions } = {}) {
   const actions = deduplicateNextActions(nextActions);
   const report = importReport({ status, structure, application, components, errors, warningCount: warnings.length, nextActions: actions,
     documents: reportDocuments(root, diagnostics.components) });
-  return { schemaVersion: 1, status, structure, components, application, errors, warnings, importDiagnostics: diagnostics.components, nextActions: actions, report,
+  return { schemaVersion: 1, status, projectCoverage:closure.coverage ?? {status:'NOT_RUN',reason:closure.reason}, staleConfirmations: staleSummary(warnings), closure, structure, components, application, errors, warnings, importDiagnostics: diagnostics.components, nextActions: actions, report,
     scope: 'Delivery accounting from revalidated persisted confirmations, not automatic overall visual fidelity. Demo checks only applicable literals in the kit Chromium.' };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
-    const result = await verifyImports(process.argv[2] || '.');
+    const options = parseImportArgs(process.argv.slice(2));
+    const result = await verifyImports(options.root, options);
     console.log(JSON.stringify(result, null, 2));
     process.exitCode = result.status === 'PASS' ? 0 : 1;
   } catch (error) { console.error(error.message); process.exitCode = 1; }
