@@ -105,8 +105,9 @@ export function beginSession(caseId, { model = 'unreported', modelVersion = 'unr
   const hasTypeFixture = c.rules.some(rule => rule.kind === 'type-decision');
   const visibleInputs = { ...c.inputs };
   delete visibleInputs.pluginNodeType;
+  delete visibleInputs.designRequirements;
   const fixtureContext = hasTypeFixture ? { typeFixture: 'synthetic-plugin-api', blockedBeforeImplementation: true }
-    : caseId === 'candidate-correspondence' || caseId === 'repeated-url' ? { metadata: fixture.metadataPath }
+    : caseId === 'candidate-correspondence' || caseId === 'repeated-url' || c.rules.some(r=>r.kind==='dependency-decision') ? { metadata: fixture.metadataPath }
     : { evidenceOutsideProject: path.join(session, 'supplied-capture.json'), blockedBeforeImplementation: true };
   writeFileSync(path.join(fixture.root, 'behavior-input.json'), JSON.stringify({ caseId: c.id, facts: visibleInputs, fixture: 'Synthetic process fixture; no Figma fidelity claim.', ...fixtureContext }, null, 2));
   const diagnosticArgv = [process.execPath, path.join(repoRoot, '.agents/skills/create-ds-from-figma/scripts/finalize-import.mjs'), fixture.root, fixture.metadataPath, '--diagnose'];
@@ -118,7 +119,8 @@ export function beginSession(caseId, { model = 'unreported', modelVersion = 'unr
   for (const file of instructions) { const target = path.join(session, 'instructions', file); mkdirSync(path.dirname(target), { recursive: true }); writeFileSync(target, readFileSync(path.join(repoRoot, file))); }
   return { session, projectRoot: fixture.root, caseId, prompt: c.prompt, inputs: visibleInputs, metadata: fixture.metadataPath,
     diagnosticArgv,
-    instructions: path.join(session, 'instructions'), recorder: fileURLToPath(import.meta.url), node: process.execPath, queries: { files: 'query SESSION files', guidance: 'query SESSION guidance PHASE [FEATURE...] (equivalent to read:guidance -- PHASE --with FEATURE)', static: 'query SESSION static ds|props|bindings (kit APIs; no project script/config execution)', ...(hasTypeFixture ? { figmaType: 'query SESSION figma-type (sealed synthetic Plugin API type fixture)' } : {}) }, scope: 'All project operations must use this recorder. Provenance/completeness remain declared, not authenticated.' };
+    readingPolicy: { required:'Use the recorder for all project reads; shell/exec reads do not count', command:[process.execPath,fileURLToPath(import.meta.url),'read',session,'RELATIVE'], queries:'Use query files, guidance or static for exploration and checks' },
+    instructions: path.join(session, 'instructions'), recorder: fileURLToPath(import.meta.url), node: process.execPath, queries: { files: 'query SESSION files', guidance: 'query SESSION guidance PHASE [FEATURE...] (equivalent to read:guidance -- PHASE --with FEATURE)', static: 'query SESSION static ds|props|bindings (kit APIs; no project script/config execution)', ...(hasTypeFixture ? { figmaType: 'query SESSION figma-type (sealed synthetic Plugin API type fixture)' } : {}), ...(c.inputs.designRequirements ? {designRequirements:'query SESSION design-requirements (sealed synthetic design specification)'} : {}) }, scope: 'All project operations must use this recorder. Provenance/completeness remain declared, not authenticated.' };
 }
 export async function recordRead(sessionPath, relative, options) {
   return withSession(sessionPath, async ({ session, run }) => {
@@ -143,6 +145,11 @@ export async function recordQuery(sessionPath, operation, args = [], options) {
         if (!Object.hasOwn(c.inputs, 'pluginNodeType')) throw new Error('No sealed synthetic type fixture for this case');
         e.result = { schemaVersion: 1, source: 'synthetic-plugin-api', status: c.inputs.pluginNodeType === null ? 'unavailable' : 'resolved', nodeType: c.inputs.pluginNodeType };
       }
+      else if (operation === 'design-requirements') {
+        const c = sealedCase(run);
+        if (!c.inputs.designRequirements) throw new Error('No sealed design requirements for this case');
+        e.result = {schemaVersion:1,source:'synthetic-design-requirements',requirements:c.inputs.designRequirements};
+      }
       else if (args[0] === 'ds') e.result = (await import('../checks/verify-ds.mjs')).verify(run.projectRoot);
       else if (args[0] === 'props') {
         const ts = (await import('typescript')).default;
@@ -158,7 +165,7 @@ export async function recordExec(sessionPath, argv, options) {
     const e = { sequence: run.events.length + 1, tool: 'exec', argv, ...classifyCommand(argv, run.projectRoot), complete: false };
     run.events.push(e); save(session, run);
     if (e.operation !== 'diagnosis' || !Array.isArray(run.diagnosticArgv) || digest(argv) !== digest(run.diagnosticArgv)) {
-      Object.assign(e, { execution: 'REJECTED', exitCode: null, stdout: '', stderr: '', error: 'Only the exact diagnostic argv is allowed; command was not executed.', complete: true });
+      Object.assign(e, { execution: 'REJECTED', exitCode: null, stdout: '', stderr: '', error: 'Only the exact diagnostic argv is allowed; command was not executed. For project reads use recorder read SESSION RELATIVE, or query SESSION files; exec cat does not count as a recorded read.', complete: true });
       save(session, run); return e;
     }
     e.execution = 'ATTEMPTED'; save(session, run);
@@ -214,7 +221,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     else if (command === 'exec' && args[1] === '--') result = await recordExec(args[0], args.slice(2));
     else if (command === 'edit' && args.length === 3) result = await recordEdit(args[0], args[1], args[2]);
     else if (command === 'finish' && args.length === 2) result = await finishSession(args[0], JSON.parse(readFileSync(args[1], 'utf8')));
-    else throw new Error('Usage: behavior-session.mjs begin CASE [--model M --model-version V --executor E] | read SESSION RELATIVE | query SESSION files|guidance PHASE [FEATURE...]|static ds|props|bindings|figma-type | exec SESSION -- ARGV... | edit SESSION RELATIVE CONTENT | finish SESSION FINAL_JSON_PATH');
+    else throw new Error('Usage: behavior-session.mjs begin CASE [--model M --model-version V --executor E] | read SESSION RELATIVE | query SESSION files|guidance PHASE [FEATURE...]|static ds|props|bindings|figma-type|design-requirements | exec SESSION -- ARGV... | edit SESSION RELATIVE CONTENT | finish SESSION FINAL_JSON_PATH');
     console.log(JSON.stringify(result, null, 2));
     if (result?.execution === 'REJECTED') process.exitCode = 2;
   } catch (error) { console.log(JSON.stringify({ status: 'ERROR', error: error.message })); process.exitCode = 2; }

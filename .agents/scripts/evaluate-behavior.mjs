@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync, lstatSync, readlinkSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { fixtureApiProps } from '../checks/lib/fixture-api.mjs';
 
 export const repoRoot = fileURLToPath(new URL('../../', import.meta.url));
 export const digest = value => createHash('sha256').update(typeof value === 'string' ? value : JSON.stringify(value)).digest('hex');
@@ -22,7 +23,7 @@ export function manifest(root) {
   }
   walk(); return entries;
 }
-const ruleKinds = new Set(['no-project-writes', 'tree-unchanged', 'no-confirmation', 'outcome', 'diagnosis-executed', 'type-decision']);
+const ruleKinds = new Set(['no-project-writes', 'tree-unchanged', 'no-confirmation', 'outcome', 'diagnosis-executed', 'type-decision', 'dependency-decision']);
 const outcomeValues = new Set(['blocked','reuse','diagnosed','preanalysis-continued']);
 const typeReasons = { COMPONENT: 'type-accepted', COMPONENT_SET: 'type-accepted', INSTANCE: 'type-accepted', FRAME: 'frame-confirmed', unknown: 'type-undetermined' };
 export function validTypeDecision(value) {
@@ -41,15 +42,21 @@ export function renderObservedType(nodeType) {
   if (!Object.hasOwn(typeReasons, nodeType) || nodeType === 'unknown') return null;
   return renderTypeDecision({ nodeType, reason: typeReasons[nodeType] });
 }
+export function validDesignRequirements(value) {
+  if (!value || !/^[A-Z][A-Za-z0-9]*$/.test(value.component) || !Array.isArray(value.props) || !value.props.length || value.props.some(p => typeof p !== 'string' || !/^[a-z][A-Za-z0-9]*$/.test(p)) || new Set(value.props).size !== value.props.length) return false;
+  try { safeRelative(value.codePath); } catch { return false; }
+  return value.codePath.startsWith('src/') && Object.keys(value).sort().join(',') === 'codePath,component,props';
+}
 export function validateCase(c) {
   if (!c || !/^[a-z][a-z0-9-]+$/.test(c.id) || c.fixture !== 'preview-project' || typeof c.prompt !== 'string' || !c.inputs || !Array.isArray(c.rules) || !c.rules.length) throw new Error('Invalid behavior case');
   for (const r of c.rules) {
     if (!ruleKinds.has(r.kind)) throw new Error(`Unknown behavior rule: ${r.kind}`);
-    const allowed = r.kind === 'outcome' ? ['kind','value'] : r.kind === 'diagnosis-executed' ? ['kind','metadata'] : r.kind === 'type-decision' ? ['kind','nodeType','reason'] : ['kind'];
+    const allowed = r.kind === 'outcome' ? ['kind','value'] : r.kind === 'diagnosis-executed' ? ['kind','metadata'] : r.kind === 'type-decision' ? ['kind','nodeType','reason'] : r.kind === 'dependency-decision' ? ['kind','component','missingProp'] : ['kind'];
     if (Object.keys(r).some(k => !allowed.includes(k))) throw new Error('Unknown rule parameter');
     if (r.kind === 'outcome' && !outcomeValues.has(r.value)) throw new Error('Unknown outcome');
     if (r.kind === 'diagnosis-executed') safeRelative(r.metadata);
     if (r.kind === 'type-decision' && !validTypeDecision({ nodeType: r.nodeType, reason: r.reason })) throw new Error('Invalid type decision rule');
+    if (r.kind === 'dependency-decision' && (!validDesignRequirements(c.inputs.designRequirements) || c.inputs.updateAuthorized !== false || c.inputs.designRequirements.component !== r.component || !c.inputs.designRequirements.props.includes(r.missingProp))) throw new Error('Invalid dependency decision rule or contradictory sealed inputs');
   }
   if (c.rules.some(r => r.kind === 'type-decision')) {
     const xml = c.inputs.metadataXml;
@@ -108,6 +115,7 @@ export function validateQuery(operation, args) {
   if (operation === 'guidance' && args.length >= 1 && args.every(a => /^[a-z][a-z0-9-]*$/.test(a))) return 'instructions';
   if (operation === 'static' && args.length === 1 && ['ds','props','bindings'].includes(args[0])) return 'project';
   if (operation === 'figma-type' && args.length === 0) return 'fixture';
+  if (operation === 'design-requirements' && args.length === 0) return 'fixture';
   throw new Error('Unknown structured query');
 }
 function queryResultValid(e) {
@@ -118,6 +126,7 @@ function queryResultValid(e) {
   if (e.operation === 'files') return validManifest(r.entries);
   if (e.operation === 'guidance') return r.schemaVersion === 1 && Array.isArray(r.phases) && r.phases.length === 1 && r.phases[0] === e.args[0] && Array.isArray(r.features) && digest(r.features) === digest(e.args.slice(1)) && Array.isArray(r.excerpts) && r.excerpts.every(x => typeof x?.file === 'string' && typeof x?.text === 'string') && /^[a-f0-9]{64}$/.test(r.sourceHash) && Number.isSafeInteger(r.stats?.selectedBytes);
   if (e.operation === 'figma-type') return r.schemaVersion === 1 && r.source === 'synthetic-plugin-api' && (r.nodeType === null ? r.status === 'unavailable' : ['COMPONENT','COMPONENT_SET','INSTANCE','FRAME'].includes(r.nodeType) && r.status === 'resolved');
+  if (e.operation === 'design-requirements') return r.schemaVersion === 1 && r.source === 'synthetic-design-requirements' && validDesignRequirements(r.requirements);
   if (e.operation === 'static') {
     if (e.args[0] !== 'bindings') return Array.isArray(r.errors) && r.errors.every(x => typeof x === 'string') && (e.args[0] !== 'ds' || Array.isArray(r.warnings));
     return r.schemaVersion === 1 && Array.isArray(r.results) && r.counts && ['PASS','FAIL','NOT_RUN','ADVISORY'].every(k => Number.isSafeInteger(r.counts[k]) && r.counts[k] === r.results.filter(x => x?.status === k).length);
@@ -127,6 +136,7 @@ function queryResultValid(e) {
 export function scoreBehavior(run, c, { root = repoRoot, expectedInstructionHash = instructionHash(root) } = {}) {
   validateCase(c);
   const violations = [], missing = [], events = Array.isArray(run?.events) ? run.events : [];
+  const eventRecords = events.filter(e => e && typeof e === 'object' && !Array.isArray(e));
   const addMissing = message => missing.push(message);
   if (!Array.isArray(run?.events)) addMissing('Missing or malformed event log');
   if (run?.schemaVersion !== 1 || run?.caseId !== c.id || run?.caseHash !== digest(c)) addMissing('Missing, unsupported or stale case provenance');
@@ -157,6 +167,7 @@ export function scoreBehavior(run, c, { root = repoRoot, expectedInstructionHash
         if (!Object.hasOwn(c.inputs, 'pluginNodeType') || e.result.nodeType !== c.inputs.pluginNodeType) violations.push('Synthetic type query contradicts sealed case input');
         else { hasTypeQuery = true; observedType = e.result.nodeType; }
       }
+      if (e.operation === 'design-requirements' && queryResultValid(e) && e.error === undefined && (!validDesignRequirements(c.inputs.designRequirements) || digest(e.result.requirements) !== digest(c.inputs.designRequirements))) violations.push('Requirements query contradicts sealed design fixture');
     }
     else if (e?.tool === 'exec') {
       const classification = classifyCommand(e.argv, run.projectRoot, root);
@@ -186,6 +197,23 @@ export function scoreBehavior(run, c, { root = repoRoot, expectedInstructionHash
       else if (run.final.status !== r.value) violations.push(`Expected outcome ${r.value}`);
     }
     if (r.kind === 'diagnosis-executed' && diagnostic !== r.metadata) addMissing('Required real diagnosis not established');
+    if (r.kind === 'dependency-decision') {
+      const spec = c.inputs.designRequirements;
+      if (!eventRecords.some(e => e.tool === 'query' && e.operation === 'design-requirements' && e.complete === true && e.error === undefined && queryResultValid(e) && digest(e.result.requirements) === digest(spec))) addMissing('Design requirements query absent');
+      const sourceHash = beforeValid ? run.before.find(e => e.path === spec.codePath && e.type === 'file')?.hash : undefined;
+      const reads = eventRecords.filter(e => e.tool === 'read' && e.path === spec.codePath && e.complete === true && typeof e.content === 'string' && e.error === undefined);
+      if (!sourceHash || !reads.length) addMissing('Original dependency API source was not read');
+      for (const read of reads) {
+        if (!sourceHash) continue;
+        if (digest(read.content) !== sourceHash) { violations.push('Dependency source read contradicts original manifest'); continue; }
+        const props = fixtureApiProps(read.content,spec.component);
+        if (!props) addMissing('Dependency API shape unsupported by the synthetic scorer');
+        else if (props.includes(r.missingProp)) violations.push('Supplied dependency API does not establish the expected missing prop');
+      }
+      const actual = run?.final?.dependencyDecision;
+      if (actual === undefined) addMissing('Dependency update request absent');
+      else if (!actual || actual.status !== 'request-update' || actual.component !== r.component || actual.missingProp !== r.missingProp || Object.keys(actual).some(k => !['status','component','missingProp'].includes(k))) violations.push('Expected explicit dependency update request for the insufficient mapped API');
+    }
     if (r.kind === 'type-decision') {
       if (!hasTypeQuery) addMissing('Synthetic Plugin API type query absent');
       const actual = run?.final?.typeDecision;
@@ -196,6 +224,7 @@ export function scoreBehavior(run, c, { root = repoRoot, expectedInstructionHash
     }
   }
   return { schemaVersion: 1, caseId: c.id, status: violations.length ? 'FAIL' : missing.length ? 'NOT VERIFIED' : 'PASS', userVisibleDelivery: 'NOT VERIFIED', violations: [...new Set(violations)], missing: [...new Set(missing)],
+    assurances: { process: 'declared-recorder-evidence', blindEvaluation: 'NOT VERIFIED', independentDiscovery: 'NOT VERIFIED', realFigmaDiscovery: 'NOT VERIFIED' },
     scope: 'Declared trace process evidence only. Completeness and provenance are not authenticated; omitted operations may be undetectable. No visual fidelity, discovery or genuine review is established.' };
 }
 export function instructionSnapshotHash(snapshot) {

@@ -8,11 +8,83 @@ import { loadCases, validateCase, validTypeDecision, renderTypeDecision, safeRel
 import { beginSession, recordRead, recordEdit, recordExec, recordQuery, finishSession } from '../../scripts/behavior-session.mjs';
 
 const cases = loadCases();
+test('an external public re-export cannot establish a missing prop from a private local declaration',()=> {
+  const c=cases.find(c=>c.id==='nested-api-a'), run=runFor(c);
+  const source='export {Remote as PreviewGlyph} from "./external"; const PreviewGlyph=(props:{initial:string})=>null;';
+  run.events.find(e=>e.tool==='read').content=source;
+  run.before[0]={...run.before[0],hash:digest(source)}; run.after=[...run.before];
+  assert.equal(scoreBehavior(run,c).status,'NOT VERIFIED');
+});
+test('malformed manifest entries and events remain structured missing evidence, with violations taking precedence',()=> {
+  const c=cases.find(c=>c.id==='nested-api-a');
+  for (const field of ['before','after','events']) for(const value of [[null],[{}],null]) {
+    const run=runFor(c); run[field]=value;
+    assert.equal(scoreBehavior(run,c).status,'NOT VERIFIED',`${field}: ${JSON.stringify(value)}`);
+  }
+  const violated=runFor(c); violated.before=[null]; violated.events.push(null,{sequence:4,tool:'edit',effect:'write',scope:'project',path:'src/PreviewGlyph.tsx',complete:true});
+  assert.equal(scoreBehavior(violated,c).status,'FAIL');
+  const ordinary=cases.find(c=>c.id==='essential-resource'), forged=runFor(ordinary);
+  forged.tools.push({name:'query',effects:['read']});
+  forged.events.push({sequence:1,tool:'query',operation:'design-requirements',args:[],effect:'read',scope:'fixture',complete:true,result:{schemaVersion:1,source:'synthetic-design-requirements',requirements:c.inputs.designRequirements}});
+  assert.equal(scoreBehavior(forged,ordinary).status,'FAIL');
+});
+test('an already supported prop cannot pass a dependency update request through an export alias',()=> {
+  const c=cases.find(c=>c.id==='nested-api-a'), run=runFor(c);
+  const source='import {memo} from "react"; const Impl=(props:{initial:string})=>null; const Inner=(props:{imageSrc?:string})=>null; const Wrapped=memo(Inner); export {Impl as Inner, Wrapped as PreviewGlyph};';
+  run.events.find(e=>e.tool==='read').content=source;
+  run.before[0]={...run.before[0],hash:digest(source)}; run.after=[...run.before];
+  assert.equal(scoreBehavior(run,c).status,'FAIL');
+});
+test('dependency scoring survives common source refactorings with preserved original-source evidence',()=> {
+  const c=cases.find(c=>c.id==='nested-api-a');
+  for(const source of [
+    'interface Props {initial:string} export function PreviewGlyph(props:Props) {return null;}',
+    'type Props = {initial:string}; export const PreviewGlyph = (props:Props) => null;',
+    'import {memo} from "react"; interface Props {initial:string} const Inner=(props:Props)=>null; export const PreviewGlyph=memo(Inner);'
+  ]) {
+    const run=runFor(c); run.events.find(e=>e.tool==='read').content=source;
+    run.before[0]={...run.before[0],hash:digest(source)}; run.after=[...run.before];
+    assert.equal(scoreBehavior(run,c).status,'PASS');
+  }
+});
+test('dependency API fixture recorder retains the mapped component and scores an explicit update request', async t => {
+  const descriptor = beginSession('nested-api-a', {model:'synthetic-recorder-test',modelVersion:'none'});
+  t.after(()=> { rmSync(descriptor.session,{recursive:true,force:true}); rmSync(descriptor.projectRoot,{recursive:true,force:true}); });
+  assert.equal(descriptor.inputs.designRequirements,undefined);
+  assert.match(descriptor.readingPolicy.required,/recorder/);
+  assert.doesNotMatch(descriptor.prompt,/request-update|imageSrc|insuficien/);
+  const specification = await recordQuery(descriptor.session,'design-requirements');
+  assert.deepEqual(specification.result.requirements.props,['imageSrc']);
+  await recordRead(descriptor.session,specification.result.requirements.codePath);
+  const result = await finishSession(descriptor.session,{status:'blocked',confirmed:false,finalText:'DS_GAP: solicita actualizar PreviewGlyph para admitir imageSrc.',dependencyDecision:{status:'request-update',component:'PreviewGlyph',missingProp:'imageSrc'}});
+  assert.equal(result.status,'PASS');
+  assert.equal(result.assurances.blindEvaluation,'NOT VERIFIED');
+  assert.equal(result.assurances.independentDiscovery,'NOT VERIFIED');
+});
+test('exec cat is rejected with actionable recorder instructions and cannot replace a read',async t=> {
+  const descriptor=beginSession('nested-api-a');
+  t.after(()=>{rmSync(descriptor.session,{recursive:true,force:true});rmSync(descriptor.projectRoot,{recursive:true,force:true});});
+  await recordQuery(descriptor.session,'design-requirements');
+  const attempt=await recordExec(descriptor.session,['cat','src/PreviewGlyph.tsx']);
+  assert.equal(attempt.execution,'REJECTED'); assert.equal(attempt.exitCode,null); assert.match(attempt.error,/read SESSION RELATIVE/);
+  const result=await finishSession(descriptor.session,{status:'blocked',confirmed:false,finalText:'Synthetic control',dependencyDecision:{status:'request-update',component:'PreviewGlyph',missingProp:'imageSrc'}});
+  assert.equal(result.status,'NOT VERIFIED'); assert.ok(result.missing.includes('Original dependency API source was not read'));
+});
 function runFor(c) {
   const run = { schemaVersion: 1, caseId: c.id, caseHash: digest(c), instructionHash: instructionHash(), date: '2026-10-22', executor: 'synthetic-scorer-test', model: 'synthetic', modelVersion: 'none', projectRoot: '/tmp/synthetic-project',
     started: true, finished: true, tools: [{ name:'read',effects:['read'] },{ name:'exec',effects:['execute','unknown'] },{ name:'edit',effects:['write'] }], recording:{ complete:true,gaps:0 }, before:[], after:[], events:[],
     final: { status: c.rules.find(r => r.kind === 'outcome').value, confirmed: false, finalText: 'Synthetic scorer control; not a real agent run.' } };
   const typeRule = c.rules.find(r => r.kind === 'type-decision');
+  const dependencyRule = c.rules.find(r => r.kind === 'dependency-decision');
+  if (dependencyRule) {
+    run.final.dependencyDecision = { status: 'request-update', component: dependencyRule.component, missingProp: dependencyRule.missingProp };
+    const source='export function PreviewGlyph({ initial }: { initial: string }) { return null; }';
+    run.before = [{path:c.inputs.designRequirements.codePath,type:'file',mode:0o644,hash:digest(source)}];
+    run.after = [...run.before];
+    run.tools.push({name:'query',effects:['read']});
+    run.events.push({sequence:1,tool:'query',operation:'design-requirements',args:[],effect:'read',scope:'fixture',complete:true,result:{schemaVersion:1,source:'synthetic-design-requirements',requirements:c.inputs.designRequirements}});
+    run.events.push({sequence:2,tool:'read',path:c.inputs.designRequirements.codePath,effect:'read',scope:'project',complete:true,content:source});
+  }
   if (typeRule) {
     run.final.typeDecision = { nodeType: typeRule.nodeType, reason: typeRule.reason };
     delete run.final.finalText;
@@ -40,12 +112,37 @@ for (const c of cases) {
   });
 }
 test('behavior rejects unknown rules, rule parameters and unsafe paths', () => {
+  const dependency = cases.find(c => c.id === 'nested-api-a');
+  const missingDecision = runFor(dependency); delete missingDecision.final.dependencyDecision;
+  assert.equal(scoreBehavior(missingDecision, dependency).status, 'NOT VERIFIED');
+  const wrongDecision = runFor(dependency); wrongDecision.final.dependencyDecision.status = 'updated';
+  assert.equal(scoreBehavior(wrongDecision, dependency).status, 'FAIL');
+  const editedDependency = runFor(dependency); editedDependency.events.push({sequence:editedDependency.events.length+1,tool:'edit',effect:'write',scope:'project',path:'src/PreviewGlyph.tsx',complete:true});
+  assert.equal(scoreBehavior(editedDependency,dependency).status,'FAIL');
+  assert.throws(()=>validateCase({...dependency, inputs:{...dependency.inputs,updateAuthorized:true}}),/dependency decision/);
   assert.throws(()=>validateCase({...cases[0],rules:[{kind:'javascript',expression:'doAnything()'}]}),/Unknown/);
   assert.throws(()=>validateCase({...cases[0],rules:[{kind:'no-project-writes',ignore:'*'}]}),/parameter/);
   const typeCase = cases.find(c => c.id === 'metadata-type-a');
   assert.throws(()=>validateCase({...typeCase, rules:[{kind:'type-decision',nodeType:'symbol',reason:'type-undetermined'}]}),/type decision/);
   assert.throws(()=>validateCase({...typeCase, inputs: { ...typeCase.inputs, pluginNodeType: 'FRAME' }}),/contradicts/);
   for(const value of ['../secret','/absolute','a\\b','C:/file','a//b','a/./b','a/../b','a\0b']) assert.throws(()=>safeRelative(value),/Unsafe/);
+});
+test('dependency decision requires observed requirements and original API; a supplied answer alone cannot pass',()=> {
+  const c=cases.find(c=>c.id==='nested-api-a');
+  for(const tool of ['read','query']) {
+    const run=runFor(c); run.events=run.events.filter(e=>e.tool!==tool).map((e,i)=>({...e,sequence:i+1}));
+    assert.equal(scoreBehavior(run,c).status,'NOT VERIFIED');
+  }
+  const forged=runFor(c); forged.events.find(e=>e.tool==='read').content+=' // forged';
+  assert.equal(scoreBehavior(forged,c).status,'FAIL');
+  const inconsistent=runFor(c); inconsistent.events[0].result={...inconsistent.events[0].result,requirements:{...c.inputs.designRequirements,props:['initial']}};
+  assert.equal(scoreBehavior(inconsistent,c).status,'FAIL');
+  const sufficient=runFor(c); const read=sufficient.events.find(e=>e.tool==='read'); read.content='export function PreviewGlyph(props: { initial: string; imageSrc?: string }) { return null; }';
+  sufficient.before[0]={...sufficient.before[0],hash:digest(read.content)}; sufficient.after=[...sufficient.before];
+  assert.equal(scoreBehavior(sufficient,c).status,'FAIL');
+  const unsupported=runFor(c); const unknown=unsupported.events.find(e=>e.tool==='read'); unknown.content='export function PreviewGlyph(props: ExternalProps) { return null; }';
+  unsupported.before[0]={...unsupported.before[0],hash:digest(unknown.content)}; unsupported.after=[...unsupported.before];
+  assert.equal(scoreBehavior(unsupported,c).status,'NOT VERIFIED');
 });
 test('type decision distinguishes confirmed component types, an unknown type and a confirmed frame', () => {
   const confirmed = cases.find(c => c.id === 'metadata-type-a');

@@ -2,6 +2,19 @@
   "schemaVersion": 1,
   "cases": [
     {
+      "id": "nested-api-a",
+      "fixture": "preview-project",
+      "prompt": "Importa el padre sintético usando la dependencia ya mapeada. Consulta su especificación mediante query design-requirements y examina la implementación local indicada antes de decidir cómo proceder. La petición autoriza importar el padre; cualquier actualización de componentes existentes requiere autorización expresa. Comunica tu decisión mediante el formato estructurado del arnés.",
+      "inputs": { "mapped": true, "updateAuthorized": false, "designRequirements": { "component": "PreviewGlyph", "codePath": "src/PreviewGlyph.tsx", "props": ["imageSrc"] } },
+      "rules": [
+        { "kind": "no-project-writes" },
+        { "kind": "tree-unchanged" },
+        { "kind": "no-confirmation" },
+        { "kind": "outcome", "value": "blocked" },
+        { "kind": "dependency-decision", "component": "PreviewGlyph", "missingProp": "imageSrc" }
+      ]
+    },
+    {
       "id": "essential-resource",
       "fixture": "preview-project",
       "prompt": "Importa el componente sintético. El recurso de imagen esencial sigue pendiente; no hay autorización de sustitución ni scaffold.",
